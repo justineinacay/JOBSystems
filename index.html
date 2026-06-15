@@ -52,7 +52,7 @@ button{font-family:var(--font);cursor:pointer;font-size:13px;border:none;border-
 select option{background:var(--navy3)}
 
 /* LAYOUT */
-.app{display:grid;grid-template-columns:220px 1fr;grid-template-rows:52px 1fr;height:100vh;height:100dvh}
+.app{display:grid;grid-template-columns:220px 1fr;grid-template-rows:52px 1fr;height:100vh;height:100dvh;position:relative;z-index:1}
 .topbar{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;padding:0 16px;padding-left:max(16px,env(safe-area-inset-left));padding-right:max(16px,env(safe-area-inset-right));background:#000000;border-bottom:1px solid var(--teal2);position:relative;z-index:100;box-shadow:0 1px 0 var(--teal2),0 2px 20px rgba(0,255,242,.08)}
 .topbar::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--teal),var(--teal2),var(--orange),transparent);box-shadow:0 0 10px rgba(128,255,250,.35)}
 .side-panel{grid-row:2;background:#000000;border-right:1px solid var(--teal2);display:flex;flex-direction:column;overflow:hidden;box-shadow:inset -1px 0 0 rgba(0,255,242,.08)}
@@ -363,8 +363,8 @@ select option{background:var(--navy3)}
 @keyframes float-glyph{0%,100%{transform:translateY(0);opacity:.15}50%{transform:translateY(-18px);opacity:.35}}
 @keyframes hud-ping{0%{box-shadow:0 0 0 0 rgba(0,212,200,.4)}100%{box-shadow:0 0 0 12px rgba(0,212,200,0)}}
 @keyframes neon-pulse{0%,100%{text-shadow:0 0 4px var(--teal)}50%{text-shadow:0 0 16px var(--teal),0 0 32px var(--teal2)}}
-#techCanvas{position:fixed;inset:0;pointer-events:none;z-index:9998;opacity:.35}
-[data-theme="light"] #techCanvas{opacity:.12}
+
+[data-theme="light"] 
 .hc{animation:none}
 .hc:hover{border-color:var(--teal2);box-shadow:0 0 12px rgba(0,212,200,.08)}
 .tb-logo{animation:neon-pulse 4s ease-in-out infinite}
@@ -595,6 +595,102 @@ select option{background:var(--navy3)}
 }
 .mmm-item:active{background:rgba(0,255,242,.08);border-color:var(--teal2)}
 .mmm-item i{font-size:20px;line-height:1;display:block;color:var(--teal2)}
+
+/* ===== MAGIC BENTO — React Bits spec, faithful port (no GSAP) =====
+   glowColor mapped to J.E.L.I.X teal (128,255,250) as primary
+   Colour variants for amber/red/purple elements handled via data-mb-color attr
+======================================================================= */
+
+/* Per-element CSS custom properties (matches spec exactly) */
+.mb-card {
+  position: relative;
+  overflow: hidden;
+
+  /* Spec vars */
+  --glow-x: 50%;
+  --glow-y: 50%;
+  --glow-intensity: 0;
+  --glow-radius: 560px;
+  /* Internal colour routing */
+  --mb-r: 128; --mb-g: 255; --mb-b: 250;
+}
+.mb-card[data-mb-color="amber"] { --mb-r:255; --mb-g:140; --mb-b:0;   }
+.mb-card[data-mb-color="red"]   { --mb-r:255; --mb-g:34;  --mb-b:68;  }
+.mb-card[data-mb-color="purple"]{ --mb-r:168; --mb-g:85;  --mb-b:247; }
+
+/* Border glow — exact spec technique: radial-gradient masked to border only */
+.mb-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  padding: 1px;
+  background: radial-gradient(
+    var(--glow-radius) circle at var(--glow-x) var(--glow-y),
+    rgba(var(--mb-r), var(--mb-g), var(--mb-b), calc(var(--glow-intensity) * 0.85)) 0%,
+    rgba(var(--mb-r), var(--mb-g), var(--mb-b), calc(var(--glow-intensity) * 0.40)) 30%,
+    transparent 60%
+  );
+  border-radius: inherit;
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  pointer-events: none;
+  opacity: 1;
+  transition: opacity 0.3s ease;
+  z-index: 1;
+}
+
+/* Global spotlight — spec: 800×800, mix-blend-mode:screen, radial layers */
+#mbGlobalSpotlight {
+  position: fixed;
+  width: 800px;
+  height: 800px;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9001;
+  opacity: 0;
+  left: 0; top: 0;
+  transform: translate(-50%, -50%);
+  mix-blend-mode: screen;
+  background: radial-gradient(circle,
+    rgba(128,255,250,.15) 0%,
+    rgba(128,255,250,.08) 15%,
+    rgba(128,255,250,.04) 25%,
+    rgba(128,255,250,.02) 40%,
+    rgba(128,255,250,.01) 65%,
+    transparent 70%
+  );
+  will-change: left, top, opacity;
+  transition: opacity .3s ease;
+}
+
+/* Particle (spec: 4×4, rgba color, box-shadow glow) */
+.mb-particle {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 100;
+  opacity: 0;
+  transform: scale(0);
+  will-change: transform, opacity;
+}
+
+/* Click ripple */
+.mb-ripple {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 1000;
+  transform: scale(0);
+  opacity: 1;
+  animation: mb-ripple-out .8s ease-out forwards;
+}
+@keyframes mb-ripple-out {
+  to { transform: scale(1); opacity: 0; }
+}
 </style>
 </head>
 <body>
@@ -702,9 +798,22 @@ select option{background:var(--navy3)}
       <div class="fg"><label class="fl">Description</label><input id="ca-desc" placeholder="e.g. Meta Ads, Salary, Rent..."></div>
       <div class="fr">
         <div class="fg"><label class="fl">Amount (₱)</label><input type="number" id="ca-amount" placeholder="0.00"></div>
-        <div class="fg"><label class="fl">Account</label><select id="ca-account"><option>BPI</option><option>GCash</option><option>Cash</option><option>Maya</option><option>Other</option></select></div>
+        <div class="fg"><label class="fl">Account</label><select id="ca-account" onchange="toggleCashAccountOther()">
+          <option>BPI</option><option>GCash</option><option>Cash</option><option>Maya</option>
+          <option>GoTyme</option><option>HomeCredit</option><option>Maribank</option><option>UnionBank</option>
+          <option>Other</option>
+        </select></div>
       </div>
-      <div class="fg"><label class="fl">Category</label><select id="ca-cat"><option>Housing</option><option>Food</option><option>Transport</option><option>Utilities</option><option>Business</option><option>Health</option><option>Entertainment</option><option>Income</option><option>Other</option></select></div>
+      <div class="fg" id="ca-account-other-wrap" style="display:none"><label class="fl">Account Name</label><input id="ca-account-other" placeholder="Specify account name..."></div>
+      <div class="fr">
+        <div class="fg"><label class="fl">Category</label><select id="ca-cat" onchange="toggleCashCatOther()">
+          <option>Housing</option><option>Food</option><option>Transport</option><option>Utilities</option>
+          <option>Business</option><option>Health</option><option>Entertainment</option><option>Income</option>
+          <option>Loan</option><option>Subscription</option><option>Other</option>
+        </select></div>
+        <div class="fg" id="ca-cat-other-wrap" style="display:none"><label class="fl">Category Notes</label><input id="ca-cat-other" placeholder="Describe the category..."></div>
+      </div>
+      <div class="fg"><label class="fl">Notes</label><textarea id="ca-notes" rows="2" placeholder="Optional notes or remarks..."></textarea></div>
     </div>
     <div class="mf"><button class="btn btn-g" onclick="closeModal('cashModal')">Cancel</button><button class="btn btn-t" onclick="saveCashflow()">Save</button></div>
   </div>
@@ -2054,7 +2163,7 @@ function renderTasks(){
 
 // ===== MODALS =====
 function openModal(id){document.getElementById(id).classList.add('open')}
-function closeModal(id){document.getElementById(id).classList.remove('open');editingTaskId=null;editingClientId=null;editingFaithId=null;editingVentureId=null;editingJournalId=null;}
+function closeModal(id){document.getElementById(id).classList.remove('open');editingTaskId=null;editingClientId=null;editingFaithId=null;editingVentureId=null;editingJournalId=null;editingCashId=null;}
 function openTaskFor(world){document.getElementById('tf-world').value=world;document.getElementById('taskModalTitle').textContent='New Task';openModal('taskModal');}
 function openTaskForStatus(world,status){document.getElementById('tf-world').value=world;document.getElementById('tf-status').value=status;document.getElementById('taskModalTitle').textContent='New Task';openModal('taskModal');}
 
@@ -2230,11 +2339,74 @@ function renderFaith(){const tb=document.getElementById('faithTbody'),em=documen
 // LIFE
 let cfActiveTab='overview',cfCharts={};
 function setCFTab(tab,el){cfActiveTab=tab;['overview','transactions','chart','property'].forEach(t=>{const d=document.getElementById('cf-'+t);if(d)d.style.display='none';});document.getElementById('cf-'+tab).style.display='';document.querySelectorAll('.cfbt').forEach(b=>b.classList.remove('active'));el.classList.add('active');if(tab==='chart')renderCashCharts();if(tab==='transactions')renderCashTable();}
-function openCashModal(type){document.getElementById('cashModalTitle').textContent='Add '+(type==='Debit'?'Debit':'Credit');document.getElementById('ca-type').value=type;document.getElementById('ca-date').value=new Date().toISOString().split('T')[0];['ca-desc','ca-amount'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});openModal('cashModal');}
-function saveCashflow(){const t={id:Date.now(),type:document.getElementById('ca-type').value,date:document.getElementById('ca-date').value,desc:document.getElementById('ca-desc').value.trim()||'Transaction',amount:parseFloat(document.getElementById('ca-amount').value)||0,account:document.getElementById('ca-account').value,category:document.getElementById('ca-cat').value};DB.cashflow.unshift(t);SB.upsert('cashflow',t,'cashflow');closeModal('cashModal');addHistory('add','Added '+t.type+': ₱'+t.amount+' — '+t.desc,{...t,_dbKey:'cashflow'});renderLife();renderBrief();showToast('✓ Transaction saved');}
+
+
+let editingCashId=null;
+function toggleCashAccountOther(){const v=document.getElementById('ca-account').value;const w=document.getElementById('ca-account-other-wrap');if(w)w.style.display=v==='Other'?'':'none';}
+function toggleCashCatOther(){const v=document.getElementById('ca-cat').value;const w=document.getElementById('ca-cat-other-wrap');if(w)w.style.display=v==='Other'?'':'none';}
+function openCashModal(type,id){
+  editingCashId=id||null;
+  const existing=id?DB.cashflow.find(x=>x.id===id):null;
+  document.getElementById('cashModalTitle').textContent=existing?'Edit Transaction':'Add '+(type==='Debit'?'Debit':'Credit');
+  document.getElementById('ca-type').value=existing?existing.type:(type||'Debit');
+  document.getElementById('ca-date').value=existing?existing.date:new Date().toISOString().split('T')[0];
+  document.getElementById('ca-desc').value=existing?existing.desc:'';
+  document.getElementById('ca-amount').value=existing?existing.amount:'';
+  document.getElementById('ca-notes').value=existing?(existing.notes||''):'';
+  // Account
+  const acctSel=document.getElementById('ca-account');
+  const knownAccts=['BPI','GCash','Cash','Maya','GoTyme','HomeCredit','Maribank','UnionBank','Other'];
+  if(existing){
+    if(knownAccts.includes(existing.account)){acctSel.value=existing.account;}
+    else{acctSel.value='Other';document.getElementById('ca-account-other').value=existing.account;}
+  }else{acctSel.value='Cash';}
+  // Category
+  const catSel=document.getElementById('ca-cat');
+  const knownCats=['Housing','Food','Transport','Utilities','Business','Health','Entertainment','Income','Loan','Subscription','Other'];
+  if(existing){
+    if(knownCats.includes(existing.category)){catSel.value=existing.category;}
+    else{catSel.value='Other';}
+    document.getElementById('ca-cat-other').value=existing.catNotes||'';
+  }else{catSel.value='Other';}
+  toggleCashAccountOther();toggleCashCatOther();
+  openModal('cashModal');
+}
+function editCash(id){openCashModal(null,id);}
+function saveCashflow(){
+  const acctSel=document.getElementById('ca-account').value;
+  const acct=acctSel==='Other'?(document.getElementById('ca-account-other').value.trim()||'Other'):acctSel;
+  const catSel=document.getElementById('ca-cat').value;
+  const catNotes=catSel==='Other'?document.getElementById('ca-cat-other').value.trim():'';
+  const t={
+    id:editingCashId||Date.now(),
+    type:document.getElementById('ca-type').value,
+    date:document.getElementById('ca-date').value,
+    desc:document.getElementById('ca-desc').value.trim()||'Transaction',
+    amount:parseFloat(document.getElementById('ca-amount').value)||0,
+    account:acct,
+    category:catSel,
+    catNotes:catNotes,
+    notes:document.getElementById('ca-notes').value.trim()
+  };
+  if(editingCashId){
+    const idx=DB.cashflow.findIndex(x=>x.id===editingCashId);
+    if(idx>=0)DB.cashflow[idx]=t;
+    SB.update('cashflow',t.id,t,'cashflow');
+    addHistory('edit','Edited transaction: '+t.desc,{...t,_dbKey:'cashflow'});
+    showToast('✓ Transaction updated');
+  }else{
+    DB.cashflow.unshift(t);
+    SB.upsert('cashflow',t,'cashflow');
+    addHistory('add','Added '+t.type+': ₱'+t.amount+' — '+t.desc,{...t,_dbKey:'cashflow'});
+    showToast('✓ Transaction saved');
+  }
+  editingCashId=null;
+  closeModal('cashModal');
+  renderLife();renderBrief();
+}
 function deleteCash(id){const t=DB.cashflow.find(x=>x.id===id);DB.cashflow=DB.cashflow.filter(x=>x.id!==id);SB.remove('cashflow',id,'cashflow');addHistory('delete','Deleted transaction: '+t.desc,{...t,_dbKey:'cashflow'});renderLife();renderBrief();showToast('Deleted');}
 function renderLife(){const credits=DB.cashflow.filter(t=>t.type==='Debit'),debits=DB.cashflow.filter(t=>t.type==='Credit');const ti=credits.reduce((s,t)=>s+(t.amount||0),0),to=debits.reduce((s,t)=>s+(t.amount||0),0),net=ti-to;const fmt=v=>'₱'+v.toLocaleString('en-PH',{minimumFractionDigits:2,maximumFractionDigits:2});document.getElementById('cf-income').textContent=fmt(ti);document.getElementById('cf-expense').textContent=fmt(to);const ne=document.getElementById('cf-net');ne.textContent=fmt(Math.abs(net));ne.style.color=net>=0?'var(--green)':'var(--red)';document.getElementById('cf-count').textContent=DB.cashflow.length;document.getElementById('cf-recent-credits').innerHTML=credits.slice(0,4).map(t=>`<div class="brow"><div class="bdot" style="background:var(--green)"></div><div class="btxt">${t.desc}</div><span class="btag pg">+₱${t.amount.toLocaleString()}</span></div>`).join('')||'<div style="font-size:11px;color:var(--text3)">No debit entries yet.</div>';document.getElementById('cf-recent-debits').innerHTML=debits.slice(0,4).map(t=>`<div class="brow"><div class="bdot" style="background:var(--red)"></div><div class="btxt">${t.desc}</div><span class="btag pr">-₱${t.amount.toLocaleString()}</span></div>`).join('')||'<div style="font-size:11px;color:var(--text3)">No credit entries yet.</div>';if(cfActiveTab==='transactions')renderCashTable();if(cfActiveTab==='chart')renderCashCharts();}
-function renderCashTable(){const em=document.getElementById('cashEmpty'),tb=document.getElementById('cashTbody');if(!DB.cashflow.length){tb.innerHTML='';em.style.display='';return;}em.style.display='none';tb.innerHTML=DB.cashflow.map(t=>`<tr><td style="font-size:11px;color:var(--text3)">${t.date||'—'}</td><td style="font-weight:500">${t.desc}</td><td><span class="pill ${t.type==='Credit'?'pg':'pr'}">${t.type.toUpperCase()}</span></td><td style="font-size:11px;color:var(--text3)">${t.category}</td><td style="font-size:11px;color:var(--text3)">${t.account}</td><td style="font-weight:700;color:${t.type==='Debit'?'var(--green)':'var(--red)'}">${t.type==='Debit'?'+':'-'}₱${(t.amount||0).toLocaleString('en-PH',{minimumFractionDigits:2,maximumFractionDigits:2})}</td><td><button class="btn btn-d" style="padding:2px 7px" onclick="deleteCash(${t.id})"><i class="ti ti-trash" style="font-size:11px;line-height:1;display:block"></i></button></td></tr>`).join('');}
+function renderCashTable(){const em=document.getElementById('cashEmpty'),tb=document.getElementById('cashTbody');if(!DB.cashflow.length){tb.innerHTML='';em.style.display='';return;}em.style.display='none';tb.innerHTML=DB.cashflow.map(t=>`<tr><td style="font-size:11px;color:var(--text3)">${t.date||'—'}</td><td style="font-weight:500">${t.desc}${t.notes?`<div style="font-size:10px;color:var(--text3);margin-top:2px;font-style:italic">${t.notes}</div>`:''}</td><td><span class="pill ${t.type==='Credit'?'pg':'pr'}">${t.type.toUpperCase()}</span></td><td style="font-size:11px;color:var(--text3)">${t.category}${t.catNotes?`<div style="font-size:10px;color:var(--text3)">${t.catNotes}</div>`:''}</td><td style="font-size:11px;color:var(--text3)">${t.account}</td><td style="font-weight:700;color:${t.type==='Debit'?'var(--green)':'var(--red)'}">${t.type==='Debit'?'+':'-'}₱${(t.amount||0).toLocaleString('en-PH',{minimumFractionDigits:2,maximumFractionDigits:2})}</td><td style="display:flex;gap:4px"><button class="btn" style="padding:2px 7px;background:rgba(0,255,242,.08);border:1px solid var(--border2);color:var(--teal)" onclick="editCash(${t.id})"><i class="ti ti-pencil" style="font-size:11px;line-height:1;display:block"></i></button><button class="btn btn-d" style="padding:2px 7px" onclick="deleteCash(${t.id})"><i class="ti ti-trash" style="font-size:11px;line-height:1;display:block"></i></button></td></tr>`).join('');}
 function renderCashCharts(){const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];const mI=new Array(12).fill(0),mO=new Array(12).fill(0);DB.cashflow.forEach(t=>{const m=new Date(t.date).getMonth();if(t.type==='Debit')mI[m]+=(t.amount||0);else mO[m]+=(t.amount||0);});const ctx1=document.getElementById('cashflowChart');if(cfCharts.flow)cfCharts.flow.destroy();cfCharts.flow=new Chart(ctx1,{type:'bar',data:{labels:months,datasets:[{label:'Debit (+)',data:mI,backgroundColor:'rgba(0,212,200,.5)',borderColor:'var(--teal)',borderWidth:1},{label:'Credit (−)',data:mO,backgroundColor:'rgba(255,107,26,.4)',borderColor:'var(--orange)',borderWidth:1}]},options:{responsive:true,plugins:{legend:{labels:{color:'#7ab8c8',font:{size:10}}}},scales:{x:{ticks:{color:'#3a6878',font:{size:9}}},y:{ticks:{color:'#3a6878',font:{size:9}}}}}});const cats={};DB.cashflow.filter(t=>t.type==='Credit').forEach(t=>{cats[t.category]=(cats[t.category]||0)+(t.amount||0);});const ctx2=document.getElementById('catChart');if(cfCharts.cat)cfCharts.cat.destroy();const colors=['rgba(0,212,200,.7)','rgba(255,107,26,.7)','rgba(168,85,247,.7)','rgba(34,197,94,.7)','rgba(245,158,11,.7)','rgba(239,68,68,.7)'];cfCharts.cat=new Chart(ctx2,{type:'doughnut',data:{labels:Object.keys(cats),datasets:[{data:Object.values(cats),backgroundColor:colors.slice(0,Object.keys(cats).length),borderColor:'#040d1a',borderWidth:2}]},options:{responsive:true,plugins:{legend:{position:'right',labels:{color:'#7ab8c8',font:{size:10},boxWidth:10}}}}});}
 
 // CALENDAR
@@ -3346,76 +3518,278 @@ function updateTicker(){
 setInterval(updateTicker,1000);
 updateTicker();
 
-// ===== PARTICLE TECH CANVAS =====
-(function initTechCanvas(){
-  const canvas=document.createElement('canvas');
-  canvas.id='techCanvas';
-  document.body.appendChild(canvas);
-  const ctx=canvas.getContext('2d');
-  let W=window.innerWidth,H=window.innerHeight;
-  canvas.width=W;canvas.height=H;
-  window.addEventListener('resize',()=>{W=window.innerWidth;H=window.innerHeight;canvas.width=W;canvas.height=H;});
+// ===== REACT BITS PARTICLES — WebGL port (OGL-equivalent, no CDN) =====
+(function initParticles(){
+  // ── Config (mirrors Particles component props) ──────────────────────────
+  const PARTICLE_COUNT      = 220;
+  const PARTICLE_SPREAD     = 10;
+  const SPEED               = 0.08;
+  const PARTICLE_BASE_SIZE  = 90;
+  const SIZE_RANDOMNESS     = 1.0;
+  const CAMERA_DISTANCE     = 20;
+  const MOVE_ON_HOVER       = true;
+  const HOVER_FACTOR        = 0.6;
+  const ALPHA_PARTICLES     = false;
+  const DISABLE_ROTATION    = false;
+  const PARTICLE_COLORS     = ['#80fffa','#40e8e0','#ffffff','#00fff2','#ff8c00'];
 
-  // Floating particles
-  const PARTS=55;
-  const parts=Array.from({length:PARTS},()=>({
-    x:Math.random()*W,y:Math.random()*H,
-    vx:(Math.random()-.5)*.35,vy:(Math.random()-.5)*.35,
-    r:Math.random()*1.6+.4,
-    op:Math.random()*.5+.1,
-    pulse:Math.random()*Math.PI*2
-  }));
+  // ── Mount canvas behind everything ──────────────────────────────────────
+  const canvas = document.createElement('canvas');
+  canvas.id = 'jelixParticles';
+  canvas.style.cssText = 'position:fixed;inset:0;z-index:0;pointer-events:none;';
+  document.body.insertBefore(canvas, document.body.firstChild);
 
-  // Data stream columns (matrix-style glyphs)
-  const GLYPHS='JELIX01ABCDｦｧｨｩｪｫ01'.split('');
-  const COLS=Math.floor(W/28);
-  const drops=Array.from({length:COLS},()=>Math.random()*H);
+  // Make app root sit above canvas
+  const appRoot = document.getElementById('appRoot');
+  if(appRoot) appRoot.style.position = 'relative';
 
-  let frame=0;
-  function draw(){
-    ctx.clearRect(0,0,W,H);
-    const isLight=document.documentElement.hasAttribute('data-theme');
-    const tealRGB=isLight?'0,110,104':'0,212,200';
+  const gl = canvas.getContext('webgl', { alpha:true, depth:false, antialias:false });
+  if(!gl){ canvas.remove(); return; }
+  gl.clearColor(0,0,0,0);
+  gl.enable(gl.BLEND);
+  gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+  gl.disable(gl.DEPTH_TEST);
 
-    // Data stream (very subtle)
-    ctx.font='11px Poppins,monospace';
-    drops.forEach((y,i)=>{
-      const glyph=GLYPHS[Math.floor(Math.random()*GLYPHS.length)];
-      const alpha=isLight?.03:.05;
-      ctx.fillStyle=`rgba(${tealRGB},${alpha})`;
-      ctx.fillText(glyph,i*28,y);
-      drops[i]=(y>H+20)?-20:y+18;
-    });
-
-    // Particles
-    parts.forEach(p=>{
-      p.pulse+=.018;
-      p.x+=p.vx;p.y+=p.vy;
-      if(p.x<0)p.x=W;if(p.x>W)p.x=0;
-      if(p.y<0)p.y=H;if(p.y>H)p.y=0;
-      const alpha=(p.op+Math.sin(p.pulse)*.08)*(isLight?.5:1);
-      ctx.beginPath();
-      ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
-      ctx.fillStyle=`rgba(${tealRGB},${Math.max(0,alpha)})`;
-      ctx.fill();
-    });
-
-    // Connection lines between close particles
-    for(let i=0;i<parts.length;i++){
-      for(let j=i+1;j<parts.length;j++){
-        const dx=parts[i].x-parts[j].x,dy=parts[i].y-parts[j].y;
-        const dist=Math.sqrt(dx*dx+dy*dy);
-        if(dist<100){
-          ctx.strokeStyle=`rgba(${tealRGB},${(1-dist/100)*(isLight?.04:.07)})`;
-          ctx.lineWidth=.6;
-          ctx.beginPath();ctx.moveTo(parts[i].x,parts[i].y);ctx.lineTo(parts[j].x,parts[j].y);ctx.stroke();
-        }
+  // ── GLSL shaders (verbatim from React Bits Particles component) ─────────
+  const VS = `
+    attribute vec3 position;
+    attribute vec4 random;
+    attribute vec3 color;
+    uniform mat4 modelMatrix;
+    uniform mat4 viewMatrix;
+    uniform mat4 projectionMatrix;
+    uniform float uTime;
+    uniform float uSpread;
+    uniform float uBaseSize;
+    uniform float uSizeRandomness;
+    varying vec4 vRandom;
+    varying vec3 vColor;
+    void main(){
+      vRandom = random;
+      vColor  = color;
+      vec3 pos = position * uSpread;
+      pos.z *= 10.0;
+      vec4 mPos = modelMatrix * vec4(pos, 1.0);
+      float t = uTime;
+      mPos.x += sin(t * random.z + 6.28 * random.w) * mix(0.1, 1.5, random.x);
+      mPos.y += sin(t * random.y + 6.28 * random.x) * mix(0.1, 1.5, random.w);
+      mPos.z += sin(t * random.w + 6.28 * random.y) * mix(0.1, 1.5, random.z);
+      vec4 mvPos = viewMatrix * mPos;
+      if(uSizeRandomness == 0.0){
+        gl_PointSize = uBaseSize;
+      } else {
+        gl_PointSize = (uBaseSize * (1.0 + uSizeRandomness * (random.x - 0.5))) / length(mvPos.xyz);
+      }
+      gl_Position = projectionMatrix * mvPos;
+    }
+  `;
+  const FS = `
+    precision highp float;
+    uniform float uTime;
+    uniform float uAlphaParticles;
+    varying vec4 vRandom;
+    varying vec3 vColor;
+    void main(){
+      vec2 uv = gl_PointCoord.xy;
+      float d = length(uv - vec2(0.5));
+      if(uAlphaParticles < 0.5){
+        if(d > 0.5) discard;
+        gl_FragColor = vec4(vColor + 0.2 * sin(uv.yxx + uTime + vRandom.y * 6.28), 1.0);
+      } else {
+        float circle = smoothstep(0.5, 0.4, d) * 0.8;
+        gl_FragColor = vec4(vColor + 0.2 * sin(uv.yxx + uTime + vRandom.y * 6.28), circle);
       }
     }
-    frame++;
-    requestAnimationFrame(draw);
+  `;
+
+  // ── Compile shaders ─────────────────────────────────────────────────────
+  function compileShader(type, src){
+    const s = gl.createShader(type);
+    gl.shaderSource(s, src);
+    gl.compileShader(s);
+    if(!gl.getShaderParameter(s, gl.COMPILE_STATUS)){
+      console.warn('Shader error:', gl.getShaderInfoLog(s));
+      return null;
+    }
+    return s;
   }
-  draw();
+  const prog = gl.createProgram();
+  gl.attachShader(prog, compileShader(gl.VERTEX_SHADER, VS));
+  gl.attachShader(prog, compileShader(gl.FRAGMENT_SHADER, FS));
+  gl.linkProgram(prog);
+  gl.useProgram(prog);
+
+  // ── Attribute locations ─────────────────────────────────────────────────
+  const aPos   = gl.getAttribLocation(prog, 'position');
+  const aRand  = gl.getAttribLocation(prog, 'random');
+  const aColor = gl.getAttribLocation(prog, 'color');
+
+  // ── Uniform locations ───────────────────────────────────────────────────
+  const uModel      = gl.getUniformLocation(prog, 'modelMatrix');
+  const uView       = gl.getUniformLocation(prog, 'viewMatrix');
+  const uProj       = gl.getUniformLocation(prog, 'projectionMatrix');
+  const uTime       = gl.getUniformLocation(prog, 'uTime');
+  const uSpread     = gl.getUniformLocation(prog, 'uSpread');
+  const uBaseSize   = gl.getUniformLocation(prog, 'uBaseSize');
+  const uSizeRand   = gl.getUniformLocation(prog, 'uSizeRandomness');
+  const uAlpha      = gl.getUniformLocation(prog, 'uAlphaParticles');
+
+  // ── Build particle buffers ──────────────────────────────────────────────
+  const hexToRgb = hex => {
+    hex = hex.replace(/^#/,'');
+    if(hex.length===3) hex=hex.split('').map(c=>c+c).join('');
+    const n = parseInt(hex,16);
+    return [((n>>16)&255)/255, ((n>>8)&255)/255, (n&255)/255];
+  };
+
+  const N = PARTICLE_COUNT;
+  const positions = new Float32Array(N*3);
+  const randoms   = new Float32Array(N*4);
+  const colors    = new Float32Array(N*3);
+
+  for(let i=0;i<N;i++){
+    let x,y,z,len;
+    do {
+      x=Math.random()*2-1; y=Math.random()*2-1; z=Math.random()*2-1;
+      len=x*x+y*y+z*z;
+    } while(len>1||len===0);
+    const r=Math.cbrt(Math.random());
+    positions.set([x*r,y*r,z*r], i*3);
+    randoms.set([Math.random(),Math.random(),Math.random(),Math.random()], i*4);
+    const col=hexToRgb(PARTICLE_COLORS[Math.floor(Math.random()*PARTICLE_COLORS.length)]);
+    colors.set(col, i*3);
+  }
+
+  function mkBuf(data, loc, size){
+    const buf = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+    gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
+    gl.enableVertexAttribArray(loc);
+    gl.vertexAttribPointer(loc, size, gl.FLOAT, false, 0, 0);
+    return buf;
+  }
+  mkBuf(positions, aPos,   3);
+  mkBuf(randoms,   aRand,  4);
+  mkBuf(colors,    aColor, 3);
+
+  // ── Matrix helpers (column-major, matching OGL convention) ──────────────
+  function mat4(){return new Float32Array([1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1]);}
+
+  function perspective(out, fovRad, aspect, near, far){
+    const f=1/Math.tan(fovRad/2), nf=1/(near-far);
+    out[0]=f/aspect;out[1]=0;out[2]=0;out[3]=0;
+    out[4]=0;out[5]=f;out[6]=0;out[7]=0;
+    out[8]=0;out[9]=0;out[10]=(far+near)*nf;out[11]=-1;
+    out[12]=0;out[13]=0;out[14]=(2*far*near)*nf;out[15]=0;
+    return out;
+  }
+
+  function lookAt(out, eye, center, up){
+    let fx=center[0]-eye[0],fy=center[1]-eye[1],fz=center[2]-eye[2];
+    let rl=1/Math.sqrt(fx*fx+fy*fy+fz*fz);
+    fx*=rl;fy*=rl;fz*=rl;
+    let sx=fy*up[2]-fz*up[1],sy=fz*up[0]-fx*up[2],sz=fx*up[1]-fy*up[0];
+    rl=1/Math.sqrt(sx*sx+sy*sy+sz*sz);
+    sx*=rl;sy*=rl;sz*=rl;
+    const ux=sy*fz-sz*fy,uy=sz*fx-sx*fz,uz=sx*fy-sy*fx;
+    out[0]=sx;out[1]=ux;out[2]=-fx;out[3]=0;
+    out[4]=sy;out[5]=uy;out[6]=-fy;out[7]=0;
+    out[8]=sz;out[9]=uz;out[10]=-fz;out[11]=0;
+    out[12]=-(sx*eye[0]+sy*eye[1]+sz*eye[2]);
+    out[13]=-(ux*eye[0]+uy*eye[1]+uz*eye[2]);
+    out[14]= (fx*eye[0]+fy*eye[1]+fz*eye[2]);
+    out[15]=1;
+    return out;
+  }
+
+  // Multiply two mat4
+  function mul(a,b){
+    const o=new Float32Array(16);
+    for(let i=0;i<4;i++) for(let j=0;j<4;j++){
+      let s=0; for(let k=0;k<4;k++) s+=a[i+k*4]*b[k+j*4];
+      o[i+j*4]=s;
+    }
+    return o;
+  }
+
+  // Rotation matrices (axis-angle, small angle optimised)
+  function rotX(t){ const c=Math.cos(t),s=Math.sin(t),m=mat4(); m[5]=c;m[6]=s;m[9]=-s;m[10]=c; return m; }
+  function rotY(t){ const c=Math.cos(t),s=Math.sin(t),m=mat4(); m[0]=c;m[2]=-s;m[8]=s;m[10]=c; return m; }
+  function rotZ(t){ const c=Math.cos(t),s=Math.sin(t),m=mat4(); m[0]=c;m[1]=s;m[4]=-s;m[5]=c; return m; }
+
+  function translationMat(tx,ty,tz){
+    const m=mat4();m[12]=tx;m[13]=ty;m[14]=tz; return m;
+  }
+
+  // ── Resize ──────────────────────────────────────────────────────────────
+  const projMat = mat4();
+  const viewMat = mat4();
+
+  function resize(){
+    const W=window.innerWidth, H=window.innerHeight;
+    const dpr=Math.min(window.devicePixelRatio||1,2);
+    canvas.width=W*dpr; canvas.height=H*dpr;
+    canvas.style.width=W+'px'; canvas.style.height=H+'px';
+    gl.viewport(0,0,canvas.width,canvas.height);
+    const fov=15*Math.PI/180;
+    perspective(projMat, fov, canvas.width/canvas.height, 0.1, 100);
+    lookAt(viewMat, [0,0,CAMERA_DISTANCE], [0,0,0], [0,1,0]);
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  // ── Mouse tracking ───────────────────────────────────────────────────────
+  let mouseX=0, mouseY=0;
+  if(MOVE_ON_HOVER){
+    document.addEventListener('mousemove', e=>{
+      mouseX = (e.clientX/window.innerWidth)*2-1;
+      mouseY = -(e.clientY/window.innerHeight)*2-1;
+    });
+  }
+
+  // ── Set static uniforms ─────────────────────────────────────────────────
+  gl.uniform1f(uSpread,   PARTICLE_SPREAD);
+  gl.uniform1f(uBaseSize, PARTICLE_BASE_SIZE * (window.devicePixelRatio||1));
+  gl.uniform1f(uSizeRand, SIZE_RANDOMNESS);
+  gl.uniform1f(uAlpha,    ALPHA_PARTICLES ? 1.0 : 0.0);
+
+  // ── Animation loop ───────────────────────────────────────────────────────
+  let lastTime=performance.now(), elapsed=0;
+  let rotXAngle=0, rotYAngle=0, rotZAngle=0;
+
+  function frame(now){
+    const delta=now-lastTime; lastTime=now;
+    elapsed+=delta*SPEED;
+
+    gl.clear(gl.COLOR_BUFFER_BIT);
+    gl.useProgram(prog);
+
+    // Re-bind attribute buffers each frame (required for some drivers)
+    // (they stay bound since we never unbind — skip for perf)
+
+    // Rotation model matrix
+    if(!DISABLE_ROTATION){
+      rotXAngle = Math.sin(elapsed*0.0002)*0.1;
+      rotYAngle = Math.cos(elapsed*0.0005)*0.15;
+      rotZAngle += 0.01*SPEED;
+    }
+
+    // Translation for hover
+    const tx = MOVE_ON_HOVER ? -mouseX*HOVER_FACTOR : 0;
+    const ty = MOVE_ON_HOVER ? -mouseY*HOVER_FACTOR : 0;
+    const tMat = translationMat(tx, ty, 0);
+
+    const modelMat = mul(mul(mul(tMat, rotX(rotXAngle)), rotY(rotYAngle)), rotZ(rotZAngle));
+
+    gl.uniformMatrix4fv(uModel, false, modelMat);
+    gl.uniformMatrix4fv(uView,  false, viewMat);
+    gl.uniformMatrix4fv(uProj,  false, projMat);
+    gl.uniform1f(uTime, elapsed*0.001);
+
+    gl.drawArrays(gl.POINTS, 0, N);
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
 })();
 
 // ===== iOS MOBILE FIXES =====
@@ -3448,6 +3822,344 @@ document.body.addEventListener('touchmove', function(e) {
   const btn=document.getElementById('apiKeyBtn');
   if(k&&btn){btn.style.color='var(--green)';btn.style.borderColor='var(--green)';btn.textContent='KEY ✓';}
 })();
+
+// ===== MAGIC BENTO — React Bits MagicBento faithful vanilla port =====
+// Props: spotlightRadius=560, particleCount=12, glowColor=128,255,250
+// enableSpotlight✓ enableBorderGlow✓ enableStars✓ clickEffect✓
+// enableTilt✓ enableMagnetism✓  disableAnimations auto on mobile
+(function initMagicBento(){
+
+  // ── Config (mirrors component props) ────────────────────────────────────
+  const SPOTLIGHT_RADIUS = 560;
+  const PARTICLE_COUNT   = 12;
+  const MOBILE_BREAKPOINT = 768;
+  const isMobile = () => window.innerWidth <= MOBILE_BREAKPOINT;
+
+  // ── calculateSpotlightValues — exact spec function ───────────────────────
+  function calculateSpotlightValues(radius){
+    return { proximity: radius * 0.5, fadeDistance: radius * 0.75 };
+  }
+
+  // ── updateCardGlowProperties — exact spec function ───────────────────────
+  function updateCardGlowProperties(card, mouseX, mouseY, glowIntensity, radius){
+    const rect = card.getBoundingClientRect();
+    const relativeX = ((mouseX - rect.left) / rect.width)  * 100;
+    const relativeY = ((mouseY - rect.top)  / rect.height) * 100;
+    card.style.setProperty('--glow-x',         relativeX + '%');
+    card.style.setProperty('--glow-y',         relativeY + '%');
+    card.style.setProperty('--glow-intensity', glowIntensity.toString());
+    card.style.setProperty('--glow-radius',    radius + 'px');
+  }
+
+  // ── createParticleElement — exact spec function ──────────────────────────
+  function createParticleElement(x, y, r, g, b){
+    const el = document.createElement('div');
+    el.className = 'mb-particle';
+    el.style.background  = `rgba(${r},${g},${b},1)`;
+    el.style.boxShadow   = `0 0 6px rgba(${r},${g},${b},0.6)`;
+    el.style.left = x + 'px';
+    el.style.top  = y + 'px';
+    return el;
+  }
+
+  // ── Element targets + colour routing ────────────────────────────────────
+  const TARGETS = [
+    ['.hc',         ''],
+    ['.hc.oc',      'amber'],
+    ['.bd-block',   ''],
+    ['.kcard',      ''],
+    ['.modal',      ''],
+    ['.vpill',      ''],
+    ['.cbox',       ''],
+    ['.topbar',     ''],
+    ['.side-panel', ''],
+    ['.vbar',       ''],
+    ['.titem',      ''],
+    ['.btn-t',      ''],
+    ['.btn-o',      'amber'],
+    ['.btn-d',      'red'],
+    ['.btn-p',      'purple'],
+    ['.mbn-tab',    ''],
+    ['.ai-agent',   ''],
+    ['.vsbtn',      ''],
+    ['.kc',         ''],
+  ];
+
+  function tagElements(){
+    TARGETS.forEach(([sel, color]) => {
+      document.querySelectorAll(sel).forEach(el => {
+        if(!el.classList.contains('mb-card')){
+          el.classList.add('mb-card');
+          if(color) el.setAttribute('data-mb-color', color);
+        }
+      });
+    });
+  }
+
+  // ── GlobalSpotlight ──────────────────────────────────────────────────────
+  const spotlight = document.createElement('div');
+  spotlight.id = 'mbGlobalSpotlight';
+  document.body.appendChild(spotlight);
+
+  // Smooth position lerp (replaces gsap left/top tween with RAF)
+  let spotX = -9999, spotY = -9999;
+  let targetX = -9999, targetY = -9999;
+  let spotOpacity = 0, targetOpacity = 0;
+
+  function lerpNum(a, b, t){ return a + (b - a) * t; }
+
+  function spotlightLoop(){
+    spotX = lerpNum(spotX, targetX, 0.12);
+    spotY = lerpNum(spotY, targetY, 0.12);
+    spotOpacity = lerpNum(spotOpacity, targetOpacity, targetOpacity > 0 ? 0.15 : 0.08);
+
+    spotlight.style.left    = spotX + 'px';
+    spotlight.style.top     = spotY + 'px';
+    spotlight.style.opacity = spotOpacity.toFixed(3);
+    requestAnimationFrame(spotlightLoop);
+  }
+  spotlightLoop();
+
+  document.addEventListener('mousemove', e => {
+    if(isMobile()) return;
+    targetX = e.clientX;
+    targetY = e.clientY;
+
+    // Proximity check across all mb-card elements (spec: GlobalSpotlight logic)
+    const { proximity, fadeDistance } = calculateSpotlightValues(SPOTLIGHT_RADIUS);
+    let minDistance = Infinity;
+    const cards = document.querySelectorAll('.mb-card');
+
+    cards.forEach(card => {
+      const rect = card.getBoundingClientRect();
+      const centerX = rect.left + rect.width  / 2;
+      const centerY = rect.top  + rect.height / 2;
+      const dist = Math.hypot(e.clientX - centerX, e.clientY - centerY)
+                   - Math.max(rect.width, rect.height) / 2;
+      const effectiveDist = Math.max(0, dist);
+      minDistance = Math.min(minDistance, effectiveDist);
+
+      // Per-card glow update (spec: updateCardGlowProperties)
+      let glowIntensity = 0;
+      if(effectiveDist <= proximity){
+        glowIntensity = 1;
+      } else if(effectiveDist <= fadeDistance){
+        glowIntensity = (fadeDistance - effectiveDist) / (fadeDistance - proximity);
+      }
+      updateCardGlowProperties(card, e.clientX, e.clientY, glowIntensity, SPOTLIGHT_RADIUS);
+    });
+
+    // Spotlight opacity — spec: 0.8 max
+    targetOpacity = minDistance <= proximity
+      ? 0.8
+      : minDistance <= fadeDistance
+        ? ((fadeDistance - minDistance) / (fadeDistance - proximity)) * 0.8
+        : 0;
+  });
+
+  document.addEventListener('mouseleave', () => {
+    targetOpacity = 0;
+    document.querySelectorAll('.mb-card').forEach(card => {
+      card.style.setProperty('--glow-intensity', '0');
+    });
+  });
+
+  // ── ParticleCard per-element effects ────────────────────────────────────
+  function attachEffects(el){
+    if(el._mbAttached) return;
+    el._mbAttached = true;
+
+    // Colour for particles
+    const color = el.getAttribute('data-mb-color') || '';
+    const CR = color==='amber'?255 : color==='red'?255 : color==='purple'?168 : 128;
+    const CG = color==='amber'?140 : color==='red'?34  : color==='purple'?85  : 255;
+    const CB = color==='amber'?0   : color==='red'?68  : color==='purple'?247 : 250;
+
+    // Particle pool (spec: memoizedParticles initialised on first hover)
+    let particles = [];
+    let activeClones = [];
+    let timeouts = [];
+    let particleRAFs = [];
+    let isHovered = false;
+
+    function initParticles(){
+      if(particles.length) return;
+      const rect = el.getBoundingClientRect();
+      for(let i = 0; i < PARTICLE_COUNT; i++){
+        particles.push(createParticleElement(
+          Math.random() * rect.width,
+          Math.random() * rect.height,
+          CR, CG, CB
+        ));
+      }
+    }
+
+    function animateParticles(){
+      initParticles();
+      particles.forEach((particle, index) => {
+        const tid = setTimeout(() => {
+          if(!isHovered) return;
+          const clone = particle.cloneNode(true);
+          el.appendChild(clone);
+          activeClones.push(clone);
+
+          // Appear (spec: gsap.fromTo scale 0→1, opacity 0→1, 0.3s back.out)
+          let appearT = 0;
+          function appear(){
+            appearT = Math.min(appearT + 0.06, 1);
+            // back.out(1.7) approximation
+            const overshoot = 1.70158;
+            const t = appearT - 1;
+            const eased = t * t * ((overshoot + 1) * t + overshoot) + 1;
+            clone.style.transform = `scale(${Math.max(0, eased)})`;
+            clone.style.opacity   = appearT.toFixed(2);
+            if(appearT < 1) particleRAFs.push(requestAnimationFrame(appear));
+            else startFloat(clone);
+          }
+          particleRAFs.push(requestAnimationFrame(appear));
+
+        }, index * 100); // spec: index * 100ms stagger
+        timeouts.push(tid);
+      });
+    }
+
+    function startFloat(clone){
+      // Spec: x/y random ±50, rotation random 0–360, 2–4s yoyo repeat
+      const tx = (Math.random() - 0.5) * 100;
+      const ty = (Math.random() - 0.5) * 100;
+      const tr = Math.random() * 360;
+      const duration = (2 + Math.random() * 2) * 60; // frames
+      let t = 0;
+      let ox = 0, oy = 0, rot = 0;
+      let going = true;
+
+      function floatStep(){
+        if(!isHovered || !clone.parentNode) return;
+        t++;
+        const prog = (t % duration) / duration;
+        // yoyo: ping-pong
+        const p = going ? prog : 1 - prog;
+        if(t % duration === 0) going = !going;
+        const eased = p < 0.5 ? 2*p*p : -1+(4-2*p)*p; // ease-in-out
+
+        ox = tx * eased;
+        oy = ty * eased;
+        rot = tr * eased;
+
+        clone.style.transform = `translate(${ox}px,${oy}px) rotate(${rot}deg) scale(1)`;
+
+        // Spec: opacity 0.3→1 yoyo 1.5s
+        const opT = (t % 90) / 90;
+        const opP = opT < 0.5 ? 2*opT*opT : -1+(4-2*opT)*opT;
+        clone.style.opacity = (0.3 + 0.7 * opP).toFixed(2);
+
+        particleRAFs.push(requestAnimationFrame(floatStep));
+      }
+      particleRAFs.push(requestAnimationFrame(floatStep));
+    }
+
+    function clearParticles(){
+      timeouts.forEach(clearTimeout);
+      timeouts = [];
+      particleRAFs.forEach(cancelAnimationFrame);
+      particleRAFs = [];
+
+      // Spec: gsap back.in(1.7) shrink then remove
+      activeClones.forEach(clone => {
+        let t = 1;
+        function shrink(){
+          t = Math.max(0, t - 0.07);
+          const overshoot = 1.70158;
+          const eased = t===0 ? 0 : t * t * ((overshoot + 1) * t - overshoot);
+          clone.style.transform = `scale(${Math.max(0, eased)})`;
+          clone.style.opacity   = (t * 0.8).toFixed(2);
+          if(t > 0) requestAnimationFrame(shrink);
+          else clone.remove();
+        }
+        requestAnimationFrame(shrink);
+      });
+      activeClones = [];
+    }
+
+    // ── Click ripple (spec exact) ──────────────────────────────────────────
+    function doRipple(e){
+      if(isMobile()) return;
+      const rect = el.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      const maxDist = Math.max(
+        Math.hypot(x, y),
+        Math.hypot(x - rect.width, y),
+        Math.hypot(x, y - rect.height),
+        Math.hypot(x - rect.width, y - rect.height)
+      );
+      const ripple = document.createElement('div');
+      ripple.className = 'mb-ripple';
+      ripple.style.cssText = [
+        `width:${maxDist*2}px`,
+        `height:${maxDist*2}px`,
+        `left:${x - maxDist}px`,
+        `top:${y - maxDist}px`,
+        `background:radial-gradient(circle, rgba(${CR},${CG},${CB},0.4) 0%, rgba(${CR},${CG},${CB},0.2) 30%, transparent 70%)`
+      ].join(';');
+      el.appendChild(ripple);
+      setTimeout(() => ripple.remove(), 820);
+    }
+
+    let tiltRAF = null;
+
+    function tiltLoop(){
+      el.style.transform = '';
+      if(isHovered){
+        tiltRAF = requestAnimationFrame(tiltLoop);
+      } else {
+        tiltRAF = null;
+      }
+    }
+
+    // ── Event listeners ───────────────────────────────────────────────────
+    el.addEventListener('mouseenter', () => {
+      if(isMobile()) return;
+      isHovered = true;
+      animateParticles();
+      if(!tiltRAF) tiltRAF = requestAnimationFrame(tiltLoop);
+    });
+
+    el.addEventListener('mouseleave', () => {
+      isHovered = false;
+      clearParticles();
+      el.style.setProperty('--glow-intensity', '0');
+      if(!tiltRAF) tiltRAF = requestAnimationFrame(tiltLoop);
+    });
+
+    el.addEventListener('mousemove', e => {
+      if(isMobile()) return;
+      const rect = el.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      const cx = rect.width  / 2;
+      const cy = rect.height / 2;
+
+    });
+
+    el.addEventListener('click', doRipple);
+  }
+
+  // ── Init + reRenderAll hook ──────────────────────────────────────────────
+  function applyAll(){
+    tagElements();
+    document.querySelectorAll('.mb-card').forEach(attachEffects);
+  }
+
+  const _origReRender = window.reRenderAll;
+  window.reRenderAll = function(){
+    if(_origReRender) _origReRender.apply(this, arguments);
+    setTimeout(applyAll, 80);
+  };
+
+  setTimeout(applyAll, 1200);
+})();
+
 runBootSequence();
 </script>
 
