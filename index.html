@@ -87,7 +87,7 @@ select option{background:var(--navy3)}
 .tb-btn i{font-size:13px;line-height:1;display:block}
 
 /* MAIN */
-.main{grid-row:2;overflow:hidden;display:flex;flex-direction:column;background:var(--navy)}
+.main{grid-row:2;overflow:hidden;display:flex;flex-direction:column;background:var(--navy);position:relative;z-index:1}
 .view{display:none;flex-direction:column;height:100%;overflow:hidden}
 .view.active{display:flex}
 .vh{display:flex;align-items:center;justify-content:space-between;padding:12px 18px 10px;border-bottom:1px solid var(--border);flex-shrink:0;background:var(--navy2);position:relative}
@@ -250,19 +250,131 @@ select option{background:var(--navy3)}
 .ck{background:var(--navy3);border:1px solid var(--border2);border-radius:2px;padding:1px 4px;font-size:10px}
 
 /* VOICE BAR */
-.vbar{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);z-index:800;display:flex;flex-direction:column;align-items:center;gap:7px;pointer-events:none;opacity:0;transition:opacity .25s}
-.vbar.active{opacity:1;pointer-events:all}
-.vpill{background:var(--navy2);border:1px solid var(--teal2);border-radius:30px;padding:9px 18px;display:flex;align-items:center;gap:10px;min-width:320px;box-shadow:0 0 20px rgba(0,212,200,.2)}
-.vpill.listening{border-color:var(--red);box-shadow:0 0 20px rgba(239,68,68,.2)}
-.vorb{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;cursor:pointer}
-.vorb.idle{background:var(--teal3);color:var(--teal)}
-.vorb.listening{background:rgba(239,68,68,.15);color:var(--red);animation:recpulse 1s infinite}
-.vorb.processing,.vorb.executing{background:var(--teal3);color:var(--teal);animation:vspin .8s linear infinite}
+/* ── VOICE BAR — Siri-style floating pill at bottom ── */
+.vbar{
+  position:fixed !important;
+  bottom:28px !important;
+  left:50% !important;
+  top:auto !important;
+  right:auto !important;
+  transform:translateX(-50%) scale(.96) translateY(10px) !important;
+  z-index:2147483647 !important;
+  display:flex !important;
+  flex-direction:column;
+  align-items:center;
+  gap:8px;
+  pointer-events:none;
+  opacity:0;
+  margin:0 !important;
+  width:max-content !important;
+  transition:opacity .28s ease, transform .32s cubic-bezier(.34,1.56,.64,1);
+  will-change:transform,opacity;
+}
+.vbar.active{
+  opacity:1 !important;
+  pointer-events:all;
+  transform:translateX(-50%) scale(1) translateY(0) !important;
+}
+/* The floating pill */
+.vpill{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:10px 18px 10px 12px;
+  background:rgba(4,10,20,.82);
+  backdrop-filter:blur(24px);
+  -webkit-backdrop-filter:blur(24px);
+  border:1px solid rgba(128,255,250,.25);
+  border-radius:100px;
+  box-shadow:
+    0 8px 32px rgba(0,0,0,.6),
+    0 0 0 1px rgba(128,255,250,.08),
+    0 0 24px rgba(128,255,250,.12),
+    inset 0 1px 0 rgba(128,255,250,.1);
+  min-width:300px;
+  max-width:480px;
+  position:relative;
+  overflow:hidden;
+  transition:border-color .2s, box-shadow .2s;
+}
+.vpill::before{
+  content:'';
+  position:absolute;
+  inset:0;
+  border-radius:inherit;
+  background:linear-gradient(135deg,rgba(128,255,250,.06) 0%,transparent 60%);
+  pointer-events:none;
+}
+.vpill.listening{
+  border-color:rgba(255,34,68,.5);
+  box-shadow:
+    0 8px 32px rgba(0,0,0,.6),
+    0 0 0 1px rgba(255,34,68,.15),
+    0 0 32px rgba(255,34,68,.2),
+    inset 0 1px 0 rgba(255,34,68,.15);
+}
+/* Orb */
+.vorb{
+  width:34px;height:34px;
+  border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;flex-shrink:0;cursor:pointer;
+  transition:all .2s;
+  position:relative;
+  z-index:1;
+}
+.vorb.idle{
+  background:radial-gradient(circle at 35% 35%,rgba(128,255,250,.3),rgba(0,212,200,.15));
+  border:1px solid rgba(128,255,250,.4);
+  color:var(--teal);
+  box-shadow:0 0 12px rgba(128,255,250,.2);
+}
+.vorb.listening{
+  background:radial-gradient(circle at 35% 35%,rgba(255,34,68,.4),rgba(255,34,68,.15));
+  border:1px solid rgba(255,34,68,.5);
+  color:var(--red);
+  box-shadow:0 0 16px rgba(255,34,68,.35);
+  animation:siri-orb-pulse 1.2s ease-in-out infinite;
+}
+.vorb.processing,.vorb.executing{
+  background:radial-gradient(circle at 35% 35%,rgba(128,255,250,.3),rgba(0,212,200,.15));
+  border:1px solid rgba(128,255,250,.4);
+  color:var(--teal);
+  animation:vspin .9s linear infinite;
+}
+@keyframes siri-orb-pulse{
+  0%,100%{box-shadow:0 0 12px rgba(255,34,68,.3),0 0 0 0 rgba(255,34,68,.25)}
+  50%{box-shadow:0 0 20px rgba(255,34,68,.5),0 0 0 6px rgba(255,34,68,0)}
+}
+/* Siri waveform bars — shown during listening */
+.siri-wave{
+  display:flex;align-items:center;gap:3px;
+  height:22px;flex-shrink:0;
+  opacity:0;
+  transition:opacity .2s;
+}
+.vpill.listening .siri-wave{ opacity:1; }
+.siri-bar{
+  width:3px;border-radius:2px;
+  background:var(--teal);
+  animation:siri-dance 1s ease-in-out infinite;
+  transform-origin:bottom center;
+}
+.vpill.listening .siri-bar{ background:var(--red); }
+.siri-bar:nth-child(1){height:6px; animation-delay:0s;   animation-duration:.9s}
+.siri-bar:nth-child(2){height:14px;animation-delay:.1s;  animation-duration:.7s}
+.siri-bar:nth-child(3){height:20px;animation-delay:.05s; animation-duration:.85s}
+.siri-bar:nth-child(4){height:14px;animation-delay:.15s; animation-duration:.75s}
+.siri-bar:nth-child(5){height:8px; animation-delay:.08s; animation-duration:1s}
+@keyframes siri-dance{
+  0%,100%{transform:scaleY(1)}
+  50%{transform:scaleY(1.9)}
+}
 @keyframes vspin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
 .vlabel{font-size:9px;letter-spacing:.08em;color:var(--teal);margin-bottom:1px;font-weight:700;text-transform:uppercase}
 .vlabel.listening{color:var(--red)}.vlabel.error{color:var(--amber)}
 .vtranscript{font-size:12px;color:var(--text1);min-height:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.vresult{background:var(--navy2);border:1px solid var(--orange2);border-radius:4px;padding:8px 12px;font-size:12px;color:var(--orange);max-width:480px;display:none;word-break:break-word}
+.vresult{background:rgba(4,10,20,.9);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(255,140,0,.3);border-radius:16px;padding:10px 16px;font-size:12px;color:var(--orange);max-width:460px;width:max-content;display:none;word-break:break-word;box-shadow:0 4px 24px rgba(0,0,0,.5);text-align:center}
 
 /* AI */
 .ai-layout{display:grid;grid-template-columns:170px 1fr;height:100%;overflow:hidden}
@@ -524,7 +636,7 @@ select option{background:var(--navy3)}
   .bmi{min-height:40px;padding:8px 12px}
 
   /* Voice bar */
-  .vbar{padding-bottom:calc(72px + env(safe-area-inset-bottom))}
+  .vbar{bottom:calc(72px + env(safe-area-inset-bottom));}
 
   /* CMD palette */
   .cbox{width:92vw;max-width:92vw;margin:20px auto}
@@ -925,15 +1037,7 @@ select option{background:var(--navy3)}
   </div>
 </div>
 
-<!-- VOICE BAR --><!-- VOICE BAR -->
-<div class="vbar" id="vBar">
-  <div class="vresult" id="vResult"></div>
-  <div class="vpill" id="vPill">
-    <div class="vorb idle" id="vOrb" onclick="toggleVoice()"><i class="ti ti-microphone" id="vOrbIcon" style="font-size:13px;line-height:1;display:block"></i></div>
-    <div style="flex:1"><div class="vlabel" id="vLabel">Voice Command Ready</div><div class="vtranscript" id="vTranscript">Say anything — add, edit, delete, navigate...</div></div>
-    <button onclick="closeVBar()" style="background:transparent;border:none;color:var(--text3);font-size:16px;cursor:pointer">×</button>
-  </div>
-</div>
+
 
 <!-- CMD PALETTE -->
 <div class="cov" id="cmdOv" onclick="closeCmdBg(event)">
@@ -1122,6 +1226,9 @@ select option{background:var(--navy3)}
       </div>
       <div class="vb" style="padding:10px 14px;display:flex;flex-direction:column;gap:10px">
 
+        <!-- OVERHEAD SCOREBOARD -->
+        <div id="overheadScoreboard" style="display:grid;grid-template-columns:repeat(6,1fr);gap:7px;flex-shrink:0"></div>
+
         <!-- ROW 1: TO DO NOW (left) + CASH FLOW (right) -->
         <div style="display:grid;grid-template-columns:1fr 320px;gap:10px;min-height:0">
 
@@ -1148,16 +1255,19 @@ select option{background:var(--navy3)}
           </div>
         </div>
 
-        <!-- ROW 2: QUICK COMMAND BAR -->
+        <!-- ROW 2: SMART QUICK-ADD BAR -->
         <div style="background:#050a12;border:1px solid var(--teal2);border-radius:4px;padding:10px 14px;display:flex;gap:10px;align-items:center;position:relative;flex-shrink:0">
           <div style="position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,var(--teal),var(--orange),transparent)"></div>
           <i class="ti ti-command" style="color:var(--teal);font-size:15px;flex-shrink:0;line-height:1;display:block"></i>
-          <input style="border:none;background:transparent;flex:1;font-size:12px;outline:none;color:var(--text1)" id="captureInput" placeholder="Quick capture — Add task, review, memory..." onkeydown="if(event.key==='Enter')processCapture()">
-          <div style="display:flex;gap:6px;flex-shrink:0">
-            <button class="btn btn-t" style="font-size:11px" onclick="openModal('taskModal')"><i class="ti ti-plus"></i> New Task</button>
-            <button class="btn" style="font-size:11px;background:rgba(0,255,242,.06);color:var(--teal);border:1px solid var(--teal2)" onclick="openModal('clientModal')"><i class="ti ti-users"></i> New Client</button>
-            <button class="btn" style="font-size:11px;background:rgba(34,197,94,.1);color:var(--green);border:1px solid rgba(34,197,94,.3);font-weight:700" onclick="openCashModal('Debit')"><i class="ti ti-plus"></i> Add Debit</button>
-            <button class="btn btn-d" style="font-size:11px" onclick="openCashModal('Credit')"><i class="ti ti-minus"></i> Add Credit</button>
+          <input style="border:none;background:transparent;flex:1;font-size:12px;outline:none;color:var(--text1)" id="captureInput" placeholder="Quick capture — type anything and press Enter..." onkeydown="if(event.key==='Enter')processCapture()">
+          <div style="display:flex;gap:5px;flex-shrink:0;flex-wrap:wrap">
+            <button class="btn btn-t" style="font-size:10px;padding:4px 9px" onclick="quickAddTask('WORK-IH')"><i class="ti ti-briefcase" style="font-size:10px"></i> Work Task</button>
+            <button class="btn" style="font-size:10px;padding:4px 9px;background:rgba(255,140,0,.1);color:var(--orange);border:1px solid rgba(255,140,0,.3)" onclick="quickAddTask('WORK-CS')"><i class="ti ti-flame" style="font-size:10px"></i> CS Task</button>
+            <button class="btn" style="font-size:10px;padding:4px 9px;background:rgba(168,85,247,.1);color:var(--purple);border:1px solid rgba(168,85,247,.3)" onclick="quickSaveIdea()"><i class="ti ti-bulb" style="font-size:10px"></i> Save Idea</button>
+            <button class="btn" style="font-size:10px;padding:4px 9px;background:rgba(34,197,94,.1);color:var(--green);border:1px solid rgba(34,197,94,.3)" onclick="quickAddExpense()"><i class="ti ti-receipt" style="font-size:10px"></i> Add Expense</button>
+            <button class="btn" style="font-size:10px;padding:4px 9px;background:rgba(0,255,136,.1);color:var(--green);border:1px solid rgba(0,255,136,.3)" onclick="quickAddIncome()"><i class="ti ti-cash" style="font-size:10px"></i> Log Income</button>
+            <button class="btn" style="font-size:10px;padding:4px 9px;background:rgba(0,255,242,.06);color:var(--teal);border:1px solid var(--teal2)" onclick="quickLogFaith()"><i class="ti ti-heart" style="font-size:10px"></i> Faith Log</button>
+            <button class="btn" style="font-size:10px;padding:4px 9px;background:rgba(255,40,160,.08);color:var(--pink);border:1px solid rgba(255,40,160,.3)" onclick="openModal('clientModal')"><i class="ti ti-users" style="font-size:10px"></i> New Client</button>
           </div>
         </div>
 
@@ -1171,6 +1281,7 @@ select option{background:var(--navy3)}
             <div style="display:flex;gap:4px;align-items:center">
               <button onclick="briefWeekNav(-1)" style="background:transparent;border:1px solid var(--border2);border-radius:3px;padding:2px 8px;color:var(--text2);cursor:pointer;font-size:12px">‹</button>
               <button onclick="briefWeekNav(0)" style="background:var(--teal3);border:1px solid var(--teal2);border-radius:3px;padding:2px 8px;color:var(--teal);cursor:pointer;font-size:10px;font-weight:700;letter-spacing:.06em">TODAY</button>
+              <button id="tgToggleBtn" onclick="toggleTimeGrid()" style="background:transparent;border:1px solid var(--border2);border-radius:3px;padding:2px 8px;color:var(--text3);cursor:pointer;font-size:10px;letter-spacing:.04em">Time Grid</button>
               <button onclick="briefWeekNav(1)" style="background:transparent;border:1px solid var(--border2);border-radius:3px;padding:2px 8px;color:var(--text2);cursor:pointer;font-size:12px">›</button>
             </div>
           </div>
@@ -1739,7 +1850,7 @@ async function speak(text){
   const clean=text.replace(/```[\s\S]*?```/g,'code block').replace(/[*_`#>\[\]]/g,'').replace(/https?:\/\/\S+/g,'link').replace(/\n{2,}/g,'. ').replace(/\n/g,' ').trim().substring(0,500);
   const key=localStorage.getItem('jelix-openai-key');
   if(key){try{const res=await fetch('https://api.openai.com/v1/audio/speech',{method:'POST',headers:{'Authorization':'Bearer '+key,'Content-Type':'application/json'},body:JSON.stringify({model:'tts-1',voice:'onyx',input:clean,speed:0.92})});if(res.ok){const blob=await res.blob();new Audio(URL.createObjectURL(blob)).play();return;}}catch(e){}}
-  const utt=new SpeechSynthesisUtterance(clean);utt.lang='en-GB';utt.rate=0.91;utt.pitch=0.82;utt.volume=1;if(ttsVoice)utt.voice=ttsVoice;speechSynthesis.speak(utt);
+  const utt=new SpeechSynthesisUtterance(clean);utt.lang='en-GB';utt.rate=1.15;utt.pitch=0.82;utt.volume=1;if(ttsVoice)utt.voice=ttsVoice;speechSynthesis.speak(utt);
 }
 function toggleMute(){isMuted=!isMuted;const btn=document.getElementById('muteBtn'),icon=document.getElementById('muteIcon');if(isMuted){speechSynthesis.cancel();icon.className='ti ti-volume-off';btn.style.borderColor='var(--red)';btn.style.color='var(--red)';showToast('Voice muted');}else{icon.className='ti ti-volume';btn.style.borderColor='var(--border2)';btn.style.color='var(--text2)';speak('Voice activated. J.E.L.I.X online, sir.');}}
 function setOpenAIKey(){const e=localStorage.getItem('jelix-openai-key')||'';const k=prompt('Enter your OpenAI API key for ONYX voice:\n\nLeave blank to remove.',e);if(k===null)return;if(k.trim()){localStorage.setItem('jelix-openai-key',k.trim());showToast('ONYX key saved. Premium voice enabled.');speak('Premium voice activated. Good evening, sir.');}else{localStorage.removeItem('jelix-openai-key');showToast('Key removed. Using browser voice.');}}
@@ -1938,7 +2049,288 @@ function renderBriefWeekStrip(){
   }).join('');
 }
 
+// ===== QUICK-ADD HELPERS =====
+function quickAddTask(world){
+  // Pre-fill task modal with world context
+  const m=document.getElementById('taskModal');
+  if(!m)return;
+  openModal('taskModal');
+  setTimeout(()=>{
+    const w=document.getElementById('t-world');
+    if(w)w.value=world;
+    const ti=document.getElementById('t-title');
+    if(ti)ti.focus();
+  },80);
+}
+function quickSaveIdea(){
+  // Opens task modal pre-filled as WORK-IH idea
+  openModal('taskModal');
+  setTimeout(()=>{
+    const w=document.getElementById('t-world');if(w)w.value='WORK-IH';
+    const p=document.getElementById('t-priority');if(p)p.value='Medium';
+    const pl=document.getElementById('t-platform');if(pl)pl.value='';
+    const ti=document.getElementById('t-title');
+    if(ti){ti.placeholder='Describe your idea...';ti.focus();}
+    // Set modal title
+    const mt=document.getElementById('taskModalTitle');if(mt)mt.textContent='SAVE IDEA — WORK';
+  },80);
+}
+function quickAddExpense(){
+  openCashModal('Debit');
+  setTimeout(()=>{
+    const cat=document.getElementById('ca-cat');if(cat)cat.value='Other';
+    const d=document.getElementById('ca-desc');if(d){d.placeholder='What did you spend on?';d.focus();}
+    // Navigate to Life after save is natural — modal handles it
+  },80);
+}
+function quickAddIncome(){
+  openCashModal('Credit');
+  setTimeout(()=>{
+    const cat=document.getElementById('ca-cat');if(cat)cat.value='Income';
+    const d=document.getElementById('ca-desc');if(d){d.placeholder='Income source...';d.focus();}
+  },80);
+}
+function quickLogFaith(){
+  openModal('faithModal');
+}
+
+// ===== OVERHEAD SCOREBOARD =====
+function renderOverheadScoreboard(){
+  const el=document.getElementById('overheadScoreboard');
+  if(!el)return;
+  const today=new Date().toISOString().split('T')[0];
+  // Active clients
+  const activeClients=(DB.clients||[]).filter(c=>c.status==='Active'||c.status==='Urgent').length;
+  // Open tasks by world
+  const openTasks=(DB.tasks||[]).filter(t=>t.status!=='Done');
+  const highPrio=openTasks.filter(t=>t.priority==='High').length;
+  // Cash
+  const credits=(DB.cashflow||[]).reduce((s,t)=>t.type==='Credit'?s+(t.amount||0):s,0);
+  const debits=(DB.cashflow||[]).reduce((s,t)=>t.type==='Debit'?s+(t.amount||0):s,0);
+  const balance=credits-debits;
+  // Build apps
+  const buildTasks=(DB.tasks||[]).filter(t=>t.world==='BUILD'&&t.status!=='Done').length;
+  // Faith / Buklod events this week
+  const weekStart=new Date();weekStart.setHours(0,0,0,0);
+  const weekEnd=new Date(weekStart);weekEnd.setDate(weekEnd.getDate()+7);
+  const faithEvents=(DB.calEvents||[]).filter(e=>{const d=new Date(e.date);return e.type==='pu'&&d>=weekStart&&d<weekEnd;}).length;
+  // Today's events
+  const todayEvents=(DB.calEvents||[]).filter(e=>e.date===today).length;
+
+  const tiles=[
+    {icon:'ti-users',label:'Active Clients',val:activeClients,color:'var(--teal)',bg:'rgba(128,255,250,.07)',onclick:"setView('work-ih')"},
+    {icon:'ti-alert-triangle',label:'High Priority',val:highPrio,color:'var(--red)',bg:'rgba(255,34,68,.08)',onclick:"setView('tasks')"},
+    {icon:'ti-list-check',label:'Open Tasks',val:openTasks.length,color:'var(--amber)',bg:'rgba(255,170,0,.07)',onclick:"setView('tasks')"},
+    {icon:'ti-device-mobile',label:'Build Queue',val:buildTasks,color:'var(--purple)',bg:'rgba(168,85,247,.08)',onclick:"setView('build')"},
+    {icon:'ti-heart',label:'Faith This Week',val:faithEvents,color:'var(--pink)',bg:'rgba(255,40,160,.07)',onclick:"setView('faith')"},
+    {icon:'ti-coin',label:'Balance',val:(balance>=0?'+':'')+'₱'+Math.abs(balance).toLocaleString('en-PH',{maximumFractionDigits:0}),color:balance>=0?'var(--green)':'var(--red)',bg:balance>=0?'rgba(0,255,136,.07)':'rgba(255,34,68,.08)',onclick:"setView('life')"},
+  ];
+
+  el.innerHTML=tiles.map(t=>`
+    <div onclick="${t.onclick}" style="background:${t.bg};border:1px solid rgba(255,255,255,.06);border-radius:6px;padding:10px 12px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden"
+      onmouseover="this.style.borderColor='${t.color}';this.style.boxShadow='0 0 12px ${t.bg}'"
+      onmouseout="this.style.borderColor='rgba(255,255,255,.06)';this.style.boxShadow='none'">
+      <div style="display:flex;align-items:center;gap:5px;margin-bottom:5px">
+        <i class="ti ${t.icon}" style="font-size:11px;color:${t.color};line-height:1;display:block"></i>
+        <span style="font-size:8px;font-weight:700;letter-spacing:.1em;color:var(--text3);text-transform:uppercase">${t.label}</span>
+      </div>
+      <div style="font-size:20px;font-weight:800;color:${t.color};line-height:1;font-variant-numeric:tabular-nums">${t.val}</div>
+    </div>`).join('');
+}
+
+// ===== SMART SEARCH — content-aware =====
+function smartSearch(query){
+  if(!query||query.length<2)return[];
+  const q=query.toLowerCase();
+  const results=[];
+  // Tasks — title + notes + platform
+  (DB.tasks||[]).forEach(t=>{
+    const hay=[t.title,t.notes,t.platform,t.client,t.world].filter(Boolean).join(' ').toLowerCase();
+    if(hay.includes(q))results.push({type:'Task',icon:'ti-checkbox',label:t.title,sub:t.world+' · '+t.status,color:'var(--teal)',action:`editTask(${t.id})`});
+  });
+  // Clients — name + contact + next
+  (DB.clients||[]).forEach(c=>{
+    const hay=[c.name,c.contact,c.next,c.world].filter(Boolean).join(' ').toLowerCase();
+    if(hay.includes(q))results.push({type:'Client',icon:'ti-users',label:c.name,sub:c.status+' · '+c.world,color:'var(--orange)',action:`openModal('clientModal')`});
+  });
+  // Cashflow — desc + category + account + notes
+  (DB.cashflow||[]).forEach(t=>{
+    const hay=[t.desc,t.category,t.account,t.notes,t.catNotes].filter(Boolean).join(' ').toLowerCase();
+    if(hay.includes(q))results.push({type:'Cash',icon:'ti-coin',label:t.desc,sub:t.type+' · ₱'+t.amount+' · '+t.date,color:'var(--amber)',action:`setView('life')`});
+  });
+  // Journal — title + content
+  (DB.journal||[]).forEach(j=>{
+    const hay=[j.title,j.content].filter(Boolean).join(' ').toLowerCase();
+    if(hay.includes(q))results.push({type:'Journal',icon:'ti-notebook',label:j.title||'Entry',sub:(j.content||'').substring(0,50)+'...',color:'var(--purple)',action:`setView('journal')`});
+  });
+  // Calendar events — title + notes + loc
+  (DB.calEvents||[]).forEach(e=>{
+    const hay=[e.title,e.notes,e.loc].filter(Boolean).join(' ').toLowerCase();
+    if(hay.includes(q))results.push({type:'Event',icon:'ti-calendar',label:e.title,sub:e.date+(e.time?' · '+e.time:''),color:'var(--teal)',action:`setView('calendar')`});
+  });
+  // Faith activities
+  (DB.faith||[]).forEach(f=>{
+    const hay=[f.activity,f.group,f.assigned].filter(Boolean).join(' ').toLowerCase();
+    if(hay.includes(q))results.push({type:'Faith',icon:'ti-heart',label:f.activity,sub:f.group+' · '+f.status,color:'var(--pink)',action:`setView('faith')`});
+  });
+  return results.slice(0,12);
+}
+
+// Patch cmd palette to use smartSearch
+const _origFilterCmd=window.filterCmd;
+window.filterCmd=function(){
+  const q=document.getElementById('cmdInput')?.value||'';
+  // Smart content search
+  if(q.length>=2){
+    const contentHits=smartSearch(q);
+    if(contentHits.length){
+      const res=document.getElementById('cmdResults');
+      if(res){
+        const existing=res.querySelector('.smart-results');
+        if(existing)existing.remove();
+        const wrap=document.createElement('div');wrap.className='smart-results';
+        wrap.innerHTML='<div class="cgl">Content Search</div>'+contentHits.map((r,i)=>`
+          <div class="cr" onclick="${r.action};document.getElementById('cmdOv').classList.remove('open')" style="gap:9px">
+            <div class="cri" style="background:rgba(0,0,0,.3);color:${r.color}"><i class="ti ${r.icon}" style="font-size:12px;line-height:1;display:block"></i></div>
+            <div style="flex:1;min-width:0">
+              <div class="crl">${r.label}</div>
+              <div class="crs" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.sub}</div>
+            </div>
+            <span style="font-size:9px;color:${r.color};background:rgba(0,0,0,.3);padding:1px 5px;border-radius:3px;flex-shrink:0">${r.type}</span>
+          </div>`).join('');
+        res.prepend(wrap);
+      }
+    }
+  }
+  if(_origFilterCmd)_origFilterCmd.apply(this,arguments);
+};
+
+// ===== TIME-BLOCKING CALENDAR =====
+// Renders an hourly time-grid for today in the brief view week strip on demand
+function renderTimeGrid(dateStr){
+  // Build 24-hour grid from tasks with start/end times + cal events
+  const container=document.getElementById('briefWeekStrip');
+  if(!container)return;
+  const d=dateStr||new Date().toISOString().split('T')[0];
+  const events=(DB.calEvents||[]).filter(e=>e.date===d);
+  // Tasks with due date matching and time fields
+  const taskBlocks=(DB.tasks||[]).filter(t=>t.due===d&&(t.startTime||t.endTime));
+  const hours=Array.from({length:17},(_,i)=>i+7); // 7am–11pm
+  const fmt12=h=>{const ampm=h>=12?'PM':'AM';const h12=h%12||12;return h12+(ampm==='AM'?'a':'p');};
+  const timeToY=h=>((h-7)/16)*100; // % of grid height
+
+  container.innerHTML=`
+    <div style="grid-column:1/-1;display:flex;gap:0">
+      <!-- Time labels -->
+      <div style="width:36px;flex-shrink:0;position:relative;height:320px">
+        ${hours.map(h=>`<div style="position:absolute;top:${timeToY(h)}%;font-size:8px;color:var(--text3);line-height:1;width:100%;text-align:right;padding-right:4px;transform:translateY(-50%)">${fmt12(h)}</div>`).join('')}
+      </div>
+      <!-- Grid -->
+      <div style="flex:1;position:relative;height:320px;border-left:1px solid var(--border)">
+        <!-- Hour lines -->
+        ${hours.map(h=>`<div style="position:absolute;top:${timeToY(h)}%;left:0;right:0;border-top:1px solid ${h===new Date().getHours()?'rgba(128,255,250,.3)':'var(--border)'};width:100%"></div>`).join('')}
+        <!-- Current time indicator -->
+        <div id="tgNowLine" style="position:absolute;left:0;right:0;border-top:2px solid var(--teal);z-index:3">
+          <div style="position:absolute;left:-4px;top:-4px;width:8px;height:8px;border-radius:50%;background:var(--teal);box-shadow:0 0 8px var(--teal)"></div>
+        </div>
+        <!-- Cal events -->
+        ${events.map(ev=>{
+          if(!ev.time)return '';
+          const [hh,mm]=(ev.time||'09:00').split(':').map(Number);
+          const top=timeToY(hh+(mm/60));
+          const colors={default:'var(--teal)',oc:'var(--orange)',pu:'var(--purple)'};
+          const c=colors[ev.type]||colors.default;
+          return `<div style="position:absolute;top:${top}%;left:4px;right:4px;background:rgba(0,0,0,.5);border-left:3px solid ${c};border-radius:0 4px 4px 0;padding:3px 7px;font-size:10px;color:${c};z-index:2;cursor:pointer;min-height:22px" title="${ev.notes||''}">${ev.time?ev.time.substring(0,5)+' ':''}<b>${ev.title}</b></div>`;
+        }).join('')}
+        <!-- Task blocks -->
+        ${taskBlocks.map(t=>{
+          if(!t.startTime)return '';
+          const [sh,sm]=(t.startTime||'09:00').split(':').map(Number);
+          const [eh,em]=(t.endTime||t.startTime||'10:00').split(':').map(Number);
+          const top=timeToY(sh+(sm/60));
+          const height=Math.max(2,timeToY(eh+(em/60))-top);
+          return `<div style="position:absolute;top:${top}%;left:4px;right:4px;height:${height}%;background:rgba(128,255,250,.12);border:1px solid var(--teal2);border-radius:4px;padding:3px 7px;font-size:10px;color:var(--teal);z-index:2;overflow:hidden;cursor:pointer" onclick="editTask(${t.id})">${t.startTime.substring(0,5)} <b>${t.title}</b></div>`;
+        }).join('')}
+      </div>
+    </div>`;
+
+  // Position now line
+  const now=new Date();
+  const nowPct=timeToY(now.getHours()+(now.getMinutes()/60));
+  const nl=document.getElementById('tgNowLine');
+  if(nl)nl.style.top=nowPct+'%';
+}
+
+// Toggle between week strip and time grid
+let timeGridActive=false;
+function toggleTimeGrid(){
+  timeGridActive=!timeGridActive;
+  if(timeGridActive){
+    renderTimeGrid(new Date().toISOString().split('T')[0]);
+    document.getElementById('tgToggleBtn').textContent='Week View';
+  } else {
+    renderBriefWeekStrip();
+    document.getElementById('tgToggleBtn').textContent='Time Grid';
+  }
+}
+
+// ===== SMARTER MORNING BRIEFING =====
+function buildDailyBriefSummary(){
+  const now=new Date();
+  const hour=now.getHours();
+  const greeting=hour<12?'Good morning':hour<18?'Good afternoon':'Good evening';
+  const days=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const day=days[now.getDay()];
+  const todayStr=now.toISOString().split('T')[0];
+  const weekEnd=new Date(now);weekEnd.setDate(weekEnd.getDate()+7);
+
+  // Work deadlines — tasks due today or overdue
+  const dueTodayTasks=(DB.tasks||[]).filter(t=>t.due===todayStr&&t.status!=='Done');
+  const overdue=(DB.tasks||[]).filter(t=>t.due&&t.due<todayStr&&t.status!=='Done');
+  const highPrio=(DB.tasks||[]).filter(t=>t.priority==='High'&&t.status!=='Done');
+
+  // Buklod / Faith events this week
+  const buklodEvents=(DB.calEvents||[]).filter(e=>{
+    const d=new Date(e.date);return (e.type==='pu'||e.title?.toLowerCase().includes('buklod')||e.title?.toLowerCase().includes('church')||e.title?.toLowerCase().includes('faith'))&&d>=now&&d<=weekEnd;
+  });
+
+  // Today's calendar
+  const todayEvents=(DB.calEvents||[]).filter(e=>e.date===todayStr);
+
+  // Cash
+  const credits=(DB.cashflow||[]).reduce((s,t)=>t.type==='Credit'?s+(t.amount||0):s,0);
+  const debits=(DB.cashflow||[]).reduce((s,t)=>t.type==='Debit'?s+(t.amount||0):s,0);
+  const balance=credits-debits;
+
+  // Active clients
+  const urgent=(DB.clients||[]).filter(c=>c.status==='Urgent').length;
+
+  let parts=[];
+  parts.push(`${greeting}, sir. J.E.L.I.X online. Today is ${day}.`);
+
+  if(overdue.length>0) parts.push(`You have ${overdue.length} overdue task${overdue.length>1?'s':''} past their deadline.`);
+  if(highPrio.length>0) parts.push(`${highPrio.length} high-priority task${highPrio.length>1?'s require':' requires'} attention.`);
+  if(dueTodayTasks.length>0){
+    const names=dueTodayTasks.slice(0,2).map(t=>t.title).join(' and ');
+    parts.push(`Due today: ${names}${dueTodayTasks.length>2?` and ${dueTodayTasks.length-2} more`:''}.`);
+  }
+  if(todayEvents.length>0){
+    const evts=todayEvents.slice(0,2).map(e=>`${e.title}${e.time?' at '+e.time:''}`).join(', ');
+    parts.push(`On your calendar: ${evts}.`);
+  }
+  if(buklodEvents.length>0){
+    const bNames=buklodEvents.slice(0,2).map(e=>e.title).join(' and ');
+    parts.push(`Buklod this week: ${bNames}.`);
+  }
+  if(urgent>0) parts.push(`${urgent} urgent client${urgent>1?'s':''} need${urgent===1?'s':''} follow-up.`);
+  parts.push(`Cash balance: ${balance>=0?'positive':'negative'} ${Math.abs(Math.round(balance)).toLocaleString()} pesos.`);
+  parts.push(`All systems nominal. Standing by, sir.`);
+
+  return parts.join(' ');
+}
+
 function renderBrief(){
+  renderOverheadScoreboard();
   renderBriefWorldTasks();
   renderBriefWeekStrip();
 
@@ -1958,7 +2350,7 @@ function renderBrief(){
   document.getElementById('briefFinances').innerHTML=`
     <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px">
       <div>
-        <div style="font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px">TOTAL: <span style="font-size:20px;color:var(--text1);letter-spacing:0">${fmt(total)}</span></div>
+        <div style="font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px">TOTAL DEBIT: <span style="font-size:20px;color:var(--green);letter-spacing:0">${fmt(total)}</span></div>
         <div style="font-size:14px;font-weight:700;color:var(--red);margin-bottom:3px">CREDIT: ${fmt(creditTotal)}</div>
         <div style="font-size:16px;font-weight:800;color:${balance>=0?'var(--green)':'var(--red)'};letter-spacing:-.01em">BALANCE: ${balance>=0?'+':''}${fmt(balance)}</div>
       </div>
@@ -2406,7 +2798,7 @@ function saveCashflow(){
 }
 function deleteCash(id){const t=DB.cashflow.find(x=>x.id===id);DB.cashflow=DB.cashflow.filter(x=>x.id!==id);SB.remove('cashflow',id,'cashflow');addHistory('delete','Deleted transaction: '+t.desc,{...t,_dbKey:'cashflow'});renderLife();renderBrief();showToast('Deleted');}
 function renderLife(){const credits=DB.cashflow.filter(t=>t.type==='Debit'),debits=DB.cashflow.filter(t=>t.type==='Credit');const ti=credits.reduce((s,t)=>s+(t.amount||0),0),to=debits.reduce((s,t)=>s+(t.amount||0),0),net=ti-to;const fmt=v=>'₱'+v.toLocaleString('en-PH',{minimumFractionDigits:2,maximumFractionDigits:2});document.getElementById('cf-income').textContent=fmt(ti);document.getElementById('cf-expense').textContent=fmt(to);const ne=document.getElementById('cf-net');ne.textContent=fmt(Math.abs(net));ne.style.color=net>=0?'var(--green)':'var(--red)';document.getElementById('cf-count').textContent=DB.cashflow.length;document.getElementById('cf-recent-credits').innerHTML=credits.slice(0,4).map(t=>`<div class="brow"><div class="bdot" style="background:var(--green)"></div><div class="btxt">${t.desc}</div><span class="btag pg">+₱${t.amount.toLocaleString()}</span></div>`).join('')||'<div style="font-size:11px;color:var(--text3)">No debit entries yet.</div>';document.getElementById('cf-recent-debits').innerHTML=debits.slice(0,4).map(t=>`<div class="brow"><div class="bdot" style="background:var(--red)"></div><div class="btxt">${t.desc}</div><span class="btag pr">-₱${t.amount.toLocaleString()}</span></div>`).join('')||'<div style="font-size:11px;color:var(--text3)">No credit entries yet.</div>';if(cfActiveTab==='transactions')renderCashTable();if(cfActiveTab==='chart')renderCashCharts();}
-function renderCashTable(){const em=document.getElementById('cashEmpty'),tb=document.getElementById('cashTbody');if(!DB.cashflow.length){tb.innerHTML='';em.style.display='';return;}em.style.display='none';tb.innerHTML=DB.cashflow.map(t=>`<tr><td style="font-size:11px;color:var(--text3)">${t.date||'—'}</td><td style="font-weight:500">${t.desc}${t.notes?`<div style="font-size:10px;color:var(--text3);margin-top:2px;font-style:italic">${t.notes}</div>`:''}</td><td><span class="pill ${t.type==='Credit'?'pg':'pr'}">${t.type.toUpperCase()}</span></td><td style="font-size:11px;color:var(--text3)">${t.category}${t.catNotes?`<div style="font-size:10px;color:var(--text3)">${t.catNotes}</div>`:''}</td><td style="font-size:11px;color:var(--text3)">${t.account}</td><td style="font-weight:700;color:${t.type==='Debit'?'var(--green)':'var(--red)'}">${t.type==='Debit'?'+':'-'}₱${(t.amount||0).toLocaleString('en-PH',{minimumFractionDigits:2,maximumFractionDigits:2})}</td><td style="display:flex;gap:4px"><button class="btn" style="padding:2px 7px;background:rgba(0,255,242,.08);border:1px solid var(--border2);color:var(--teal)" onclick="editCash(${t.id})"><i class="ti ti-pencil" style="font-size:11px;line-height:1;display:block"></i></button><button class="btn btn-d" style="padding:2px 7px" onclick="deleteCash(${t.id})"><i class="ti ti-trash" style="font-size:11px;line-height:1;display:block"></i></button></td></tr>`).join('');}
+function renderCashTable(){const em=document.getElementById('cashEmpty'),tb=document.getElementById('cashTbody');if(!DB.cashflow.length){tb.innerHTML='';em.style.display='';return;}em.style.display='none';tb.innerHTML=DB.cashflow.map(t=>`<tr><td style="font-size:11px;color:var(--text3)">${t.date||'—'}</td><td style="font-weight:500">${t.desc}${t.notes?`<div style="font-size:10px;color:var(--text3);margin-top:2px;font-style:italic">${t.notes}</div>`:''}</td><td><span class="pill ${t.type==='Debit'?'pg':'pr'}">${t.type.toUpperCase()}</span></td><td style="font-size:11px;color:var(--text3)">${t.category}${t.catNotes?`<div style="font-size:10px;color:var(--text3)">${t.catNotes}</div>`:''}</td><td style="font-size:11px;color:var(--text3)">${t.account}</td><td style="font-weight:700;color:${t.type==='Debit'?'var(--green)':'var(--red)'}">${t.type==='Debit'?'+':'-'}₱${(t.amount||0).toLocaleString('en-PH',{minimumFractionDigits:2,maximumFractionDigits:2})}</td><td style="display:flex;gap:4px"><button class="btn" style="padding:2px 7px;background:rgba(0,255,242,.08);border:1px solid var(--border2);color:var(--teal)" onclick="editCash(${t.id})"><i class="ti ti-pencil" style="font-size:11px;line-height:1;display:block"></i></button><button class="btn btn-d" style="padding:2px 7px" onclick="deleteCash(${t.id})"><i class="ti ti-trash" style="font-size:11px;line-height:1;display:block"></i></button></td></tr>`).join('');}
 function renderCashCharts(){const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];const mI=new Array(12).fill(0),mO=new Array(12).fill(0);DB.cashflow.forEach(t=>{const m=new Date(t.date).getMonth();if(t.type==='Debit')mI[m]+=(t.amount||0);else mO[m]+=(t.amount||0);});const ctx1=document.getElementById('cashflowChart');if(cfCharts.flow)cfCharts.flow.destroy();cfCharts.flow=new Chart(ctx1,{type:'bar',data:{labels:months,datasets:[{label:'Debit (+)',data:mI,backgroundColor:'rgba(0,212,200,.5)',borderColor:'var(--teal)',borderWidth:1},{label:'Credit (−)',data:mO,backgroundColor:'rgba(255,107,26,.4)',borderColor:'var(--orange)',borderWidth:1}]},options:{responsive:true,plugins:{legend:{labels:{color:'#7ab8c8',font:{size:10}}}},scales:{x:{ticks:{color:'#3a6878',font:{size:9}}},y:{ticks:{color:'#3a6878',font:{size:9}}}}}});const cats={};DB.cashflow.filter(t=>t.type==='Credit').forEach(t=>{cats[t.category]=(cats[t.category]||0)+(t.amount||0);});const ctx2=document.getElementById('catChart');if(cfCharts.cat)cfCharts.cat.destroy();const colors=['rgba(0,212,200,.7)','rgba(255,107,26,.7)','rgba(168,85,247,.7)','rgba(34,197,94,.7)','rgba(245,158,11,.7)','rgba(239,68,68,.7)'];cfCharts.cat=new Chart(ctx2,{type:'doughnut',data:{labels:Object.keys(cats),datasets:[{data:Object.values(cats),backgroundColor:colors.slice(0,Object.keys(cats).length),borderColor:'#040d1a',borderWidth:2}]},options:{responsive:true,plugins:{legend:{position:'right',labels:{color:'#7ab8c8',font:{size:10},boxWidth:10}}}}});}
 
 // CALENDAR
@@ -2932,18 +3324,33 @@ function closeVBar(){document.getElementById('vBar').classList.remove('active');
 function showVcResult(text){const r=document.getElementById('vResult');r.textContent=text;r.style.display='block';setTimeout(()=>{r.style.display='none';},4000);}
 function setVcState(state){
   vcState=state;
-  const pill=document.getElementById('vPill'),orb=document.getElementById('vOrb'),label=document.getElementById('vLabel'),oi=document.getElementById('vOrbIcon');
+  const pill=document.getElementById('vPill'),orb=document.getElementById('vOrb'),label=document.getElementById('vLabel'),oi=document.getElementById('vOrbIcon'),wave=document.getElementById('siriWave');
   pill.className='vpill'+(state==='listening'?' listening':'');
   orb.className='vorb '+state;
   label.className='vlabel'+(state==='error'?' error':state==='listening'?' listening':'');
   const vsb=document.getElementById('vsbtn'),vst=document.getElementById('vsbtnTxt');
   const fab=document.getElementById('voiceFab'),fi=document.getElementById('voiceFabIcon');
   const sd=document.getElementById('statusDot'),st=document.getElementById('statusText');
-  if(state==='listening'){oi.className='ti ti-player-stop';vsb.classList.add('active');fab.style.background='rgba(239,68,68,.2)';fi.className='ti ti-player-stop';label.textContent='LISTENING...';vst.textContent='TAP TO STOP';sd.className='hdot rec';st.textContent='RECORDING';}
-  else{oi.className='ti ti-microphone';vsb.classList.remove('active');fab.style.background='var(--navy3)';fi.className='ti ti-microphone';sd.className='hdot';st.textContent='ONLINE';
-    if(state==='processing'){label.textContent='PROCESSING...';vst.textContent='PROCESSING';}
-    else if(state==='idle'||state==='executing'){label.textContent='VOICE READY';vst.textContent='VOICE · SPACE';}
-    else if(state==='error'){label.textContent='COMMAND UNCLEAR';vst.textContent='VOICE · SPACE';}
+  // Siri wave: show only when listening
+  if(wave) wave.style.opacity=state==='listening'?'1':'0';
+  if(state==='listening'){
+    oi.className='ti ti-player-stop';
+    vsb.classList.add('active');
+    fab.style.background='rgba(239,68,68,.2)';
+    fi.className='ti ti-player-stop';
+    label.textContent='LISTENING';
+    document.getElementById('vTranscript').textContent='Speak now, sir...';
+    vst.textContent='TAP TO STOP';
+    sd.className='hdot rec';st.textContent='RECORDING';
+  } else {
+    oi.className='ti ti-microphone';
+    vsb.classList.remove('active');
+    fab.style.background='var(--navy3)';
+    fi.className='ti ti-microphone';
+    sd.className='hdot';st.textContent='ONLINE';
+    if(state==='processing'){label.textContent='PROCESSING';vst.textContent='PROCESSING';}
+    else if(state==='idle'||state==='executing'){label.textContent='J.E.L.I.X';document.getElementById('vTranscript').textContent='Space to talk...';vst.textContent='VOICE · SPACE';}
+    else if(state==='error'){label.textContent='UNCLEAR';vst.textContent='VOICE · SPACE';}
   }
 }
 
@@ -3045,7 +3452,7 @@ function showToast(msg,isUndo,undoCb){const stack=document.getElementById('tstac
 
 // KEYBOARD
 document.addEventListener('keydown',e=>{
-  if(e.key===' '&&!['INPUT','TEXTAREA'].includes(document.activeElement?.tagName)){e.preventDefault();toggleVoice();}
+  if(e.key===' '){const ae=document.activeElement;const isTyping=ae&&(['INPUT','TEXTAREA'].includes(ae.tagName)||ae.isContentEditable||ae.contentEditable==='true');if(!isTyping){e.preventDefault();toggleVoice();}}
   if(e.key==='Escape'){closeVBar();document.getElementById('cmdOv').classList.remove('open');document.querySelectorAll('.mov').forEach(m=>m.classList.remove('open'));}
   if((e.metaKey||e.ctrlKey)&&e.key==='k'){e.preventDefault();openCmd();}
   if((e.metaKey||e.ctrlKey)&&e.key==='z'){const last=DB.history.find(h=>h.type==='delete');if(last)restoreFromHistory(last.id);}
@@ -3228,6 +3635,12 @@ function enterOS(){
     if(screen)screen.style.display='none';
     try{reRenderAll();}catch(e){console.warn('reRenderAll:',e);}
     loadAllFromSupabase();
+    // ── Daily brief voice summary on boot ──────────────────────────────
+    setTimeout(()=>{
+      try{
+        speak(buildDailyBriefSummary());
+      }catch(e){console.warn('Brief summary error:',e);}
+    },2200);
   },900);
 }
 
@@ -4160,6 +4573,19 @@ document.body.addEventListener('touchmove', function(e) {
   setTimeout(applyAll, 1200);
 })();
 
+// Ensure vBar is always a direct child of body at the very end
+// This defeats any overflow:hidden or stacking context clipping
+(function(){
+  const vb = document.getElementById('vBar');
+  if(vb && vb.parentElement !== document.body){
+    document.body.appendChild(vb);
+  }
+  // Also force inline style as backup
+  if(vb){
+    vb.style.cssText += ';position:fixed!important;bottom:28px!important;z-index:2147483647!important;top:auto!important;';
+  }
+})();
+
 runBootSequence();
 </script>
 
@@ -4198,5 +4624,27 @@ runBootSequence();
   <div class="mmm-item" onclick="toggleMobileMore()" style="color:var(--red)"><i class="ti ti-x" style="color:var(--red)"></i>Close</div>
 </div>
 
+
+<!-- VOICE BAR — last child of body, always fixed to viewport bottom -->
+<div class="vbar" id="vBar">
+  <div class="vresult" id="vResult"></div>
+  <div class="vpill" id="vPill">
+    <div class="vorb idle" id="vOrb" onclick="toggleVoice()">
+      <i class="ti ti-microphone" id="vOrbIcon" style="font-size:14px;line-height:1;display:block"></i>
+    </div>
+    <div class="siri-wave" id="siriWave">
+      <div class="siri-bar"></div>
+      <div class="siri-bar"></div>
+      <div class="siri-bar"></div>
+      <div class="siri-bar"></div>
+      <div class="siri-bar"></div>
+    </div>
+    <div style="flex:1;min-width:0">
+      <div class="vlabel" id="vLabel">J.E.L.I.X</div>
+      <div class="vtranscript" id="vTranscript">Space to talk...</div>
+    </div>
+    <button onclick="closeVBar()" style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:50%;width:24px;height:24px;color:var(--text3);font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;line-height:1">×</button>
+  </div>
+</div>
 </body>
 </html>
