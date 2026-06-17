@@ -1194,6 +1194,64 @@ select option{background:var(--navy3)}
     <div class="mf"><button class="btn btn-g" onclick="closeModal('cashModal')">Cancel</button><button class="btn btn-t" onclick="saveCashflow()">Save</button></div>
   </div>
 </div>
+<!-- TRANSFER MODAL -->
+<div class="mov" id="transferModal">
+  <div class="modal" style="width:460px">
+    <div class="mh"><span class="mt">FUND TRANSFER</span><button class="mc" onclick="closeModal('transferModal')">×</button></div>
+    <div class="mb">
+      <div style="font-size:11px;color:var(--text3);margin-bottom:12px;padding:8px 10px;background:rgba(0,255,242,.04);border:1px solid var(--border);border-radius:4px">Transfers auto-debit the source account and credit the destination account.</div>
+      <div class="fr">
+        <div class="fg"><label class="fl">From Account</label><select id="tr-from">
+          <option>BPI</option><option>GCash</option><option>Cash</option><option>Maya</option>
+          <option>GoTyme</option><option>HomeCredit</option><option>Maribank</option><option>UnionBank</option>
+        </select></div>
+        <div class="fg"><label class="fl">To Account</label><select id="tr-to">
+          <option>BPI</option><option>GCash</option><option>Cash</option><option>Maya</option>
+          <option>GoTyme</option><option>HomeCredit</option><option>Maribank</option><option>UnionBank</option>
+        </select></div>
+      </div>
+      <div class="fr">
+        <div class="fg"><label class="fl">Amount (₱)</label><input type="number" id="tr-amount" placeholder="0.00" min="0.01" step="0.01"></div>
+        <div class="fg"><label class="fl">Date</label><input type="date" id="tr-date"></div>
+      </div>
+      <div class="fg"><label class="fl">Notes</label><input type="text" id="tr-notes" placeholder="e.g. Payroll allocation, savings transfer..."></div>
+    </div>
+    <div class="mf">
+      <button class="btn btn-g" onclick="closeModal('transferModal')">Cancel</button>
+      <button class="btn btn-p" onclick="saveTransfer()"><i class="ti ti-arrows-exchange"></i> Execute Transfer</button>
+    </div>
+  </div>
+</div>
+
+<!-- BUDGET MODAL -->
+<div class="mov" id="budgetModal">
+  <div class="modal" style="width:420px">
+    <div class="mh"><span class="mt" id="budgetModalTitle">SET BUDGET LIMIT</span><button class="mc" onclick="closeModal('budgetModal')">×</button></div>
+    <div class="mb">
+      <div class="fr">
+        <div class="fg"><label class="fl">Category</label><select id="bgt-cat">
+          <option>Housing</option><option>Food</option><option>Transport</option><option>Utilities</option>
+          <option>Business</option><option>Health</option><option>Entertainment</option><option>Loan</option>
+          <option>Subscription</option><option>Other</option>
+        </select></div>
+        <div class="fg"><label class="fl">Monthly Limit (₱)</label><input type="number" id="bgt-limit" placeholder="e.g. 5000" min="0" step="100"></div>
+      </div>
+      <div class="fg"><label class="fl">Alert at (%)</label>
+        <select id="bgt-alert">
+          <option value="70">70% — Early warning</option>
+          <option value="80" selected>80% — Standard</option>
+          <option value="90">90% — Near limit</option>
+          <option value="100">100% — At limit only</option>
+        </select>
+      </div>
+    </div>
+    <div class="mf">
+      <button class="btn btn-g" onclick="closeModal('budgetModal')">Cancel</button>
+      <button class="btn btn-t" onclick="saveBudget()"><i class="ti ti-check"></i> Save Budget</button>
+    </div>
+  </div>
+</div>
+
 
 <!-- CAL EVENT MODAL -->
 <div class="mov" id="calModal">
@@ -1810,24 +1868,104 @@ select option{background:var(--navy3)}
 
     <!-- ===== LIFE ===== -->
     <div class="view" id="view-life">
-      <div class="vh"><div><div class="vt" style="color:var(--teal2)"><i class="ti ti-leaf"></i>LIFE — Personal Cash Flow</div><div class="vs">INACAY Cash Flow · Debit & Credit · Personal Accounts</div></div><div class="va"><button class="btn" style="background:rgba(34,197,94,.15);color:var(--green);border:1px solid rgba(34,197,94,.4);font-weight:600" onclick="openCashModal('Debit')"><i class="ti ti-plus"></i> Debit</button><button class="btn btn-d" onclick="openCashModal('Credit')"><i class="ti ti-minus"></i> Credit</button></div></div>
-      <div class="vb">
-        <div class="cftab"><div class="cfbt active" onclick="setCFTab('overview',this)">Overview</div><div class="cfbt" onclick="setCFTab('transactions',this)">Transactions</div><div class="cfbt" onclick="setCFTab('chart',this)">Chart</div><div class="cfbt" onclick="setCFTab('property',this)">Property</div></div>
-        <div id="cf-overview">
-          <div class="mr" style="grid-template-columns:repeat(4,1fr)">
-            <div class="hc"><div class="cl">Total Income</div><div class="cv" id="cf-income" style="font-size:28px;font-weight:800;margin-top:4px;color:var(--green);line-height:1.1">₱0.00</div></div>
-            <div class="hc oc"><div class="cl">Total Expenses</div><div class="cv oc" id="cf-expense" style="font-size:28px;font-weight:800;margin-top:4px;line-height:1.1">₱0.00</div></div>
-            <div class="hc"><div class="cl">Net Cash Flow</div><div class="cv" id="cf-net" style="font-size:28px;font-weight:800;margin-top:4px;color:#3b82f6;line-height:1.1">₱0.00</div></div>
-            <div class="hc"><div class="cl">Transactions</div><div class="cv" id="cf-count">0</div></div>
-          </div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-            <div class="bd-block"><div class="bd-h"><i class="ti ti-trending-up"></i> Recent Debits</div><div id="cf-recent-debits"><div style="font-size:11px;color:var(--text3)">No entries yet.</div></div></div>
-            <div class="bd-block"><div class="bd-h"><i class="ti ti-trending-down"></i> Recent Credits</div><div id="cf-recent-credits"><div style="font-size:11px;color:var(--text3)">No entries yet.</div></div></div>
-          </div>
+      <div class="vh">
+        <div><div class="vt" style="color:var(--teal2)"><i class="ti ti-leaf"></i>LIFE — Personal Cash Flow</div><div class="vs">INACAY Cash Flow · Debit & Credit · Personal Accounts</div></div>
+        <div class="va">
+          <button class="btn" style="background:rgba(34,197,94,.15);color:var(--green);border:1px solid rgba(34,197,94,.4);font-weight:600" onclick="openCashModal('Debit')"><i class="ti ti-plus"></i> Debit</button>
+          <button class="btn btn-d" onclick="openCashModal('Credit')"><i class="ti ti-minus"></i> Credit</button>
+          <button class="btn btn-p" onclick="openTransferModal()"><i class="ti ti-arrows-exchange"></i> Transfer</button>
         </div>
-        <div id="cf-transactions" style="display:none"><table class="ht"><thead><tr><th>Date</th><th>Description</th><th>Type</th><th>Category</th><th>Account</th><th>Amount</th><th></th></tr></thead><tbody id="cashTbody"></tbody></table><div style="margin-top:8px;font-size:11px;color:var(--text3);text-align:center" id="cashEmpty">No transactions yet.</div></div>
-        <div id="cf-chart" style="display:none"><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px"><div class="hc"><div class="cl" style="margin-bottom:8px">Monthly Flow</div><canvas id="cashflowChart" height="170"></canvas></div><div class="hc"><div class="cl" style="margin-bottom:8px">By Category</div><canvas id="catChart" height="170"></canvas></div></div></div>
-        <div id="cf-property" style="display:none"><div class="hc"><div class="cl" style="margin-bottom:8px">Culasi Compound — Las Piñas</div><div class="mr" style="grid-template-columns:repeat(3,1fr);margin-bottom:10px"><div style="background:var(--navy3);border:1px solid var(--border);border-radius:4px;padding:9px"><div class="cl" style="font-size:8px">Monthly Rent</div><div style="font-size:16px;color:var(--teal)">₱0</div></div><div style="background:var(--navy3);border:1px solid var(--border);border-radius:4px;padding:9px"><div class="cl" style="font-size:8px">Tenants</div><div style="font-size:16px;color:var(--teal)">—</div></div><div style="background:var(--navy3);border:1px solid var(--border);border-radius:4px;padding:9px"><div class="cl" style="font-size:8px">Status</div><div style="font-size:11px;color:var(--green);margin-top:2px">ACTIVE</div></div></div><div style="font-size:10px;color:var(--text3)">Lessor: Lou E. Inacay · Log rental income via Credit button above</div></div></div>
+      </div>
+      <div class="vb" style="padding:0;overflow:hidden;display:flex;flex-direction:column">
+        <div class="cftab" style="flex-shrink:0;padding:0 18px">
+          <div class="cfbt active" onclick="setCFTab('overview',this)">Overview</div>
+          <div class="cfbt" onclick="setCFTab('transactions',this)">Transactions</div>
+          <div class="cfbt" onclick="setCFTab('chart',this)">Chart</div>
+          <div class="cfbt" onclick="setCFTab('budget',this)">Budget</div>
+          <div class="cfbt" onclick="setCFTab('accounts',this)">Accounts</div>
+          <div class="cfbt" onclick="setCFTab('property',this)">Property</div>
+        </div>
+        <div style="flex:1;overflow-y:auto;padding:14px 18px">
+
+          <!-- OVERVIEW TAB -->
+          <div id="cf-overview">
+            <div class="mr" style="grid-template-columns:repeat(4,1fr);margin-bottom:14px">
+              <div class="hc"><div class="cl">Total Income</div><div class="cv" id="cf-income" style="font-size:24px;font-weight:800;margin-top:4px;color:var(--green);line-height:1.1">₱0.00</div><div class="csub">Debit transactions</div></div>
+              <div class="hc oc"><div class="cl">Total Expenses</div><div class="cv oc" id="cf-expense" style="font-size:24px;font-weight:800;margin-top:4px;line-height:1.1">₱0.00</div><div class="csub">Credit transactions</div></div>
+              <div class="hc"><div class="cl">Net Cash Flow</div><div class="cv" id="cf-net" style="font-size:24px;font-weight:800;margin-top:4px;line-height:1.1">₱0.00</div><div class="csub" id="cf-net-label">Income − Expenses</div></div>
+              <div class="hc"><div class="cl">Transactions</div><div class="cv" id="cf-count" style="font-size:24px;font-weight:800;margin-top:4px">0</div><div class="csub">All entries</div></div>
+            </div>
+            <!-- Account balances strip -->
+            <div id="cf-account-strip" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px;margin-bottom:14px"></div>
+            <!-- Recent panels -->
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+              <div class="bd-block">
+                <div class="bd-h"><i class="ti ti-trending-up" style="color:var(--green)"></i> Recent Debits <span style="font-size:9px;color:var(--text3);margin-left:4px">(Income)</span></div>
+                <div id="cf-recent-debits"><div style="font-size:11px;color:var(--text3)">No entries yet.</div></div>
+              </div>
+              <div class="bd-block oc">
+                <div class="bd-h"><i class="ti ti-trending-down" style="color:var(--red)"></i> Recent Credits <span style="font-size:9px;color:var(--text3);margin-left:4px">(Expenses)</span></div>
+                <div id="cf-recent-credits"><div style="font-size:11px;color:var(--text3)">No entries yet.</div></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- TRANSACTIONS TAB -->
+          <div id="cf-transactions" style="display:none">
+            <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap">
+              <select id="cf-filter-type" onchange="renderCashTable()" style="font-size:11px;width:120px;padding:5px 8px"><option value="all">All Types</option><option value="Debit">Debit (Income)</option><option value="Credit">Credit (Expense)</option><option value="Transfer">Transfer</option></select>
+              <select id="cf-filter-account" onchange="renderCashTable()" style="font-size:11px;width:130px;padding:5px 8px"><option value="all">All Accounts</option></select>
+              <select id="cf-filter-cat" onchange="renderCashTable()" style="font-size:11px;width:130px;padding:5px 8px"><option value="all">All Categories</option></select>
+              <input type="month" id="cf-filter-month" onchange="renderCashTable()" style="font-size:11px;padding:5px 8px;width:140px">
+            </div>
+            <table class="ht">
+              <thead><tr><th>Date</th><th>Description</th><th>Type</th><th>Category</th><th>Account</th><th>Amount</th><th>Balance</th><th></th></tr></thead>
+              <tbody id="cashTbody"></tbody>
+            </table>
+            <div style="margin-top:8px;font-size:11px;color:var(--text3);text-align:center" id="cashEmpty" style="display:none">No transactions yet.</div>
+          </div>
+
+          <!-- CHART TAB -->
+          <div id="cf-chart" style="display:none">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+              <div class="hc"><div class="cl" style="margin-bottom:8px">Monthly Cash Flow</div><canvas id="cashflowChart" height="170"></canvas></div>
+              <div class="hc"><div class="cl" style="margin-bottom:8px">Expenses by Category</div><canvas id="catChart" height="170"></canvas></div>
+            </div>
+            <div class="hc">
+              <div class="cl" style="margin-bottom:8px">Income vs Expense — 6 Month Trend</div>
+              <canvas id="trendChart" height="100"></canvas>
+            </div>
+          </div>
+
+          <!-- BUDGET TAB -->
+          <div id="cf-budget" style="display:none">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+              <div style="font-size:11px;color:var(--text3)">Set monthly budget limits per category. Progress updates in real-time from your Credit transactions.</div>
+              <button class="btn btn-t" onclick="openBudgetModal()" style="font-size:11px;flex-shrink:0"><i class="ti ti-plus"></i> Set Budget</button>
+            </div>
+            <div id="cf-budget-summary" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px"></div>
+            <div id="cf-budget-list"></div>
+          </div>
+
+          <!-- ACCOUNTS TAB -->
+          <div id="cf-accounts" style="display:none">
+            <div id="cf-accounts-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px"></div>
+          </div>
+
+          <!-- PROPERTY TAB -->
+          <div id="cf-property" style="display:none">
+            <div class="hc">
+              <div class="cl" style="margin-bottom:8px">Culasi Compound — Las Piñas</div>
+              <div class="mr" style="grid-template-columns:repeat(3,1fr);margin-bottom:10px">
+                <div style="background:var(--navy3);border:1px solid var(--border);border-radius:4px;padding:9px"><div class="cl" style="font-size:8px">Monthly Rent</div><div style="font-size:16px;color:var(--teal)">₱0</div></div>
+                <div style="background:var(--navy3);border:1px solid var(--border);border-radius:4px;padding:9px"><div class="cl" style="font-size:8px">Tenants</div><div style="font-size:16px;color:var(--teal)">—</div></div>
+                <div style="background:var(--navy3);border:1px solid var(--border);border-radius:4px;padding:9px"><div class="cl" style="font-size:8px">Status</div><div style="font-size:11px;color:var(--green);margin-top:2px">ACTIVE</div></div>
+              </div>
+              <div style="font-size:10px;color:var(--text3)">Lessor: Lou E. Inacay · Log rental income via Debit button above</div>
+            </div>
+          </div>
+
+        </div><!-- /scroll area -->
       </div>
     </div>
 
@@ -4040,7 +4178,22 @@ function renderFaith(){const tb=document.getElementById('faithTbody'),em=documen
 
 // LIFE
 let cfActiveTab='overview',cfCharts={};
-function setCFTab(tab,el){cfActiveTab=tab;['overview','transactions','chart','property'].forEach(t=>{const d=document.getElementById('cf-'+t);if(d)d.style.display='none';});document.getElementById('cf-'+tab).style.display='';document.querySelectorAll('.cfbt').forEach(b=>b.classList.remove('active'));el.classList.add('active');if(tab==='chart')renderCashCharts();if(tab==='transactions')renderCashTable();}
+function setCFTab(t,btn){
+  cfActiveTab=t;
+  ['overview','transactions','chart','budget','accounts','property'].forEach(tab=>{
+    const el=document.getElementById('cf-'+tab);
+    if(el) el.style.display=tab===t?'':'none';
+  });
+  document.querySelectorAll('.cfbt').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  if(t==='transactions') renderCashTable();
+  else if(t==='chart')   renderCashCharts();
+  else if(t==='budget')  renderBudgetTab();
+  else if(t==='accounts')renderAccountsTab();
+}
+
+
+// setCFTab defined below
 
 
 let editingCashId=null;
@@ -4107,9 +4260,417 @@ function saveCashflow(){
   renderLife();renderBrief();
 }
 function deleteCash(id){const t=DB.cashflow.find(x=>x.id===id);DB.cashflow=DB.cashflow.filter(x=>x.id!==id);SB.remove('cashflow',id,'cashflow');addHistory('delete','Deleted transaction: '+t.desc,{...t,_dbKey:'cashflow'});renderLife();renderBrief();showToast('Deleted');}
-function renderLife(){const credits=DB.cashflow.filter(t=>t.type==='Credit'),debits=DB.cashflow.filter(t=>t.type==='Debit');const ti=credits.reduce((s,t)=>s+(t.amount||0),0),to=debits.reduce((s,t)=>s+(t.amount||0),0),net=to-ti;const fmt=v=>'₱'+v.toLocaleString('en-PH',{minimumFractionDigits:2,maximumFractionDigits:2});document.getElementById('cf-income').textContent=fmt(to);document.getElementById('cf-expense').textContent=fmt(ti);const ne=document.getElementById('cf-net');ne.textContent=(net<0?'+':net>0?'-':'')+fmt(Math.abs(net));ne.style.color=net>0?'var(--green)':net<0?'var(--red)':'var(--text2)';document.getElementById('cf-count').textContent=DB.cashflow.length;document.getElementById('cf-recent-credits').innerHTML=credits.slice(0,4).map(t=>`<div class="brow"><div class="bdot" style="background:var(--green)"></div><div class="btxt">${t.desc}</div><span class="btag pg">+₱${t.amount.toLocaleString()}</span></div>`).join('')||'<div style="font-size:11px;color:var(--text3)">No credit entries yet.</div>';document.getElementById('cf-recent-debits').innerHTML=debits.slice(0,4).map(t=>`<div class="brow"><div class="bdot" style="background:var(--red)"></div><div class="btxt">${t.desc}</div><span class="btag pr">-₱${t.amount.toLocaleString()}</span></div>`).join('')||'<div style="font-size:11px;color:var(--text3)">No debit entries yet.</div>';if(cfActiveTab==='transactions')renderCashTable();if(cfActiveTab==='chart')renderCashCharts();}
-function renderCashTable(){const em=document.getElementById('cashEmpty'),tb=document.getElementById('cashTbody');if(!DB.cashflow.length){tb.innerHTML='';em.style.display='';return;}em.style.display='none';tb.innerHTML=DB.cashflow.map(t=>`<tr><td style="font-size:11px;color:var(--text3)">${t.date||'—'}</td><td style="font-weight:500">${t.desc}${t.notes?`<div style="font-size:10px;color:var(--text3);margin-top:2px;font-style:italic">${t.notes}</div>`:''}</td><td><span class="pill ${t.type==='Debit'?'pg':'pr'}">${t.type.toUpperCase()}</span></td><td style="font-size:11px;color:var(--text3)">${t.category}${t.catNotes?`<div style="font-size:10px;color:var(--text3)">${t.catNotes}</div>`:''}</td><td style="font-size:11px;color:var(--text3)">${t.account}</td><td style="font-weight:700;color:${t.type==='Debit'?'var(--green)':'var(--red)'}">${t.type==='Debit'?'+':'-'}₱${(t.amount||0).toLocaleString('en-PH',{minimumFractionDigits:2,maximumFractionDigits:2})}</td><td style="display:flex;gap:4px"><button class="btn" style="padding:2px 7px;background:rgba(0,255,242,.08);border:1px solid var(--border2);color:var(--teal)" onclick="editCash(${t.id})"><i class="ti ti-pencil" style="font-size:11px;line-height:1;display:block"></i></button><button class="btn btn-d" style="padding:2px 7px" onclick="deleteCash(${t.id})"><i class="ti ti-trash" style="font-size:11px;line-height:1;display:block"></i></button></td></tr>`).join('');}
-function renderCashCharts(){const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];const mI=new Array(12).fill(0),mO=new Array(12).fill(0);DB.cashflow.forEach(t=>{const m=new Date(t.date).getMonth();if(t.type==='Debit')mI[m]+=(t.amount||0);else mO[m]+=(t.amount||0);});const ctx1=document.getElementById('cashflowChart');if(cfCharts.flow)cfCharts.flow.destroy();cfCharts.flow=new Chart(ctx1,{type:'bar',data:{labels:months,datasets:[{label:'Debit (+)',data:mI,backgroundColor:'rgba(0,212,200,.5)',borderColor:'var(--teal)',borderWidth:1},{label:'Credit (−)',data:mO,backgroundColor:'rgba(255,107,26,.4)',borderColor:'var(--orange)',borderWidth:1}]},options:{responsive:true,plugins:{legend:{labels:{color:'#7ab8c8',font:{size:10}}}},scales:{x:{ticks:{color:'#3a6878',font:{size:9}}},y:{ticks:{color:'#3a6878',font:{size:9}}}}}});const cats={};DB.cashflow.filter(t=>t.type==='Credit').forEach(t=>{cats[t.category]=(cats[t.category]||0)+(t.amount||0);});const ctx2=document.getElementById('catChart');if(cfCharts.cat)cfCharts.cat.destroy();const colors=['rgba(0,212,200,.7)','rgba(255,107,26,.7)','rgba(168,85,247,.7)','rgba(34,197,94,.7)','rgba(245,158,11,.7)','rgba(239,68,68,.7)'];cfCharts.cat=new Chart(ctx2,{type:'doughnut',data:{labels:Object.keys(cats),datasets:[{data:Object.values(cats),backgroundColor:colors.slice(0,Object.keys(cats).length),borderColor:'#040d1a',borderWidth:2}]},options:{responsive:true,plugins:{legend:{position:'right',labels:{color:'#7ab8c8',font:{size:10},boxWidth:10}}}}});}
+// ═══════════════════════════════════════════════════════════════════════
+// LIFE — PERSONAL CASH FLOW ENGINE (v3)
+// Convention: Debit = income (+), Credit = expense (-)
+// Balance per account = sum(Debits) - sum(Credits) for that account
+// ═══════════════════════════════════════════════════════════════════════
+
+// ── Account list ─────────────────────────────────────────────────────────
+const CF_ACCOUNTS = ['BPI','GCash','Cash','Maya','GoTyme','HomeCredit','Maribank','UnionBank'];
+
+// ── Budget storage ────────────────────────────────────────────────────────
+function getBudgets(){return JSON.parse(localStorage.getItem('j-budgets')||'{}');}
+function saveBudgets(b){localStorage.setItem('j-budgets',JSON.stringify(b));}
+
+// ── Account balance calculator ────────────────────────────────────────────
+function getAccountBalance(account){
+  return (DB.cashflow||[]).reduce((sum,t)=>{
+    if(t.account!==account)return sum;
+    if(t.type==='Debit')return sum+t.amount;      // income → add
+    if(t.type==='Credit')return sum-t.amount;     // expense → subtract
+    if(t.type==='Transfer'){
+      if(t._fromAccount===account)return sum-t.amount; // sent → subtract
+      if(t._toAccount===account)return sum+t.amount;   // received → add
+    }
+    return sum;
+  },0);
+}
+
+// ── Format helpers ────────────────────────────────────────────────────────
+const fmtPHP = v => '₱'+Math.abs(v).toLocaleString('en-PH',{minimumFractionDigits:2,maximumFractionDigits:2});
+const signedFmt = v => (v>0?'+':v<0?'-':'')+fmtPHP(v);
+
+function renderLife(){
+  const txns = DB.cashflow||[];
+  const debits  = txns.filter(t=>t.type==='Debit');      // income
+  const credits = txns.filter(t=>t.type==='Credit');     // expenses
+  const totalIncome  = debits.reduce((s,t)=>s+(t.amount||0),0);
+  const totalExpense = credits.reduce((s,t)=>s+(t.amount||0),0);
+  const net = totalIncome - totalExpense;  // positive = surplus
+
+  // ── Summary cards ──────────────────────────────────────────────────────
+  const elIncome = document.getElementById('cf-income');
+  if(elIncome) elIncome.textContent = fmtPHP(totalIncome);
+  const elExpense = document.getElementById('cf-expense');
+  if(elExpense) elExpense.textContent = fmtPHP(totalExpense);
+
+  // Net: positive surplus → show as negative per convention (more income than expense = "-" sign)
+  const elNet = document.getElementById('cf-net');
+  const elNetLabel = document.getElementById('cf-net-label');
+  if(elNet){
+    elNet.textContent = (net>0?'-':net<0?'+':'')+fmtPHP(net);
+    elNet.style.color = net>0?'var(--green)':net<0?'var(--red)':'var(--text2)';
+  }
+  if(elNetLabel) elNetLabel.textContent = net>0?'Surplus':'net<0'?'Deficit':'Balanced';
+
+  const elCount = document.getElementById('cf-count');
+  if(elCount) elCount.textContent = txns.length;
+
+  // ── Account balance strip ──────────────────────────────────────────────
+  const usedAccounts=[...new Set(txns.map(t=>t.account).filter(Boolean))];
+  const stripEl = document.getElementById('cf-account-strip');
+  if(stripEl){
+    stripEl.innerHTML = usedAccounts.length ? usedAccounts.map(acct=>{
+      const bal = getAccountBalance(acct);
+      return `<div class="hc" style="padding:10px 12px;cursor:pointer" onclick="setCFTab('accounts',document.querySelector('.cfbt:nth-child(5)'))">
+        <div class="cl">${acct}</div>
+        <div style="font-size:16px;font-weight:800;color:${bal>0?'var(--green)':bal<0?'var(--red)':'var(--text2)'};margin-top:3px">${bal>0?'-':bal<0?'+':''}${fmtPHP(bal)}</div>
+      </div>`;
+    }).join('') : '';
+  }
+
+  // ── Recent panels ──────────────────────────────────────────────────────
+  const recentDebitEl = document.getElementById('cf-recent-debits');
+  if(recentDebitEl){
+    recentDebitEl.innerHTML = debits.length ? debits.slice(0,4).map(t=>`
+      <div class="brow">
+        <div class="bdot" style="background:var(--green)"></div>
+        <div class="btxt">${t.desc||'—'}</div>
+        <span class="btag pg">+${fmtPHP(t.amount)}</span>
+      </div>`).join('')
+    : '<div style="font-size:11px;color:var(--text3)">No income entries yet.</div>';
+  }
+
+  const recentCreditEl = document.getElementById('cf-recent-credits');
+  if(recentCreditEl){
+    recentCreditEl.innerHTML = credits.length ? credits.slice(0,4).map(t=>`
+      <div class="brow">
+        <div class="bdot" style="background:var(--red)"></div>
+        <div class="btxt">${t.desc||'—'}</div>
+        <span class="btag pr">-${fmtPHP(t.amount)}</span>
+      </div>`).join('')
+    : '<div style="font-size:11px;color:var(--text3)">No expense entries yet.</div>';
+  }
+
+  // ── Refresh active sub-tab ─────────────────────────────────────────────
+  if(cfActiveTab==='transactions') renderCashTable();
+  else if(cfActiveTab==='chart') renderCashCharts();
+  else if(cfActiveTab==='budget') renderBudgetTab();
+  else if(cfActiveTab==='accounts') renderAccountsTab();
+}
+
+function renderCashTable(){
+  const typeF    = document.getElementById('cf-filter-type')?.value    || 'all';
+  const acctF    = document.getElementById('cf-filter-account')?.value || 'all';
+  const catF     = document.getElementById('cf-filter-cat')?.value     || 'all';
+  const monthF   = document.getElementById('cf-filter-month')?.value   || '';
+
+  // Populate filter dropdowns
+  const acctSel  = document.getElementById('cf-filter-account');
+  const catSel   = document.getElementById('cf-filter-cat');
+  if(acctSel && acctSel.options.length<=1){
+    const accounts=[...new Set((DB.cashflow||[]).map(t=>t.account).filter(Boolean))];
+    accounts.forEach(a=>{const o=document.createElement('option');o.value=a;o.textContent=a;acctSel.appendChild(o);});
+  }
+  if(catSel && catSel.options.length<=1){
+    const cats=[...new Set((DB.cashflow||[]).map(t=>t.category).filter(Boolean))];
+    cats.forEach(c=>{const o=document.createElement('option');o.value=c;o.textContent=c;catSel.appendChild(o);});
+  }
+
+  let txns=[...(DB.cashflow||[])].sort((a,b)=>b.date>a.date?1:-1);
+  if(typeF!=='all')  txns=txns.filter(t=>t.type===typeF);
+  if(acctF!=='all')  txns=txns.filter(t=>t.account===acctF);
+  if(catF!=='all')   txns=txns.filter(t=>t.category===catF);
+  if(monthF)         txns=txns.filter(t=>(t.date||'').startsWith(monthF));
+
+  const em=document.getElementById('cashEmpty');
+  const tb=document.getElementById('cashTbody');
+  if(!txns.length){
+    if(tb) tb.innerHTML='';
+    if(em) em.style.display='';
+    return;
+  }
+  if(em) em.style.display='none';
+
+  // Running balance per account
+  const runBal={};
+  const allSorted=[...(DB.cashflow||[])].sort((a,b)=>a.date>b.date?1:-1);
+  const runBalMap={};
+  allSorted.forEach(t=>{
+    const acct=t.account||'';
+    if(!runBalMap[acct]) runBalMap[acct]=0;
+    if(t.type==='Debit')  runBalMap[acct]+=t.amount||0;
+    if(t.type==='Credit') runBalMap[acct]-=t.amount||0;
+    if(t.type==='Transfer'){
+      if(t._fromAccount===acct) runBalMap[acct]-=t.amount||0;
+      if(t._toAccount===acct)   runBalMap[acct]+=t.amount||0;
+    }
+    t._runBal = runBalMap[acct];
+  });
+  // Map id→runBal
+  const runBalById={};
+  allSorted.forEach(t=>{ runBalById[t.id]=t._runBal; });
+
+  if(tb) tb.innerHTML=txns.map(t=>{
+    const isDebit=t.type==='Debit';
+    const isCredit=t.type==='Credit';
+    const isTransfer=t.type==='Transfer';
+    const typeColor=isDebit?'var(--green)':isCredit?'var(--red)':'var(--teal)';
+    const typeBg=isDebit?'rgba(34,197,94,.15)':isCredit?'rgba(239,68,68,.1)':'rgba(128,255,250,.08)';
+    const amtDisplay=isDebit?'+'+fmtPHP(t.amount):isCredit?'-'+fmtPHP(t.amount):'⇄'+fmtPHP(t.amount);
+    const amtColor=isDebit?'var(--green)':isCredit?'var(--red)':'var(--teal)';
+    const bal=runBalById[t.id];
+    const balColor=bal>0?'var(--green)':bal<0?'var(--red)':'var(--text2)';
+    const balDisplay=bal>0?'-'+fmtPHP(bal):bal<0?'+'+fmtPHP(bal):'₱0.00';
+    return `<tr>
+      <td style="font-size:11px;color:var(--text3);white-space:nowrap">${t.date||'—'}</td>
+      <td style="font-weight:500;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${t.desc||''}">${t.desc||'—'}${t.notes?'<div style="font-size:10px;color:var(--text3);font-style:italic">'+t.notes+'</div>':''}</td>
+      <td><span style="font-size:10px;font-weight:700;color:${typeColor};background:${typeBg};border:1px solid ${typeColor};border-radius:3px;padding:2px 6px">${t.type.toUpperCase()}</span></td>
+      <td style="font-size:11px;color:var(--text3)">${t.category||'—'}${t.catNotes?'<div style="font-size:10px">'+t.catNotes+'</div>':''}</td>
+      <td style="font-size:11px;color:var(--text3)">${t.account||'—'}</td>
+      <td style="font-weight:700;color:${amtColor};white-space:nowrap">${amtDisplay}</td>
+      <td style="font-size:11px;color:${balColor};white-space:nowrap">${balDisplay}</td>
+      <td style="white-space:nowrap">
+        <button class="btn" style="padding:2px 7px;background:rgba(0,255,242,.08);border:1px solid var(--border2);color:var(--teal)" onclick="editCash(${t.id})"><i class="ti ti-pencil" style="font-size:11px;line-height:1;display:block"></i></button>
+        <button class="btn btn-d" style="padding:2px 7px;margin-left:3px" onclick="deleteCash(${t.id})"><i class="ti ti-trash" style="font-size:11px;line-height:1;display:block"></i></button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function renderCashCharts(){
+  const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const mIn=new Array(12).fill(0), mOut=new Array(12).fill(0);
+  (DB.cashflow||[]).forEach(t=>{
+    const m=new Date(t.date).getMonth();
+    if(isNaN(m)) return;
+    if(t.type==='Debit')  mIn[m]+=(t.amount||0);
+    if(t.type==='Credit') mOut[m]+=(t.amount||0);
+  });
+
+  // Monthly flow bar chart
+  const ctx1=document.getElementById('cashflowChart');
+  if(ctx1){
+    if(cfCharts.flow) cfCharts.flow.destroy();
+    cfCharts.flow=new Chart(ctx1,{type:'bar',data:{labels:months,datasets:[
+      {label:'Income (Debit)',data:mIn,backgroundColor:'rgba(34,197,94,.5)',borderColor:'var(--green)',borderWidth:1},
+      {label:'Expense (Credit)',data:mOut,backgroundColor:'rgba(239,68,68,.4)',borderColor:'var(--red)',borderWidth:1}
+    ]},options:{responsive:true,plugins:{legend:{labels:{color:'#7ab8c8',font:{size:10}}}},scales:{x:{ticks:{color:'#3a6878',font:{size:9}}},y:{ticks:{color:'#3a6878',font:{size:9}}}}}});
+  }
+
+  // Category doughnut — expense categories only (Credits)
+  const cats={};
+  (DB.cashflow||[]).filter(t=>t.type==='Credit').forEach(t=>{cats[t.category]=(cats[t.category]||0)+(t.amount||0);});
+  const ctx2=document.getElementById('catChart');
+  if(ctx2){
+    if(cfCharts.cat) cfCharts.cat.destroy();
+    const colors=['rgba(239,68,68,.7)','rgba(255,140,0,.7)','rgba(168,85,247,.7)','rgba(34,197,94,.7)','rgba(245,158,11,.7)','rgba(0,212,200,.7)','rgba(255,40,160,.7)','rgba(59,130,246,.7)'];
+    cfCharts.cat=new Chart(ctx2,{type:'doughnut',data:{labels:Object.keys(cats),datasets:[{data:Object.values(cats),backgroundColor:colors.slice(0,Object.keys(cats).length),borderColor:'#040d1a',borderWidth:2}]},options:{responsive:true,plugins:{legend:{position:'right',labels:{color:'#7ab8c8',font:{size:10},boxWidth:10}}}}});
+  }
+
+  // 6-month trend line
+  const now=new Date(); const curMonth=now.getMonth(); const curYear=now.getFullYear();
+  const trendLabels=[],trendIn=[],trendOut=[];
+  for(let i=5;i>=0;i--){
+    const d=new Date(curYear,curMonth-i,1);
+    trendLabels.push(months[d.getMonth()]+' '+d.getFullYear().toString().slice(2));
+    const ym=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
+    const inc=(DB.cashflow||[]).filter(t=>t.type==='Debit'&&(t.date||'').startsWith(ym)).reduce((s,t)=>s+t.amount,0);
+    const exp=(DB.cashflow||[]).filter(t=>t.type==='Credit'&&(t.date||'').startsWith(ym)).reduce((s,t)=>s+t.amount,0);
+    trendIn.push(inc); trendOut.push(exp);
+  }
+  const ctx3=document.getElementById('trendChart');
+  if(ctx3){
+    if(cfCharts.trend) cfCharts.trend.destroy();
+    cfCharts.trend=new Chart(ctx3,{type:'line',data:{labels:trendLabels,datasets:[
+      {label:'Income',data:trendIn,borderColor:'rgba(34,197,94,.8)',backgroundColor:'rgba(34,197,94,.08)',tension:.4,fill:true,pointBackgroundColor:'rgba(34,197,94,1)',pointRadius:4},
+      {label:'Expenses',data:trendOut,borderColor:'rgba(239,68,68,.8)',backgroundColor:'rgba(239,68,68,.06)',tension:.4,fill:true,pointBackgroundColor:'rgba(239,68,68,1)',pointRadius:4}
+    ]},options:{responsive:true,plugins:{legend:{labels:{color:'#7ab8c8',font:{size:10}}}},scales:{x:{ticks:{color:'#3a6878',font:{size:9}}},y:{ticks:{color:'#3a6878',font:{size:9}}}}}});
+  }
+}
+
+// ── Budget tab ────────────────────────────────────────────────────────────
+function renderBudgetTab(){
+  const budgets = getBudgets();
+  const now = new Date();
+  const ym = now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0');
+
+  // Compute this month's spending per category (Credits only)
+  const monthSpend={};
+  (DB.cashflow||[]).filter(t=>t.type==='Credit'&&(t.date||'').startsWith(ym)).forEach(t=>{
+    monthSpend[t.category]=(monthSpend[t.category]||0)+(t.amount||0);
+  });
+
+  const totalBudget=Object.values(budgets).reduce((s,b)=>s+(b.limit||0),0);
+  const totalSpent=Object.keys(budgets).reduce((s,cat)=>s+(monthSpend[cat]||0),0);
+  const overBudget=Object.keys(budgets).filter(cat=>(monthSpend[cat]||0)>(budgets[cat].limit||0)).length;
+
+  // Summary cards
+  const sumEl=document.getElementById('cf-budget-summary');
+  if(sumEl) sumEl.innerHTML=`
+    <div class="hc"><div class="cl">Total Budget</div><div class="cv" style="color:var(--teal)">${fmtPHP(totalBudget)}</div></div>
+    <div class="hc oc"><div class="cl">Spent This Month</div><div class="cv oc">${fmtPHP(totalSpent)}</div></div>
+    <div class="hc" style="border-color:${overBudget>0?'rgba(239,68,68,.4)':'rgba(0,255,136,.3)'}"><div class="cl">Over Budget</div><div class="cv" style="color:${overBudget>0?'var(--red)':'var(--green)'}">${overBudget} categor${overBudget===1?'y':'ies'}</div></div>
+  `;
+
+  const listEl=document.getElementById('cf-budget-list');
+  if(!listEl) return;
+
+  if(!Object.keys(budgets).length){
+    listEl.innerHTML='<div style="text-align:center;padding:30px;color:var(--text3);font-size:13px">No budgets set yet, sir. Click <strong style="color:var(--teal)">Set Budget</strong> to add a category limit.</div>';
+    return;
+  }
+
+  listEl.innerHTML=Object.entries(budgets).map(([cat,b])=>{
+    const spent=monthSpend[cat]||0;
+    const limit=b.limit||0;
+    const pct=limit>0?Math.min((spent/limit)*100,100):0;
+    const alertPct=b.alert||80;
+    const isOver=spent>limit&&limit>0;
+    const isWarn=pct>=alertPct&&!isOver;
+    const barColor=isOver?'var(--red)':isWarn?'var(--amber)':'var(--green)';
+    const remaining=limit-spent;
+    return `
+      <div style="background:var(--navy2);border:1px solid ${isOver?'rgba(239,68,68,.4)':'var(--border)'};border-radius:6px;padding:14px;margin-bottom:10px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+          <div style="display:flex;align-items:center;gap:8px">
+            <div style="font-size:13px;font-weight:700;color:var(--text1)">${cat}</div>
+            ${isOver?'<span style="font-size:9px;font-weight:700;color:var(--red);border:1px solid var(--red);border-radius:2px;padding:1px 5px">OVER BUDGET</span>':isWarn?'<span style="font-size:9px;font-weight:700;color:var(--amber);border:1px solid var(--amber);border-radius:2px;padding:1px 5px">⚠ NEAR LIMIT</span>':''}
+          </div>
+          <div style="display:flex;gap:5px;align-items:center">
+            <span style="font-size:11px;color:var(--text3)">${fmtPHP(spent)} / ${fmtPHP(limit)}</span>
+            <button onclick="openBudgetModal('${cat}')" style="background:transparent;border:1px solid var(--border2);border-radius:3px;color:var(--text3);font-size:10px;padding:2px 7px;cursor:pointer">Edit</button>
+            <button onclick="deleteBudget('${cat}')" style="background:transparent;border:1px solid rgba(239,68,68,.3);border-radius:3px;color:var(--red);font-size:10px;padding:2px 7px;cursor:pointer">×</button>
+          </div>
+        </div>
+        <div style="background:var(--navy3);border-radius:3px;height:8px;overflow:hidden;margin-bottom:6px">
+          <div style="width:${pct.toFixed(1)}%;height:100%;background:${barColor};border-radius:3px;transition:width .4s"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text3)">
+          <span>${pct.toFixed(0)}% used · Alert at ${alertPct}%</span>
+          <span style="color:${remaining>=0?'var(--green)':'var(--red)'}">${remaining>=0?fmtPHP(remaining)+' remaining':fmtPHP(Math.abs(remaining))+' over'}</span>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function openBudgetModal(cat){
+  const budgets=getBudgets();
+  const existing=cat?budgets[cat]:null;
+  document.getElementById('budgetModalTitle').textContent=cat?'EDIT BUDGET — '+cat.toUpperCase():'SET BUDGET LIMIT';
+  if(cat){const s=document.getElementById('bgt-cat');if(s){s.value=cat;s.disabled=!!cat;}}
+  else{const s=document.getElementById('bgt-cat');if(s)s.disabled=false;}
+  document.getElementById('bgt-limit').value=existing?existing.limit:'';
+  document.getElementById('bgt-alert').value=existing?existing.alert:80;
+  openModal('budgetModal');
+}
+
+function saveBudget(){
+  const cat=document.getElementById('bgt-cat').value;
+  const limit=parseFloat(document.getElementById('bgt-limit').value)||0;
+  const alert=parseInt(document.getElementById('bgt-alert').value)||80;
+  if(!limit){showToast('⚠ Enter a budget limit, sir.');return;}
+  const budgets=getBudgets();
+  budgets[cat]={limit,alert};
+  saveBudgets(budgets);
+  closeModal('budgetModal');
+  renderBudgetTab();
+  showToast('✓ Budget set: '+cat+' — '+fmtPHP(limit)+'/mo');
+}
+
+function deleteBudget(cat){
+  const budgets=getBudgets();
+  delete budgets[cat];
+  saveBudgets(budgets);
+  renderBudgetTab();
+  showToast('Budget removed: '+cat);
+}
+
+// ── Accounts tab ──────────────────────────────────────────────────────────
+function renderAccountsTab(){
+  const el=document.getElementById('cf-accounts-grid');
+  if(!el) return;
+  const usedAccounts=[...new Set((DB.cashflow||[]).map(t=>t.account).filter(Boolean))];
+  if(!usedAccounts.length){
+    el.innerHTML='<div style="text-align:center;padding:30px;color:var(--text3);font-size:13px">No account transactions yet, sir.</div>';
+    return;
+  }
+  el.innerHTML=usedAccounts.map(acct=>{
+    const txns=(DB.cashflow||[]).filter(t=>t.account===acct);
+    const income=txns.filter(t=>t.type==='Debit').reduce((s,t)=>s+(t.amount||0),0);
+    const expense=txns.filter(t=>t.type==='Credit').reduce((s,t)=>s+(t.amount||0),0);
+    const bal=getAccountBalance(acct);
+    const lastTxn=txns.sort((a,b)=>b.date>a.date?1:-1)[0];
+    return `
+      <div class="hc" style="padding:14px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+          <div style="font-size:13px;font-weight:700;color:var(--text1)">${acct}</div>
+          <div style="font-size:9px;color:var(--text3)">${txns.length} txn${txns.length!==1?'s':''}</div>
+        </div>
+        <div style="font-size:22px;font-weight:900;color:${bal>0?'var(--green)':bal<0?'var(--red)':'var(--text2)'};margin-bottom:8px">${bal>0?'-':bal<0?'+':''}${fmtPHP(bal)}</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px">
+          <div style="background:rgba(34,197,94,.07);border:1px solid rgba(34,197,94,.2);border-radius:3px;padding:6px 8px">
+            <div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em">Income</div>
+            <div style="font-size:13px;font-weight:700;color:var(--green)">+${fmtPHP(income)}</div>
+          </div>
+          <div style="background:rgba(239,68,68,.07);border:1px solid rgba(239,68,68,.2);border-radius:3px;padding:6px 8px">
+            <div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em">Expenses</div>
+            <div style="font-size:13px;font-weight:700;color:var(--red)">-${fmtPHP(expense)}</div>
+          </div>
+        </div>
+        ${lastTxn?`<div style="font-size:10px;color:var(--text3)">Last: ${lastTxn.desc} · ${lastTxn.date}</div>`:''}
+        <div style="display:flex;gap:5px;margin-top:8px">
+          <button onclick="openCashModal('Debit');setTimeout(()=>{document.getElementById('ca-account').value='${acct}'},80)" class="btn btn-g" style="flex:1;font-size:10px;justify-content:center">+ Income</button>
+          <button onclick="openTransferModal('${acct}')" class="btn btn-g" style="flex:1;font-size:10px;justify-content:center">⇄ Transfer</button>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+// ── Transfer functions ─────────────────────────────────────────────────────
+function openTransferModal(fromAcct){
+  document.getElementById('tr-date').value=new Date().toISOString().split('T')[0];
+  document.getElementById('tr-amount').value='';
+  document.getElementById('tr-notes').value='';
+  if(fromAcct){
+    const sel=document.getElementById('tr-from');
+    if(sel) sel.value=fromAcct;
+  }
+  openModal('transferModal');
+  setTimeout(()=>document.getElementById('tr-amount').focus(),80);
+}
+
+function saveTransfer(){
+  const from=document.getElementById('tr-from').value;
+  const to=document.getElementById('tr-to').value;
+  const amount=parseFloat(document.getElementById('tr-amount').value)||0;
+  const date=document.getElementById('tr-date').value;
+  const notes=document.getElementById('tr-notes').value.trim();
+
+  if(from===to){showToast('⚠ Source and destination cannot be the same, sir.');return;}
+  if(!amount||amount<=0){showToast('⚠ Enter a valid amount, sir.');return;}
+  if(!date){showToast('⚠ Select a date, sir.');return;}
+
+  const id=Date.now();
+  // Create debit entry on destination (incoming)
+  const debitEntry={id,type:'Transfer',desc:'Transfer from '+from+' → '+to,amount,account:to,category:'Transfer',date,notes,_fromAccount:from,_toAccount:to};
+  // Create credit entry on source (outgoing)
+  const creditEntry={id:id+1,type:'Transfer',desc:'Transfer from '+from+' → '+to,amount,account:from,category:'Transfer',date,notes,_fromAccount:from,_toAccount:to};
+
+  DB.cashflow.unshift(debitEntry);
+  DB.cashflow.unshift(creditEntry);
+  save('cashflow');
+  SB.upsert('cashflow',debitEntry,'cashflow');
+  SB.upsert('cashflow',creditEntry,'cashflow');
+
+  closeModal('transferModal');
+  addHistory('add','Transfer: '+from+' → '+to+' ₱'+amount,{_dbKey:'cashflow'});
+  showToast('✓ Transfer complete: '+from+' → '+to+' '+fmtPHP(amount));
+  renderLife();
+}
+
+// ── setCFTab — handle new tabs ─────────────────────────────────────────────
 
 // CALENDAR
 let selectedCalDate='';
