@@ -1528,8 +1528,8 @@ select option{background:var(--navy3)}
       <div class="fg"><label class="fl">Title</label><input id="ce-title" placeholder="Event title..."></div>
       <div class="fr">
         <div class="fg"><label class="fl">Date</label><input type="date" id="ce-date"></div>
-        <div class="fg"><label class="fl">Start Time</label><input type="time" id="ce-time"></div>
-        <div class="fg"><label class="fl">End Time</label><input type="time" id="ce-end-time"></div>
+        <div class="fg"><label class="fl">Start Time</label><select id="ce-time" style="font-size:12px"></select></div>
+        <div class="fg"><label class="fl">End Time</label><select id="ce-end-time" style="font-size:12px"></select></div>
       </div>
       <div class="fr">
         <div class="fg"><label class="fl">World / Context</label><select id="ce-type">
@@ -1563,13 +1563,29 @@ select option{background:var(--navy3)}
       <div class="fr" id="ce-custom-wrap" style="display:none">
         <div class="fg"><label class="fl">Every N days</label><input type="number" id="ce-custom-n" min="1" max="365" placeholder="e.g. 3"></div>
       </div>
-      <!-- All-day toggle -->
-      <div style="display:flex;align-items:center;gap:8px;margin:4px 0">
-        <input type="checkbox" id="ce-allday" onchange="toggleAllDay()" style="width:auto;accent-color:var(--teal)">
-        <label for="ce-allday" style="font-size:12px;color:var(--text2);cursor:pointer">All-day event</label>
-        <div style="flex:1"></div>
-        <input type="checkbox" id="ce-reminder" style="width:auto;accent-color:var(--teal)">
-        <label for="ce-reminder" style="font-size:12px;color:var(--text2);cursor:pointer">Remind 30 min before</label>
+      <!-- All-day + Entry type toggle -->
+      <div style="display:flex;align-items:center;gap:12px;margin:4px 0;flex-wrap:wrap">
+        <div style="display:flex;align-items:center;gap:6px">
+          <input type="checkbox" id="ce-allday" onchange="toggleAllDay()" style="width:auto;accent-color:var(--teal)">
+          <label for="ce-allday" style="font-size:12px;color:var(--text2);cursor:pointer">All-day</label>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px">
+          <input type="checkbox" id="ce-overnight" style="width:auto;accent-color:var(--teal)">
+          <label for="ce-overnight" style="font-size:12px;color:var(--text2);cursor:pointer">Ends next day</label>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px">
+          <input type="checkbox" id="ce-also-task" onchange="toggleCalEntryType()" style="width:auto;accent-color:var(--purple,#a855f7)">
+          <label for="ce-also-task" style="font-size:12px;color:var(--text2);cursor:pointer">Also add as Task</label>
+        </div>
+      </div>
+      <!-- Reminder row -->
+      <div style="display:flex;align-items:center;gap:8px;margin:4px 0;flex-wrap:wrap">
+        <input type="checkbox" id="ce-reminder" onchange="toggleReminderInput()" style="width:auto;accent-color:var(--teal)">
+        <label for="ce-reminder" style="font-size:12px;color:var(--text2);cursor:pointer">Remind me</label>
+        <div id="ce-remind-wrap" style="display:none;align-items:center;gap:6px">
+          <input type="number" id="ce-remind-min" min="1" max="1440" value="30" style="width:70px;font-size:12px;padding:4px 6px;background:var(--navy3);border:1px solid var(--border2);border-radius:4px;color:var(--text1);text-align:center">
+          <span style="font-size:12px;color:var(--text2)">minutes before</span>
+        </div>
       </div>
       <div class="fg"><label class="fl">Notes / Agenda</label><textarea id="ce-notes" rows="2" placeholder="Additional notes or agenda..."></textarea></div>
     </div>
@@ -2190,6 +2206,7 @@ select option{background:var(--navy3)}
           <div class="cfbt" onclick="setCFTab('budget',this)">Budget</div>
           <div class="cfbt" onclick="setCFTab('accounts',this)">Accounts</div>
           <div class="cfbt" onclick="setCFTab('property',this)">Property</div>
+          <div class="cfbt" onclick="setCFTab('loans',this)">Loans</div>
         </div>
         <div style="flex:1;overflow-y:auto;padding:14px 18px">
 
@@ -2269,6 +2286,24 @@ select option{background:var(--navy3)}
               </div>
               <div style="font-size:10px;color:var(--text3)">Lessor: Lou E. Inacay · Log rental income via Debit button above</div>
             </div>
+          </div>
+
+          <!-- LOANS TAB -->
+          <div id="cf-loans" style="display:none">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+              <div>
+                <div style="font-size:13px;font-weight:700;color:var(--teal)">Debt Elimination Tracker</div>
+                <div style="font-size:10px;color:var(--text3);margin-top:2px">Goal: ₱0 remaining. Every payment brings you closer.</div>
+              </div>
+              <button class="btn btn-t" onclick="openLoanModal()" style="font-size:11px"><i class="ti ti-plus"></i> Add Loan</button>
+            </div>
+            <!-- Summary bar -->
+            <div class="mr" style="grid-template-columns:repeat(3,1fr);margin-bottom:14px" id="loan-summary-cards">
+              <div class="hc"><div class="cl">Total Debt</div><div id="loan-total" style="font-size:20px;font-weight:800;color:var(--red);margin-top:4px">₱0.00</div></div>
+              <div class="hc"><div class="cl">Payments Made</div><div id="loan-paid" style="font-size:20px;font-weight:800;color:var(--green);margin-top:4px">₱0.00</div></div>
+              <div class="hc"><div class="cl">Loans Active</div><div id="loan-count" style="font-size:20px;font-weight:800;color:var(--teal);margin-top:4px">0</div></div>
+            </div>
+            <div id="loan-list"></div>
           </div>
 
         </div><!-- /scroll area -->
@@ -3181,7 +3216,9 @@ const REALTIME_TABLES=[
   {name:'venture',    key:'venture'},
   {name:'faith',      key:'faith'},
   {name:'sides',      key:'sides'},
-  {name:'memories',   key:'memories'}
+  {name:'memories',   key:'memories'},
+  {name:'history',    key:'history'},
+  {name:'loans',      key:'loans'}
 ];
 
 function initRealtime(){
@@ -3244,10 +3281,10 @@ function initRealtime(){
 
 async function loadAllFromSupabase(){
   showToast('↻ Syncing with Supabase...');
-  await Promise.all([SB.load('tasks','tasks'),SB.load('clients','clients'),SB.load('venture','venture'),SB.load('faith','faith'),SB.load('cashflow','cashflow'),SB.load('cal_events','calEvents'),SB.load('journal','journal'),SB.load('notes','notes'),SB.load('memories','memories'),SB.load('sides','sides'),SB.load('history','history')]);
+  await Promise.all([SB.load('tasks','tasks'),SB.load('clients','clients'),SB.load('venture','venture'),SB.load('faith','faith'),SB.load('cashflow','cashflow'),SB.load('cal_events','calEvents'),SB.load('journal','journal'),SB.load('notes','notes'),SB.load('memories','memories'),SB.load('sides','sides'),SB.load('history','history'),SB.load('loans','loans')]);
   reRenderAll();showToast('✓ Supabase synced');speak('All systems synced, sir.');
 }
-function reRenderAll(){renderBrief();renderTasks();renderWorkIH();renderWorkCS();renderVenture();renderBuild();renderSides();renderFaith();renderLife();renderCalendar();renderJournal();renderMemory();renderHistory();renderNotesList();renderHealth();}
+function reRenderAll(){renderBrief();renderTasks();renderWorkIH();renderWorkCS();renderVenture();renderBuild();renderSides();renderFaith();renderLife();renderCalendar();renderJournal();renderMemory();renderHistory();renderNotesList();renderHealth();if(cfActiveTab==='loans')renderLoansTab();}
 
 // ===== TTS =====
 let isMuted=false,ttsVoice=null;
@@ -4768,7 +4805,7 @@ function updateTaskClientDropdown(world){
     sel.style.display='';inp.style.display='none';
     sel.onchange=()=>{inp.value=sel.value;};
   } else if(world==='WORK-CS'){
-    sel.innerHTML='<option value="">— Select store —</option><option>Chainsmoker Brampton</option><option>Chainsmoker Mississauga</option><option>Chainsmoker Scarborough</option><option>Chainsmoker Markham</option><option>Chainsmoker Hamilton</option><option>Chainsmoker Ottawa</option><option>Sweetheart Cafe</option>';
+    sel.innerHTML='<option value="">— Select store —</option><optgroup label="Chainsmoker"><option>Chainsmoker Ajax</option><option>Chainsmoker Etobicoke</option><option>Chainsmoker Kanata</option><option>Chainsmoker London</option><option>Chainsmoker Milton</option><option>Chainsmoker Scarborough</option><option>Chainsmoker Windsor</option><option>Chainsmoker Houston</option></optgroup><optgroup label="Sweetheart Cafe"><option>Sweetheart Cafe Ajax</option><option>Sweetheart Cafe Milton</option><option>Sweetheart Cafe Windsor</option><option>Sweetheart Cafe Houston</option></optgroup>';
     sel.style.display='';inp.style.display='none';
     sel.onchange=()=>{inp.value=sel.value;};
   } else if(world==='BUILD'){
@@ -4931,7 +4968,7 @@ function renderFaith(){const tb=document.getElementById('faithTbody'),em=documen
 let cfActiveTab='overview',cfCharts={};
 function setCFTab(t,btn){
   cfActiveTab=t;
-  ['overview','transactions','chart','budget','accounts','property'].forEach(tab=>{
+  ['overview','transactions','chart','budget','accounts','property','loans'].forEach(tab=>{
     const el=document.getElementById('cf-'+tab);
     if(el) el.style.display=tab===t?'':'none';
   });
@@ -4941,6 +4978,7 @@ function setCFTab(t,btn){
   else if(t==='chart')   renderCashCharts();
   else if(t==='budget')  renderBudgetTab();
   else if(t==='accounts')renderAccountsTab();
+  else if(t==='loans')   renderLoansTab();
 }
 
 
@@ -5109,6 +5147,132 @@ function renderLife(){
   else if(cfActiveTab==='chart') renderCashCharts();
   else if(cfActiveTab==='budget') renderBudgetTab();
   else if(cfActiveTab==='accounts') renderAccountsTab();
+  else if(cfActiveTab==='loans') renderLoansTab();
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// LOANS — Debt Elimination Tracker
+// ═══════════════════════════════════════════════════════════════════════════
+if(!DB.loans)DB.loans=[];
+
+function renderLoansTab(){
+  const loans=DB.loans||[];
+  const totalPaid=loans.reduce(function(s,l){return s+(l.paymentsMade||0)*(l.monthlyPayment||0);},0);
+  const totalRemaining=loans.reduce(function(s,l){return s+(l.remaining||l.principal||0);},0);
+  const g=function(t){return document.getElementById(t);};
+  if(g('loan-total'))g('loan-total').textContent='₱'+totalRemaining.toLocaleString('en-PH',{minimumFractionDigits:2});
+  if(g('loan-paid'))g('loan-paid').textContent='₱'+totalPaid.toLocaleString('en-PH',{minimumFractionDigits:2});
+  if(g('loan-count'))g('loan-count').textContent=loans.filter(function(l){return l.remaining>0;}).length;
+  const list=g('loan-list');if(!list)return;
+  if(!loans.length){list.innerHTML='<div style="text-align:center;color:var(--text3);font-size:12px;padding:30px">No loans added yet. Click + Add Loan to start tracking.</div>';return;}
+  list.innerHTML=loans.map(function(l){
+    const paid=l.paymentsMade||0;
+    const total=l.totalPayments||0;
+    const remaining=l.remaining!=null?l.remaining:l.principal;
+    const pct=l.principal>0?Math.round(((l.principal-remaining)/l.principal)*100):0;
+    const done=remaining<=0;
+    const clr=done?'var(--green)':'var(--text1)';
+    const remClr=done?'var(--green)':'var(--red)';
+    const barClr=done?'var(--green)':'var(--teal)';
+    const paidOff=done?' ✔ PAID OFF':'';
+    const remFmt='₱'+remaining.toLocaleString('en-PH',{minimumFractionDigits:2});
+    const monFmt='₱'+(l.monthlyPayment||0).toLocaleString('en-PH',{minimumFractionDigits:2});
+    return '<div class="hc" style="margin-bottom:10px;opacity:'+(done?0.5:1)+'">'+
+      '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">'+
+        '<div>'+
+          '<div style="font-size:13px;font-weight:700;color:'+clr+'">'+l.lender+paidOff+'</div>'+
+          '<div style="font-size:10px;color:var(--text3);margin-top:2px">'+(l.interestRate||0)+'% interest · '+monFmt+'/mo · Due '+(l.dueDate||'—')+'</div>'+
+        '</div>'+
+        '<div style="text-align:right">'+
+          '<div style="font-size:16px;font-weight:800;color:'+remClr+'">'+remFmt+'</div>'+
+          '<div style="font-size:10px;color:var(--text3)">remaining</div>'+
+        '</div>'+
+      '</div>'+
+      '<div style="background:var(--navy3);border-radius:4px;height:6px;margin-bottom:6px">'+
+        '<div style="background:'+barClr+';height:6px;border-radius:4px;width:'+pct+'%;transition:width .4s"></div>'+
+      '</div>'+
+      '<div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text3);margin-bottom:8px">'+
+        '<span>'+paid+' of '+total+' payments made</span>'+
+        '<span>'+(total-paid)+' remaining · '+pct+'% paid off</span>'+
+      '</div>'+
+      '<div style="display:flex;gap:6px">'+
+        '<button class="btn" style="font-size:10px;padding:3px 10px;background:rgba(34,197,94,.1);color:var(--green);border:1px solid rgba(34,197,94,.3)" onclick="recordLoanPayment('+l.id+')"><i class="ti ti-check"></i> Record Payment</button>'+
+        '<button class="btn" style="font-size:10px;padding:3px 10px" onclick="editLoan('+l.id+')"><i class="ti ti-pencil"></i> Edit</button>'+
+        '<button class="btn" style="font-size:10px;padding:3px 10px;color:var(--red)" onclick="deleteLoan('+l.id+')"><i class="ti ti-trash"></i></button>'+
+      '</div>'+
+    '</div>';
+  }).join('');
+}
+
+function openLoanModal(id){
+  const l=id?DB.loans.find(x=>x.id===id):{};
+  const ex=l||{};
+  const title=id?'Edit Loan':'Add Loan';
+  const m=document.createElement('div');
+  m.className='mov open';m.id='loanModal';
+  m.onclick=function(e){if(e.target===m)closeLoanModal();};
+  m.innerHTML='<div class="modal" style="width:min(460px,96vw)">'+
+    '<div class="mh"><div class="mt">'+title+'</div><button class="mc" onclick="closeLoanModal()">×</button></div>'+
+    '<div class="mb">'+
+      '<div class="fg"><label class="fl">Lender / Loan Name</label><input id="lm-lender" placeholder="e.g. BDO Personal Loan" value="'+(ex.lender||'')+'"></div>'+
+      '<div class="fr">'+
+        '<div class="fg"><label class="fl">Principal Amount (₱)</label><input type="number" id="lm-principal" value="'+(ex.principal||'')+'" placeholder="0.00"></div>'+
+        '<div class="fg"><label class="fl">Interest Rate (%)</label><input type="number" id="lm-rate" value="'+(ex.interestRate||'')+'" placeholder="0.00" step="0.01"></div>'+
+      '</div>'+
+      '<div class="fr">'+
+        '<div class="fg"><label class="fl">Monthly Payment (₱)</label><input type="number" id="lm-monthly" value="'+(ex.monthlyPayment||'')+'" placeholder="0.00"></div>'+
+        '<div class="fg"><label class="fl">Total No. of Payments</label><input type="number" id="lm-total" value="'+(ex.totalPayments||'')+'" placeholder="e.g. 24"></div>'+
+      '</div>'+
+      '<div class="fr">'+
+        '<div class="fg"><label class="fl">Payments Made So Far</label><input type="number" id="lm-made" value="'+(ex.paymentsMade||0)+'" placeholder="0"></div>'+
+        '<div class="fg"><label class="fl">Payment Due Date</label><input type="date" id="lm-due" value="'+(ex.dueDate||'')+'"></div>'+
+      '</div>'+
+      '<div class="fg"><label class="fl">Notes</label><textarea id="lm-notes" rows="2" placeholder="Loan terms, account number, etc.">'+(ex.notes||'')+'</textarea></div>'+
+    '</div>'+
+    '<div class="mf">'+
+      '<button class="btn btn-g" onclick="closeLoanModal()">Cancel</button>'+
+      '<button class="btn btn-t" onclick="saveLoan('+(id?id:'null')+')">Save Loan</button>'+
+    '</div>'+
+  '</div>';
+  const old_modal=document.getElementById('loanModal');
+  if(old_modal)old_modal.remove();
+  document.body.appendChild(m);
+}
+function closeLoanModal(){const m=document.getElementById('loanModal');if(m)m.remove();}
+function saveLoan(editId){
+  const principal=parseFloat(document.getElementById('lm-principal').value)||0;
+  const paymentsMade=parseInt(document.getElementById('lm-made').value)||0;
+  const monthly=parseFloat(document.getElementById('lm-monthly').value)||0;
+  const remaining=Math.max(0,principal-(paymentsMade*monthly));
+  const l={
+    id:editId||Date.now(),
+    lender:document.getElementById('lm-lender').value.trim()||'Unnamed Loan',
+    principal,
+    interestRate:parseFloat(document.getElementById('lm-rate').value)||0,
+    monthlyPayment:monthly,
+    totalPayments:parseInt(document.getElementById('lm-total').value)||0,
+    paymentsMade,
+    remaining,
+    dueDate:document.getElementById('lm-due').value,
+    notes:document.getElementById('lm-notes').value.trim(),
+  };
+  if(editId){const i=DB.loans.findIndex(x=>x.id===editId);if(i>=0)DB.loans[i]=l;SB.update('loans',l.id,l,'loans');}
+  else{DB.loans.unshift(l);SB.upsert('loans',l,'loans');}
+  save('loans');closeLoanModal();renderLoansTab();
+  showToast('✓ Loan saved');
+}
+function recordLoanPayment(id){
+  const l=DB.loans.find(x=>x.id===id);if(!l)return;
+  l.paymentsMade=(l.paymentsMade||0)+1;
+  l.remaining=Math.max(0,l.principal-(l.paymentsMade*(l.monthlyPayment||0)));
+  SB.update('loans',l.id,l,'loans');save('loans');renderLoansTab();
+  showToast(l.remaining<=0?'✔ Loan fully paid off! Debt eliminated.':'✓ Payment recorded · ₱'+l.remaining.toLocaleString('en-PH',{minimumFractionDigits:2})+' remaining');
+}
+function editLoan(id){openLoanModal(id);}
+function deleteLoan(id){
+  const l=DB.loans.find(x=>x.id===id);if(!l)return;
+  DB.loans=DB.loans.filter(x=>x.id!==id);SB.remove('loans',id,'loans');save('loans');renderLoansTab();
+  showToast('Loan removed');
 }
 
 function renderCashTable(){
@@ -5522,20 +5686,41 @@ function checkReminders(){
   if(!('Notification' in window))return;
   const now=new Date();
   const todayStr=now.toISOString().split('T')[0];
-  DB.calEvents.filter(e=>e.date===todayStr&&e.reminder&&e.time).forEach(e=>{
+  // Also check tomorrow for overnight events
+  const tmrStr=new Date(now.getTime()+86400000).toISOString().split('T')[0];
+  const candidates=DB.calEvents.filter(e=>(e.date===todayStr||e.date===tmrStr)&&e.reminder&&e.time);
+  candidates.forEach(e=>{
     const [h,m]=e.time.split(':').map(Number);
-    const evTime=new Date();evTime.setHours(h,m,0,0);
-    const diff=(evTime-now)/60000;
-    if(diff>0&&diff<=30&&!e._reminded){
+    const evTime=new Date(e.date+'T00:00:00');evTime.setHours(h,m,0,0);
+    const diffMin=(evTime-now)/60000;
+    const remMin=parseInt(e.remindMin||30,10);
+    if(diffMin>0&&diffMin<=remMin&&!e._reminded){
       e._reminded=true;
-      showToast(`⏰ Reminder: "${e.title}" in ${Math.round(diff)} min`);
+      const msg=`"${e.title}" starts in ${Math.round(diffMin)} min`;
+      showToast('\u23f0 Reminder: '+msg,5000);
+      // Dashboard urgent banner
+      let banner=document.getElementById('jelix-reminder-banner');
+      if(!banner){
+        banner=document.createElement('div');
+        banner.id='jelix-reminder-banner';
+        banner.style.cssText='position:fixed;top:60px;left:50%;transform:translateX(-50%);z-index:9999;background:var(--navy2);border:1px solid var(--teal);border-radius:8px;padding:10px 18px;font-size:13px;font-weight:700;color:var(--teal);display:flex;align-items:center;gap:10px;box-shadow:0 0 20px rgba(128,255,250,.2)';
+        document.body.appendChild(banner);
+      }
+      banner.innerHTML='\u23f0 '+msg+'<button onclick="this.parentElement.remove()" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:16px;margin-left:8px">\u00d7</button>';
+      setTimeout(()=>{if(banner.parentElement)banner.remove();},remMin*60000);
+      // Voice announcement
+      if('speechSynthesis' in window){
+        const utt=new SpeechSynthesisUtterance('JELIX reminder. '+e.title+' starts in '+Math.round(diffMin)+' minutes.');
+        utt.rate=0.95;utt.pitch=1.1;window.speechSynthesis.speak(utt);
+      }
+      // Browser notification
       if(Notification.permission==='granted'){
-        new Notification('J.E.L.I.X Reminder',{body:e.title+' starts in '+Math.round(diff)+' min',icon:''});
+        new Notification('J.E.L.I.X Reminder',{body:e.title+' starts in '+Math.round(diffMin)+' min',icon:''});
       }
     }
   });
 }
-setInterval(checkReminders,60000);
+setInterval(checkReminders,30000);
 
 // ── Conflict detection ─────────────────────────────────────────────
 function detectConflicts(dateStr,startTime,endTime,excludeId){
@@ -6038,20 +6223,48 @@ function toggleAllDay(){
 }
 
 // ── saveCalEvent (upgraded) ───────────────────────────────────────
+function build12hOptions(selId,val){
+  const sel=document.getElementById(selId);if(!sel)return;
+  const opts=['<option value="">-- No time --</option>'];
+  for(let h=0;h<24;h++){for(let m=0;m<60;m+=15){
+    const hh=String(h).padStart(2,'0'),mm=String(m).padStart(2,'0');
+    const ampm=h<12?'AM':'PM',h12=h===0?12:h>12?h-12:h;
+    opts.push('<option value="'+hh+':'+mm+'">'+h12+':'+mm+' '+ampm+'</option>');
+  }}
+  sel.innerHTML=opts.join('');
+  if(val)sel.value=val;
+}
+function toggleReminderInput(){
+  const chk=document.getElementById('ce-reminder');
+  const wrap=document.getElementById('ce-remind-wrap');
+  if(wrap)wrap.style.display=(chk&&chk.checked)?'flex':'none';
+}
+function toggleCalEntryType(){}
 function saveCalEvent(){
   const rawDate=document.getElementById('ce-date').value||selectedCalDate;
   const allDay=document.getElementById('ce-allday')?.checked||false;
+  const overnight=document.getElementById('ce-overnight')?.checked||false;
+  const startTimeVal=allDay?'':document.getElementById('ce-time')?.value||'';
+  const endTimeVal=allDay?'':document.getElementById('ce-end-time')?.value||'';
+  let endDate=rawDate;
+  if(overnight&&startTimeVal&&endTimeVal){
+    const [sh,sm]=startTimeVal.split(':').map(Number);
+    const [eh,em]=endTimeVal.split(':').map(Number);
+    if(eh*60+em<=sh*60+sm){const d=new Date(rawDate+'T00:00:00');d.setDate(d.getDate()+1);endDate=d.toISOString().split('T')[0];}
+  }
+  const remMin=parseInt(document.getElementById('ce-remind-min')?.value||30,10);
+  const alsoTask=document.getElementById('ce-also-task')?.checked||false;
   const e={
     id:calEditingId||Date.now(),
     title:document.getElementById('ce-title').value.trim()||'Event',
-    date:rawDate,
-    time:allDay?'':document.getElementById('ce-time').value,
-    endTime:allDay?'':document.getElementById('ce-end-time')?.value||'',
+    date:rawDate,endDate:endDate!==rawDate?endDate:'',
+    time:startTimeVal,endTime:endTimeVal,
     type:document.getElementById('ce-type').value||'lif',
     loc:document.getElementById('ce-loc').value.trim(),
     notes:document.getElementById('ce-notes')?.value.trim()||'',
-    allDay,
+    allDay,overnight,
     reminder:document.getElementById('ce-reminder')?.checked||false,
+    remindMin:remMin,
     recur:document.getElementById('ce-recur')?.value||'none',
     recurEnd:document.getElementById('ce-recur-end')?.value||'',
     recurN:document.getElementById('ce-custom-n')?.value||'',
@@ -6064,22 +6277,23 @@ function saveCalEvent(){
     DB.calEvents.push(e);
     SB.upsert('cal_events',e,'calEvents');
   }
-  // Conflict check
+  if(alsoTask&&!calEditingId){
+    const t={id:Date.now()+2,title:e.title,world:e.type==='cs'?'WORK-CS':e.type==='ih'?'WORK-IH':'LIFE',priority:'Medium',status:'Todo',due:rawDate,platform:'',client:'',notes:e.notes,startTime:startTimeVal,endTime:endTimeVal,groupId:null,subitems:[],timelineS:'',timelineE:'',numValue:null,connBoard:null,connItemId:null};
+    DB.tasks.unshift(t);SB.upsert('tasks',t,'tasks');
+    addHistory('add','Added task from event: '+t.title,{...t,_dbKey:'tasks'});
+  }
   const conflicts=detectConflicts(e.date,e.time,e.endTime,e.id);
-  if(conflicts.length){
-    showToast('⚠️ Time conflict with: '+conflicts.map(c=>c.title).join(', '),4000);
-  }
-  // Reminder notification permission
-  if(e.reminder&&'Notification' in window&&Notification.permission==='default'){
-    Notification.requestPermission();
-  }
+  if(conflicts.length)showToast('⚠ Time conflict with: '+conflicts.map(c=>c.title).join(', '),4000);
+  if(e.reminder&&'Notification' in window&&Notification.permission==='default')Notification.requestPermission();
   calEditingId=null;
   ['ce-title','ce-loc','ce-notes'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   const recurEl=document.getElementById('ce-recur');if(recurEl)recurEl.value='none';
+  ['ce-overnight','ce-also-task','ce-reminder'].forEach(id=>{const el=document.getElementById(id);if(el)el.checked=false;});
+  toggleReminderInput();
   closeModal('calModal');
-  addHistory('add','Added event: '+e.title,{...e,_dbKey:'calEvents'});
+  addHistory('add','Added event: '+e.title+(alsoTask?' + task':''),{...e,_dbKey:'calEvents'});
   renderCalendar();renderBrief();
-  showToast('✓ Event saved'+(conflicts.length?' (check conflicts)':''));
+  showToast('✓ Event saved'+(alsoTask?' + Task created':'')+(conflicts.length?' (check conflicts)':''));
 }
 
 function openCalEventModal(){openCalEventModalOnDate(calSelectedDate||new Date().toISOString().split('T')[0]);}
@@ -6088,16 +6302,18 @@ function openCalEventModalOnDate(date){
   selectedCalDate=date;
   document.getElementById('calModalTitle').textContent='Add Event';
   document.getElementById('ce-date').value=date;
-  ['ce-title','ce-time','ce-loc','ce-notes'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
-  const etEl=document.getElementById('ce-end-time');if(etEl)etEl.value='';
+  build12hOptions('ce-time','');
+  build12hOptions('ce-end-time','');
+  ['ce-title','ce-loc','ce-notes'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   const rEl=document.getElementById('ce-recur');if(rEl)rEl.value='none';
-  const alEl=document.getElementById('ce-allday');if(alEl)alEl.checked=false;
-  const rmEl=document.getElementById('ce-reminder');if(rmEl)rmEl.checked=false;
+  ['ce-allday','ce-overnight','ce-also-task','ce-reminder'].forEach(id=>{const el=document.getElementById(id);if(el)el.checked=false;});
   const reEl=document.getElementById('ce-recur-end');if(reEl)reEl.value='';
+  const rmMinEl=document.getElementById('ce-remind-min');if(rmMinEl)rmMinEl.value=30;
+  toggleReminderInput();
   toggleRecurOptions();
   openModal('calModal');
 }
-function saveCalEvent(){const rawDate=document.getElementById('ce-date').value||selectedCalDate;const e={id:Date.now(),title:document.getElementById('ce-title').value.trim()||'Event',date:rawDate,time:document.getElementById('ce-time').value,endTime:document.getElementById('ce-end-time')?.value||'',type:document.getElementById('ce-type').value,loc:document.getElementById('ce-loc').value.trim(),notes:document.getElementById('ce-notes')?.value.trim()||''};DB.calEvents.push(e);SB.upsert('cal_events',e,'calEvents');closeModal('calModal');addHistory('add','Added event: '+e.title,{...e,_dbKey:'calEvents'});renderCalendar();renderBrief();showToast('✓ Event saved');}
+// [duplicate saveCalEvent removed]
 
 // NOTES — callout grid
 let noteBlocks=[],currentNote=0;
