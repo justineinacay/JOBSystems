@@ -867,16 +867,28 @@ select option{background:var(--navy3)}
 
   /* ── BRIEF: Quick Capture Bar — stack input above buttons ── */
   #briefCaptureBar{
-    flex-wrap:wrap !important;
-    gap:6px !important;
-    padding:8px 10px !important;
+    flex-direction:column !important;
+    align-items:stretch !important;
+    gap:8px !important;
+    padding:10px !important;
   }
-  #briefCaptureBar > span { font-size:8px !important; }
-  #captureInput{font-size:16px !important;min-width:0;flex:1 !important;}
+  #briefCaptureBar > i { display:none !important; }
+  #captureInput{font-size:16px !important;width:100% !important;}
   #briefCaptureBtns{
-    padding:7px 12px !important;
-    font-size:11px !important;
+    display:grid !important;
+    grid-template-columns:repeat(4,1fr) !important;
+    gap:5px !important;
+    flex-shrink:0 !important;
+    width:100% !important;
   }
+  #briefCaptureBtns .btn{
+    padding:6px 4px !important;
+    font-size:9px !important;
+    justify-content:center !important;
+    text-align:center !important;
+    min-height:36px !important;
+  }
+  #briefCaptureBtns .btn i{ display:none !important; }
 
   /* ── BRIEF: TO DO NOW + CASH FLOW — single column on mobile ── */
   #briefMainRow{
@@ -1402,11 +1414,18 @@ select option{background:var(--navy3)}
     grid-template-columns:1fr !important;
   }
 
-  /* ── 2a. QUICK CAPTURE — single Enter button ──────────────── */
+  /* ── 2a. QUICK CAPTURE — 2-col grid ────────────────────────── */
   #briefCaptureBtns{
-    padding:8px 12px !important;
-    font-size:11px !important;
-    min-height:36px !important;
+    display:grid !important;
+    grid-template-columns:repeat(2,1fr) !important;
+    gap:6px !important;
+    width:100% !important;
+  }
+  #briefCaptureBtns .btn{
+    justify-content:center !important;
+    padding:8px 6px !important;
+    font-size:10px !important;
+    min-height:40px !important;
   }
 
   /* ── 3. CASHFLOW — vertical full-width summary cards ──────── */
@@ -2107,7 +2126,7 @@ select option{background:var(--navy3)}
   </div>
 </div>
 
-<!-- FAITH MODAL -->
+<!-- FAITH — ACTIVITY MODAL -->
 <div class="mov" id="faithModal">
   <div class="modal">
     <div class="mh"><div class="mt" id="faithModalTitle">Add Activity</div><button class="mc" onclick="closeModal('faithModal')">×</button></div>
@@ -2123,12 +2142,134 @@ select option{background:var(--navy3)}
         <div class="fg"><label class="fl">AEVM #</label><input id="fa-aevm" placeholder="e.g. AE-2026-001"></div>
       </div>
       <div class="fr">
-        <div class="fg"><label class="fl">Status</label><select id="fa-status"><option>Pending</option><option>Submitted</option><option>Approved</option><option>Done</option><option>Rejected</option></select></div>
+        <div class="fg"><label class="fl">Status</label>
+          <select id="fa-status">
+            <option value="No Progress">No Progress</option>
+            <option value="Todo">To-Do</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Approved">Approved</option>
+            <option value="Done">Done</option>
+          </select>
+        </div>
         <div class="fg"><label class="fl">Assigned To</label><input id="fa-assigned" placeholder="Name..."></div>
       </div>
       <div class="fg"><label class="fl">Google Drive Link</label><input id="fa-drive" placeholder="https://drive.google.com/..."></div>
     </div>
     <div class="mf"><button class="btn btn-g" onclick="closeModal('faithModal')">Cancel</button><button class="btn btn-o" onclick="saveFaithActivity()">Save Activity</button></div>
+  </div>
+</div>
+
+<!-- FAITH — OFFICER MODAL -->
+<div class="mov" id="faithOfficerModal">
+  <div class="modal" style="width:min(580px,96vw)">
+    <div class="mh"><div class="mt" id="faithOfficerModalTitle">Add Officer</div><button class="mc" onclick="closeModal('faithOfficerModal')">×</button></div>
+    <div class="mb">
+      <div class="fr">
+        <div class="fg"><label class="fl">Full Name</label><input id="fo-name" placeholder="Officer's full name..."></div>
+        <div class="fg"><label class="fl">Status</label>
+          <select id="fo-status">
+            <option value="Active">Active</option>
+            <option value="Inactive">Inactive</option>
+            <option value="Resigned">Resigned</option>
+            <option value="On Leave">On Leave</option>
+          </select>
+        </div>
+      </div>
+      <div class="fr">
+        <div class="fg"><label class="fl">Type</label>
+          <select id="fo-type" onchange="updateOfficerGroupOptions()">
+            <option value="committee">Committee</option>
+            <option value="area">Area (Purok)</option>
+          </select>
+        </div>
+        <div class="fg"><label class="fl">Group</label>
+          <select id="fo-group">
+            <option value="Executive">Executive</option>
+            <option value="Leadership Enhancement and Development">Leadership Enhancement &amp; Development</option>
+            <option value="Edification and Propagation">Edification &amp; Propagation</option>
+            <option value="Sports">Sports</option>
+            <option value="Education and Livelihood">Education &amp; Livelihood</option>
+            <option value="Arts and Culture">Arts &amp; Culture</option>
+            <option value="Social Development and Services">Social Development &amp; Services</option>
+          </select>
+        </div>
+      </div>
+      <div class="fg"><label class="fl">Position</label>
+        <select id="fo-position">
+          <option value="President">President</option>
+          <option value="Vice President">Vice President</option>
+          <option value="Secretary">Secretary</option>
+          <option value="Assistant Secretary">Assistant Secretary</option>
+          <option value="Chairperson">Chairperson</option>
+          <option value="Assistant Chairperson">Assistant Chairperson</option>
+          <option value="Committee Secretary">Committee Secretary</option>
+          <option value="Committee Officer">Committee Officer</option>
+          <option value="Area Leader">Area Leader</option>
+          <option value="Assistant Area Leader">Assistant Area Leader</option>
+          <option value="Area Secretary">Area Secretary</option>
+          <option value="Assistant Area Secretary">Assistant Area Secretary</option>
+          <option value="Group Leader">Group Leader</option>
+        </select>
+      </div>
+      <div class="fg"><label class="fl">Assignment / Additional Role</label><input id="fo-assignment" placeholder="e.g. Spiritual Formation, Finance, Youth..."></div>
+      <div class="fr">
+        <div class="fg"><label class="fl">Contact</label><input id="fo-contact" placeholder="09XX or Facebook..."></div>
+        <div class="fg"><label class="fl">Oath Date</label><input type="date" id="fo-oath"></div>
+      </div>
+      <div class="fg"><label class="fl">Address</label><input id="fo-address" placeholder="Barangay / Street / City..."></div>
+      <div class="fg"><label class="fl">Notes</label><textarea id="fo-notes" rows="2" placeholder="Additional notes..."></textarea></div>
+    </div>
+    <div class="mf"><button class="btn btn-g" onclick="closeModal('faithOfficerModal')">Cancel</button><button class="btn btn-o" onclick="saveFaithOfficer()">Save Officer</button></div>
+  </div>
+</div>
+
+<!-- FAITH — TOPIC MODAL -->
+<div class="mov" id="faithTopicModal">
+  <div class="modal" style="width:min(520px,96vw)">
+    <div class="mh"><div class="mt" id="faithTopicModalTitle">Add Topic</div><button class="mc" onclick="closeModal('faithTopicModal')">×</button></div>
+    <div class="mb">
+      <div class="fg"><label class="fl">Title</label><input id="ft-title" placeholder="Topic or discussion title..."></div>
+      <div class="fr">
+        <div class="fg"><label class="fl">Assigned Committee</label>
+          <select id="ft-committee">
+            <option value="">— None —</option>
+            <option value="Executive">Executive</option>
+            <option value="Leadership Enhancement and Development">Leadership Enhancement &amp; Development</option>
+            <option value="Edification and Propagation">Edification &amp; Propagation</option>
+            <option value="Sports">Sports</option>
+            <option value="Education and Livelihood">Education &amp; Livelihood</option>
+            <option value="Arts and Culture">Arts &amp; Culture</option>
+            <option value="Social Development and Services">Social Development &amp; Services</option>
+            <option value="All Committees">All Committees</option>
+          </select>
+        </div>
+        <div class="fg"><label class="fl">Google Drive Link</label><input id="ft-drive" placeholder="https://drive.google.com/..."></div>
+      </div>
+      <div class="fg"><label class="fl">Notes</label><textarea id="ft-notes" rows="6" placeholder="Outline, discussion points, scripture references, reminders..."></textarea></div>
+    </div>
+    <div class="mf"><button class="btn btn-g" onclick="closeModal('faithTopicModal')">Cancel</button><button class="btn btn-o" onclick="saveFaithTopic()">Save Topic</button></div>
+  </div>
+</div>
+
+<!-- FAITH — FILE MODAL -->
+<div class="mov" id="faithFileModal">
+  <div class="modal" style="width:min(460px,96vw)">
+    <div class="mh"><div class="mt" id="faithFileModalTitle">Add File</div><button class="mc" onclick="closeModal('faithFileModal')">×</button></div>
+    <div class="mb">
+      <div class="fg"><label class="fl">File / Document Name</label><input id="ff-name" placeholder="Document name..."></div>
+      <div class="fr">
+        <div class="fg"><label class="fl">Type</label>
+          <select id="ff-type">
+            <option>Document</option><option>Presentation</option><option>Spreadsheet</option>
+            <option>Photo</option><option>Video</option><option>Form</option><option>Report</option><option>Other</option>
+          </select>
+        </div>
+        <div class="fg"><label class="fl">Date Filed</label><input type="date" id="ff-date"></div>
+      </div>
+      <div class="fg"><label class="fl">Google Drive Link</label><input id="ff-url" placeholder="https://drive.google.com/..."></div>
+      <div class="fg"><label class="fl">Notes</label><textarea id="ff-notes" rows="2" placeholder="Description or remarks..."></textarea></div>
+    </div>
+    <div class="mf"><button class="btn btn-g" onclick="closeModal('faithFileModal')">Cancel</button><button class="btn btn-o" onclick="saveFaithFile()">Save File</button></div>
   </div>
 </div>
 
@@ -2620,11 +2761,15 @@ select option{background:var(--navy3)}
         <div id="overheadScoreboard" style="display:grid;grid-template-columns:repeat(6,1fr);gap:7px;flex-shrink:0"></div>
 
         <!-- ROW 2: SMART QUICK-ADD BAR (moved above todo/cash for visual priority) -->
-        <div id="briefCaptureBar" style="background:#050a12;border:1px solid var(--teal2);border-radius:4px;padding:8px 12px;display:flex;gap:8px;align-items:center;flex-shrink:0">
-          <span style="font-size:9px;font-weight:800;letter-spacing:.14em;color:var(--teal2);text-transform:uppercase;flex-shrink:0;white-space:nowrap">QUICK CAPTURE</span>
-          <div style="width:1px;height:14px;background:var(--border2);flex-shrink:0"></div>
-          <input style="border:none;background:transparent;flex:1;font-size:12px;outline:none;color:var(--text1)" id="captureInput" placeholder="/cs · /ih · /build · /faith · /debit 500 desc · /credit 1000 desc · or type anything…" onkeydown="if(event.key==='Enter')processCapture()">
-          <button onclick="processCapture()" id="briefCaptureBtns" style="flex-shrink:0;background:var(--teal);color:var(--navy);border:none;border-radius:3px;padding:5px 14px;font-size:11px;font-weight:800;cursor:pointer;letter-spacing:.05em;display:flex;align-items:center;gap:5px;white-space:nowrap"><i class="ti ti-corner-down-left" style="font-size:11px;line-height:1;display:block"></i> Enter</button>
+        <div id="briefCaptureBar" style="background:#050a12;border:1px solid var(--teal2);border-radius:4px;padding:10px 14px;display:flex;gap:10px;align-items:center;flex-shrink:0">
+          <i class="ti ti-command" style="color:var(--teal);font-size:15px;flex-shrink:0;line-height:1;display:block" id="captureIcon"></i>
+          <input style="border:none;background:transparent;flex:1;font-size:12px;outline:none;color:var(--text1)" id="captureInput" placeholder="Quick capture — type anything and press Enter..." onkeydown="if(event.key==='Enter')processCapture()">
+          <div id="briefCaptureBtns" style="display:flex;gap:5px;flex-shrink:0;flex-wrap:wrap">
+            <button class="btn" style="font-size:10px;padding:5px 10px;font-weight:700;background:rgba(255,34,68,.12);color:var(--red);border:1px solid rgba(255,34,68,.35)" onclick="quickAddTask('WORK-CS')"><i class="ti ti-flame" style="font-size:10px"></i> Add task to CS</button>
+            <button class="btn" style="font-size:10px;padding:5px 10px;font-weight:700;background:rgba(0,255,242,.08);color:var(--teal);border:1px solid var(--teal2)" onclick="quickAddTask('WORK-IH')"><i class="ti ti-briefcase" style="font-size:10px"></i> Add task to Ideahub</button>
+            <button class="btn" style="font-size:10px;padding:5px 10px;font-weight:700;background:rgba(239,68,68,.12);color:var(--red);border:1px solid rgba(239,68,68,.35)" onclick="openCashModal('Credit')"><i class="ti ti-minus" style="font-size:10px"></i> Credit</button>
+            <button class="btn" style="font-size:10px;padding:5px 10px;font-weight:700;background:rgba(34,197,94,.12);color:var(--green);border:1px solid rgba(34,197,94,.35)" onclick="openCashModal('Debit')"><i class="ti ti-plus" style="font-size:10px"></i> Debit</button>
+          </div>
         </div>
 
         <!-- ROW 1: TO DO NOW (left) + CASH FLOW (right) -->
@@ -2872,16 +3017,98 @@ select option{background:var(--navy3)}
 
     <!-- ===== FAITH ===== -->
     <div class="view" id="view-faith">
-      <div class="vh"><div><div class="vt" style="color:var(--purple)"><i class="ti ti-heart-handshake"></i>FAITH — Buklod</div><div class="vs">CAA · District of Metro Manila South · Kapisanan Buklod</div></div><div class="va"><button class="btn btn-g"><i class="ti ti-download"></i> Export</button><button class="btn btn-o" onclick="openFaithModal()"><i class="ti ti-plus"></i> Activity</button></div></div>
-      <div class="vb">
-        <div class="mr" style="grid-template-columns:repeat(4,1fr)">
-          <div class="hc"><div class="cl">Total</div><div class="cv" id="faithTotal">0</div></div>
-          <div class="hc"><div class="cl">Approved</div><div class="cv" id="faithApproved" style="color:var(--green)">0</div></div>
-          <div class="hc"><div class="cl">Submitted</div><div class="cv" id="faithSubmitted" style="color:var(--teal)">0</div></div>
-          <div class="hc"><div class="cl">Pending</div><div class="cv" id="faithPending" style="color:var(--amber)">0</div></div>
+      <div class="vh">
+        <div><div class="vt" style="color:var(--purple)"><i class="ti ti-heart-handshake"></i>FAITH — Buklod</div><div class="vs">CAA · District of Metro Manila South · Kapisanan Buklod</div></div>
+        <div class="va">
+          <button class="btn btn-g" onclick="exportFaithData()"><i class="ti ti-download"></i> Export</button>
+          <button class="btn btn-o" onclick="faithTabAdd()"><i class="ti ti-plus"></i> <span id="faithAddLabel">Activity</span></button>
         </div>
-        <table class="ht"><thead><tr><th>Group</th><th>Activity</th><th>Date</th><th>Submitted</th><th>CFO #</th><th>AEVM #</th><th>Status</th><th>Assigned</th><th>Drive</th><th></th></tr></thead><tbody id="faithTbody"></tbody></table>
-        <div class="faith-empty" id="faithEmpty">No activities yet. Click "Activity" to begin.</div>
+      </div>
+      <div class="vb" style="padding:0;overflow:hidden;display:flex;flex-direction:column">
+
+        <!-- TAB BAR -->
+        <div class="cftab" style="flex-shrink:0;padding:10px 16px 0;border-bottom:1px solid var(--border);margin-bottom:0">
+          <div class="cfbt active" id="ftab-activities" onclick="setFaithTab('activities',this)"><i class="ti ti-calendar-event" style="font-size:10px;margin-right:3px;line-height:1;display:inline-block"></i>Activities</div>
+          <div class="cfbt" id="ftab-officers" onclick="setFaithTab('officers',this)"><i class="ti ti-users" style="font-size:10px;margin-right:3px;line-height:1;display:inline-block"></i>Officers</div>
+          <div class="cfbt" id="ftab-topics" onclick="setFaithTab('topics',this)"><i class="ti ti-book" style="font-size:10px;margin-right:3px;line-height:1;display:inline-block"></i>Topics</div>
+          <div class="cfbt" id="ftab-files" onclick="setFaithTab('files',this)"><i class="ti ti-folder" style="font-size:10px;margin-right:3px;line-height:1;display:inline-block"></i>Files</div>
+        </div>
+
+        <!-- ════ ACTIVITIES TAB ════ -->
+        <div id="faith-tab-activities" style="flex:1;overflow-y:auto;padding:14px 16px;display:flex;flex-direction:column;gap:10px">
+          <div class="mr" style="grid-template-columns:repeat(5,1fr);flex-shrink:0">
+            <div class="hc"><div class="cl">Total</div><div class="cv" id="faithTotal">0</div></div>
+            <div class="hc"><div class="cl">No Progress</div><div class="cv" id="faithNoProgress" style="color:var(--red)">0</div></div>
+            <div class="hc"><div class="cl">In Progress</div><div class="cv" id="faithInProgress" style="color:#f5d800">0</div></div>
+            <div class="hc"><div class="cl">Approved</div><div class="cv" id="faithApproved" style="color:var(--green)">0</div></div>
+            <div class="hc"><div class="cl">Done</div><div class="cv" id="faithDone" style="color:#60a5fa">0</div></div>
+          </div>
+          <div style="overflow-x:auto;flex-shrink:0">
+            <table class="ht"><thead><tr><th>Group</th><th>Activity</th><th>Date</th><th>Submitted</th><th>CFO #</th><th>AEVM #</th><th>Status</th><th>Assigned</th><th>Drive</th><th></th></tr></thead><tbody id="faithTbody"></tbody></table>
+          </div>
+          <div class="faith-empty" id="faithEmpty" style="display:none">No activities yet. Click "+ Activity" to begin.</div>
+        </div>
+
+        <!-- ════ OFFICERS TAB ════ -->
+        <div id="faith-tab-officers" style="display:none;flex:1;overflow-y:auto;padding:14px 16px;flex-direction:column;gap:12px">
+
+          <!-- Filter bar -->
+          <div style="display:flex;gap:8px;align-items:center;flex-shrink:0;flex-wrap:wrap">
+            <select id="officerFilterType" onchange="renderFaithOfficers()" style="font-size:11px;padding:4px 8px;width:140px">
+              <option value="all">All Types</option>
+              <option value="committee">Committee</option>
+              <option value="area">Area (Purok)</option>
+            </select>
+            <select id="officerFilterGroup" onchange="renderFaithOfficers()" style="font-size:11px;padding:4px 8px;width:220px">
+              <option value="all">All Groups</option>
+              <optgroup label="Committees">
+                <option value="Executive">Executive</option>
+                <option value="Leadership Enhancement and Development">Leadership Enhancement &amp; Development</option>
+                <option value="Edification and Propagation">Edification &amp; Propagation</option>
+                <option value="Sports">Sports</option>
+                <option value="Education and Livelihood">Education &amp; Livelihood</option>
+                <option value="Arts and Culture">Arts &amp; Culture</option>
+                <option value="Social Development and Services">Social Development &amp; Services</option>
+              </optgroup>
+              <optgroup label="Areas (Purok)">
+                <option value="Area 1">Area 1</option>
+                <option value="Area 2">Area 2</option>
+                <option value="Area 3">Area 3</option>
+                <option value="Area 4">Area 4</option>
+                <option value="Area 5">Area 5</option>
+                <option value="Area 6">Area 6</option>
+                <option value="Area 7">Area 7</option>
+                <option value="Area 8">Area 8</option>
+                <option value="Area 9">Area 9</option>
+              </optgroup>
+            </select>
+            <span id="officerCount" style="font-size:10px;color:var(--text3);margin-left:auto"></span>
+          </div>
+
+          <!-- Officers table -->
+          <div style="overflow-x:auto">
+            <table class="ht">
+              <thead><tr><th>Name</th><th>Group</th><th>Position</th><th>Contact</th><th>Address</th><th>Oath Date</th><th>Assignment</th><th>Status</th><th></th></tr></thead>
+              <tbody id="faithOfficersTbody"></tbody>
+            </table>
+          </div>
+          <div class="faith-empty" id="faithOfficersEmpty" style="display:none">No officers yet. Click "+ Officer" to begin.</div>
+        </div>
+
+        <!-- ════ TOPICS TAB ════ -->
+        <div id="faith-tab-topics" style="display:none;flex:1;overflow-y:auto;padding:14px 16px;flex-direction:column;gap:12px">
+          <div style="font-size:11px;color:var(--text3);flex-shrink:0">Notes and references for Buklod topics and discussions.</div>
+          <div id="faithTopicsGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px"></div>
+          <div class="faith-empty" id="faithTopicsEmpty" style="display:none">No topics yet. Click "+ Topic" to begin.</div>
+        </div>
+
+        <!-- ════ FILES TAB ════ -->
+        <div id="faith-tab-files" style="display:none;flex:1;overflow-y:auto;padding:14px 16px;flex-direction:column;gap:12px">
+          <div style="font-size:11px;color:var(--text3);flex-shrink:0">File links and Google Drive references for Buklod records.</div>
+          <div id="faithFilesGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px"></div>
+          <div class="faith-empty" id="faithFilesEmpty" style="display:none">No files yet. Click "+ File" to begin.</div>
+        </div>
+
       </div>
     </div>
 
@@ -3226,7 +3453,7 @@ select option{background:var(--navy3)}
 
         </div>
         <!-- BOARD BODY (desktop) -->
-        <div id="boardBody" style="flex:1;overflow:hidden;display:flex;flex-direction:column;min-height:0;position:relative"></div>
+        <div id="boardBody" style="flex:1;overflow:hidden;display:flex;flex-direction:column;min-height:0"></div>
         <!-- MOBILE TASK BAR — hidden on desktop, shown via 430px CSS -->
         <div id="mobileTaskBar" style="display:none;flex-direction:column;flex:1;min-height:0;overflow:hidden">
           <div style="display:flex;gap:8px;padding:10px 14px;flex-shrink:0;border-bottom:1px solid var(--border);background:var(--navy2)">
@@ -4262,6 +4489,9 @@ const DB={
   ],
   sides:JSON.parse(localStorage.getItem('j-sides')||'null')||[],
   faith:JSON.parse(localStorage.getItem('j-faith')||'null')||[],
+  faithOfficers:JSON.parse(localStorage.getItem('j-faithOfficers')||'null')||[],
+  faithTopics:JSON.parse(localStorage.getItem('j-faithTopics')||'null')||[],
+  faithFiles:JSON.parse(localStorage.getItem('j-faithFiles')||'null')||[],
   cashflow:JSON.parse(localStorage.getItem('j-cashflow')||'null')||[],
   calEvents:JSON.parse(localStorage.getItem('j-calEvents')||'null')||[
     {id:1,title:'Church + Buklod Panata',date:'2026-06-14',time:'18:00',type:'pu',loc:'Church',notes:''},
@@ -5479,59 +5709,42 @@ function renderBoardTable(tasks){
 function renderBoardKanban(tasks){
   const el=document.getElementById('boardBody');
   if(!el)return;
-
-  // Colour + pill config — correct semantic colours
-  // No Progress=red, To-Do=orange, In Progress=yellow, Done=green
-  const statusCfg={
-    'Todo':        {tgm:'todo',    pill:'pgr', headerColor:'var(--orange)', borderColor:'var(--orange)'},
-    'In Progress': {tgm:'prog',    pill:'pt',  headerColor:'#f5d800',       borderColor:'#f5d800'},
-    'No Progress': {tgm:'noprog', pill:'pr',  headerColor:'var(--red)',    borderColor:'var(--red)'},
-    'Done':        {tgm:'done',   pill:'pg',  headerColor:'var(--green)',  borderColor:'var(--green)'},
-  };
   const statuses=['Todo','In Progress','No Progress','Done'];
+  const sc={
+    'Todo':'var(--text3)','In Progress':'var(--teal)',
+    'No Progress':'var(--amber)','Done':'var(--green)'
+  };
+  const sch={'Todo':'pgr','In Progress':'pt','No Progress':'pam','Done':'pg'};
+  const tgm={'Todo':'','In Progress':'prog','No Progress':'noprog','Done':'done'};
 
-  let html=`
-    <div style="display:flex;flex-direction:column;height:100%;min-height:0;overflow:hidden">
-      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;flex:1;min-height:0;overflow-x:auto;overflow-y:hidden;padding:12px">`;
-
+  let html='<div class="kanban-wrap"><div class="kb-cols" style="overflow-y:hidden;overflow-x:auto;min-height:0">';
   statuses.forEach(s=>{
-    const cfg=statusCfg[s]||{tgm:'todo',pill:'pgr',headerColor:'var(--orange)',borderColor:'var(--orange)'};
     const items=tasks.filter(t=>t.status===s);
-    const displayLabel=s==='Todo'?'TO-DO':s.toUpperCase();
-
-    html+=`
-      <div style="display:flex;flex-direction:column;background:var(--navy2);border:1px solid var(--border);border-radius:6px;overflow:hidden;min-height:0;border-top:3px solid ${cfg.borderColor}">
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--border);flex-shrink:0">
-          <span style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:${cfg.headerColor}">${displayLabel}</span>
-          <span class="pill ${cfg.pill}" style="font-size:9px">${items.length}</span>
-        </div>
-        <div style="flex:1;overflow-y:auto;padding:8px;-webkit-overflow-scrolling:touch">
-          ${items.map(t=>{
-            const hasSubs=(t.subitems||[]).length;
-            const b=BOARDS.find(b=>b.id===t.world);
-            const subs=t.subitems||[];
-            const prioCol=t.priority==='High'?'var(--red)':t.priority==='Medium'?'var(--amber)':'var(--green)';
-            const prioClass=t.priority==='High'?'ph':t.priority==='Medium'?'pm':'pl';
-            return`<div class="kcard" onclick="editTask(${t.id})" oncontextmenu="showCtx(event,${t.id},'task')" style="border-left:3px solid ${b?b.stripe:'var(--border)'};border-top:none;border-radius:4px;margin-bottom:8px">
-              <div class="kct">${t.title}${t.priority==='High'?'<span style="color:var(--red);font-size:10px;margin-left:5px">!</span>':''}</div>
-              ${t.client?`<div class="kcm"><span style="color:var(--teal)">◈</span>${t.client}</div>`:''}
-              ${t.platform?`<div class="kcm"><i class="ti ti-device-desktop" style="font-size:10px;line-height:1;display:block"></i>${t.platform}</div>`:''}
-              ${t.due?`<div class="kcp">Due: ${t.due}</div>`:''}
-              <div class="kcm" style="margin-top:6px">
-                <div class="pdot ${prioClass}"></div>
-                <span style="font-size:10px;color:${prioCol}">${t.priority}</span>
-                ${b?`<span style="margin-left:auto;font-size:9px;background:${b.stripe}22;color:${b.color};border:1px solid ${b.stripe}44;border-radius:2px;padding:1px 5px;white-space:nowrap">${b.name}</span>`:''}
-              </div>
-              ${(t.timelineS||t.timelineE)?`<div class="kc-timeline">${timelineBar(t)}</div>`:''}
-              ${t.connBoard?`<div class="kc-conn">${connChip(t)}</div>`:''}
-              ${hasSubs?`<div class="kc-subitems"><div style="font-size:9px;color:var(--text3);margin-bottom:3px;text-transform:uppercase;letter-spacing:.07em">↳ ${hasSubs} sub-item${hasSubs>1?'s':''}</div>${subs.slice(0,3).map(sub=>`<div class="kc-sub-row"><div style="width:6px;height:6px;border-radius:50%;background:${sub.status==='Done'?'var(--green)':'var(--text3)'}"></div>${sub.title}</div>`).join('')}</div>`:''}
-            </div>`;
-          }).join('')}
-        </div>
-        <div class="kc-add" onclick="openTaskForStatus('all','${s}')"><i class="ti ti-plus" style="font-size:11px;line-height:1;display:block"></i> Add item</div>
-      </div>`;
+    html+=`<div class="kc">
+      <div class="kch ${tgm[s]||'todo'}">
+        <span class="kch-title">${s.toUpperCase()}</span>
+        <span class="pill ${sch[s]}" style="font-size:9px">${items.length}</span>
+      </div>
+      <div class="kc-body">
+        ${items.map(t=>{
+          const hasSubs=(t.subitems||[]).length;
+          const b=BOARDS.find(b=>b.id===t.world);
+          const subs=t.subitems||[];
+          return`<div class="kcard" onclick="editTask(${t.id})" oncontextmenu="showCtx(event,${t.id},'task')" style="border-top:2px solid ${b?b.stripe:'var(--border)'}">
+            <div class="kct">${t.title}</div>
+            ${t.client?`<div class="kcm"><span style="color:var(--teal)">◈</span>${t.client}</div>`:''}
+            ${t.platform?`<div class="kcm"><i class="ti ti-device-desktop" style="font-size:10px;line-height:1;display:block"></i>${t.platform}</div>`:''}
+            ${t.due?`<div class="kcp">Due: ${t.due}</div>`:''}
+            <div class="kcm" style="margin-top:3px"><div class="pdot ${t.priority==='High'?'ph':t.priority==='Medium'?'pm':'pl'}"></div>${t.priority}</div>
+            ${(t.timelineS||t.timelineE)?`<div class="kc-timeline">${timelineBar(t)}</div>`:''}
+            ${t.connBoard?`<div class="kc-conn">${connChip(t)}</div>`:''}
+            ${hasSubs?`<div class="kc-subitems"><div style="font-size:9px;color:var(--text3);margin-bottom:3px;text-transform:uppercase;letter-spacing:.07em">↳ ${hasSubs} sub-item${hasSubs>1?'s':''}</div>${subs.slice(0,3).map(s=>`<div class="kc-sub-row"><div class="pdot ${s.status==='Done'?'pg':''}" style="width:6px;height:6px;border-radius:50%;background:${s.status==='Done'?'var(--green)':'var(--text3)'}"></div>${s.title}</div>`).join('')}</div>`:''}
+          </div>`;
+        }).join('')}
+      </div>
+      <div class="kc-add" onclick="openTaskForStatus('all','${s}')"><i class="ti ti-plus" style="font-size:11px;line-height:1;display:block"></i> Add item</div>
+    </div>`;
   });
-
   html+='</div></div>';
   el.innerHTML=html;
 }
@@ -5815,7 +6028,7 @@ function renderCSList(tasks,cfg){
 
 // ===== MODALS =====
 function openModal(id){document.getElementById(id).classList.add('open')}
-function closeModal(id){document.getElementById(id).classList.remove('open');editingTaskId=null;editingClientId=null;editingFaithId=null;editingVentureId=null;editingJournalId=null;editingCashId=null;}
+function closeModal(id){document.getElementById(id).classList.remove('open');editingTaskId=null;editingClientId=null;editingFaithId=null;editingFaithOfficerId=null;editingFaithTopicId=null;editingFaithFileId=null;editingVentureId=null;editingJournalId=null;editingCashId=null;}
 function openTaskFor(world){document.getElementById('tf-world').value=world;document.getElementById('taskModalTitle').textContent='New Task';openModal('taskModal');}
 function openTaskForStatus(world,status){document.getElementById('tf-world').value=world;document.getElementById('tf-status').value=status;document.getElementById('taskModalTitle').textContent='New Task';openModal('taskModal');}
 
@@ -6043,11 +6256,353 @@ function addSidesTodo(pid){const text=prompt('Task:');if(!text)return;const p=DB
 function toggleSideTodo(pid,idx){const p=DB.sides.find(x=>x.id===pid);if(!p||!p.todos)return;p.todos[idx].done=!p.todos[idx].done;SB.update('sides',pid,p,'sides');renderSides();}
 function removeSideTodo(pid,idx){const p=DB.sides.find(x=>x.id===pid);if(!p||!p.todos)return;p.todos.splice(idx,1);SB.update('sides',pid,p,'sides');renderSides();}
 
-let editingFaithId=null;
-function openFaithModal(id){editingFaithId=id||null;const a=id?DB.faith.find(x=>x.id===id):null;document.getElementById('faithModalTitle').textContent=a?'Edit Activity':'Add Activity';['activity','group','date','submitted','cfo','aevm','status','assigned','drive'].forEach(f=>{const el=document.getElementById('fa-'+f);if(el)el.value=a?(a[f]||''):'';});openModal('faithModal');}
-function saveFaithActivity(){const a={id:editingFaithId||Date.now(),activity:document.getElementById('fa-activity').value.trim(),group:document.getElementById('fa-group').value.trim(),date:document.getElementById('fa-date').value,submitted:document.getElementById('fa-submitted').value,cfo:document.getElementById('fa-cfo').value.trim(),aevm:document.getElementById('fa-aevm').value.trim(),status:document.getElementById('fa-status').value,assigned:document.getElementById('fa-assigned').value.trim(),drive:document.getElementById('fa-drive').value.trim()};if(!a.activity){showToast('Activity name required');return;}const isEdit=!!editingFaithId;if(editingFaithId){const i=DB.faith.findIndex(x=>x.id===editingFaithId);if(i>=0)DB.faith[i]=a;SB.update('faith',a.id,a,'faith');}else{DB.faith.unshift(a);SB.upsert('faith',a,'faith');}addHistory(isEdit?'edit':'add',(isEdit?'Edited':'Added')+' faith: '+a.activity,{...a,_dbKey:'faith'});closeModal('faithModal');renderFaith();showToast('✓ Activity saved');}
-function deleteFaith(id){const a=DB.faith.find(x=>x.id===id);DB.faith=DB.faith.filter(x=>x.id!==id);SB.remove('faith',id,'faith');addHistory('delete','Deleted faith: '+a.activity,{...a,_dbKey:'faith'});renderFaith();showToast('Deleted');}
-function renderFaith(){const tb=document.getElementById('faithTbody'),em=document.getElementById('faithEmpty');if(!DB.faith.length){tb.innerHTML='';em.style.display='';return;}em.style.display='none';tb.innerHTML=DB.faith.map(f=>`<tr onclick="openFaithModal(${f.id})"><td style="font-weight:500">${f.group||'—'}</td><td>${f.activity}</td><td style="font-size:11px;color:var(--text3)">${f.date||'—'}</td><td style="font-size:11px;color:var(--text3)">${f.submitted||'—'}</td><td style="font-size:11px">${f.cfo||'—'}</td><td style="font-size:11px">${f.aevm||'—'}</td><td><span class="pill ${f.status==='Done'||f.status==='Approved'?'pg':f.status==='Submitted'?'pt':f.status==='Rejected'?'pr':'po'}">${f.status}</span></td><td style="font-size:11px">${f.assigned||'—'}</td><td>${f.drive?`<a href="${f.drive}" target="_blank" onclick="event.stopPropagation()" style="color:var(--teal);font-size:11px;display:inline-flex;align-items:center;gap:3px"><i class="ti ti-brand-google-drive" style="font-size:11px;line-height:1;display:block"></i>Open</a>`:'—'}</td><td><button class="btn btn-d" style="padding:2px 6px" onclick="event.stopPropagation();deleteFaith(${f.id})"><i class="ti ti-trash" style="font-size:11px;line-height:1;display:block"></i></button></td></tr>`).join('');document.getElementById('faithTotal').textContent=DB.faith.length;document.getElementById('faithApproved').textContent=DB.faith.filter(f=>f.status==='Approved'||f.status==='Done').length;document.getElementById('faithSubmitted').textContent=DB.faith.filter(f=>f.status==='Submitted').length;document.getElementById('faithPending').textContent=DB.faith.filter(f=>f.status==='Pending').length;}
+// ═══════════════════════════════════════════════════════
+//  FAITH WORLD — 4-TAB ENGINE
+//  Activities · Officers · Topics · Files
+// ═══════════════════════════════════════════════════════
+
+let editingFaithId=null, editingFaithOfficerId=null, editingFaithTopicId=null, editingFaithFileId=null;
+let faithActiveTab='activities';
+
+// ── Status pill helper — Faith-specific colour scheme ────────────────────────
+// No Progress=Red  To-Do=Orange  In Progress=Yellow  Approved=Green  Done=Blue
+function faithStatusPill(s){
+  const cfg={
+    'No Progress': 'background:rgba(255,34,68,.13);color:var(--red);border:1px solid rgba(255,34,68,.4)',
+    'Todo':        'background:rgba(255,140,0,.13);color:var(--orange);border:1px solid rgba(255,140,0,.4)',
+    'In Progress': 'background:rgba(255,220,0,.09);color:#f5d800;border:1px solid rgba(255,220,0,.3)',
+    'Approved':    'background:rgba(0,255,136,.1);color:var(--green);border:1px solid rgba(0,255,136,.3)',
+    'Done':        'background:rgba(59,130,246,.13);color:#60a5fa;border:1px solid rgba(59,130,246,.35)',
+  };
+  const style=cfg[s]||cfg['Todo'];
+  const label=s==='Todo'?'To-Do':s;
+  return`<span class="pill" style="font-size:10px;font-weight:700;border-radius:3px;padding:2px 8px;${style}">${label}</span>`;
+}
+
+// ── Tab switching ─────────────────────────────────────────────────────────────
+function setFaithTab(tab,el){
+  faithActiveTab=tab;
+  ['activities','officers','topics','files'].forEach(t=>{
+    const panel=document.getElementById('faith-tab-'+t);
+    const btn=document.getElementById('ftab-'+t);
+    if(panel)panel.style.display=t===tab?'flex':'none';
+    if(btn)btn.classList.toggle('active',t===tab);
+  });
+  const labels={activities:'Activity',officers:'Officer',topics:'Topic',files:'File'};
+  const lbl=document.getElementById('faithAddLabel');
+  if(lbl)lbl.textContent=labels[tab]||'Add';
+  renderFaith();
+}
+function faithTabAdd(){
+  if(faithActiveTab==='activities')openFaithModal();
+  else if(faithActiveTab==='officers')openFaithOfficerModal();
+  else if(faithActiveTab==='topics')openFaithTopicModal();
+  else if(faithActiveTab==='files')openFaithFileModal();
+}
+function exportFaithData(){showToast('Export coming soon, sir.');}
+
+// ── ACTIVITIES ────────────────────────────────────────────────────────────────
+function openFaithModal(id){
+  editingFaithId=id||null;
+  const a=id?DB.faith.find(x=>x.id===id):null;
+  document.getElementById('faithModalTitle').textContent=a?'Edit Activity':'Add Activity';
+  ['activity','group','date','submitted','cfo','aevm','status','assigned','drive'].forEach(f=>{
+    const el=document.getElementById('fa-'+f);if(el)el.value=a?(a[f]||''):'';
+  });
+  if(!a){const s=document.getElementById('fa-status');if(s)s.value='No Progress';}
+  openModal('faithModal');
+}
+function saveFaithActivity(){
+  const a={
+    id:editingFaithId||Date.now(),
+    activity:document.getElementById('fa-activity').value.trim(),
+    group:document.getElementById('fa-group').value.trim(),
+    date:document.getElementById('fa-date').value,
+    submitted:document.getElementById('fa-submitted').value,
+    cfo:document.getElementById('fa-cfo').value.trim(),
+    aevm:document.getElementById('fa-aevm').value.trim(),
+    status:document.getElementById('fa-status').value,
+    assigned:document.getElementById('fa-assigned').value.trim(),
+    drive:document.getElementById('fa-drive').value.trim()
+  };
+  if(!a.activity){showToast('Activity name required');return;}
+  const isEdit=!!editingFaithId;
+  if(editingFaithId){const i=DB.faith.findIndex(x=>x.id===editingFaithId);if(i>=0)DB.faith[i]=a;SB.update('faith',a.id,a,'faith');}
+  else{DB.faith.unshift(a);SB.upsert('faith',a,'faith');}
+  addHistory(isEdit?'edit':'add',(isEdit?'Edited':'Added')+' faith: '+a.activity,{...a,_dbKey:'faith'});
+  closeModal('faithModal');renderFaith();showToast('✓ Activity saved');
+}
+function deleteFaith(id){
+  const a=DB.faith.find(x=>x.id===id);if(!a)return;
+  DB.faith=DB.faith.filter(x=>x.id!==id);
+  SB.remove('faith',id,'faith');
+  addHistory('delete','Deleted faith: '+a.activity,{...a,_dbKey:'faith'});
+  renderFaith();showToast('Deleted');
+}
+
+// ── OFFICERS ──────────────────────────────────────────────────────────────────
+const COMMITTEE_POSITIONS=['President','Vice President','Secretary','Assistant Secretary',
+  'Chairperson','Assistant Chairperson','Committee Secretary','Committee Officer'];
+const AREA_POSITIONS=['Area Leader','Assistant Area Leader','Area Secretary','Assistant Area Secretary','Group Leader'];
+const COMMITTEE_GROUPS=['Executive','Leadership Enhancement and Development','Edification and Propagation',
+  'Sports','Education and Livelihood','Arts and Culture','Social Development and Services'];
+const AREA_GROUPS=['Area 1','Area 2','Area 3','Area 4','Area 5','Area 6','Area 7','Area 8','Area 9'];
+
+function updateOfficerGroupOptions(){
+  const type=document.getElementById('fo-type')?.value;
+  const groupSel=document.getElementById('fo-group');
+  const posSel=document.getElementById('fo-position');
+  if(!groupSel||!posSel)return;
+  if(type==='area'){
+    groupSel.innerHTML=AREA_GROUPS.map(g=>`<option value="${g}">${g}</option>`).join('');
+    posSel.innerHTML=AREA_POSITIONS.map(p=>`<option value="${p}">${p}</option>`).join('');
+  }else{
+    groupSel.innerHTML=COMMITTEE_GROUPS.map(g=>`<option value="${g}">${g}</option>`).join('');
+    posSel.innerHTML=COMMITTEE_POSITIONS.map(p=>`<option value="${p}">${p}</option>`).join('');
+  }
+}
+function openFaithOfficerModal(id){
+  editingFaithOfficerId=id||null;
+  const o=id?DB.faithOfficers.find(x=>x.id===id):null;
+  document.getElementById('faithOfficerModalTitle').textContent=o?'Edit Officer':'Add Officer';
+  // Set type first then update group/position options
+  const typeSel=document.getElementById('fo-type');
+  if(typeSel)typeSel.value=o?(o.type||'committee'):'committee';
+  updateOfficerGroupOptions();
+  // Now set values
+  if(o){
+    ['name','contact','oath','address','notes','assignment'].forEach(f=>{
+      const el=document.getElementById('fo-'+f);if(el)el.value=o[f]||'';
+    });
+    const g=document.getElementById('fo-group');if(g)g.value=o.group||'';
+    const p=document.getElementById('fo-position');if(p)p.value=o.position||'';
+    const s=document.getElementById('fo-status');if(s)s.value=o.status||'Active';
+  }else{
+    ['name','contact','oath','address','notes','assignment'].forEach(f=>{
+      const el=document.getElementById('fo-'+f);if(el)el.value='';
+    });
+  }
+  openModal('faithOfficerModal');
+}
+function saveFaithOfficer(){
+  const o={
+    id:editingFaithOfficerId||Date.now(),
+    name:document.getElementById('fo-name').value.trim(),
+    type:document.getElementById('fo-type').value,
+    group:document.getElementById('fo-group').value,
+    position:document.getElementById('fo-position').value,
+    assignment:document.getElementById('fo-assignment').value.trim(),
+    contact:document.getElementById('fo-contact').value.trim(),
+    oath:document.getElementById('fo-oath').value,
+    address:document.getElementById('fo-address').value.trim(),
+    status:document.getElementById('fo-status').value,
+    notes:document.getElementById('fo-notes').value.trim()
+  };
+  if(!o.name){showToast('Officer name required');return;}
+  const isEdit=!!editingFaithOfficerId;
+  if(editingFaithOfficerId){const i=DB.faithOfficers.findIndex(x=>x.id===editingFaithOfficerId);if(i>=0)DB.faithOfficers[i]=o;}
+  else DB.faithOfficers.push(o);
+  save('faithOfficers');
+  addHistory(isEdit?'edit':'add',(isEdit?'Edited':'Added')+' officer: '+o.name,{...o,_dbKey:'faithOfficers'});
+  closeModal('faithOfficerModal');renderFaithOfficers();showToast('✓ Officer saved');
+}
+function deleteFaithOfficer(id){
+  const o=DB.faithOfficers.find(x=>x.id===id);if(!o)return;
+  DB.faithOfficers=DB.faithOfficers.filter(x=>x.id!==id);
+  save('faithOfficers');
+  addHistory('delete','Deleted officer: '+o.name,{...o,_dbKey:'faithOfficers'});
+  renderFaithOfficers();showToast('Deleted');
+}
+
+// ── TOPICS ────────────────────────────────────────────────────────────────────
+function openFaithTopicModal(id){
+  editingFaithTopicId=id||null;
+  const t=id?DB.faithTopics.find(x=>x.id===id):null;
+  document.getElementById('faithTopicModalTitle').textContent=t?'Edit Topic':'Add Topic';
+  ['title','committee','drive','notes'].forEach(f=>{
+    const el=document.getElementById('ft-'+f);if(el)el.value=t?(t[f]||''):'';
+  });
+  openModal('faithTopicModal');
+}
+function saveFaithTopic(){
+  const t={
+    id:editingFaithTopicId||Date.now(),
+    title:document.getElementById('ft-title').value.trim(),
+    committee:document.getElementById('ft-committee').value,
+    drive:document.getElementById('ft-drive').value.trim(),
+    notes:document.getElementById('ft-notes').value.trim()
+  };
+  if(!t.title){showToast('Topic title required');return;}
+  const isEdit=!!editingFaithTopicId;
+  if(editingFaithTopicId){const i=DB.faithTopics.findIndex(x=>x.id===editingFaithTopicId);if(i>=0)DB.faithTopics[i]=t;}
+  else DB.faithTopics.unshift(t);
+  save('faithTopics');
+  addHistory(isEdit?'edit':'add',(isEdit?'Edited':'Added')+' topic: '+t.title,{...t,_dbKey:'faithTopics'});
+  closeModal('faithTopicModal');renderFaithTopics();showToast('✓ Topic saved');
+}
+function deleteFaithTopic(id){
+  const t=DB.faithTopics.find(x=>x.id===id);if(!t)return;
+  DB.faithTopics=DB.faithTopics.filter(x=>x.id!==id);
+  save('faithTopics');
+  addHistory('delete','Deleted topic: '+t.title,{...t,_dbKey:'faithTopics'});
+  renderFaithTopics();showToast('Deleted');
+}
+
+// ── FILES ─────────────────────────────────────────────────────────────────────
+function openFaithFileModal(id){
+  editingFaithFileId=id||null;
+  const f=id?DB.faithFiles.find(x=>x.id===id):null;
+  document.getElementById('faithFileModalTitle').textContent=f?'Edit File':'Add File';
+  ['name','type','date','url','notes'].forEach(k=>{
+    const el=document.getElementById('ff-'+k);if(el)el.value=f?(f[k]||''):'';
+  });
+  openModal('faithFileModal');
+}
+function saveFaithFile(){
+  const f={
+    id:editingFaithFileId||Date.now(),
+    name:document.getElementById('ff-name').value.trim(),
+    type:document.getElementById('ff-type').value,
+    date:document.getElementById('ff-date').value,
+    url:document.getElementById('ff-url').value.trim(),
+    notes:document.getElementById('ff-notes').value.trim()
+  };
+  if(!f.name){showToast('File name required');return;}
+  const isEdit=!!editingFaithFileId;
+  if(editingFaithFileId){const i=DB.faithFiles.findIndex(x=>x.id===editingFaithFileId);if(i>=0)DB.faithFiles[i]=f;}
+  else DB.faithFiles.unshift(f);
+  save('faithFiles');
+  addHistory(isEdit?'edit':'add',(isEdit?'Edited':'Added')+' file: '+f.name,{...f,_dbKey:'faithFiles'});
+  closeModal('faithFileModal');renderFaithFiles();showToast('✓ File saved');
+}
+function deleteFaithFile(id){
+  const f=DB.faithFiles.find(x=>x.id===id);if(!f)return;
+  DB.faithFiles=DB.faithFiles.filter(x=>x.id!==id);
+  save('faithFiles');
+  addHistory('delete','Deleted file: '+f.name,{...f,_dbKey:'faithFiles'});
+  renderFaithFiles();showToast('Deleted');
+}
+
+// ── RENDER FUNCTIONS ──────────────────────────────────────────────────────────
+function renderFaith(){
+  renderFaithActivities();
+  renderFaithOfficers();
+  renderFaithTopics();
+  renderFaithFiles();
+}
+
+function renderFaithActivities(){
+  const tb=document.getElementById('faithTbody');
+  const em=document.getElementById('faithEmpty');
+  if(!tb)return;
+  const data=DB.faith||[];
+  if(!data.length){tb.innerHTML='';if(em)em.style.display='block';return;}
+  if(em)em.style.display='none';
+  tb.innerHTML=data.map(f=>`
+    <tr onclick="openFaithModal(${f.id})" style="cursor:pointer">
+      <td style="font-weight:500;white-space:nowrap">${f.group||'—'}</td>
+      <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${f.activity}</td>
+      <td style="font-size:11px;color:var(--text3);white-space:nowrap">${f.date||'—'}</td>
+      <td style="font-size:11px;color:var(--text3);white-space:nowrap">${f.submitted||'—'}</td>
+      <td style="font-size:11px">${f.cfo||'—'}</td>
+      <td style="font-size:11px">${f.aevm||'—'}</td>
+      <td>${faithStatusPill(f.status||'No Progress')}</td>
+      <td style="font-size:11px">${f.assigned||'—'}</td>
+      <td>${f.drive?`<a href="${f.drive}" target="_blank" onclick="event.stopPropagation()" style="color:var(--teal);font-size:11px;display:inline-flex;align-items:center;gap:3px"><i class="ti ti-brand-google-drive" style="font-size:11px;line-height:1;display:block"></i>Open</a>`:'—'}</td>
+      <td onclick="event.stopPropagation()"><button class="btn btn-d" style="padding:2px 6px" onclick="deleteFaith(${f.id})"><i class="ti ti-trash" style="font-size:11px;line-height:1;display:block"></i></button></td>
+    </tr>`).join('');
+  // KPI counters
+  const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
+  set('faithTotal',data.length);
+  set('faithNoProgress',data.filter(f=>f.status==='No Progress').length);
+  set('faithInProgress',data.filter(f=>f.status==='In Progress').length);
+  set('faithApproved',data.filter(f=>f.status==='Approved').length);
+  set('faithDone',data.filter(f=>f.status==='Done').length);
+}
+
+function renderFaithOfficers(){
+  const tb=document.getElementById('faithOfficersTbody');
+  const em=document.getElementById('faithOfficersEmpty');
+  const cnt=document.getElementById('officerCount');
+  if(!tb)return;
+  const typeF=document.getElementById('officerFilterType')?.value||'all';
+  const groupF=document.getElementById('officerFilterGroup')?.value||'all';
+  let data=(DB.faithOfficers||[]).slice();
+  if(typeF!=='all')data=data.filter(o=>o.type===typeF);
+  if(groupF!=='all')data=data.filter(o=>o.group===groupF);
+  if(cnt)cnt.textContent=data.length+' officer'+(data.length!==1?'s':'');
+  if(!data.length){tb.innerHTML='';if(em)em.style.display='block';return;}
+  if(em)em.style.display='none';
+  const statusBadge=s=>{
+    const c=s==='Active'?'var(--green)':s==='Inactive'||s==='Resigned'?'var(--red)':'var(--amber)';
+    return`<span style="font-size:10px;font-weight:700;color:${c};background:${c}18;border:1px solid ${c}44;border-radius:3px;padding:1px 7px">${s}</span>`;
+  };
+  // Group by group name for grouped rendering
+  const groups=[...new Set(data.map(o=>o.group))];
+  let html='';
+  groups.forEach(g=>{
+    const rows=data.filter(o=>o.group===g);
+    html+=`<tr><td colspan="9" style="padding:8px 10px 4px;background:rgba(168,85,247,.07);border-left:3px solid var(--purple);font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--purple)">${g} <span style="font-weight:400;color:var(--text3);font-size:9px">(${rows.length})</span></td></tr>`;
+    rows.forEach(o=>{
+      html+=`<tr onclick="openFaithOfficerModal(${o.id})" style="cursor:pointer">
+        <td style="font-weight:600">${o.name}</td>
+        <td style="font-size:10px;color:var(--text3)">${o.group}</td>
+        <td style="font-size:11px;color:var(--purple)">${o.position}${o.assignment?`<br><span style="font-size:9px;color:var(--text3)">${o.assignment}</span>`:''}</td>
+        <td style="font-size:11px">${o.contact||'—'}</td>
+        <td style="font-size:11px;color:var(--text3);max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${o.address||'—'}</td>
+        <td style="font-size:11px;color:var(--text3);white-space:nowrap">${o.oath||'—'}</td>
+        <td style="font-size:11px;color:var(--text3)">${o.assignment||'—'}</td>
+        <td>${statusBadge(o.status||'Active')}</td>
+        <td onclick="event.stopPropagation()"><button class="btn btn-d" style="padding:2px 6px" onclick="deleteFaithOfficer(${o.id})"><i class="ti ti-trash" style="font-size:11px;line-height:1;display:block"></i></button></td>
+      </tr>`;
+    });
+  });
+  tb.innerHTML=html;
+}
+
+function renderFaithTopics(){
+  const grid=document.getElementById('faithTopicsGrid');
+  const em=document.getElementById('faithTopicsEmpty');
+  if(!grid)return;
+  const data=DB.faithTopics||[];
+  if(!data.length){grid.innerHTML='';if(em)em.style.display='block';return;}
+  if(em)em.style.display='none';
+  grid.innerHTML=data.map(t=>`
+    <div class="bd-block" style="cursor:pointer;position:relative;display:flex;flex-direction:column;gap:7px" onclick="openFaithTopicModal(${t.id})">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px">
+        <div style="font-size:13px;font-weight:600;color:var(--text1);line-height:1.3">${t.title}</div>
+        <button class="btn btn-d" style="padding:2px 6px;flex-shrink:0" onclick="event.stopPropagation();deleteFaithTopic(${t.id})"><i class="ti ti-trash" style="font-size:10px;line-height:1;display:block"></i></button>
+      </div>
+      ${t.committee?`<div style="font-size:10px;color:var(--purple);background:rgba(168,85,247,.1);border:1px solid rgba(168,85,247,.3);border-radius:3px;padding:2px 8px;display:inline-block;width:fit-content">${t.committee}</div>`:''}
+      ${t.notes?`<div style="font-size:11px;color:var(--text2);line-height:1.6;white-space:pre-line;border-top:1px solid var(--border);padding-top:7px">${t.notes}</div>`:''}
+      ${t.drive?`<a href="${t.drive}" target="_blank" onclick="event.stopPropagation()" style="font-size:10px;color:var(--teal);display:inline-flex;align-items:center;gap:4px;margin-top:2px"><i class="ti ti-brand-google-drive" style="font-size:11px;line-height:1;display:block"></i>Open Drive</a>`:''}
+    </div>`).join('');
+}
+
+function renderFaithFiles(){
+  const grid=document.getElementById('faithFilesGrid');
+  const em=document.getElementById('faithFilesEmpty');
+  if(!grid)return;
+  const data=DB.faithFiles||[];
+  if(!data.length){grid.innerHTML='';if(em)em.style.display='block';return;}
+  if(em)em.style.display='none';
+  const typeIcon={Document:'ti-file-text',Presentation:'ti-presentation',Spreadsheet:'ti-table',Photo:'ti-photo',Video:'ti-video',Form:'ti-forms',Report:'ti-report',Other:'ti-file'};
+  grid.innerHTML=data.map(f=>`
+    <div class="bd-block" style="cursor:pointer;display:flex;flex-direction:column;gap:7px" onclick="openFaithFileModal(${f.id})">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div style="width:38px;height:38px;background:rgba(168,85,247,.1);border:1px solid rgba(168,85,247,.3);border-radius:5px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+          <i class="ti ${typeIcon[f.type]||'ti-file'}" style="font-size:18px;color:var(--purple);line-height:1;display:block"></i>
+        </div>
+        <div style="min-width:0;flex:1">
+          <div style="font-size:12px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${f.name}</div>
+          <div style="font-size:10px;color:var(--text3)">${f.type||'File'}${f.date?' · '+f.date:''}</div>
+        </div>
+        <button class="btn btn-d" style="padding:2px 6px;flex-shrink:0" onclick="event.stopPropagation();deleteFaithFile(${f.id})"><i class="ti ti-trash" style="font-size:10px;line-height:1;display:block"></i></button>
+      </div>
+      ${f.notes?`<div style="font-size:11px;color:var(--text3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${f.notes}</div>`:''}
+      ${f.url?`<a href="${f.url}" target="_blank" onclick="event.stopPropagation()" class="btn btn-t" style="font-size:10px;padding:4px 10px;display:inline-flex;align-items:center;gap:5px;width:fit-content"><i class="ti ti-brand-google-drive" style="font-size:11px;line-height:1;display:block"></i>Open in Drive</a>`:'<span style="font-size:10px;color:var(--text3)">No link attached</span>'}
+    </div>`).join('');
+}
 
 // LIFE
 let cfActiveTab='overview',cfCharts={};
@@ -7541,100 +8096,8 @@ function renderMemory(){document.getElementById('memoryTbody').innerHTML=DB.memo
 function addMemory(){const mem=prompt('Memory:');if(!mem)return;const m={id:Date.now(),memory:mem,category:prompt('Category:','General')||'General',world:prompt('World:','WORK-IH')||'WORK-IH',date:new Date().toISOString().split('T')[0]};DB.memories.unshift(m);SB.upsert('memories',m,'memories');renderMemory();showToast('✓ Memory saved');}
 function deleteMemoryItem(id){DB.memories=DB.memories.filter(m=>m.id!==id);SB.remove('memories',id,'memories');renderMemory();}
 
-// ── QUICK CAPTURE — NLP slash-prefix router ───────────────────────────────
-// /cs <text>      → adds task to WORK-CS, navigates to Chainsmoker view
-// /ih <text>      → adds task to WORK-IH, navigates to Ideahub view
-// /build <text>   → adds task to BUILD, navigates to Build view
-// /faith <text>   → adds task to FAITH, navigates to Faith view
-// /sides <text>   → adds task to SIDES, navigates to Sides view
-// /venture <text> → adds task to VENTURE, navigates to Venture view
-// /life <text>    → adds task to LIFE, navigates to Life view
-// /debit N desc   → logs cash debit instantly
-// /credit N desc  → logs cash credit instantly
-// (no prefix)     → falls through to voice command engine
-async function processCapture(){
-  // Guard: this function name is also used by the Capture Processor panel for a different purpose.
-  // The quick-capture input on the brief dashboard is the only caller here.
-  const input=document.getElementById('captureInput');
-  if(!input){return;}
-  const raw=input.value.trim();
-  if(!raw)return;
-  input.value='';
-
-  // ── Slash-prefix detection ───────────────────────────────────────────────
-  const m=raw.match(/^\/([a-z]+(?:-[a-z]+)?)\s+([\s\S]+)/i);
-  if(m){
-    const prefix=m[1].toLowerCase();
-    const body=m[2].trim();
-
-    // World → DB key + nav view
-    const worldMap={
-      'cs':       {world:'WORK-CS', view:'work-cs'},
-      'chainsmoker':{world:'WORK-CS',view:'work-cs'},
-      'ih':       {world:'WORK-IH', view:'work-ih'},
-      'ideahub':  {world:'WORK-IH', view:'work-ih'},
-      'build':    {world:'BUILD',   view:'build'},
-      'diskarte': {world:'BUILD',   view:'build'},
-      'faith':    {world:'FAITH',   view:'faith'},
-      'buklod':   {world:'FAITH',   view:'faith'},
-      'sides':    {world:'SIDES',   view:'sides'},
-      'raket':    {world:'SIDES',   view:'sides'},
-      'venture':  {world:'VENTURE', view:'venture'},
-      'tjc':      {world:'VENTURE', view:'venture'},
-      'life':     {world:'LIFE',    view:'life'},
-    };
-
-    if(worldMap[prefix]){
-      const {world,view}=worldMap[prefix];
-      const t={
-        id:Date.now(),title:body,world,priority:'Medium',
-        status:'Todo',due:'',platform:'',client:'',notes:'',
-        subitems:[],timelineS:'',timelineE:'',
-        numValue:null,connBoard:null,connItemId:null,groupId:null
-      };
-      DB.tasks.unshift(t);
-      save('tasks');
-      SB.upsert('tasks',t,'tasks');
-      addHistory('add','Quick capture → '+world+': '+body,{...t,_dbKey:'tasks'});
-      renderTasks();renderBrief();
-      showToast('✓ Task added to '+world+' — navigating…');
-      setTimeout(()=>setView(view),400);
-      return;
-    }
-
-    // Financial entries
-    if(prefix==='debit'||prefix==='credit'){
-      const nm=body.match(/^[₱]?([\d,]+(?:\.\d+)?)\s*(.*)/);
-      if(nm){
-        const amount=parseFloat(nm[1].replace(/,/g,''));
-        const desc=(nm[2]||body).trim()||body;
-        if(!isNaN(amount)&&amount>0){
-          const type=prefix==='debit'?'Debit':'Credit';
-          const cf={
-            id:Date.now(),type,amount,desc,
-            date:new Date().toISOString().split('T')[0],
-            account:'Cash',cat:'Business',notes:'Quick Capture'
-          };
-          DB.cashflow.unshift(cf);
-          save('cashflow');
-          SB.upsert('cashflow',cf,'cashflow');
-          addHistory('add',type+' ₱'+amount+': '+desc,{...cf,_dbKey:'cashflow'});
-          renderBrief();
-          showToast('✓ '+type+' ₱'+amount.toLocaleString()+' — '+desc.substring(0,30));
-          return;
-        }
-      }
-      showToast('⚠ Format: /'+prefix+' [amount] [description]');
-      return;
-    }
-
-    showToast('⚠ Unknown prefix /'+prefix+'. Try /cs /ih /build /faith /debit /credit');
-    return;
-  }
-
-  // ── No prefix — fall through to voice command engine ────────────────────
-  await executeVoiceCommand(raw);
-}
+// CAPTURE
+async function processCapture(){const input=document.getElementById('captureInput');const text=input.value.trim();if(!text)return;input.value='';await executeVoiceCommand(text);}
 
 // ===== VOICE COMMAND ENGINE =====
 const WAKE_WORDS=['hey jelix','hey felix','hey jelly','hey jellix','angelix','hi jelix','jelix'];
