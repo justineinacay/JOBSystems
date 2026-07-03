@@ -2630,9 +2630,9 @@ select option{background:var(--navy3)}
       </svg>
       <!-- CENTER LOGO -->
       <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px">
-        <div style="font-size:clamp(32px,11vw,56px);font-weight:900;color:#00d4c8;letter-spacing:.12em;line-height:1;animation:jelixglow 3s ease-in-out infinite,letterflicker 7s infinite;font-family:Arial Black,Arial,sans-serif">J.O.B.</div>
-        <div style="width:80px;height:1px;background:linear-gradient(90deg,transparent,#00d4c8,transparent)"></div>
-        <div style="font-size:clamp(14px,4vw,20px);color:rgba(0,168,158,.85);letter-spacing:.5em;font-family:monospace;font-weight:700">OS</div>
+        <div style="font-size:clamp(28px,9vw,48px);font-weight:900;color:#00d4c8;letter-spacing:.1em;line-height:1;animation:jelixglow 3s ease-in-out infinite,letterflicker 7s infinite;font-family:Arial Black,Arial,sans-serif">J.O.B Systems</div>
+        <div style="width:120px;height:1px;background:linear-gradient(90deg,transparent,#00d4c8,transparent)"></div>
+        <div style="font-size:clamp(10px,2.5vw,13px);color:rgba(0,168,158,.85);letter-spacing:.4em;font-family:monospace;font-weight:700;text-transform:uppercase">Personal OS</div>
       </div>
       <!-- corner ticks on orbit -->
       <div style="position:absolute;top:0;left:50%;transform:translateX(-50%);width:6px;height:6px;background:#00d4c8;border-radius:50%;box-shadow:0 0 8px #00d4c8;animation:bootpulse 2s infinite"></div>
@@ -2725,7 +2725,7 @@ select option{background:var(--navy3)}
   <!-- Off-screen keyboard trap for hardware PIN entry -->
   <input type="password" id="rawPinInput" maxlength="4" autocomplete="off" inputmode="numeric" pattern="[0-9]*"
     style="position:absolute;opacity:0;pointer-events:none;width:1px;height:1px;top:-9999px;left:-9999px"
-    oninput="handleRawPinInput(this.value)" onkeydown="return false">
+    tabindex="-1" readonly>
 </div>
 
 <div class="app" style="opacity:0;transition:opacity .5s" id="appRoot">
@@ -3770,7 +3770,7 @@ select option{background:var(--navy3)}
           <div class="hc"><div class="cl">Decisions</div><div class="cv" style="color:var(--amber)" id="memDecCount">0</div></div>
         </div>
         <div style="flex:1;overflow-y:auto">
-          <table class="ht"><thead><tr><th>Memory</th><th>Category</th><th>World</th><th>Added</th><th></th></tr></thead><tbody id="memoryTbody"></tbody></table>
+          <table class="ht"><thead><tr><th>Memory</th><th>Category</th><th>World</th><th>Added</th><th>Source</th><th></th></tr></thead><tbody id="memoryTbody"></tbody></table>
         </div>
       </div>
     </div>
@@ -4388,6 +4388,8 @@ async function processCapture(){runCapture();}
 function runCapture(){
   const input=document.getElementById('captureInput');if(!input)return;
   const raw=input.value.trim();if(!raw)return;input.value='';
+  // Feed learning engine
+  LearnEngine.onCapture(raw);
   const WM={'cs':'WORK-CS','chainsmoker':'WORK-CS','ih':'WORK-IH','ideahub':'WORK-IH',
     'build':'BUILD','faith':'FAITH','buklod':'FAITH','sides':'SIDES','raket':'SIDES',
     'venture':'VENTURE','tjc':'VENTURE','life':'LIFE'};
@@ -4462,7 +4464,6 @@ function lockOS(){
     app.style.display='none';
     ls.style.display='flex';
     ls.style.opacity='1';
-    setTimeout(()=>{if(raw)raw.focus();},150);
     showToast('System locked, sir.');
     speak('J.O.B Systems locked. Enter PIN to continue.');
   }
@@ -4472,7 +4473,7 @@ function setOpenAIKey(){const e=localStorage.getItem('jelix-openai-key')||'';con
 function setJelixAPIKey(){
   const existing=localStorage.getItem('job-api-key')||'';
   const masked=existing?'sk-ant-...'+existing.slice(-6):'(not set)';
-  const k=prompt('J.O.B. — Anthropic API Key\n\nCurrent: '+masked+'\n\nPaste your API key below (starts with sk-ant-):\nLeave blank to remove.','');
+  const k=prompt('J.O.B Systems — Anthropic API Key\n\nCurrent: '+masked+'\n\nPaste your API key below (starts with sk-ant-):\nLeave blank to remove.','');
   if(k===null)return;
   if(k.trim().startsWith('sk-ant-')){
     localStorage.setItem('job-api-key',k.trim());
@@ -4499,44 +4500,34 @@ function getSystemPin(){return localStorage.getItem('j-sys-pin')||'0000';}
 function setSystemPin(p){localStorage.setItem('j-sys-pin',p);}
 
 // ── Hardware keyboard PIN trap ──────────────────────────────────────────
-// Intercept digits directly — never rely on oninput to sync value
-function handleRawPinInput(val){
-  // Kept for compatibility but logic is now in keydown
-  // Sync only if value was changed externally (e.g. mobile OS keypad)
-  const digits=val.replace(/\D/g,'').slice(0,4);
-  if(digits===currentPinInput) return; // no change, skip
-  currentPinInput=digits;
-  updatePinDisplay();
-  if(currentPinInput.length===4) _checkPin();
-}
-
+// Single authoritative handler. rawPinInput is readonly — no oninput, no onkeydown.
+// All digit capture happens here and ONLY here.
 window.addEventListener('keydown',function(e){
   const ls=document.getElementById('lockScreen');
   if(!ls||ls.style.display==='none') return;
-  // Prevent keydown from leaking into other inputs
-  if(e.target&&e.target.id==='rawPinInput'){
-    // Let the browser handle the value, we intercept here too
-  }
+  // Don't fire if a modal or other input has focus
+  const tag=(document.activeElement||{}).tagName;
+  if(tag==='INPUT'||tag==='TEXTAREA') return;
   if(e.key>='0'&&e.key<='9'){
-    e.preventDefault(); // stop browser adding char to input (we control it)
+    e.preventDefault();
+    e.stopImmediatePropagation();
     if(currentPinInput.length>=4) return;
     currentPinInput+=e.key;
     updatePinDisplay();
-    // Keep rawPinInput value in sync for mobile OS keypads
-    const raw=document.getElementById('rawPinInput');
-    if(raw) raw.value=currentPinInput;
     _safeChime('chimeNotify');
     if(currentPinInput.length===4) _checkPin();
   } else if(e.key==='Backspace'){
     e.preventDefault();
     currentPinInput=currentPinInput.slice(0,-1);
     updatePinDisplay();
-    const raw=document.getElementById('rawPinInput');
-    if(raw) raw.value=currentPinInput;
   } else if(e.key==='Escape'){
     clearPin();
   }
-},{capture:true});
+},true); // capture phase
+
+// Mobile OS keypad fallback — only used when rawPinInput receives oninput
+// (rawPinInput is readonly so this never fires from keyboard)
+function handleRawPinInput(val){}
 
 // Safe chime wrappers — chime functions load late in the file; never crash PIN
 function _safeChime(fn){try{if(typeof window[fn]==='function')window[fn]();}catch(e){}}
@@ -4808,6 +4799,177 @@ function addHistory(type,label,data){
   DB.history.unshift(e);if(DB.history.length>200)DB.history=DB.history.slice(0,200);
   save('history');SB.addHistory(e);
   if(type==='delete')showUndoToast(label,e.id);
+  // Feed the learning engine
+  LearnEngine.onHistory(type,label,data);
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// LEARN ENGINE — self-learning core
+// Observes every DB write, agent message, navigation, and command.
+// Extracts patterns, preferences, and decisions → persists to Supabase memories.
+// ═══════════════════════════════════════════════════════════════════════════
+const LearnEngine = {
+  // Session accumulators
+  _session: {
+    navCounts: {},       // view → count this session
+    taskWorlds: {},      // world → tasks created this session
+    taskStatuses: [],    // {title, status, world} completions
+    agentMessages: [],   // {agent, text, ts}
+    voiceCommands: [],   // raw voice commands
+    captureTexts: [],    // raw capture inputs
+    startTime: Date.now()
+  },
+  // Debounce timer for batched Supabase writes
+  _debounceTimer: null,
+
+  // ── Triggered by addHistory ────────────────────────────────────────────
+  onHistory(type, label, data){
+    if(!data) return;
+    const world = data.world || data._dbKey || '';
+    // Task completions — high signal
+    if(type === 'edit' && data.status === 'Done'){
+      this._session.taskStatuses.push({title: data.title, world, ts: Date.now()});
+      this._learn(`Completed task: "${data.title}"`, 'Task Pattern', world || 'WORK-IH');
+    }
+    // Task creation
+    if(type === 'add' && data._dbKey === 'tasks'){
+      this._session.taskWorlds[world] = (this._session.taskWorlds[world] || 0) + 1;
+      // Learn priority preference if High is set
+      if(data.priority === 'High'){
+        this._learn(`Frequently creates High priority tasks in ${world}`, 'Priority Pattern', world || 'WORK-IH');
+      }
+    }
+    // Client edits — brand/preference signals
+    if((type === 'add' || type === 'edit') && data._dbKey === 'clients'){
+      if(data.desc) this._learn(`Client "${data.name}": ${data.desc}`, 'Brand', 'WORK-IH');
+    }
+    // Venture partner onboarding
+    if(type === 'add' && data._dbKey === 'venture' && data.type === 'Partner/VA'){
+      if(data.specialty) this._learn(`Onboarded VA "${data.name}" — specialty: ${data.specialty}${data.rate ? ', $'+data.rate+'/hr' : ''}`, 'Organizational', 'VENTURE');
+    }
+    // Cash flow — spending pattern
+    if((type === 'add') && data._dbKey === 'cashflow'){
+      if(data.type === 'Credit' && data.amount > 1000){
+        this._learn(`Large expense: ₱${data.amount} — ${data.desc || data.category || 'uncategorized'}`, 'Financial Pattern', 'LIFE');
+      }
+    }
+  },
+
+  // ── Triggered by setView (navigation) ─────────────────────────────────
+  onNavigate(view){
+    this._session.navCounts[view] = (this._session.navCounts[view] || 0) + 1;
+    // After 3 visits to the same view in one session — note the pattern
+    if(this._session.navCounts[view] === 3){
+      const label = view.replace(/-/g,' ').toUpperCase();
+      this._learn(`Frequently visits ${label} view`, 'Navigation Pattern', _viewToWorld(view));
+    }
+  },
+
+  // ── Triggered by agent chat (sendAI) ──────────────────────────────────
+  onAgentMessage(agentId, text){
+    if(!text || text.length < 8) return;
+    this._session.agentMessages.push({agent: agentId, text: text.substring(0,200), ts: Date.now()});
+    // Preference signals in agent messages
+    const lower = text.toLowerCase();
+    const prefSignals = [
+      {re:/\bi (prefer|always|never|like|hate|want|need)\b/i, cat:'Agent Preference'},
+      {re:/\bmy (rule|policy|process|approach|style)\b/i,     cat:'Process'},
+      {re:/\bremember (that|this|to|my)\b/i,                  cat:'General'},
+      {re:/\bdon'?t (ever|always|forget|use|include)\b/i,     cat:'Agent Preference'},
+      {re:/\b(important|critical|key|must|always) [a-z]/i,    cat:'Process'},
+    ];
+    for(const sig of prefSignals){
+      if(sig.re.test(lower)){
+        this._learn(text.substring(0,140), sig.cat, _agentWorld(agentId));
+        break; // one memory per message max
+      }
+    }
+  },
+
+  // ── Triggered by voice commands ────────────────────────────────────────
+  onVoiceCommand(raw){
+    if(!raw) return;
+    this._session.voiceCommands.push(raw);
+    // After 5 voice commands — note voice usage pattern
+    if(this._session.voiceCommands.length === 5){
+      this._learn('Uses voice commands regularly — keep TTS responses concise and actionable', 'Agent Preference', 'WORK-IH');
+    }
+  },
+
+  // ── Triggered by CMD/Capture ───────────────────────────────────────────
+  onCapture(text){
+    if(!text || text.length < 5) return;
+    this._session.captureTexts.push(text);
+  },
+
+  // ── End-of-session digest (called on boot / 30-min idle) ──────────────
+  generateSessionDigest(){
+    const msgs = this._session.agentMessages.length;
+    const navTop = Object.entries(this._session.navCounts).sort((a,b)=>b[1]-a[1])[0];
+    const taskTop = Object.entries(this._session.taskWorlds).sort((a,b)=>b[1]-a[1])[0];
+    const done = this._session.taskStatuses.length;
+    if(msgs + done + (navTop?1:0) < 2) return; // not enough signal
+
+    const parts = [];
+    if(navTop && navTop[1] > 1) parts.push(`Focused on ${navTop[0].replace(/-/g,' ').toUpperCase()} this session (${navTop[1]} visits)`);
+    if(taskTop && taskTop[1] > 1) parts.push(`Created ${taskTop[1]} tasks in ${taskTop[0]}`);
+    if(done > 0) parts.push(`Completed ${done} task${done>1?'s':''}: ${this._session.taskStatuses.map(t=>'"'+t.title+'"').slice(0,3).join(', ')}`);
+    if(msgs > 0) parts.push(`Chatted with agents ${msgs} time${msgs>1?'s':''} this session`);
+
+    if(parts.length > 0){
+      this._learn('Session digest: ' + parts.join('. '), 'Session Pattern', 'WORK-IH');
+    }
+    // Reset session
+    this._session = {navCounts:{}, taskWorlds:{}, taskStatuses:[], agentMessages:[], voiceCommands:[], captureTexts:[], startTime: Date.now()};
+  },
+
+  // ── Core: deduplicate, persist, and surface ─────────────────────────────
+  _learn(memory, category, world){
+    if(!memory || memory.length < 8) return;
+    // Deduplicate — skip if very similar memory exists in last 50
+    const existing = (DB.memories || []).slice(0, 50);
+    const norm = memory.toLowerCase().replace(/\W/g,' ').trim();
+    const dupe = existing.some(m => {
+      const mn = (m.memory||'').toLowerCase().replace(/\W/g,' ').trim();
+      return mn.length > 10 && (mn.includes(norm.substring(0,40)) || norm.includes(mn.substring(0,40)));
+    });
+    if(dupe) return;
+
+    const m = {
+      id: Date.now() + Math.floor(Math.random()*1000),
+      memory: memory.substring(0, 200),
+      category: category || 'General',
+      world: world || 'WORK-IH',
+      date: new Date().toISOString().split('T')[0],
+      source: 'auto' // distinguishes auto-learned from manually added
+    };
+    if(!DB.memories) DB.memories = [];
+    DB.memories.unshift(m);
+    if(DB.memories.length > 500) DB.memories = DB.memories.slice(0, 500);
+    save('memories');
+    // Debounced Supabase write — batch rapid-fire events
+    clearTimeout(this._debounceTimer);
+    this._debounceTimer = setTimeout(() => {
+      SB.upsert('memories', m, 'memories');
+    }, 2000);
+    // Silently update memory badge in agent chat if open
+    const mc = document.getElementById('agentMemCount');
+    if(mc){
+      const world2 = _agentWorld(currentAgent||'civic');
+      mc.textContent = (DB.memories||[]).filter(x=>x.world===world2||x.category==='Agent Preference').length;
+    }
+  },
+
+  // ── New learnings since last brief (for morning digest) ─────────────────
+  getRecentLearnings(since){
+    return (DB.memories||[]).filter(m=>m.source==='auto' && m.date >= since).slice(0,10);
+  }
+};
+
+// ── Wire LearnEngine into navigation ──────────────────────────────────────
+function _viewToWorld(v){
+  const m={'work-ih':'WORK-IH','work-cs':'WORK-CS',venture:'VENTURE',build:'BUILD',sides:'SIDES',faith:'FAITH',life:'LIFE'};
+  return m[v]||'WORK-IH';
 }
 function showUndoToast(label,hid){showToast('Deleted: '+label.substring(0,40),true,()=>restoreFromHistory(hid));}
 function restoreFromHistory(hid){
@@ -4866,6 +5028,7 @@ function setView(v){
   document.querySelectorAll('[data-view]').forEach(el=>el.classList.toggle('active',el.dataset.view===v));
   const el=document.getElementById('view-'+v);if(el)el.classList.add('active');
   currentView=v;addHistory('navigate','Navigated to '+v,{view:v});
+  LearnEngine.onNavigate(v);
   renderSideNav();
   const r={dashboard:renderBrief,'work-ih':renderWorkIH,'work-cs':renderWorkCS,venture:renderVenture,build:renderBuild,sides:renderSides,faith:renderFaith,life:renderLife,calendar:renderCalendar,tasks:renderTasks,notes:renderNotesList,journal:renderJournal,memory:renderMemory,history:renderHistory,settings:renderSettingsView};
   if(v==='life'){renderLife();setTimeout(()=>{const btns=document.querySelectorAll('.cfbt');btns.forEach(b=>{if(b.textContent.includes('Bio Monitor')){setCFTab('biomonitor',b);}});},100);}
@@ -8486,24 +8649,24 @@ function saveMemoryItem(){
 }
 function addMemory(){openMemoryModal();}// legacy alias
 function deleteMemoryItem(id){DB.memories=DB.memories.filter(m=>m.id!==id);SB.remove('memories',id,'memories');renderMemory();}
+function deleteAutoMemory(id){DB.memories=DB.memories.filter(m=>m.id!==id);SB.remove('memories',id,'memories');save('memories');renderMemory();showToast('Memory removed');}
 function renderMemory(){
   const wf=document.getElementById('memWorldFilter')?.value||'all';
   const mems=wf==='all'?DB.memories:DB.memories.filter(m=>m.world===wf);
-  // Stats
   const tot=document.getElementById('memTotal');if(tot)tot.textContent=DB.memories.length;
   const ag=document.getElementById('memAgentCount');if(ag)ag.textContent=DB.memories.filter(m=>m.category==='Agent Preference').length;
   const br=document.getElementById('memBrandCount');if(br)br.textContent=DB.memories.filter(m=>m.category==='Brand').length;
   const dc=document.getElementById('memDecCount');if(dc)dc.textContent=DB.memories.filter(m=>m.category==='Decision').length;
-  // Table
-  const catColor=c=>c==='Agent Preference'?'var(--teal)':c==='Brand'?'var(--orange)':c==='Decision'?'var(--amber)':c==='Client Preference'?'var(--purple)':c==='Product'?'var(--green)':'var(--text3)';
-  document.getElementById('memoryTbody').innerHTML=mems.length?mems.map(m=>`<tr onclick="openMemoryModal(${m.id})" style="cursor:pointer">
-    <td style="font-size:var(--text-xs);max-width:300px;color:var(--text1)">${m.memory}</td>
-    <td><span style="font-size:var(--text-xs);color:${catColor(m.category)};border:1px solid ${catColor(m.category)}40;border-radius:3px;padding:1px 6px;background:${catColor(m.category)}12">${m.category}</span></td>
-    <td><span class="pill pt" style="font-size:var(--text-xs)">${m.world}</span></td>
+  const catColor=c=>c==='Agent Preference'?'var(--teal)':c==='Brand'?'var(--orange)':c==='Decision'?'var(--amber)':c==='Client Preference'?'var(--purple)':c==='Product'?'var(--green)':c==='Session Pattern'||c==='Navigation Pattern'||c==='Task Pattern'?'var(--text3)':'var(--text3)';
+  document.getElementById('memoryTbody').innerHTML=mems.length?mems.map(m=>`<tr onclick="${m.source==='auto'?'':('openMemoryModal('+m.id+')')}" style="cursor:${m.source==='auto'?'default':'pointer'}">
+    <td style="font-size:var(--text-xs);max-width:260px;color:var(--text1)">${m.memory}</td>
+    <td><span style="font-size:9px;color:${catColor(m.category)};border:1px solid ${catColor(m.category)}40;border-radius:3px;padding:1px 5px;background:${catColor(m.category)}12">${m.category}</span></td>
+    <td><span class="pill pt" style="font-size:9px">${m.world}</span></td>
     <td style="font-size:var(--text-xs);color:var(--text3)">${m.date}</td>
+    <td><span style="font-size:9px;padding:1px 5px;border-radius:2px;background:${m.source==='auto'?'rgba(0,255,242,.08)':'rgba(255,255,255,.04)'};color:${m.source==='auto'?'var(--teal)':'var(--text3)'}">${m.source==='auto'?'⚡ auto':'manual'}</span></td>
     <td><button class="btn btn-d" style="padding:2px 6px" onclick="event.stopPropagation();deleteMemoryItem(${m.id})"><i class="ti ti-trash" style="font-size:var(--text-xs);line-height:1;display:block"></i></button></td>
   </tr>`).join('')
-  :'<tr><td colspan="5" style="text-align:center;color:var(--text3);padding:20px;font-size:var(--text-sm)">No memories yet. Add one to power your agents, sir.</td></tr>';
+  :'<tr><td colspan="6" style="text-align:center;color:var(--text3);padding:20px;font-size:var(--text-sm)">No memories yet. The OS learns automatically as you use it, sir.</td></tr>';
 }
 
 // CAPTURE
@@ -8796,6 +8959,7 @@ function parseVoiceCommand(text){
 }
 
 async function executeVoiceCommand(text){
+  if(text) LearnEngine.onVoiceCommand(text);
   setVcState('processing');document.getElementById('vTranscript').textContent=text;showVBar();
   const stripped=stripWakeWord(text);
   if(stripped===null){
@@ -9067,7 +9231,7 @@ function setVcState(state){
     fi.className='ti ti-microphone';
     sd.className='hdot';st.textContent='ONLINE';
     if(state==='processing'){label.textContent='PROCESSING';vst.textContent='PROCESSING';}
-    else if(state==='idle'||state==='executing'){label.textContent='J.O.B.';document.getElementById('vTranscript').textContent='Space to talk...';vst.textContent='VOICE · SPACE';}
+    else if(state==='idle'||state==='executing'){label.textContent='J.O.B Systems';document.getElementById('vTranscript').textContent='Space to talk...';vst.textContent='VOICE · SPACE';}
     else if(state==='error'){label.textContent='UNCLEAR';vst.textContent='VOICE · SPACE';}
   }
 }
@@ -9138,7 +9302,7 @@ function stopRecording(){if(recognition&&isRecording)recognition.stop();}
 //               free-flow conversation, personal preference adaptation
 // ═══════════════════════════════════════════════════════════════════════
 
-const JELIX_BASE_SYSTEM = `You are J.O.B. — the personal AI operating system of Justine Luis Inacay, Marketing Manager based in Las Piñas City, Metro Manila, Philippines.
+const JELIX_BASE_SYSTEM = `You are J.O.B Systems — the personal AI operating system of Justine Luis Inacay, Marketing Manager based in Las Piñas City, Metro Manila, Philippines.
 
 IDENTITY & CONTEXT:
 - Justine runs two shifts: Ideahub (2AM–10AM PHT, Tue–Sat) and Chainsmoker (10PM–2AM PHT, Mon–Fri)
@@ -9347,6 +9511,8 @@ async function sendAI(){
   const btn=document.getElementById('aiSendBtn');if(btn)btn.disabled=true;
 
   _aiAppend('user',_md(text));
+  // Feed learning engine — learn from what the user tells agents
+  LearnEngine.onAgentMessage(currentAgent, text);
 
   const box=document.getElementById('aiMsgs');
   const a=AGENT_MAP[currentAgent]||AGENT_MAP.civic;
@@ -10868,7 +11034,7 @@ document.body.addEventListener('touchmove', function(e) {
 })();
 
 // ═══════════════════════════════════════════════════════════════════════════
-// J.O.B. — JARVIS INTELLIGENCE LAYER
+// J.O.B Systems — JARVIS INTELLIGENCE LAYER
 // Skills 1–7 + CLAUDE.md Live Doc
 // Author: JARVIS BUILD ENGINE · June 2026
 // Rules: inherits all CSS vars · uses SB/DB · voice-ready · mobile-responsive
@@ -11106,9 +11272,29 @@ function runMorningIntelligence(){
         </div>`).join('')}
     </div>`:''}
 
+    <!-- WHAT I LEARNED (auto-memories from last 48h) -->
+    ${(()=>{
+      const cutoff=new Date(Date.now()-48*3600000).toISOString().split('T')[0];
+      const learned=LearnEngine.getRecentLearnings(cutoff);
+      if(!learned.length) return '';
+      return `<div class="bd-block" style="border-color:rgba(128,255,250,.2)">
+        <div class="bd-h" style="margin-bottom:8px"><i class="ti ti-brain" style="color:var(--teal)"></i><span style="color:var(--teal)">WHAT I LEARNED</span><span style="font-size:var(--text-xs);color:var(--text3);margin-left:6px">Auto-captured from your actions · <span style="color:var(--teal);cursor:pointer;text-decoration:underline" onclick="setView('memory')">Review all →</span></span></div>
+        ${learned.map(m=>`<div class="brow" style="align-items:flex-start">
+          <div class="bdot" style="background:var(--teal);flex-shrink:0;margin-top:4px"></div>
+          <div style="flex:1">
+            <div class="btxt">${m.memory}</div>
+            <div style="font-size:var(--text-xs);color:var(--text3);margin-top:2px">${m.category} · ${m.world} · ${m.date}</div>
+          </div>
+          <button onclick="deleteAutoMemory(${m.id})" style="background:transparent;border:none;color:var(--text3);cursor:pointer;font-size:var(--text-xs);padding:2px 5px;flex-shrink:0" title="Remove this memory"><i class="ti ti-x" style="font-size:var(--text-xs);line-height:1;display:block"></i></button>
+        </div>`).join('')}
+      </div>`;
+    })()}
+
   </div>`;
 
   document.getElementById('jarvisMorningBody').innerHTML=html;
+  // Generate session digest each time the brief opens
+  LearnEngine.generateSessionDigest();
   _lastMorningIntelligence=`Morning Intelligence for ${todayPH}. Wins: ${wins.length} tasks accomplished. Losses: ${losses.length} overdue tasks. The One Thing: ${oneThing?oneThing.title:'No urgent items'}. High priority: ${highPrio.length} tasks. ${calToday.length} events today. Net balance: ₱${Math.abs(balance).toLocaleString()}. Open loops: ${openLoops.length}. Good morning, sir.`;
   showToast('✓ Morning Intelligence generated');
 }
@@ -12332,8 +12518,8 @@ async function enrollVoiceBiometric(){
       const features=VBL.extractFeatures(audioBuffer);
       VBL.saveProfile(features);
       _safeChime('chimeSuccess');
-      showToast('✓ Voice biometric enrolled, sir. Only your voice can now unlock J.O.B..');
-      speak('Voice biometric enrolled. J.O.B. is now locked to your voice, sir.');
+      showToast('✓ Voice biometric enrolled, sir. Only your voice can now unlock J.O.B Systems.');
+      speak('Voice biometric enrolled. J.O.B Systems is now locked to your voice, sir.');
     };
     recorder.start();
     setTimeout(()=>recorder.stop(),4000);
@@ -12378,7 +12564,7 @@ window.clearVoiceBiometric=()=>VBL.clearProfile();
 // Add biometric controls to CMD palette
 if(Array.isArray(window.CMD_ITEMS)){
   window.CMD_ITEMS.push(
-    {label:'Enroll Voice Biometric',sub:'Lock J.O.B. to your voice',icon:'🎙',action:enrollVoiceBiometric,group:'Security'},
+    {label:'Enroll Voice Biometric',sub:'Lock J.O.B Systems to your voice',icon:'🎙',action:enrollVoiceBiometric,group:'Security'},
     {label:'Clear Voice Biometric',sub:'Remove voice lock',icon:'🔓',action:()=>VBL.clearProfile(),group:'Security'}
   );
 }
@@ -12697,7 +12883,7 @@ console.log('[J.O.B Systems] JARVIS Intelligence Layer loaded — Skills 1–7 +
       <div class="siri-bar"></div>
     </div>
     <div style="flex:1;min-width:0">
-      <div class="vlabel" id="vLabel">J.O.B.</div>
+      <div class="vlabel</div>
       <div class="vtranscript" id="vTranscript">Space to talk...</div>
     </div>
     <button onclick="closeVBar()" style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:50%;width:24px;height:24px;color:var(--text3);font-size:var(--text-sm);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;line-height:1">×</button>
@@ -12705,12 +12891,12 @@ console.log('[J.O.B Systems] JARVIS Intelligence Layer loaded — Skills 1–7 +
 </div>
 
 <!-- ═══════════════════════════════════════════════════════════════════════
-     J.O.B. PWA — Service Worker
+     J.O.B Systems PWA — Service Worker
      Strategy: Cache-first for assets, network-first for Supabase API calls
      Cache name versioned so updates bust old cache automatically
 ════════════════════════════════════════════════════════════════════════ -->
 <script>
-// ── J.O.B. Service Worker — external sw.js only ───────────────────────
+// ── J.O.B Systems Service Worker — external sw.js only ───────────────────────
 // Service workers require a real same-origin HTTPS script. blob: and data:
 // URLs are rejected by Chrome, Safari, and sandboxed webviews. So we only
 // register when an actual /sw.js file exists at the origin (e.g. GitHub
@@ -12744,7 +12930,7 @@ console.log('[J.O.B Systems] JARVIS Intelligence Layer loaded — Skills 1–7 +
         var w = reg.installing; if(!w) return;
         w.addEventListener('statechange', function(){
           if(w.state==='installed' && navigator.serviceWorker.controller){
-            if(typeof showToast==='function') showToast('\u21bb J.O.B. update ready \u2014 reload to apply.');
+            if(typeof showToast==='function') showToast('\u21bb J.O.B Systems update ready \u2014 reload to apply.');
           }
         });
       });
