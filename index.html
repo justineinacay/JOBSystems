@@ -5,12 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no, maximum-scale=1.0">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="J.O.B. OS">
+<meta name="apple-mobile-web-app-title" content="J.O.B Systems">
 <meta name="theme-color" content="#000000">
 <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%23000000'/><text y='72' x='10' font-size='60' fill='%2300fff2' font-family='monospace' font-weight='bold'>J</text></svg>">
-<title>J.O.B. OS — Justine Operating Blueprint</title>
+<title>J.O.B Systems — Justine Operating Blueprint</title>
 <link rel="manifest" href="data:application/manifest+json,{
-  &quot;name&quot;: &quot;J.O.B. OS&quot;,
+  &quot;name&quot;: &quot;J.O.B Systems&quot;,
   &quot;short_name&quot;: &quot;JELIX&quot;,
   &quot;description&quot;: &quot;Personal Operating System — Justine Luis Inacay&quot;,
   &quot;start_url&quot;: &quot;.&quot;,
@@ -30,7 +30,7 @@
   &quot;lang&quot;: &quot;en-PH&quot;
 }">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="application-name" content="J.O.B. OS">
+<meta name="application-name" content="J.O.B Systems">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -2604,7 +2604,7 @@ select option{background:var(--navy3)}
   <div style="position:absolute;bottom:24px;right:24px;width:40px;height:40px;border-bottom:2px solid rgba(0,212,200,.5);border-right:2px solid rgba(0,212,200,.5)"></div>
 
   <!-- TOP TAG -->
-  <div style="position:absolute;top:28px;left:50%;transform:translateX(-50%);font-size:var(--text-xs);color:rgba(0,212,200,.4);letter-spacing:.3em;font-family:monospace;white-space:nowrap">SYS :: JOB-OS-v2.6 :: MANILA-PHT</div>
+  <div style="position:absolute;top:28px;left:50%;transform:translateX(-50%);font-size:var(--text-xs);color:rgba(0,212,200,.4);letter-spacing:.3em;font-family:monospace;white-space:nowrap">SYS :: JOB-SYSTEMS-v2.6 :: MANILA-PHT</div>
 
   <!-- CONTENT -->
   <div style="position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:clamp(12px,3vh,32px);width:100%;max-width:min(680px,96vw);padding:0 clamp(12px,4vw,24px)">
@@ -2685,13 +2685,13 @@ select option{background:var(--navy3)}
 </div>
 
 <!-- APP -->
-<!-- ═══ J.O.B. LOCK SCREEN ═══ -->
+<!-- ═══ J.O.B Systems LOCK SCREEN ═══ -->
 <div id="lockScreen">
   <div style="display:flex;flex-direction:column;align-items:center;margin-bottom:clamp(12px,4vh,32px)">
     <div style="width:64px;height:64px;border-radius:50%;background:rgba(128,255,250,.06);border:1px solid var(--teal2);display:flex;align-items:center;justify-content:center;margin-bottom:16px;box-shadow:0 0 30px rgba(128,255,250,.15)">
       <i class="ti ti-lock" style="font-size:28px;color:var(--teal);line-height:1;display:block"></i>
     </div>
-    <div style="font-size:var(--text-lg);font-weight:900;color:var(--teal);letter-spacing:.22em;text-shadow:0 0 12px rgba(128,255,250,.5);font-family:Arial Black,Arial,sans-serif">J.O.B. OS</div>
+    <div style="font-size:var(--text-lg);font-weight:900;color:var(--teal);letter-spacing:.22em;text-shadow:0 0 12px rgba(128,255,250,.5);font-family:Arial Black,Arial,sans-serif">J.O.B Systems</div>
     <div style="font-size:var(--text-xs);color:rgba(0,212,200,.55);letter-spacing:.14em;margin-top:5px;font-family:monospace">
       <span style="color:rgba(0,212,200,.9)">J</span>ustine &nbsp;·&nbsp;
       <span style="color:rgba(0,212,200,.9)">O</span>perating &nbsp;·&nbsp;
@@ -2725,7 +2725,7 @@ select option{background:var(--navy3)}
   <!-- Off-screen keyboard trap for hardware PIN entry -->
   <input type="password" id="rawPinInput" maxlength="4" autocomplete="off" inputmode="numeric" pattern="[0-9]*"
     style="position:absolute;opacity:0;pointer-events:none;width:1px;height:1px;top:-9999px;left:-9999px"
-    oninput="handleRawPinInput(this.value)">
+    oninput="handleRawPinInput(this.value)" onkeydown="return false">
 </div>
 
 <div class="app" style="opacity:0;transition:opacity .5s" id="appRoot">
@@ -2733,7 +2733,7 @@ select option{background:var(--navy3)}
   <header class="topbar">
     <div style="display:flex;align-items:center;gap:8px">
       <button id="navPeekBtn" onclick="toggleNav()" title="Show navigation" style="display:none;align-items:center;justify-content:center;width:30px;height:30px;border-radius:4px;cursor:pointer;background:rgba(0,255,242,.08);border:1px solid var(--teal2);color:var(--teal);font-size:var(--text-sm);flex-shrink:0"><i class="ti ti-layout-sidebar-left-expand" style="line-height:1;display:block"></i></button>
-      <div class="tb-logo">J.O.B. OS</div>
+      <div class="tb-logo">J.O.B Systems</div>
       <div style="height:24px;width:1px;background:var(--border2)"></div>
       <div id="desktopSearchBar" style="background:var(--navy3);border:1px solid var(--border);border-radius:3px;padding:4px 10px;display:flex;align-items:center;gap:7px;cursor:pointer;width:clamp(120px,20vw,280px)" onclick="openCmd()">
         <i class="ti ti-search" style="color:var(--text3);font-size:var(--text-xs);line-height:1;display:block"></i>
@@ -2742,7 +2742,7 @@ select option{background:var(--navy3)}
       </div>
       <div id="mobileSearchTrigger" style="display:none" onclick="openMobileSearch()" title="Search"><i class="ti ti-search"></i></div>
     </div>
-    <div id="dataTicker">SYS::JOB-OS &nbsp;|&nbsp; MNL·PHT &nbsp;|&nbsp; ALL SYSTEMS NOMINAL</div>
+    <div id="dataTicker">SYS::JOB-SYSTEMS &nbsp;|&nbsp; MNL·PHT &nbsp;|&nbsp; ALL SYSTEMS NOMINAL</div>
       <div class="tb-r">
       
       <div class="hpill" id="weatherPill"><i class="ti ti-cloud" style="font-size:var(--text-xs);line-height:1;display:block"></i><span id="weatherText">-- °C</span></div>
@@ -3431,7 +3431,7 @@ select option{background:var(--navy3)}
     <!-- ===== CALENDAR ===== -->
     <div class="view" id="view-calendar">
       <!-- ╔═══════════════════════════════════════════════╗
-           ║  J.O.B. CALENDAR — GCal-parity module    ║
+           ║  J.O.B Systems CALENDAR — GCal-parity module    ║
            ╚═══════════════════════════════════════════════╝ -->
       <div class="cal-shell">
 
@@ -3731,7 +3731,7 @@ select option{background:var(--navy3)}
             </div>
           </div>
           <div class="ai-msgs" id="aiMsgs">
-            <div class="mr-row"><div class="mav aiv">J</div><div><div class="mbubble ai">Hello, sir. J.O.B. OS online.\n\nSay "hey jelix" to activate voice. Press Space to push-to-talk.\nAll worlds and Supabase connected. How can I assist?</div><div class="mtime" id="initTime"></div></div></div>
+            <div class="mr-row"><div class="mav aiv">J</div><div><div class="mbubble ai">Hello, sir. J.O.B Systems online.\n\nSay "hey jelix" to activate voice. Press Space to push-to-talk.\nAll worlds and Supabase connected. How can I assist?</div><div class="mtime" id="initTime"></div></div></div>
           </div>
           <div class="ai-input-area">
             <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:7px">
@@ -3742,7 +3742,7 @@ select option{background:var(--navy3)}
             </div>
             <div class="ai-input-row">
               <button class="ai-send" onclick="toggleVoice()" style="background:var(--navy3);color:var(--text2);border:1px solid var(--border2)"><i class="ti ti-microphone" style="font-size:var(--text-xs);line-height:1;display:block"></i></button>
-              <textarea class="ai-textarea" id="aiInput" placeholder="Message J.O.B. OS..." onkeydown="aiKey(event)" oninput="autoResize(this)" rows="1"></textarea>
+              <textarea class="ai-textarea" id="aiInput" placeholder="Message J.O.B Systems..." onkeydown="aiKey(event)" oninput="autoResize(this)" rows="1"></textarea>
               <button class="ai-send" id="aiSendBtn" onclick="sendAI()"><i class="ti ti-send" style="font-size:var(--text-xs);line-height:1;display:block"></i></button>
             </div>
           </div>
@@ -3971,7 +3971,7 @@ select option{background:var(--navy3)}
           <div style="padding-top:12px;border-top:1px solid var(--border);display:flex;align-items:center;gap:10px;flex-wrap:wrap">
             <button class="btn btn-g" onclick="enrollVoiceBiometric()" style="font-size:var(--text-sm)"><i class="ti ti-microphone" style="font-size:var(--text-sm);line-height:1;display:inline-block;margin-right:4px"></i>Enroll Voice Biometric</button>
             <button class="btn btn-g" onclick="clearVoiceBiometric()" style="font-size:var(--text-sm)"><i class="ti ti-trash" style="font-size:var(--text-sm);line-height:1;display:inline-block;margin-right:4px"></i>Clear Voice Profile</button>
-            <span style="font-size:var(--text-xs);color:var(--text3)">Say "J.O.B. unlock" during enrollment.</span>
+            <span style="font-size:var(--text-xs);color:var(--text3)">Say "J.O.B Systems unlock" during enrollment.</span>
           </div>
         </div>
 
@@ -3979,7 +3979,7 @@ select option{background:var(--navy3)}
         <div class="hc" style="margin-bottom:16px">
           <div style="font-size:var(--text-xs);font-weight:700;color:var(--teal);letter-spacing:.1em;text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:6px"><i class="ti ti-api" style="font-size:var(--text-sm);line-height:1;display:block"></i>AI Integrations</div>
           <div class="fg" style="margin-bottom:12px">
-            <label class="fl">Anthropic API Key (Claude · J.O.B. Agents)</label>
+            <label class="fl">Anthropic API Key (Claude · J.O.B Systems Agents)</label>
             <div style="display:flex;gap:8px">
               <input type="password" id="set-anthropic-key" placeholder="sk-ant-..." style="flex:1">
               <button class="btn btn-t" onclick="saveKey('job-api-key','set-anthropic-key')">Save</button>
@@ -4002,7 +4002,7 @@ select option{background:var(--navy3)}
             <label class="btn btn-g" style="margin:0;cursor:pointer"><i class="ti ti-upload" style="font-size:var(--text-sm);line-height:1;display:inline-block;margin-right:4px"></i>Restore Database<input type="file" style="display:none" accept=".json" onchange="importLocalDB(event)"></label>
             <button class="btn btn-d" onclick="factoryReset()" style="margin-left:auto"><i class="ti ti-alert-triangle" style="font-size:var(--text-sm);line-height:1;display:inline-block;margin-right:4px"></i>Factory Reset</button>
           </div>
-          <div style="font-size:var(--text-xs);color:var(--text3)">Backup exports your full J.O.B. state. Factory reset permanently wipes all localStorage — irreversible.</div>
+          <div style="font-size:var(--text-xs);color:var(--text3)">Backup exports your full J.O.B Systems state. Factory reset permanently wipes all localStorage — irreversible.</div>
         </div>
 
       </div>
@@ -4255,7 +4255,7 @@ function initRealtime(){
     if(_osLoaded)setTimeout(initRealtime,5000); // auto-reconnect
   };
   realtimeSocket.onerror=function(err){
-    console.warn('[J.O.B.] Realtime offline — using localStorage only');
+    console.warn('[J.O.B Systems] Realtime offline — using localStorage only');
   };
 }
 
@@ -4464,10 +4464,10 @@ function lockOS(){
     ls.style.opacity='1';
     setTimeout(()=>{if(raw)raw.focus();},150);
     showToast('System locked, sir.');
-    speak('J.O.B. OS locked. Enter PIN to continue.');
+    speak('J.O.B Systems locked. Enter PIN to continue.');
   }
 }
-function toggleMute(){isMuted=!isMuted;const btn=document.getElementById('muteBtn'),icon=document.getElementById('muteIcon');if(isMuted){speechSynthesis.cancel();icon.className='ti ti-volume-off';btn.style.borderColor='var(--red)';btn.style.color='var(--red)';showToast('Voice muted');}else{icon.className='ti ti-volume';btn.style.borderColor='var(--border2)';btn.style.color='var(--text2)';speak('Voice activated. J.O.B. OS online, sir.');}}
+function toggleMute(){isMuted=!isMuted;const btn=document.getElementById('muteBtn'),icon=document.getElementById('muteIcon');if(isMuted){speechSynthesis.cancel();icon.className='ti ti-volume-off';btn.style.borderColor='var(--red)';btn.style.color='var(--red)';showToast('Voice muted');}else{icon.className='ti ti-volume';btn.style.borderColor='var(--border2)';btn.style.color='var(--text2)';speak('Voice activated. J.O.B Systems online, sir.');}}
 function setOpenAIKey(){const e=localStorage.getItem('jelix-openai-key')||'';const k=prompt('Enter your OpenAI API key for ONYX voice:\n\nLeave blank to remove.',e);if(k===null)return;if(k.trim()){localStorage.setItem('jelix-openai-key',k.trim());showToast('ONYX key saved. Premium voice enabled.');speak('Premium voice activated. Good evening, sir.');}else{localStorage.removeItem('jelix-openai-key');showToast('Key removed. Using browser voice.');}}
 function setJelixAPIKey(){
   const existing=localStorage.getItem('job-api-key')||'';
@@ -4499,30 +4499,44 @@ function getSystemPin(){return localStorage.getItem('j-sys-pin')||'0000';}
 function setSystemPin(p){localStorage.setItem('j-sys-pin',p);}
 
 // ── Hardware keyboard PIN trap ──────────────────────────────────────────
+// Intercept digits directly — never rely on oninput to sync value
 function handleRawPinInput(val){
-  // Sync typed digits to visual PIN display
-  currentPinInput=val.replace(/\D/g,'').slice(0,4);
-  const dots=document.querySelectorAll('.pin-dot');
-  dots.forEach((d,i)=>d.classList.toggle('filled',i<currentPinInput.length));
+  // Kept for compatibility but logic is now in keydown
+  // Sync only if value was changed externally (e.g. mobile OS keypad)
+  const digits=val.replace(/\D/g,'').slice(0,4);
+  if(digits===currentPinInput) return; // no change, skip
+  currentPinInput=digits;
+  updatePinDisplay();
   if(currentPinInput.length===4) _checkPin();
 }
-// Global keydown → focus hidden input when lock screen is visible
+
 window.addEventListener('keydown',function(e){
   const ls=document.getElementById('lockScreen');
   if(!ls||ls.style.display==='none') return;
-  const raw=document.getElementById('rawPinInput');
-  if(!raw) return;
+  // Prevent keydown from leaking into other inputs
+  if(e.target&&e.target.id==='rawPinInput'){
+    // Let the browser handle the value, we intercept here too
+  }
   if(e.key>='0'&&e.key<='9'){
-    if(document.activeElement!==raw) raw.focus();
-  }
-  if(e.key==='Backspace'){
-    currentPinInput=currentPinInput.slice(0,-1);
+    e.preventDefault(); // stop browser adding char to input (we control it)
+    if(currentPinInput.length>=4) return;
+    currentPinInput+=e.key;
+    updatePinDisplay();
+    // Keep rawPinInput value in sync for mobile OS keypads
+    const raw=document.getElementById('rawPinInput');
     if(raw) raw.value=currentPinInput;
-    const dots=document.querySelectorAll('.pin-dot');
-    dots.forEach((d,i)=>d.classList.toggle('filled',i<currentPinInput.length));
+    _safeChime('chimeNotify');
+    if(currentPinInput.length===4) _checkPin();
+  } else if(e.key==='Backspace'){
+    e.preventDefault();
+    currentPinInput=currentPinInput.slice(0,-1);
+    updatePinDisplay();
+    const raw=document.getElementById('rawPinInput');
+    if(raw) raw.value=currentPinInput;
+  } else if(e.key==='Escape'){
+    clearPin();
   }
-  if(e.key==='Escape') clearPin();
-},{passive:true});
+},{capture:true});
 
 // Safe chime wrappers — chime functions load late in the file; never crash PIN
 function _safeChime(fn){try{if(typeof window[fn]==='function')window[fn]();}catch(e){}}
@@ -4611,7 +4625,7 @@ async function triggerBiometric(){
     }
   }catch(err){
     // Silent fail — user falls back to PIN
-    console.warn('[J.O.B.] Biometric cancelled or failed:',err.message);
+    console.warn('[J.O.B Systems] Biometric cancelled or failed:',err.message);
   }
 }
 
@@ -5644,7 +5658,7 @@ function buildDailyBriefSummary(){
   const urgent=(DB.clients||[]).filter(c=>c.status==='Urgent').length;
 
   let parts=[];
-  parts.push(`${greeting}, sir. J.O.B. OS online. Today is ${day}.`);
+  parts.push(`${greeting}, sir. J.O.B Systems online. Today is ${day}.`);
 
   if(overdue.length>0) parts.push(`You have ${overdue.length} overdue task${overdue.length>1?'s':''} past their deadline.`);
   if(highPrio.length>0) parts.push(`${highPrio.length} high-priority task${highPrio.length>1?'s require':' requires'} attention.`);
@@ -7797,7 +7811,7 @@ function checkReminders(){
       }
       // Browser notification
       if(Notification.permission==='granted'){
-        new Notification('J.O.B. OS Reminder',{body:e.title+' starts in '+Math.round(diffMin)+' min',icon:''});
+        new Notification('J.O.B Systems Reminder',{body:e.title+' starts in '+Math.round(diffMin)+' min',icon:''});
       }
     }
   });
@@ -9209,7 +9223,7 @@ const AGENTS={
 
 // [replaced by new Gemini engine above]
 
-// ── J.O.B. OS — JOB AGENTS (Gemini via local FastAPI) ────────────────────────
+// ── J.O.B Systems — JOB AGENTS (Gemini via local FastAPI) ────────────────────────
 const GEMINI_ENDPOINT='http://localhost:8000/v1/agents/run';
 (function(){if(!localStorage.getItem('job-gemini-key'))localStorage.setItem('job-gemini-key','AQ.Ab8RN6IahB6zh2kB2JhLvAVSy-doPfJHX2FVHtmuDl-fF_8BXg');})();
 
@@ -9225,7 +9239,7 @@ const AGENT_MAP={
   vee:      {name:'Vee',      desc:'Ministry Framework Builder & Organizational Development Consultant',
     system:JELIX_BASE_SYSTEM+'\n\nROLE: You are Vee — Ministry Framework Builder and Organizational Development Consultant. Specialize in faith-based organizational structures, ministry program design, leadership development frameworks, congregation engagement systems, and org chart planning for faith communities. Primary context: Kapisanan Buklod under CAA District of Metro Manila South, Iglesia ni Cristo.'},
   axis:     {name:'Axis',     desc:'Master Systems Architect & Productivity Engine',
-    system:JELIX_BASE_SYSTEM+'\n\nROLE: You are Axis — Master Systems Architect and Productivity Engine. Specialize in personal operating system design, productivity frameworks, workflow automation, system architecture for tools and apps, and second-brain methodology. Help design and optimize J.O.B. OS itself, BUILD world apps, and productivity systems.'},
+    system:JELIX_BASE_SYSTEM+'\n\nROLE: You are Axis — Master Systems Architect and Productivity Engine. Specialize in personal operating system design, productivity frameworks, workflow automation, system architecture for tools and apps, and second-brain methodology. Help design and optimize J.O.B Systems itself, BUILD world apps, and productivity systems.'},
   fin:      {name:'Fin',      desc:'Personal Infrastructure & Financial Systems Engineer',
     system:JELIX_BASE_SYSTEM+'\n\nROLE: You are Fin — Personal Infrastructure and Financial Systems Engineer. Specialize in personal finance system design, cash flow structuring, budget frameworks, financial automation, and money management infrastructure. Help build and optimize the INACAY Cash Flow system and financial dashboards. Do NOT reveal specific peso amounts — structure systems only.'},
   rocket:   {name:'Rocket',   desc:'Digital Productization Engine & E-Commerce Conversion Strategist',
@@ -9447,7 +9461,7 @@ function _localAgentReply(q,agent,raw){
   // Status / brief
   if(/brief|status|update|kumusta|ano.*balita|summary|overview/.test(q)){
     const worlds=[...new Set(pendingTasks.map(t=>t.world).filter(Boolean))];
-    return `**J.O.B. OS Status Brief — ${name}**\n\nOpen tasks: **${pendingTasks.length}** · High priority: **${highTasks.length}**\nActive worlds: ${worlds.join(', ')||'None'}\n\nTime now: ${pht}\n\nWhat needs your attention first, sir?`;
+    return `**J.O.B Systems Status Brief — ${name}**\n\nOpen tasks: **${pendingTasks.length}** · High priority: **${highTasks.length}**\nActive worlds: ${worlds.join(', ')||'None'}\n\nTime now: ${pht}\n\nWhat needs your attention first, sir?`;
   }
 
   // Schedule / calendar
@@ -9466,7 +9480,7 @@ function _localAgentReply(q,agent,raw){
     bloo:`**${name}** ready. I can assist with interior layout recommendations, space planning briefs, residential systems overviews, or blueprint analysis notes. What's the property, sir?`,
     rider:`**${name}** online. Moto-logistics routing, fleet maintenance schedules, delivery ops planning — tell me what you need and I'll structure it.`,
     vee:`**${name}** standing by. For ministry and org development — Buklod schedules, committee structures, program frameworks, or leadership development plans. What's the activity, sir?`,
-    axis:`**${name}** active. I can help design workflows, system architectures, productivity frameworks, or optimize J.O.B. OS itself. What are we building?`,
+    axis:`**${name}** active. I can help design workflows, system architectures, productivity frameworks, or optimize J.O.B Systems itself. What are we building?`,
     fin:`**${name}** here. Personal infrastructure, budget frameworks, financial system design — what do you need structured, sir? (Note: specific balances are handled in the LIFE — Cash Flow view.)`,
     rocket:`**${name}** launched. E-commerce strategy, digital product positioning, funnel optimization, RaketPH/Etsy listing copy — what are we selling or building?`,
     frame:`**${name}** loaded. UI/UX architecture, component structures, design system review, frontend code direction — drop the details and I'll give you a technical breakdown.`,
@@ -9509,13 +9523,13 @@ function qp(t){const i=document.getElementById('aiInput');if(i){i.value=t;sendAI
 function clearChat(){
   const box=document.getElementById('aiMsgs');
   const a=AGENT_MAP[currentAgent]||AGENT_MAP.civic;
-  if(box)box.innerHTML=`<div class="mr-row"><div class="mav aiv">${a.name[0]}</div><div><div class="mbubble ai">J.O.B. OS online. <strong>${a.name}</strong> standing by, sir.</div><div class="mtime">${_aits()}</div></div></div>`;
+  if(box)box.innerHTML=`<div class="mr-row"><div class="mav aiv">${a.name[0]}</div><div><div class="mbubble ai">J.O.B Systems online. <strong>${a.name}</strong> standing by, sir.</div><div class="mtime">${_aits()}</div></div></div>`;
 }
 
 function exportChat(){
   const box=document.getElementById('aiMsgs');if(!box)return;
   const a=AGENT_MAP[currentAgent]||AGENT_MAP.civic;
-  const header=`J.O.B. OS — ${a.name} Session Export\n${new Date().toLocaleString('en-PH',{timeZone:'Asia/Manila'})}\n${'─'.repeat(60)}\n\n`;
+  const header=`J.O.B Systems — ${a.name} Session Export\n${new Date().toLocaleString('en-PH',{timeZone:'Asia/Manila'})}\n${'─'.repeat(60)}\n\n`;
   const blob=new Blob([header+box.innerText],{type:'text/plain;charset=utf-8'});
   const url=URL.createObjectURL(blob);
   const el=document.createElement('a');el.href=url;el.download=`job-os-${a.name.toLowerCase()}-${Date.now()}.txt`;el.click();URL.revokeObjectURL(url);
@@ -9738,7 +9752,7 @@ function fadeOutBootAudio(){
 
 // ===== BOOT SEQUENCE =====
 const BOOT_STEPS=[
-  {pct:8,  msg:'Mounting J.O.B. OS kernel...'},
+  {pct:8,  msg:'Mounting J.O.B Systems kernel...'},
   {pct:18, msg:'Loading Six Worlds framework...'},
   {pct:30, msg:'Initializing Supabase bridge...'},
   {pct:42, msg:'Loading WORK — Ideahub & Chainsmoker...'},
@@ -12238,7 +12252,7 @@ function scheduleAutoBrief(){
 // ── ENHANCEMENT 5: Voice Biometric Lock ───────────────────────────────────
 const VBL = {
   STORE_KEY: 'j-voice-biometric',
-  PHRASE: 'J.O.B. unlock',  // enrollment trigger phrase
+  PHRASE: 'J.O.B Systems unlock',  // enrollment trigger phrase
   enrolled: false,
   locked: false,
   profile: null,   // stored audio features
@@ -12303,8 +12317,8 @@ async function enrollVoiceBiometric(){
     showToast('⚠ Microphone access required for biometric enrollment.');
     return;
   }
-  showToast('🎙 Speak your enrollment phrase: "J.O.B. unlock" — recording for 4 seconds...');
-  speak('Please say: J.O.B. unlock.');
+  showToast('🎙 Speak your enrollment phrase: "J.O.B Systems unlock" — recording for 4 seconds...');
+  speak('Please say: J.O.B Systems unlock.');
   try{
     const stream = await navigator.mediaDevices.getUserMedia({audio:true});
     const recorder = new MediaRecorder(stream);
@@ -12414,8 +12428,8 @@ window.showVcResult=function(text){
   else if(text) _safeChime('chimeError');
 };
 
-console.log('[J.O.B.] Enhancement Layer v2 loaded — Taglish + Chimes + Biometric + Free-flow');
-console.log('[J.O.B.] JARVIS Intelligence Layer loaded — Skills 1–7 + CLAUDE.md active, sir.');
+console.log('[J.O.B Systems] Enhancement Layer v2 loaded — Taglish + Chimes + Biometric + Free-flow');
+console.log('[J.O.B Systems] JARVIS Intelligence Layer loaded — Skills 1–7 + CLAUDE.md active, sir.');
 
 // ═══════════════════════════════════════════════════════════════════════════
 // J.O.B. WAKE WORD — always-on passive listener
@@ -12568,7 +12582,7 @@ console.log('[J.O.B.] JARVIS Intelligence Layer loaded — Skills 1–7 + CLAUDE
     }
   };
 
-  console.log('[J.O.B.] Wake word listener ready — OFF by default. Mic closed.');
+  console.log('[J.O.B Systems] Wake word listener ready — OFF by default. Mic closed.');
 })();
 
 // runBootSequence() now called by unlockSystem() after PIN entry
@@ -12708,7 +12722,7 @@ console.log('[J.O.B.] JARVIS Intelligence Layer loaded — Skills 1–7 + CLAUDE
   // Only attempt on real http/https origins (not blob:, data:, file:)
   var proto = location.protocol;
   if(proto !== 'https:' && proto !== 'http:') {
-    console.log('[J.O.B.] SW skipped \u2014 not an http(s) origin.');
+    console.log('[J.O.B Systems] SW skipped \u2014 not an http(s) origin.');
     return;
   }
 
@@ -12724,7 +12738,7 @@ console.log('[J.O.B.] JARVIS Intelligence Layer loaded — Skills 1–7 + CLAUDE
       return navigator.serviceWorker.register(swPath);
     })
     .then(function(reg){
-      console.log('[J.O.B.] SW registered \u2713 scope:', reg.scope);
+      console.log('[J.O.B Systems] SW registered \u2713 scope:', reg.scope);
       setInterval(function(){ reg.update(); }, 60*60*1000);
       reg.addEventListener('updatefound', function(){
         var w = reg.installing; if(!w) return;
@@ -12737,7 +12751,7 @@ console.log('[J.O.B.] JARVIS Intelligence Layer loaded — Skills 1–7 + CLAUDE
     })
     .catch(function(){
       // sw.js not present (or preview environment) — run without offline cache
-      console.log('[J.O.B.] Offline caching unavailable (no sw.js at origin). App runs normally.');
+      console.log('[J.O.B Systems] Offline caching unavailable (no sw.js at origin). App runs normally.');
     });
 })();
 </script>
@@ -12783,7 +12797,7 @@ window.addEventListener('beforeinstallprompt', e => {
       item.innerHTML = `
         <i class="ti ti-device-mobile" style="font-size:16px;color:var(--teal);line-height:1;display:block;flex-shrink:0"></i>
         <div style="flex:1;min-width:0">
-          <div style="font-size:var(--text-sm);font-weight:700;color:var(--teal)">Install J.O.B. OS</div>
+          <div style="font-size:var(--text-sm);font-weight:700;color:var(--teal)">Install J.O.B Systems</div>
           <div style="font-size:var(--text-xs);color:var(--text3);margin-top:2px">Add to home screen for fullscreen app experience</div>
         </div>
         <button id="pwaInstallBtn" style="background:var(--teal);color:var(--navy);border:none;border-radius:3px;padding:4px 10px;font-size:var(--text-xs);font-weight:700;cursor:pointer;flex-shrink:0;white-space:nowrap">Install</button>
@@ -12793,8 +12807,8 @@ window.addEventListener('beforeinstallprompt', e => {
         _pwaInstallEvent.prompt();
         const { outcome } = await _pwaInstallEvent.userChoice;
         if(outcome === 'accepted'){
-          showToast('✓ J.O.B. OS installed, sir.');
-          speak('J.O.B. OS installed. Welcome to the app, sir.');
+          showToast('✓ J.O.B Systems installed, sir.');
+          speak('J.O.B Systems installed. Welcome to the app, sir.');
         }
         _pwaInstallEvent = null;
         item.remove();
@@ -12809,8 +12823,8 @@ window.addEventListener('beforeinstallprompt', e => {
 // Detect already installed
 window.addEventListener('appinstalled', () => {
   _pwaInstallEvent = null;
-  console.log('[J.O.B.] App installed successfully.');
-  showToast('✓ J.O.B. OS is now installed as an app, sir.');
+  console.log('[J.O.B Systems] App installed successfully.');
+  showToast('✓ J.O.B Systems is now installed as an app, sir.');
 });
 
 // iOS install instruction (Safari doesn't fire beforeinstallprompt)
@@ -12830,7 +12844,7 @@ window.addEventListener('appinstalled', () => {
         <i class="ti ti-brand-apple" style="font-size:16px;color:var(--teal);line-height:1;display:block;flex-shrink:0"></i>
         <div style="flex:1;min-width:0">
           <div style="font-size:var(--text-sm);font-weight:700;color:var(--teal)">Install on iPhone / iPad</div>
-          <div style="font-size:var(--text-xs);color:var(--text3);margin-top:2px">Tap <strong style="color:var(--text2)">Share</strong> → <strong style="color:var(--text2)">Add to Home Screen</strong> to install J.O.B. OS</div>
+          <div style="font-size:var(--text-xs);color:var(--text3);margin-top:2px">Tap <strong style="color:var(--text2)">Share</strong> → <strong style="color:var(--text2)">Add to Home Screen</strong> to install J.O.B Systems</div>
         </div>
         <button onclick="this.parentNode.remove()" style="background:transparent;border:1px solid var(--border2);border-radius:3px;color:var(--text3);font-size:var(--text-xs);padding:3px 8px;cursor:pointer;flex-shrink:0">Got it</button>
       `;
