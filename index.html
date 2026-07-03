@@ -251,6 +251,17 @@ select option{background:var(--navy3)}
 .gws-btn:active{transform:scale(.97)}
 .kanban-wrap{display:flex;flex-direction:column;height:100%;gap:0}
 .kb-cols{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;flex:1;overflow:hidden}
+/* ── Meeting Note Taker ── */
+.meetings-panel{display:flex;flex-direction:column;height:100%;overflow:hidden}
+.meetings-recorder{flex-shrink:0;padding:14px 18px;border-bottom:1px solid var(--border);display:flex;flex-direction:column;gap:10px;background:var(--navy2)}
+.meetings-log{flex:1;overflow-y:auto;padding:14px 18px;display:flex;flex-direction:column;gap:8px;-webkit-overflow-scrolling:touch}
+.meeting-card{background:#05090f;border:1px solid var(--border);border-radius:6px;overflow:hidden;cursor:pointer;transition:border-color .15s}
+.meeting-card:hover{border-color:var(--teal2)}
+.meeting-card-head{padding:10px 13px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
+.meeting-card-body{padding:10px 13px;font-size:var(--text-xs);color:var(--text3);line-height:1.5}
+.rec-pulse{width:10px;height:10px;border-radius:50%;background:var(--red);flex-shrink:0;animation:recpulse 1s ease-in-out infinite}
+@keyframes recpulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.8)}}
+.rec-live-text{font-size:var(--text-xs);color:var(--text1);line-height:1.6;min-height:60px;max-height:120px;overflow-y:auto;padding:8px 10px;background:rgba(0,0,0,.2);border:1px solid var(--border);border-radius:4px;white-space:pre-wrap}
 .kc{display:flex;flex-direction:column;background:var(--navy2);border:1px solid var(--border);border-radius:6px;overflow:hidden}
 .kch{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--border);flex-shrink:0}
 .kch-title{font-size:var(--text-xs);font-weight:700;letter-spacing:.1em;text-transform:uppercase}
@@ -2753,7 +2764,7 @@ select option{background:var(--navy3)}
       <button class="tb-btn" onclick="toggleWakeWord()" id="wakeToggleBtn" title="Wake word OFF — click to enable" style="color:var(--text3)"><i class="ti ti-ear-off"></i></button>
       <button class="tb-btn" onclick="toggleMute()" id="muteBtn" title="Toggle voice output"><i class="ti ti-volume" id="muteIcon"></i></button>
       <button class="tb-btn" id="onyxBtn" onclick="setOpenAIKey()" title="Set OpenAI key for premium JARVIS voice" style="font-size:var(--text-xs);letter-spacing:.06em;color:var(--teal2);border-color:var(--teal2)">ONYX</button>
-      <button class="tb-btn" id="apiKeyBtn" onclick="setJelixAPIKey()" title="Set Anthropic API key for AI agents" style="font-size:var(--text-xs);letter-spacing:.06em;color:var(--amber);border-color:var(--amber)">JARVIS KEY</button>
+      <button class="tb-btn" id="apiKeyBtn" onclick="setJelixAPIKey()" title="Set Anthropic API key for AI agents" style="font-size:var(--text-xs);letter-spacing:.06em;color:var(--amber);border-color:var(--amber)">JOB KEY</button>
       <button class="tb-btn" onclick="setView('history')" title="History" id="historyBtn"><i class="ti ti-history"></i></button>
       <!-- Mobile-only: Voice + Settings (replaces ONYX/KEY) -->
       <button class="tb-btn mobile-only-btn" onclick="toggleVoice()" id="mobileVoiceBtn" title="Voice"><i class="ti ti-microphone"></i></button>
@@ -2928,17 +2939,19 @@ select option{background:var(--navy3)}
           <button class="btn btn-g" id="ihv-t" onclick="setIHView('table',this)" style="background:var(--teal3);border-color:var(--teal2);color:var(--teal)">Clients</button>
           <button class="btn btn-g" id="ihv-k" onclick="setIHView('kanban',this)">Task Kanban</button>
           <button class="btn btn-g" id="ihv-ct" onclick="setIHView('ctasks',this)">By Client</button>
+          <button class="btn btn-g" id="ihv-m" onclick="setIHView('meetings',this)"><i class="ti ti-microphone" style="font-size:var(--text-xs);line-height:1;display:inline-block;margin-right:3px"></i>Meetings</button>
           <button class="btn btn-t" onclick="openModal('clientModal')"><i class="ti ti-plus"></i> Client</button>
           <button class="btn btn-g" onclick="openTaskFor('WORK-IH')"><i class="ti ti-plus"></i> Task</button>
         </div>
       </div>
-      <div class="vb" style="padding:14px 18px">
-        <div id="ih-table"><div id="ihClientCards" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px"></div></div>
-        <div id="ih-kanban" style="display:none;height:calc(100vh - 130px)"><div class="kanban-wrap"><div class="kb-cols" id="ihKanbanCols"></div><div style="margin-top:10px;display:flex;justify-content:flex-end"><button class="btn btn-t" onclick="openTaskFor('WORK-IH')"><i class="ti ti-plus"></i> Add Task</button></div></div></div>
-        <div id="ih-ctasks" style="display:none">
+      <div class="vb" style="padding:0;display:flex;flex-direction:column;overflow:hidden">
+        <div id="ih-table" style="padding:14px 18px;flex:1;overflow-y:auto"><div id="ihClientCards" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px"></div></div>
+        <div id="ih-kanban" style="display:none;flex:1;overflow:hidden"><div class="kanban-wrap" style="height:100%"><div class="kb-cols" id="ihKanbanCols"></div><div style="margin-top:10px;display:flex;justify-content:flex-end"><button class="btn btn-t" onclick="openTaskFor('WORK-IH')"><i class="ti ti-plus"></i> Add Task</button></div></div></div>
+        <div id="ih-ctasks" style="display:none;padding:14px 18px;flex:1;overflow-y:auto">
           <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px"><label style="font-size:var(--text-xs);font-weight:700;color:var(--text3);letter-spacing:.08em;text-transform:uppercase">Filter by Client</label><select id="ihCF" onchange="renderIHClientTasks()" style="width:clamp(100px,30vw,200px)"></select></div>
           <table class="ht"><thead><tr><th>Task</th><th>Client</th><th>Platform</th><th>Priority</th><th>Status</th><th>Deadline</th><th>Note</th><th></th></tr></thead><tbody id="ihCTbody"></tbody></table>
         </div>
+        <div id="ih-meetings" style="display:none;flex:1;overflow:hidden"><div id="meetingsPanel-WORK-IH" class="meetings-panel" data-world="WORK-IH"></div></div>
       </div>
     </div>
 
@@ -2952,6 +2965,7 @@ select option{background:var(--navy3)}
           <div style="width:1px;height:20px;background:var(--border2)"></div>
           <button class="btn" id="csv-k" onclick="setCSView('kanban',this)" style="background:transparent;border:1px solid var(--border2);color:var(--text2);font-size:var(--text-xs)">Kanban</button>
           <button class="btn btn-g" id="csv-l" onclick="setCSView('list',this)">List</button>
+          <button class="btn btn-g" id="csv-m" onclick="setCSView('meetings',this)"><i class="ti ti-microphone" style="font-size:var(--text-xs);line-height:1;display:inline-block;margin-right:3px"></i>Meetings</button>
           <button class="btn btn-o" onclick="openTaskFor('WORK-CS')"><i class="ti ti-plus"></i> Task</button>
         </div>
       </div>
@@ -2972,6 +2986,7 @@ select option{background:var(--navy3)}
         </div>
         <div id="cs-kanban" style="flex:1;min-height:0;overflow:hidden"><div class="kanban-wrap" style="height:100%"><div class="kb-cols" id="csKanbanCols"></div></div></div>
         <div id="cs-list" style="display:none"><table class="ht"><thead><tr><th>Task</th><th>Client</th><th>Platform</th><th>Priority</th><th>Status</th><th>Deadline</th><th></th></tr></thead><tbody id="csTbody"></tbody></table></div>
+        <div id="cs-meetings" style="display:none;flex:1;overflow:hidden"><div id="meetingsPanel-WORK-CS" class="meetings-panel" data-world="WORK-CS"></div></div>
       </div>
     </div>
 
@@ -2982,6 +2997,7 @@ select option{background:var(--navy3)}
         <div class="va">
           <button class="btn btn-g wo" id="vt-c" onclick="setVentureTab('clients',this)" style="background:var(--orange3);border-color:var(--orange2);color:var(--orange)">Client Pipeline</button>
           <button class="btn btn-g" id="vt-p" onclick="setVentureTab('partners',this)">Partner / VA</button>
+          <button class="btn btn-g" id="vt-m" onclick="setVentureTab('meetings',this)"><i class="ti ti-microphone" style="font-size:var(--text-xs);line-height:1;display:inline-block;margin-right:3px"></i>Meetings</button>
           <button class="btn btn-o" onclick="openVentureModal()"><i class="ti ti-plus"></i> Add</button>
         </div>
       </div>
@@ -3043,6 +3059,8 @@ select option{background:var(--navy3)}
           <!-- Task content -->
           <div id="vtTaskList" style="flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch"></div>
         </div>
+        <!-- Venture meetings panel -->
+        <div id="vt-meetings" style="display:none;flex:1;overflow:hidden"><div id="meetingsPanel-VENTURE" class="meetings-panel" data-world="VENTURE"></div></div>
 
       </div>
     </div>
@@ -3092,6 +3110,7 @@ select option{background:var(--navy3)}
           <div class="cfbt active" id="ftab-activities" onclick="setFaithTab('activities',this)"><i class="ti ti-calendar-event" style="font-size:var(--text-xs);display:inline-block;margin-right:4px"></i>Activities</div>
           <div class="cfbt" id="ftab-officers" onclick="setFaithTab('officers',this)"><i class="ti ti-users" style="font-size:var(--text-xs);display:inline-block;margin-right:4px"></i>Officers</div>
           <div class="cfbt" id="ftab-topics" onclick="setFaithTab('topics',this)"><i class="ti ti-book" style="font-size:var(--text-xs);display:inline-block;margin-right:4px"></i>Topics</div>
+          <div class="cfbt" id="ftab-meetings" onclick="setFaithTab('meetings',this)"><i class="ti ti-microphone" style="font-size:var(--text-xs);display:inline-block;margin-right:4px"></i>Meetings</div>
         </div>
 
         <div style="flex:1;overflow-y:auto;padding:14px 18px">
@@ -3146,6 +3165,71 @@ select option{background:var(--navy3)}
             </div>
           </div>
 
+          <!-- FAITH MEETINGS TAB -->
+          <div id="faith-meetings" style="display:none">
+            <div id="meetingsPanel-FAITH" class="meetings-panel" data-world="FAITH"></div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ MEETING REVIEW MODAL ═══ -->
+    <div class="mov" id="meetingReviewModal">
+      <div class="mbody" style="max-width:680px;max-height:90vh;overflow-y:auto">
+        <div class="mh">
+          <div class="mt"><i class="ti ti-file-check" style="margin-right:6px"></i>Review Meeting Draft</div>
+          <button class="mc" onclick="closeModal('meetingReviewModal')">×</button>
+        </div>
+        <div style="padding:14px 16px;display:flex;flex-direction:column;gap:12px">
+          <!-- Title + World -->
+          <div style="display:grid;grid-template-columns:1fr auto;gap:10px;align-items:end">
+            <div class="fg" style="margin:0"><label class="fl">Meeting Title</label><input id="mr-title" class="mi" placeholder="e.g. IH Weekly Sync"></div>
+            <div class="fg" style="margin:0;min-width:130px">
+              <label class="fl">World</label>
+              <select id="mr-world" class="mi">
+                <option value="WORK-IH">WORK-IH</option>
+                <option value="WORK-CS">WORK-CS</option>
+                <option value="VENTURE">VENTURE</option>
+                <option value="FAITH">FAITH</option>
+                <option value="BUILD">BUILD</option>
+                <option value="SIDES">SIDES</option>
+                <option value="LIFE">LIFE</option>
+              </select>
+            </div>
+          </div>
+          <!-- Auto-extracted summary -->
+          <div class="fg" style="margin:0">
+            <label class="fl">Summary <span style="font-size:var(--text-xs);color:var(--teal);font-weight:400">auto-extracted · editable</span></label>
+            <textarea id="mr-summary" class="mi" rows="3" style="resize:vertical" placeholder="Summary of the meeting..."></textarea>
+          </div>
+          <!-- Action items -->
+          <div>
+            <div style="font-size:var(--text-xs);font-weight:700;color:var(--text3);letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px;display:flex;align-items:center;justify-content:space-between">
+              <span>Action Items <span style="color:var(--teal);font-weight:400">→ will become tasks</span></span>
+              <button onclick="addMeetingActionItem()" style="background:var(--teal3);border:1px solid var(--teal2);border-radius:3px;color:var(--teal);font-size:var(--text-xs);padding:2px 8px;cursor:pointer">+ Add</button>
+            </div>
+            <div id="mr-actions" style="display:flex;flex-direction:column;gap:5px"></div>
+          </div>
+          <!-- Decisions -->
+          <div>
+            <div style="font-size:var(--text-xs);font-weight:700;color:var(--text3);letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px">Decisions Detected</div>
+            <div id="mr-decisions" style="display:flex;flex-direction:column;gap:5px">
+              <div style="font-size:var(--text-xs);color:var(--text3);font-style:italic">None detected.</div>
+            </div>
+          </div>
+          <!-- Full transcript -->
+          <div class="fg" style="margin:0">
+            <label class="fl">Full Transcript <span style="font-size:var(--text-xs);color:var(--text3);font-weight:400">editable before saving</span></label>
+            <textarea id="mr-transcript" class="mi" rows="7" style="resize:vertical;font-size:var(--text-xs);line-height:1.6" placeholder="Transcript will appear here..."></textarea>
+          </div>
+        </div>
+        <div class="mf" style="justify-content:space-between">
+          <button class="btn btn-d" onclick="discardMeetingDraft()" style="font-size:var(--text-sm)"><i class="ti ti-trash" style="font-size:var(--text-sm);line-height:1;display:inline-block;margin-right:4px"></i>Discard</button>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-g" onclick="closeModal('meetingReviewModal')">Keep Editing</button>
+            <button class="btn" onclick="saveMeetingApproved()" style="background:rgba(0,212,200,.12);border:1px solid var(--teal2);color:var(--teal);font-weight:700"><i class="ti ti-check" style="font-size:var(--text-sm);line-height:1;display:inline-block;margin-right:4px"></i>Save &amp; Create Tasks</button>
+          </div>
         </div>
       </div>
     </div>
@@ -4484,7 +4568,7 @@ function setJelixAPIKey(){
   }else if(k.trim()===''){
     localStorage.removeItem('job-api-key');
     const btn=document.getElementById('apiKeyBtn');
-    if(btn){btn.style.color='var(--amber)';btn.style.borderColor='var(--amber)';btn.textContent='JARVIS KEY';}
+    if(btn){btn.style.color='var(--amber)';btn.style.borderColor='var(--amber)';btn.textContent='JOB KEY';}
     showToast('API key removed.');
   }else{
     showToast('⚠ Invalid key. Must start with sk-ant-');
@@ -4779,6 +4863,7 @@ const DB={
   faithTopics:JSON.parse(localStorage.getItem('j-faithTopics')||'null')||[],
   loans:JSON.parse(localStorage.getItem('j-loans')||'null')||[],
   accounts:JSON.parse(localStorage.getItem('j-accounts')||'null')||[],
+  meetings:JSON.parse(localStorage.getItem('j-meetings')||'null')||[],
   worlds:JSON.parse(localStorage.getItem('j-worlds')||'null')||[
     {id:'work-ih',  label:'WORK — Ideahub',    icon:'ti-briefcase',    color:'var(--w-ideahub)',   cssVar:'--w-ideahub',   core:true},
     {id:'work-cs',  label:'WORK — Chainsmoker', icon:'ti-flame',        color:'var(--w-chainsmoker)',cssVar:'--w-chainsmoker',core:true},
@@ -6394,13 +6479,14 @@ function buildKanban(containerId,tasks,world,statusList,statusColors,isOrange){
 
 // ===== WORK IH =====
 function setIHView(v,el){
-  ['ih-table','ih-kanban','ih-ctasks'].forEach(id=>{const d=document.getElementById(id);if(d)d.style.display='none';});
-  const map={table:'ih-table',kanban:'ih-kanban',ctasks:'ih-ctasks'};
+  ['ih-table','ih-kanban','ih-ctasks','ih-meetings'].forEach(id=>{const d=document.getElementById(id);if(d)d.style.display='none';});
+  const map={table:'ih-table',kanban:'ih-kanban',ctasks:'ih-ctasks',meetings:'ih-meetings'};
   const d=document.getElementById(map[v]);if(d)d.style.display='';
-  ['ihv-t','ihv-k','ihv-ct'].forEach(id=>{const b=document.getElementById(id);if(b){b.style.background='transparent';b.style.borderColor='var(--border2)';b.style.color='var(--text2)';}});
-  el.style.background='var(--teal3)';el.style.borderColor='var(--teal2)';el.style.color='var(--teal)';
+  ['ihv-t','ihv-k','ihv-ct','ihv-m'].forEach(id=>{const b=document.getElementById(id);if(b){b.style.background='transparent';b.style.borderColor='var(--border2)';b.style.color='var(--text2)';}});
+  if(el){el.style.background='var(--teal3)';el.style.borderColor='var(--teal2)';el.style.color='var(--teal)';}
   if(v==='kanban'){const tasks=DB.tasks.filter(t=>t.world==='WORK-IH');buildKanban('ihKanbanCols',tasks,'WORK-IH',['Todo','In Progress','No Progress','Done'],{},false);}
   if(v==='ctasks'){populateIHClientFilter();renderIHClientTasks();}
+  if(v==='meetings'){renderMeetingsPanel('meetingsPanel-WORK-IH','WORK-IH');}
 }
 // Deterministic color palette for IH client cards
 const IH_CLIENT_COLORS=[
@@ -6538,9 +6624,11 @@ function setCSView(v,el){
   csActiveView=v;
   document.getElementById('cs-kanban').style.display=v==='kanban'?'':'none';
   document.getElementById('cs-list').style.display=v==='list'?'':'none';
-  ['csv-k','csv-l'].forEach(id=>{const b=document.getElementById(id);if(b){b.style.background='transparent';b.style.borderColor='var(--border2)';b.style.color='var(--text2)';}});
-  el.style.background='var(--navy3)';el.style.borderColor='var(--border)';el.style.color='var(--text1)';
-  renderCSActive();
+  const cm=document.getElementById('cs-meetings');if(cm)cm.style.display=v==='meetings'?'':'none';
+  ['csv-k','csv-l','csv-m'].forEach(id=>{const b=document.getElementById(id);if(b){b.style.background='transparent';b.style.borderColor='var(--border2)';b.style.color='var(--text2)';}});
+  if(el){el.style.background='var(--navy3)';el.style.borderColor='var(--border)';el.style.color='var(--text1)';}
+  if(v==='meetings') renderMeetingsPanel('meetingsPanel-WORK-CS','WORK-CS');
+  else renderCSActive();
 }
 function renderCSActive(){
   const cfg=CS_CLIENTS[csActiveClient];
@@ -6847,11 +6935,14 @@ function vtFilterTasks(filter,btn){ _vtCurrentFilter=filter; _renderVTasks(); }
 function setVentureTab(tab,el){
   const cv=document.getElementById('vt-clients-view');
   const pv=document.getElementById('vt-partners-view');
+  const mv=document.getElementById('vt-meetings');
   if(cv) cv.style.display=tab==='clients'?'flex':'none';
   if(pv) pv.style.display=tab==='partners'?'flex':'none';
-  ['vt-c','vt-p'].forEach(id=>{const b=document.getElementById(id);if(b){b.style.background='transparent';b.style.borderColor='var(--border2)';b.style.color='var(--text2)';}});
-  el.style.background='var(--orange3)';el.style.borderColor='var(--orange2)';el.style.color='var(--orange)';
-  renderVenture();
+  if(mv) mv.style.display=tab==='meetings'?'flex':'none';
+  ['vt-c','vt-p','vt-m'].forEach(id=>{const b=document.getElementById(id);if(b){b.style.background='transparent';b.style.borderColor='var(--border2)';b.style.color='var(--text2)';}});
+  if(el){el.style.background='var(--orange3)';el.style.borderColor='var(--orange2)';el.style.color='var(--orange)';}
+  if(tab==='meetings') renderMeetingsPanel('meetingsPanel-VENTURE','VENTURE');
+  else renderVenture();
 }
 
 function renderBriefCal_LEGACY(m,y){
@@ -6998,20 +7089,21 @@ function renderFaith(){const tb=document.getElementById('faithTbody'),em=documen
 
 // ── Faith tab navigation ──────────────────────────────────────────────────
 function setFaithTab(tab,btn){
-  ['activities','officers','topics'].forEach(t=>{
+  ['activities','officers','topics','meetings'].forEach(t=>{
     const el=document.getElementById('faith-'+t);if(el)el.style.display=t===tab?'':'none';
   });
   document.querySelectorAll('.cfbt[id^="ftab-"]').forEach(b=>b.classList.remove('active'));
   if(btn)btn.classList.add('active');
-  // Update header add button label
   const addBtn=document.getElementById('faithAddBtn');
   if(addBtn){
     if(tab==='officers'){addBtn.innerHTML='<i class="ti ti-plus"></i> Officer';addBtn.onclick=openOfficerModal;}
     else if(tab==='topics'){addBtn.innerHTML='<i class="ti ti-plus"></i> Topic';addBtn.onclick=openTopicModal;}
+    else if(tab==='meetings'){addBtn.innerHTML='<i class="ti ti-microphone"></i> Record';addBtn.onclick=()=>document.querySelector('#meetingsPanel-FAITH [id^="meetRecBtn-"]')?.click();}
     else{addBtn.innerHTML='<i class="ti ti-plus"></i> Activity';addBtn.onclick=openFaithModal;}
   }
   if(tab==='officers') renderOfficers();
   if(tab==='topics') renderFaithTopics();
+  if(tab==='meetings') renderMeetingsPanel('meetingsPanel-FAITH','FAITH');
 }
 function exportFaithData(){const rows=DB.faith.map(f=>[f.group,f.activity,f.date,f.submitted,f.cfo,f.aevm,f.status,f.assigned].join(','));const csv='Group,Activity,Date,Submitted,CFO,AEVM,Status,Assigned\n'+rows.join('\n');const b=new Blob([csv],{type:'text/csv'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download='faith-activities.csv';a.click();URL.revokeObjectURL(u);}
 
@@ -8650,6 +8742,311 @@ function saveMemoryItem(){
 function addMemory(){openMemoryModal();}// legacy alias
 function deleteMemoryItem(id){DB.memories=DB.memories.filter(m=>m.id!==id);SB.remove('memories',id,'memories');renderMemory();}
 function deleteAutoMemory(id){DB.memories=DB.memories.filter(m=>m.id!==id);SB.remove('memories',id,'memories');save('memories');renderMemory();showToast('Memory removed');}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// MEETING NOTE TAKER
+// ═══════════════════════════════════════════════════════════════════════════
+let _meetRec=null,_meetFinal='',_meetInterim='',_meetStartTs=null,_meetWorld='WORK-IH',_meetDraft=null;
+
+function renderMeetingsPanel(containerId,world){
+  const el=document.getElementById(containerId);if(!el)return;
+  _meetWorld=world;
+  const worldMeetings=(DB.meetings||[]).filter(m=>m.world===world).sort((a,b)=>b.date.localeCompare(a.date));
+  const wColor={'WORK-IH':'var(--w-ideahub)','WORK-CS':'var(--w-chainsmoker)','VENTURE':'var(--w-venture)','FAITH':'var(--w-faith)','BUILD':'var(--w-build)','SIDES':'var(--w-sides)','LIFE':'var(--w-life)'}[world]||'var(--teal)';
+
+  el.innerHTML=`<div class="meetings-panel">
+    <!-- RECORDER SECTION -->
+    <div class="meetings-recorder">
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <input id="meetTitle-${world}" class="mi" placeholder="Meeting title (optional)..." style="flex:1;min-width:160px;font-size:var(--text-xs)">
+        <button id="meetRecBtn-${world}" onclick="toggleMeetRecording('${world}')" style="display:flex;align-items:center;gap:7px;padding:7px 16px;border-radius:4px;border:1px solid rgba(239,68,68,.4);background:rgba(239,68,68,.08);color:var(--red);cursor:pointer;font-size:var(--text-xs);font-weight:700;flex-shrink:0;transition:all .2s">
+          <i class="ti ti-microphone" style="font-size:var(--text-sm);line-height:1;display:block"></i>
+          <span id="meetRecLabel-${world}">Start Recording</span>
+        </button>
+      </div>
+      <!-- Live transcript area (hidden until recording) -->
+      <div id="meetLiveWrap-${world}" style="display:none">
+        <div style="display:flex;align-items:center;gap:7px;margin-bottom:6px">
+          <div class="rec-pulse" id="meetPulse-${world}"></div>
+          <span style="font-size:var(--text-xs);color:var(--red);font-weight:700">RECORDING</span>
+          <span id="meetTimer-${world}" style="font-size:var(--text-xs);color:var(--text3);margin-left:auto">0:00</span>
+        </div>
+        <div class="rec-live-text" id="meetLive-${world}">Speak now, sir...</div>
+      </div>
+    </div>
+    <!-- MEETING LOG -->
+    <div class="meetings-log">
+      ${worldMeetings.length?worldMeetings.map(m=>`
+        <div class="meeting-card" onclick="expandMeeting(${m.id})">
+          <div class="meeting-card-head">
+            <i class="ti ti-file-text" style="font-size:var(--text-sm);color:${wColor};line-height:1;display:block;flex-shrink:0"></i>
+            <div style="flex:1;min-width:0">
+              <div style="font-size:var(--text-sm);font-weight:700;color:var(--text1);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${m.title||'Untitled Meeting'}</div>
+              <div style="font-size:var(--text-xs);color:var(--text3)">${m.date} · ${m.duration||'—'} · ${m.actionItems?.length||0} action items</div>
+            </div>
+            <button onclick="event.stopPropagation();deleteMeeting(${m.id},'${world}')" style="background:transparent;border:none;color:var(--text3);cursor:pointer;flex-shrink:0"><i class="ti ti-trash" style="font-size:var(--text-xs);line-height:1;display:block"></i></button>
+          </div>
+          ${m.summary?`<div class="meeting-card-body">${m.summary.substring(0,180)}${m.summary.length>180?'…':''}</div>`:''}
+          ${m.actionItems?.length?`<div style="padding:6px 13px;display:flex;flex-wrap:wrap;gap:5px;border-top:1px solid var(--border)">${m.actionItems.slice(0,3).map(a=>`<span style="font-size:9px;padding:2px 7px;border-radius:10px;background:${wColor}15;color:${wColor};border:1px solid ${wColor}30">${a.text.substring(0,40)}</span>`).join('')}${m.actionItems.length>3?`<span style="font-size:9px;color:var(--text3)">+${m.actionItems.length-3} more</span>`:''}</div>`:''}
+        </div>`).join('')
+      :`<div style="text-align:center;padding:40px 20px;color:var(--text3)">
+          <i class="ti ti-microphone" style="font-size:32px;display:block;margin-bottom:10px;opacity:.3"></i>
+          <div style="font-size:var(--text-sm);margin-bottom:5px">No meetings recorded yet</div>
+          <div style="font-size:var(--text-xs)">Hit "Start Recording" to begin your first meeting note, sir.</div>
+        </div>`}
+    </div>
+  </div>`;
+}
+
+function toggleMeetRecording(world){
+  if(_meetRec && _meetRec._world===world){
+    // Stop recording
+    _meetRec.stop();
+    stopMeetTimer();
+  } else {
+    // Start recording
+    const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+    if(!SR){showToast('Speech not supported. Use Chrome or Edge, sir.');return;}
+    _meetFinal='';_meetInterim='';_meetWorld=world;_meetStartTs=Date.now();
+    const r=new SR();
+    r.continuous=true;r.interimResults=true;r.lang='en-PH';r.maxAlternatives=1;
+    r._world=world;
+    r.onstart=()=>{
+      const btn=document.getElementById('meetRecBtn-'+world);
+      const lbl=document.getElementById('meetRecLabel-'+world);
+      const wrap=document.getElementById('meetLiveWrap-'+world);
+      if(btn){btn.style.background='rgba(239,68,68,.2)';btn.style.borderColor='var(--red)';}
+      if(lbl) lbl.textContent='Stop Recording';
+      if(wrap) wrap.style.display='';
+      startMeetTimer(world);
+    };
+    r.onresult=(e)=>{
+      let interim='',final='';
+      for(let i=e.resultIndex;i<e.results.length;i++){
+        if(e.results[i].isFinal) final+=e.results[i][0].transcript+' ';
+        else interim+=e.results[i][0].transcript;
+      }
+      if(final) _meetFinal+=final;
+      const liveEl=document.getElementById('meetLive-'+world);
+      if(liveEl) liveEl.textContent=(_meetFinal+interim).trim()||'Speak now, sir...';
+    };
+    r.onend=()=>{
+      _meetRec=null;
+      stopMeetTimer();
+      const btn=document.getElementById('meetRecBtn-'+world);
+      const lbl=document.getElementById('meetRecLabel-'+world);
+      if(btn){btn.style.background='rgba(239,68,68,.08)';btn.style.borderColor='rgba(239,68,68,.4)';}
+      if(lbl) lbl.textContent='Start Recording';
+      const transcript=_meetFinal.trim();
+      if(transcript.length>10) openMeetingReview(transcript,world);
+      else showToast('Recording too short — no transcript captured.');
+    };
+    r.onerror=(e)=>{
+      showToast('Microphone error: '+e.error+'. Check permissions, sir.');
+      _meetRec=null;stopMeetTimer();
+    };
+    _meetRec=r;
+    r.start();
+  }
+}
+
+let _meetTimerInterval=null;
+function startMeetTimer(world){
+  const el=document.getElementById('meetTimer-'+world);
+  if(!el)return;
+  let secs=0;
+  _meetTimerInterval=setInterval(()=>{
+    secs++;
+    const m=Math.floor(secs/60);const s=secs%60;
+    el.textContent=m+':'+(s<10?'0':'')+s;
+  },1000);
+}
+function stopMeetTimer(){clearInterval(_meetTimerInterval);_meetTimerInterval=null;}
+
+// ── Extract summary, action items, decisions from transcript ──────────────
+function extractMeetingData(transcript){
+  const lines=transcript.split(/[.!?\n]+/).map(l=>l.trim()).filter(l=>l.length>5);
+
+  // Summary — first 3 meaningful sentences + any conclusion-type sentence
+  const summaryLines=lines.slice(0,3);
+  const conclusionRe=/\b(so|therefore|in summary|conclusion|to recap|overall|the plan|we agreed|moving forward)\b/i;
+  const extra=lines.slice(3).find(l=>conclusionRe.test(l));
+  if(extra&&!summaryLines.includes(extra)) summaryLines.push(extra);
+  const summary=summaryLines.join('. ').trim();
+
+  // Action items — lines with strong intent signals
+  const actionRe=/\b(i will|i'll|you will|you'll|we will|we'll|let's|please|follow up|action|task|do|send|create|prepare|schedule|review|update|check|make|deliver|finish|complete|by|deadline|before)\b/i;
+  const actionItems=lines.filter(l=>actionRe.test(l)&&l.length>10).map(l=>({text:l,done:false})).slice(0,10);
+
+  // Decisions — lines with decision signals
+  const decisionRe=/\b(decided|decision|agreed|going with|confirmed|approved|selected|chosen|we'll use|the plan is|we're going|final)\b/i;
+  const decisions=lines.filter(l=>decisionRe.test(l)&&l.length>10).map(l=>l.trim()).slice(0,5);
+
+  return{summary,actionItems,decisions};
+}
+
+function openMeetingReview(transcript,world){
+  const titleInput=document.getElementById('meetTitle-'+world);
+  const title=titleInput?titleInput.value.trim():'';
+  const duration=(()=>{const s=Math.round((Date.now()-(_meetStartTs||Date.now()))/1000);return Math.floor(s/60)+'m '+s%60+'s';})();
+  const extracted=extractMeetingData(transcript);
+
+  _meetDraft={transcript,world,title,duration,extracted};
+
+  // Populate review modal
+  document.getElementById('mr-title').value=title||new Date().toLocaleDateString('en-PH',{month:'short',day:'numeric'})+' Meeting';
+  document.getElementById('mr-world').value=world;
+  document.getElementById('mr-summary').value=extracted.summary;
+  document.getElementById('mr-transcript').value=transcript;
+
+  // Action items
+  const actEl=document.getElementById('mr-actions');
+  if(actEl){
+    if(extracted.actionItems.length){
+      actEl.innerHTML=extracted.actionItems.map((a,i)=>`
+        <div style="display:flex;align-items:center;gap:7px;padding:5px 8px;background:#050a12;border:1px solid var(--border);border-radius:3px">
+          <input type="checkbox" checked id="mra-${i}" style="accent-color:var(--teal);flex-shrink:0">
+          <input value="${a.text.replace(/"/g,'&quot;')}" id="mrat-${i}" style="flex:1;background:transparent;border:none;color:var(--text1);font-size:var(--text-xs);outline:none">
+          <button onclick="this.parentElement.remove()" style="background:transparent;border:none;color:var(--text3);cursor:pointer;font-size:var(--text-xs)">×</button>
+        </div>`).join('');
+    } else {
+      actEl.innerHTML='<div style="font-size:var(--text-xs);color:var(--text3);font-style:italic">None detected. Click + Add to enter manually.</div>';
+    }
+  }
+  // Decisions
+  const decEl=document.getElementById('mr-decisions');
+  if(decEl){
+    decEl.innerHTML=extracted.decisions.length
+      ?extracted.decisions.map(d=>`<div style="display:flex;align-items:flex-start;gap:7px;padding:4px 0;border-bottom:1px solid var(--border);font-size:var(--text-xs);color:var(--text2)"><i class="ti ti-circle-check" style="color:var(--teal);flex-shrink:0;font-size:var(--text-sm);line-height:1.3;display:block"></i>${d}</div>`).join('')
+      :'<div style="font-size:var(--text-xs);color:var(--text3);font-style:italic">None detected.</div>';
+  }
+
+  // If API key available, enhance summary with Claude
+  const apiKey=localStorage.getItem('j-anthropic-key')||localStorage.getItem('j-jelix-api-key');
+  if(apiKey && transcript.length>50){
+    enhanceMeetingSummaryWithAI(transcript,apiKey);
+  }
+
+  openModal('meetingReviewModal');
+}
+
+async function enhanceMeetingSummaryWithAI(transcript,apiKey){
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-6',max_tokens:600,
+        system:'You are a meeting note assistant for Justine Luis Inacay, Marketing Manager in Las Piñas, PH. Extract a clean 3-sentence summary and up to 5 specific action items from the transcript. Reply in JSON: {"summary":"...","actionItems":["...","..."]}',
+        messages:[{role:'user',content:'Transcript:\n'+transcript.substring(0,3000)}]
+      })
+    });
+    if(!res.ok)return;
+    const data=await res.json();
+    const text=(data.content||[])[0]?.text||'';
+    const json=JSON.parse(text.replace(/```json|```/g,'').trim());
+    if(json.summary) document.getElementById('mr-summary').value=json.summary;
+    if(json.actionItems?.length){
+      const actEl=document.getElementById('mr-actions');
+      if(actEl) actEl.innerHTML=json.actionItems.map((a,i)=>`
+        <div style="display:flex;align-items:center;gap:7px;padding:5px 8px;background:#050a12;border:1px solid var(--border);border-radius:3px">
+          <input type="checkbox" checked id="mra-${i}" style="accent-color:var(--teal);flex-shrink:0">
+          <input value="${a.replace(/"/g,'&quot;')}" id="mrat-${i}" style="flex:1;background:transparent;border:none;color:var(--text1);font-size:var(--text-xs);outline:none">
+          <button onclick="this.parentElement.remove()" style="background:transparent;border:none;color:var(--text3);cursor:pointer;font-size:var(--text-xs)">×</button>
+        </div>`).join('');
+      showToast('✓ AI enhanced your meeting summary');
+    }
+  }catch(e){/* fail silently — regex fallback already populated */}
+}
+
+function addMeetingActionItem(){
+  const actEl=document.getElementById('mr-actions');if(!actEl)return;
+  const i=Date.now();
+  const row=document.createElement('div');
+  row.style.cssText='display:flex;align-items:center;gap:7px;padding:5px 8px;background:#050a12;border:1px solid var(--border);border-radius:3px';
+  row.innerHTML=`<input type="checkbox" checked id="mra-${i}" style="accent-color:var(--teal);flex-shrink:0"><input placeholder="Action item..." id="mrat-${i}" style="flex:1;background:transparent;border:none;color:var(--text1);font-size:var(--text-xs);outline:none"><button onclick="this.parentElement.remove()" style="background:transparent;border:none;color:var(--text3);cursor:pointer;font-size:var(--text-xs)">×</button>`;
+  actEl.appendChild(row);row.querySelector('input[type=text],input:not([type])').focus();
+}
+
+function saveMeetingApproved(){
+  const title=document.getElementById('mr-title').value.trim()||'Untitled Meeting';
+  const world=document.getElementById('mr-world').value;
+  const summary=document.getElementById('mr-summary').value.trim();
+  const transcript=document.getElementById('mr-transcript').value.trim();
+  const today=new Date().toISOString().split('T')[0];
+
+  // Collect checked action items
+  const actionItems=[];
+  document.querySelectorAll('#mr-actions [id^="mra-"]').forEach(cb=>{
+    if(cb.checked){
+      const idx=cb.id.replace('mra-','');
+      const txt=(document.getElementById('mrat-'+idx)||{}).value?.trim();
+      if(txt) actionItems.push({text:txt,done:false});
+    }
+  });
+
+  const m={
+    id:Date.now(),title,world,date:today,
+    duration:_meetDraft?.duration||'',
+    summary,transcript,
+    actionItems,
+    createdAt:new Date().toISOString()
+  };
+
+  if(!DB.meetings) DB.meetings=[];
+  DB.meetings.unshift(m);
+  save('meetings');
+  SB.upsert('meetings',m,'meetings');
+  addHistory('add','Meeting: '+title,{...m,_dbKey:'meetings'});
+
+  // Create tasks from action items
+  const tasksCreated=actionItems.length;
+  actionItems.forEach(a=>{
+    const t={id:Date.now()+Math.random(),title:a.text.substring(0,100),world,priority:'Medium',status:'Todo',due:'',platform:'',client:'',notes:'From meeting: '+title,subitems:[],timelineS:'',timelineE:'',numValue:null,connBoard:null,connItemId:null,groupId:null};
+    DB.tasks.unshift(t);SB.upsert('tasks',t,'tasks');
+  });
+  if(tasksCreated>0){save('tasks');renderTasks();renderBrief();}
+
+  // Feed LearnEngine
+  LearnEngine._learn('Held meeting: "'+title+'" in '+world+(actionItems.length?' with '+actionItems.length+' action items':''),'Session Pattern',world);
+
+  closeModal('meetingReviewModal');
+  // Re-render the meetings panel for the world
+  const panelId='meetingsPanel-'+world;
+  renderMeetingsPanel(panelId,world);
+  showToast('✓ Meeting saved'+(tasksCreated?' · '+tasksCreated+' task'+(tasksCreated>1?'s':'')+' created':''));
+}
+
+function discardMeetingDraft(){
+  _meetDraft=null;
+  closeModal('meetingReviewModal');
+  showToast('Meeting draft discarded.');
+}
+
+function deleteMeeting(id,world){
+  if(!confirm('Delete this meeting note?'))return;
+  DB.meetings=DB.meetings.filter(m=>m.id!==id);
+  save('meetings');
+  SB.remove('meetings',id,'meetings');
+  renderMeetingsPanel('meetingsPanel-'+world,world);
+  showToast('Meeting deleted');
+}
+
+function expandMeeting(id){
+  const m=(DB.meetings||[]).find(x=>x.id===id);if(!m)return;
+  // Populate review modal in view-only mode
+  document.getElementById('mr-title').value=m.title||'';
+  document.getElementById('mr-world').value=m.world||'WORK-IH';
+  document.getElementById('mr-summary').value=m.summary||'';
+  document.getElementById('mr-transcript').value=m.transcript||'';
+  const actEl=document.getElementById('mr-actions');
+  if(actEl) actEl.innerHTML=(m.actionItems||[]).map((a,i)=>`
+    <div style="display:flex;align-items:center;gap:7px;padding:5px 8px;background:#050a12;border:1px solid var(--border);border-radius:3px">
+      <input type="checkbox" ${a.done?'checked':''} id="mra-${i}" style="accent-color:var(--teal);flex-shrink:0">
+      <input value="${(a.text||'').replace(/"/g,'&quot;')}" id="mrat-${i}" style="flex:1;background:transparent;border:none;color:var(--text1);font-size:var(--text-xs);outline:none" readonly>
+    </div>`).join('')||'<div style="font-size:var(--text-xs);color:var(--text3);font-style:italic">No action items.</div>';
+  openModal('meetingReviewModal');
+}
 function renderMemory(){
   const wf=document.getElementById('memWorldFilter')?.value||'all';
   const mems=wf==='all'?DB.memories:DB.memories.filter(m=>m.world===wf);
@@ -9478,7 +9875,7 @@ function saveQuickApiKey(){
 function _activateLocalMode(id){
   const a=AGENT_MAP[id]||AGENT_MAP.civic;
   const msgsEl=document.getElementById('aiMsgs');
-  if(msgsEl) msgsEl.innerHTML=`<div class="mr-row"><div class="mav aiv">${a.name[0]}</div><div><div class="mbubble ai"><strong>${a.name}</strong> active in local mode, sir.\n${a.desc}.\n\nResponding from built-in knowledge — no web search available. Set a JARVIS KEY anytime to upgrade.</div></div></div>`;
+  if(msgsEl) msgsEl.innerHTML=`<div class="mr-row"><div class="mav aiv">${a.name[0]}</div><div><div class="mbubble ai"><strong>${a.name}</strong> active in local mode, sir.\n${a.desc}.\n\nResponding from built-in knowledge — no web search available. Set a JOB KEY anytime to upgrade.</div></div></div>`;
 }
 
 function _aits(){return new Date().toLocaleTimeString('en-PH',{hour:'2-digit',minute:'2-digit',hour12:true,timeZone:'Asia/Manila'});}
