@@ -11,7 +11,7 @@
 <title>J.O.B Systems — Justine Operating Blueprint</title>
 <link rel="manifest" href="data:application/manifest+json,{
   &quot;name&quot;: &quot;J.O.B Systems&quot;,
-  &quot;short_name&quot;: &quot;JOB&quot;,
+  &quot;short_name&quot;: &quot;JELIX&quot;,
   &quot;description&quot;: &quot;Personal Operating System — Justine Luis Inacay&quot;,
   &quot;start_url&quot;: &quot;.&quot;,
   &quot;display&quot;: &quot;standalone&quot;,
@@ -313,7 +313,7 @@ select option{background:var(--navy3)}
 .cal-mini-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-top:6px}
 
 /* ═══════════════════════════════════════════════════════
- JOB SYSTEMS CALENDAR — Full GCal-parity module
+   JELIX CALENDAR — Full GCal-parity module
 ═══════════════════════════════════════════════════════ */
 
 /* ── Calendar shell ── */
@@ -1095,7 +1095,7 @@ select option{background:var(--navy3)}
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   JOB — THUMB-OPTIMISED PORTRAIT LAYOUT (≤430px)
+   JELIX — THUMB-OPTIMISED PORTRAIT LAYOUT (≤430px)
    Elite mobile UX: GPU-accelerated, notch-safe, WAI-ARIA compliant
 ═══════════════════════════════════════════════════════════════ */
 @media (max-width:430px){
@@ -2062,7 +2062,7 @@ select option{background:var(--navy3)}
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   JOB TASK OS — Monday.com structural layer
+   JELIX TASK OS — Monday.com structural layer
    Token inheritance: all vars from :root
    ═══════════════════════════════════════════════════════════════ */
 .board-toolbar{display:flex;align-items:center;gap:8px;padding:8px 14px;border-bottom:1px solid var(--border);flex-shrink:0;background:var(--navy2);flex-wrap:wrap}
@@ -2634,7 +2634,7 @@ select option{background:var(--navy3)}
 @keyframes bootspinrev{from{transform:rotate(0deg)}to{transform:rotate(-360deg)}}
 @keyframes bootfadeout{from{opacity:1;transform:scale(1)}to{opacity:0;transform:scale(1.05)}}
 @keyframes mbara{0%,100%{transform:scaleY(1)}50%{transform:scaleY(2.2)}}
-@keyframes JOBglow{0%,100%{text-shadow:0 0 20px rgba(0,212,200,.4),0 0 60px rgba(0,212,200,.15)}50%{text-shadow:0 0 40px rgba(0,212,200,.8),0 0 100px rgba(0,212,200,.3),0 0 140px rgba(0,212,200,.1)}}
+@keyframes jelixglow{0%,100%{text-shadow:0 0 20px rgba(0,212,200,.4),0 0 60px rgba(0,212,200,.15)}50%{text-shadow:0 0 40px rgba(0,212,200,.8),0 0 100px rgba(0,212,200,.3),0 0 140px rgba(0,212,200,.1)}}
 @keyframes letterflicker{0%,100%{opacity:1}92%{opacity:1}93%{opacity:.4}94%{opacity:1}96%{opacity:.7}97%{opacity:1}}
 @keyframes scanline{0%{transform:translateY(-100%)}100%{transform:translateY(100vh)}}
 @keyframes bootpulse{0%,100%{opacity:.3}50%{opacity:1}}
@@ -2682,7 +2682,7 @@ select option{background:var(--navy3)}
       </svg>
       <!-- CENTER LOGO — centered inside orbit -->
       <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px">
-        <div style="font-size:clamp(22px,7vw,36px);font-weight:900;color:#00d4c8;letter-spacing:.05em;line-height:1.1;animation:JOBglow 3s ease-in-out infinite,letterflicker 7s infinite;font-family:Arial Black,Arial,sans-serif;text-align:center">J.O.B<br>Systems</div>
+        <div style="font-size:clamp(22px,7vw,36px);font-weight:900;color:#00d4c8;letter-spacing:.05em;line-height:1.1;animation:jelixglow 3s ease-in-out infinite,letterflicker 7s infinite;font-family:Arial Black,Arial,sans-serif;text-align:center">J.O.B<br>Systems</div>
         <div style="width:70%;height:1px;background:linear-gradient(90deg,transparent,#00d4c8,transparent);margin:4px 0"></div>
         <div style="font-size:clamp(7px,1.8vw,10px);color:rgba(0,168,158,.8);letter-spacing:.35em;font-family:monospace;font-weight:700;text-transform:uppercase">PERSONAL OS</div>
       </div>
@@ -2805,7 +2805,7 @@ select option{background:var(--navy3)}
       <button class="tb-btn" onclick="toggleWakeWord()" id="wakeToggleBtn" title="Wake word OFF — click to enable" style="color:var(--text3)"><i class="ti ti-ear-off"></i></button>
       <button class="tb-btn" onclick="toggleMute()" id="muteBtn" title="Toggle voice output"><i class="ti ti-volume" id="muteIcon"></i></button>
       <button class="tb-btn" id="onyxBtn" onclick="setOpenAIKey()" title="Set OpenAI key for premium JARVIS voice" style="font-size:var(--text-xs);letter-spacing:.06em;color:var(--teal2);border-color:var(--teal2)">ONYX</button>
-      <button class="tb-btn" id="apiKeyBtn" onclick="setJOBAPIKey()" title="Set Anthropic API key for AI agents" style="font-size:var(--text-xs);letter-spacing:.06em;color:var(--amber);border-color:var(--amber)">JOB KEY</button>
+      <button class="tb-btn" id="apiKeyBtn" onclick="setJelixAPIKey()" title="Set Anthropic API key for AI agents" style="font-size:var(--text-xs);letter-spacing:.06em;color:var(--amber);border-color:var(--amber)">JOB KEY</button>
       <button class="tb-btn" onclick="setView('history')" title="History" id="historyBtn"><i class="ti ti-history"></i></button>
       <!-- Mobile-only: Voice + Settings (replaces ONYX/KEY) -->
       <button class="tb-btn mobile-only-btn" onclick="toggleVoice()" id="mobileVoiceBtn" title="Voice"><i class="ti ti-microphone"></i></button>
@@ -3855,7 +3855,7 @@ select option{background:var(--navy3)}
             </div>
           </div>
           <div class="ai-msgs" id="aiMsgs">
-            <div class="mr-row"><div class="mav aiv">J</div><div><div class="mbubble ai">Hello, sir. J.O.B Systems online.\n\nSay "hey JOB" to activate voice. Press Space to push-to-talk.\nAll worlds and Supabase connected. How can I assist?</div><div class="mtime" id="initTime"></div></div></div>
+            <div class="mr-row"><div class="mav aiv">J</div><div><div class="mbubble ai">Hello, sir. J.O.B Systems online.\n\nSay "hey jelix" to activate voice. Press Space to push-to-talk.\nAll worlds and Supabase connected. How can I assist?</div><div class="mtime" id="initTime"></div></div></div>
           </div>
           <div class="ai-input-area">
             <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:7px">
@@ -4113,7 +4113,7 @@ select option{background:var(--navy3)}
             <label class="fl">OpenAI API Key (JARVIS Onyx Voice TTS)</label>
             <div style="display:flex;gap:8px">
               <input type="password" id="set-openai-key" placeholder="sk-proj-..." style="flex:1">
-              <button class="btn btn-t" onclick="saveKey('JOB-openai-key','set-openai-key')">Save</button>
+              <button class="btn btn-t" onclick="saveKey('jelix-openai-key','set-openai-key')">Save</button>
             </div>
           </div>
         </div>
@@ -4563,7 +4563,7 @@ speechSynthesis.onvoiceschanged=loadVoices;loadVoices();
 async function speak(text){
   if(isMuted||!text)return;speechSynthesis.cancel();
   const clean=text.replace(/```[\s\S]*?```/g,'code block').replace(/[*_`#>\[\]]/g,'').replace(/https?:\/\/\S+/g,'link').replace(/\n{2,}/g,'. ').replace(/\n/g,' ').trim().substring(0,500);
-  const key=localStorage.getItem('JOB-openai-key');
+  const key=localStorage.getItem('jelix-openai-key');
   if(key){try{const res=await fetch('https://api.openai.com/v1/audio/speech',{method:'POST',headers:{'Authorization':'Bearer '+key,'Content-Type':'application/json'},body:JSON.stringify({model:'tts-1',voice:'onyx',input:clean,speed:0.82})});if(res.ok){const blob=await res.blob();new Audio(URL.createObjectURL(blob)).play();return;}}catch(e){}}
   const utt=new SpeechSynthesisUtterance(clean);utt.lang='en-GB';utt.rate=0.85;utt.pitch=0.80;utt.volume=1;if(ttsVoice)utt.voice=ttsVoice;speechSynthesis.speak(utt);
 }
@@ -4571,7 +4571,7 @@ async function speakSlow(text){
   // Morning brief — deliberate, word-by-word delivery
   if(isMuted||!text)return;speechSynthesis.cancel();
   const clean=text.replace(/```[\s\S]*?```/g,'').replace(/[*_`#>\[\]]/g,'').replace(/https?:\/\/\S+/g,'').replace(/₱/g,'PHP ').replace(/\n{2,}/g,'. ').replace(/\n/g,' ').replace(/\s+/g,' ').trim();
-  const key=localStorage.getItem('JOB-openai-key');
+  const key=localStorage.getItem('jelix-openai-key');
   if(key){try{const res=await fetch('https://api.openai.com/v1/audio/speech',{method:'POST',headers:{'Authorization':'Bearer '+key,'Content-Type':'application/json'},body:JSON.stringify({model:'tts-1',voice:'onyx',input:clean,speed:0.72})});if(res.ok){const blob=await res.blob();new Audio(URL.createObjectURL(blob)).play();return;}}catch(e){}}
   const utt=new SpeechSynthesisUtterance(clean);utt.lang='en-GB';utt.rate=0.72;utt.pitch=0.78;utt.volume=1;if(ttsVoice)utt.voice=ttsVoice;speechSynthesis.speak(utt);
 }
@@ -4594,8 +4594,8 @@ function lockOS(){
   }
 }
 function toggleMute(){isMuted=!isMuted;const btn=document.getElementById('muteBtn'),icon=document.getElementById('muteIcon');if(isMuted){speechSynthesis.cancel();icon.className='ti ti-volume-off';btn.style.borderColor='var(--red)';btn.style.color='var(--red)';showToast('Voice muted');}else{icon.className='ti ti-volume';btn.style.borderColor='var(--border2)';btn.style.color='var(--text2)';speak('Voice activated. J.O.B Systems online, sir.');}}
-function setOpenAIKey(){const e=localStorage.getItem('JOB-openai-key')||'';const k=prompt('Enter your OpenAI API key for ONYX voice:\n\nLeave blank to remove.',e);if(k===null)return;if(k.trim()){localStorage.setItem('JOB-openai-key',k.trim());showToast('ONYX key saved. Premium voice enabled.');speak('Premium voice activated. Good evening, sir.');}else{localStorage.removeItem('JOB-openai-key');showToast('Key removed. Using browser voice.');}}
-function setJOBAPIKey(){
+function setOpenAIKey(){const e=localStorage.getItem('jelix-openai-key')||'';const k=prompt('Enter your OpenAI API key for ONYX voice:\n\nLeave blank to remove.',e);if(k===null)return;if(k.trim()){localStorage.setItem('jelix-openai-key',k.trim());showToast('ONYX key saved. Premium voice enabled.');speak('Premium voice activated. Good evening, sir.');}else{localStorage.removeItem('jelix-openai-key');showToast('Key removed. Using browser voice.');}}
+function setJelixAPIKey(){
   const existing=localStorage.getItem('job-api-key')||'';
   const masked=existing?'sk-ant-...'+existing.slice(-6):'(not set)';
   const k=prompt('J.O.B Systems — Anthropic API Key\n\nCurrent: '+masked+'\n\nPaste your API key below (starts with sk-ant-):\nLeave blank to remove.','');
@@ -4801,7 +4801,7 @@ function exportLocalDB(){
   const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
   const a=document.createElement('a');
   a.href=URL.createObjectURL(blob);
-  a.download='JOB_Backup_'+new Date().toISOString().split('T')[0]+'.json';
+  a.download='JELIX_Backup_'+new Date().toISOString().split('T')[0]+'.json';
   a.click();
   showToast('✓ Backup downloaded, sir.');
 }
@@ -4832,7 +4832,7 @@ function factoryReset(){
 function renderSettingsView(){
   // Populate current key status
   const antKey=localStorage.getItem('job-api-key');
-  const oaiKey=localStorage.getItem('JOB-openai-key');
+  const oaiKey=localStorage.getItem('jelix-openai-key');
   const antEl=document.getElementById('set-anthropic-key');
   const oaiEl=document.getElementById('set-openai-key');
   if(antEl&&antKey)antEl.placeholder='sk-ant-...'+antKey.slice(-6)+' (set)';
@@ -5330,7 +5330,7 @@ window.toggleMobileMore=toggleMobileMore;
 window.syncMobileNavActive=syncMobileNavActive;
 
 // ═══════════════════════════════════════════════════════════════════════════
-// JOB PORTRAIT ENGINE — Mobile Search · Swipe Tasks · Cal Week Strip
+// JELIX PORTRAIT ENGINE — Mobile Search · Swipe Tasks · Cal Week Strip
 // ═══════════════════════════════════════════════════════════════════════════
 
 // ── Mobile Search Overlay ─────────────────────────────────────────────────
@@ -6030,7 +6030,7 @@ function renderBrief(){
 // ===== KANBAN BUILDER (shared) =====
 
 // ════════════════════════════════════════════════════════════════════════
-// JOB BOARD ENGINE — Monday.com architecture: Workspace > Board > Group > Item > Subitem
+// JELIX BOARD ENGINE — Monday.com architecture: Workspace > Board > Group > Item > Subitem
 // Supabase schema mapping: tasks (+ metadata JSONB) → DB.tasks
 // ════════════════════════════════════════════════════════════════════════
 
@@ -7983,7 +7983,7 @@ function saveTransfer(){
 // CALENDAR
 let selectedCalDate='';
 // ════════════════════════════════════════════════════════════════
-// JOB CALENDAR ENGINE — GCal-parity functional module
+// JELIX CALENDAR ENGINE — GCal-parity functional module
 // ════════════════════════════════════════════════════════════════
 
 // ── World config ─────────────────────────────────────────────────
@@ -8092,10 +8092,10 @@ function checkReminders(){
       const msg=`"${e.title}" starts in ${Math.round(diffMin)} min`;
       showToast('\u23f0 Reminder: '+msg,5000);
       // Dashboard urgent banner
-      let banner=document.getElementById('JOB-reminder-banner');
+      let banner=document.getElementById('jelix-reminder-banner');
       if(!banner){
         banner=document.createElement('div');
-        banner.id='JOB-reminder-banner';
+        banner.id='jelix-reminder-banner';
         banner.style.cssText='position:fixed;top:60px;left:50%;transform:translateX(-50%);z-index:9999;background:var(--navy2);border:1px solid var(--teal);border-radius:8px;padding:10px 18px;font-size:var(--text-sm);font-weight:700;color:var(--teal);display:flex;align-items:center;gap:10px;box-shadow:0 0 20px rgba(128,255,250,.2)';
         document.body.appendChild(banner);
       }
@@ -8103,7 +8103,7 @@ function checkReminders(){
       setTimeout(()=>{if(banner.parentElement)banner.remove();},remMin*60000);
       // Voice announcement
       if('speechSynthesis' in window){
-        const utt=new SpeechSynthesisUtterance('JOB reminder. '+e.title+' starts in '+Math.round(diffMin)+' minutes.');
+        const utt=new SpeechSynthesisUtterance('JELIX reminder. '+e.title+' starts in '+Math.round(diffMin)+' minutes.');
         utt.rate=0.95;utt.pitch=1.1;window.speechSynthesis.speak(utt);
       }
       // Browser notification
@@ -8250,6 +8250,21 @@ function renderCalMonth(){
   const getEvs=ds=>allExpanded
     .filter(e=>(e._expandedDate||e.date)===ds&&(calContextFilter.has(normaliseType(e.type))||e._isTask));
 
+  // Build overnight continuation map: nextDay → original event
+  const continuations={};
+  allExpanded.forEach(e=>{
+    if(!e.time||!e.endTime)return;
+    const[sh,sm]=e.time.split(':').map(Number);
+    const[eh,em]=e.endTime.split(':').map(Number);
+    if(eh*60+em<=sh*60+sm){
+      const ds=e._expandedDate||e.date;
+      const next=new Date(ds);next.setDate(next.getDate()+1);
+      const nextStr=next.toISOString().split('T')[0];
+      if(!continuations[nextStr])continuations[nextStr]=[];
+      continuations[nextStr].push(e);
+    }
+  });
+
   let html=`<div style="display:flex;flex-direction:column;height:100%;min-height:600px">`;
   // Day headers
   html+=`<div class="cal-grid">${DAYS.map(d=>`<div class="cday-label">${d}</div>`).join('')}</div>`;
@@ -8266,10 +8281,12 @@ function renderCalMonth(){
     const isToday=ds===today;
     const isSel=ds===calSelectedDate;
     const evs=getEvs(ds);
+    const conts=continuations[ds]||[];
     html+=`<div class="cday${isToday?' today':''}${isSel?' selected':''}" onclick="calSelectedDate='${ds}';renderCalendar()" ondblclick="openCalEventModalOnDate('${ds}')">
       <div class="dn">${day}</div>
-      ${evs.slice(0,3).map(e=>`<div class="${evClass(e)}" onclick="event.stopPropagation();showCalPopover(event,${e.id||0},'${e._expandedDate||e.date}')" title="${e.title}">${e.time?e.time.substring(0,5)+' ':''}${e.title}</div>`).join('')}
-      ${evs.length>3?`<div style="font-size:var(--text-xs);color:var(--text3);padding:1px 4px">+${evs.length-3} more</div>`:''}
+      ${conts.map(e=>{const w=calWorldById(normaliseType(e.type));return`<div style="font-size:var(--text-xs);background:${w.hex}15;color:${w.color};border-left:2px dashed ${w.hex};border-radius:2px;padding:1px 5px;margin-bottom:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;opacity:.75" onclick="event.stopPropagation();showCalPopover(event,${e.id||0},'${e._expandedDate||e.date}')" title="${e.title} (continued)">↩ ${e.title} until ${e.endTime.substring(0,5)}</div>`;}).join('')}
+      ${evs.slice(0,Math.max(0,3-conts.length)).map(e=>`<div class="${evClass(e)}" onclick="event.stopPropagation();showCalPopover(event,${e.id||0},'${e._expandedDate||e.date}')" title="${e.title}">${e.time?e.time.substring(0,5)+' ':''}${e.title}</div>`).join('')}
+      ${evs.length+conts.length>3?`<div style="font-size:var(--text-xs);color:var(--text3);padding:1px 4px">+${evs.length+conts.length-3} more</div>`:''}
     </div>`;
   }
   // Next month overflow
@@ -8343,18 +8360,42 @@ function renderCalWeek(){
     });
     // Now line
     if(isT) html+=`<div class="cal-now-line" style="top:${nowPx}px"></div>`;
-    // Events
+    // Events — with overnight split support
     getEvs(ds).filter(e=>!e.allDay).forEach(e=>{
       if(!e.time)return;
       const top=t2px(e.time);
-      const bot=e.endTime?t2px(e.endTime):top+48;
-      const h=Math.max(bot-top,20);
       const w=calWorldById(normaliseType(e.type));
-      html+=`<div class="cal-event-block" style="top:${top}px;height:${h}px;background:${w.hex}22;border-left:3px solid ${w.hex};color:${w.color}" onclick="event.stopPropagation();showCalPopover(event,${e.id||0},'${e._expandedDate||e.date}')">
-        <div class="ceb-title">${e.title}</div>
-        <div class="ceb-time">${e.time.substring(0,5)}${e.endTime?'–'+e.endTime.substring(0,5):''}</div>
-      </div>`;
+      const isOvernight=e.endTime&&(()=>{const[sh,sm]=e.time.split(':').map(Number);const[eh,em]=e.endTime.split(':').map(Number);return eh*60+em<=sh*60+sm;})();
+      if(isOvernight){
+        // Clip at midnight — show arrow-down indicator
+        const h1=Math.max(24*48-top,20);
+        html+=`<div class="cal-event-block" style="top:${top}px;height:${h1}px;background:${w.hex}22;border-left:3px solid ${w.hex};color:${w.color};border-bottom:1px dashed ${w.hex}88" onclick="event.stopPropagation();showCalPopover(event,${e.id||0},'${e._expandedDate||e.date}')">
+          <div class="ceb-title">${e.title}</div>
+          <div class="ceb-time">${e.time.substring(0,5)} ↓</div>
+        </div>`;
+      } else {
+        const bot=e.endTime?t2px(e.endTime):top+48;
+        const h=Math.max(bot-top,20);
+        html+=`<div class="cal-event-block" style="top:${top}px;height:${h}px;background:${w.hex}22;border-left:3px solid ${w.hex};color:${w.color}" onclick="event.stopPropagation();showCalPopover(event,${e.id||0},'${e._expandedDate||e.date}')">
+          <div class="ceb-title">${e.title}</div>
+          <div class="ceb-time">${e.time.substring(0,5)}${e.endTime?'–'+e.endTime.substring(0,5):''}</div>
+        </div>`;
+      }
     });
+    // Continuation blocks from the previous day
+    if(di>0){
+      const prevDs=dates[di-1];
+      getEvs(prevDs).filter(e=>!e.allDay&&e.time&&e.endTime).forEach(e=>{
+        const[sh,sm]=e.time.split(':').map(Number);const[eh,em]=e.endTime.split(':').map(Number);
+        if(eh*60+em>sh*60+sm)return;
+        const w=calWorldById(normaliseType(e.type));
+        const bot=t2px(e.endTime);const h=Math.max(bot,20);
+        html+=`<div class="cal-event-block" style="top:0;height:${h}px;background:${w.hex}18;border-left:3px dashed ${w.hex};color:${w.color};opacity:.8" onclick="event.stopPropagation();showCalPopover(event,${e.id||0},'${e._expandedDate||e.date}')">
+          <div class="ceb-title">↩ ${e.title}</div>
+          <div class="ceb-time">until ${e.endTime.substring(0,5)}</div>
+        </div>`;
+      });
+    }
     html+='</div>';
   });
   html+='</div></div></div>';
@@ -8405,16 +8446,41 @@ function renderCalDay(){
     </div>`;
   });
   if(isToday) html+=`<div class="cal-now-line" style="top:${nowPx}px;height:2px"></div>`;
-  // Timed events
+  // Timed events — with overnight cross-day support
   timedEvs.forEach(e=>{
     const top=t2px(e.time);
-    const bot=e.endTime?t2px(e.endTime):top+60;
-    const h=Math.max(bot-top,24);
     const w=calWorldById(normaliseType(e.type));
-    html+=`<div class="cal-event-block" style="top:${top}px;height:${h}px;background:${w.hex}22;border-left:3px solid ${w.hex};color:${w.color}" onclick="event.stopPropagation();showCalPopover(event,${e.id||0},'${e._expandedDate||e.date}')">
-      <div class="ceb-title">${e.title}</div>
-      <div class="ceb-time">${e.time.substring(0,5)}${e.endTime?' – '+e.endTime.substring(0,5):''}</div>
-      ${e.loc?`<div class="ceb-time"><i class="ti ti-map-pin"></i> ${e.loc}</div>`:''}
+    const isOvernight=e.endTime&&(()=>{const[sh,sm]=e.time.split(':').map(Number);const[eh,em]=e.endTime.split(':').map(Number);return eh*60+em<=sh*60+sm;})();
+    if(isOvernight){
+      // Block 1: start time → midnight (1440px mark)
+      const h1=Math.max(1440-top,24);
+      html+=`<div class="cal-event-block" style="top:${top}px;height:${h1}px;background:${w.hex}22;border-left:3px solid ${w.hex};color:${w.color};border-bottom:1px dashed ${w.hex}88" onclick="event.stopPropagation();showCalPopover(event,${e.id||0},'${e._expandedDate||e.date}')">
+        <div class="ceb-title">${e.title}</div>
+        <div class="ceb-time">${e.time.substring(0,5)} → midnight ↓</div>
+        ${e.loc?`<div class="ceb-time"><i class="ti ti-map-pin"></i> ${e.loc}</div>`:''}
+      </div>`;
+    } else {
+      const bot=e.endTime?t2px(e.endTime):top+60;
+      const h=Math.max(bot-top,24);
+      html+=`<div class="cal-event-block" style="top:${top}px;height:${h}px;background:${w.hex}22;border-left:3px solid ${w.hex};color:${w.color}" onclick="event.stopPropagation();showCalPopover(event,${e.id||0},'${e._expandedDate||e.date}')">
+        <div class="ceb-title">${e.title}</div>
+        <div class="ceb-time">${e.time.substring(0,5)}${e.endTime?' – '+e.endTime.substring(0,5):''}</div>
+        ${e.loc?`<div class="ceb-time"><i class="ti ti-map-pin"></i> ${e.loc}</div>`:''}
+      </div>`;
+    }
+  });
+  // Continuation blocks — events that started yesterday and continue into this day
+  const prevDate=new Date(calSelectedDate);prevDate.setDate(prevDate.getDate()-1);
+  const prevDateStr=prevDate.toISOString().split('T')[0];
+  const prevExpanded=expandRecurring(DB.calEvents,prevDateStr,prevDateStr);
+  prevExpanded.filter(e=>(e._expandedDate||e.date)===prevDateStr&&e.time&&e.endTime&&calContextFilter.has(normaliseType(e.type))).forEach(e=>{
+    const[sh,sm]=e.time.split(':').map(Number);const[eh,em]=e.endTime.split(':').map(Number);
+    if(eh*60+em>sh*60+sm)return;// not overnight
+    const w=calWorldById(normaliseType(e.type));
+    const bot=t2px(e.endTime);const h=Math.max(bot,20);
+    html+=`<div class="cal-event-block" style="top:0;height:${h}px;background:${w.hex}18;border-left:3px dashed ${w.hex};color:${w.color};opacity:.85" onclick="event.stopPropagation();showCalPopover(event,${e.id||0},'${e._expandedDate||e.date}')">
+      <div class="ceb-title">↩ ${e.title}</div>
+      <div class="ceb-time">cont. until ${e.endTime.substring(0,5)}</div>
     </div>`;
   });
   html+='</div></div></div>';
@@ -8442,11 +8508,24 @@ function renderCalAgenda(){
     return;
   }
 
-  // Group by date
+  // Group by date — include overnight continuations
   const byDate={};
   allExpanded.forEach(e=>{
     const ds=e._expandedDate||e.date;
     if(!byDate[ds])byDate[ds]=[];
+    // Mark overnight events
+    if(e.time&&e.endTime){
+      const[sh,sm]=e.time.split(':').map(Number);
+      const[eh,em]=e.endTime.split(':').map(Number);
+      if(eh*60+em<=sh*60+sm){
+        e._overnight=true;
+        // Inject continuation on next day
+        const next=new Date(ds);next.setDate(next.getDate()+1);
+        const nextStr=next.toISOString().split('T')[0];
+        if(!byDate[nextStr])byDate[nextStr]=[];
+        byDate[nextStr].push({...e,_continuation:true,_contFromDate:ds});
+      }
+    }
     byDate[ds].push(e);
   });
 
@@ -8464,14 +8543,26 @@ function renderCalAgenda(){
     </div>`;
     byDate[ds].sort((a,b)=>(a.time||'').localeCompare(b.time||'')).forEach(e=>{
       const w=calWorldById(normaliseType(e.type));
-      html+=`<div class="cal-agenda-event" onclick="showCalPopover(event,${e.id||0},'${ds}')">
-        <div class="ae-time">${e.time?e.time.substring(0,5)+(e.endTime?' – '+e.endTime.substring(0,5):''):'All day'}</div>
-        <div class="ae-dot" style="background:${w.hex}"></div>
-        <div class="ae-body">
-          <div class="ae-title">${e.title}${e._recurring?'<span style="font-size:var(--text-xs);color:var(--text3);margin-left:5px">↻</span>':''}</div>
-          <div class="ae-sub">${w.label}${e.loc?' · '+e.loc:''}${e.notes?' · '+e.notes.substring(0,60):''}</div>
-        </div>
-      </div>`;
+      if(e._continuation){
+        // Continuation block — lighter style with ↩ indicator
+        html+=`<div class="cal-agenda-event" style="opacity:.75;border-left:3px dashed ${w.hex}" onclick="showCalPopover(event,${e.id||0},'${e._contFromDate||ds}')">
+          <div class="ae-time" style="color:${w.color}">↩ until ${e.endTime?e.endTime.substring(0,5):'—'}</div>
+          <div class="ae-dot" style="background:${w.hex};opacity:.5"></div>
+          <div class="ae-body">
+            <div class="ae-title" style="font-style:italic">${e.title} <span style="font-size:var(--text-xs);color:var(--text3)">continued</span></div>
+            <div class="ae-sub">${w.label}${e.loc?' · '+e.loc:''}</div>
+          </div>
+        </div>`;
+      } else {
+        html+=`<div class="cal-agenda-event" onclick="showCalPopover(event,${e.id||0},'${ds}')">
+          <div class="ae-time">${e.time?e.time.substring(0,5)+(e.endTime?' – '+e.endTime.substring(0,5):''):'All day'}${e._overnight?' ↓':''}</div>
+          <div class="ae-dot" style="background:${w.hex}"></div>
+          <div class="ae-body">
+            <div class="ae-title">${e.title}${e._recurring?'<span style="font-size:var(--text-xs);color:var(--text3);margin-left:5px">↻</span>':''}${e._overnight?'<span style="font-size:var(--text-xs);color:var(--amber);margin-left:5px;font-weight:700">overnight</span>':''}</div>
+            <div class="ae-sub">${w.label}${e.loc?' · '+e.loc:''}${e.notes?' · '+e.notes.substring(0,60):''}</div>
+          </div>
+        </div>`;
+      }
     });
   });
   html+='</div>';
@@ -8640,7 +8731,13 @@ function toggleCalEntryType(){}
 function saveCalEvent(){
   const rawDate=document.getElementById('ce-date').value||selectedCalDate;
   const allDay=document.getElementById('ce-allday')?.checked||false;
-  const overnight=document.getElementById('ce-overnight')?.checked||false;
+  // Auto-detect overnight — if endTime < startTime, it crosses midnight
+  let overnight=document.getElementById('ce-overnight')?.checked||false;
+  if(startTimeVal&&endTimeVal&&!overnight){
+    const[sh,sm]=startTimeVal.split(':').map(Number);
+    const[eh,em]=endTimeVal.split(':').map(Number);
+    if(eh*60+em<=sh*60+sm) overnight=true;
+  }
   const startTimeVal=allDay?'':document.getElementById('ce-time')?.value||'';
   const endTimeVal=allDay?'':document.getElementById('ce-end-time')?.value||'';
   let endDate=rawDate;
@@ -8991,7 +9088,7 @@ function openMeetingReview(transcript,world){
   }
 
   // If API key available, enhance summary with Claude
-  const apiKey=localStorage.getItem('j-anthropic-key')||localStorage.getItem('j-JOB-api-key');
+  const apiKey=localStorage.getItem('j-anthropic-key')||localStorage.getItem('j-jelix-api-key');
   if(apiKey && transcript.length>50){
     enhanceMeetingSummaryWithAI(transcript,apiKey);
   }
@@ -9169,7 +9266,7 @@ function renderMemory(){
 async function processCapture(){const input=document.getElementById('captureInput');const text=input.value.trim();if(!text)return;input.value='';await executeVoiceCommand(text);}
 
 // ===== VOICE COMMAND ENGINE =====
-const WAKE_WORDS=['hey JOB','hey felix','hey jelly','hey jellix','angelix','hi JOB','JOB'];
+const WAKE_WORDS=['hey jelix','hey felix','hey jelly','hey jellix','angelix','hi jelix','jelix'];
 function stripWakeWord(text){const t=text.toLowerCase().trim();for(const w of WAKE_WORDS){if(t.startsWith(w)){const rest=text.slice(w.length).replace(/^[\s,]+/,'').trim();return rest||null;}}return text;}
 
 // ── Levenshtein distance (character-level edit distance) ──
@@ -9297,7 +9394,7 @@ const NAV_MAP={
   'journal':'journal','diary':'journal',
   'tasks':'tasks','all tasks':'tasks',
   'notes':'notes',
-  'ai':'ai','JOB ai':'ai','agents':'ai',
+  'ai':'ai','jelix ai':'ai','agents':'ai',
   'memory':'memory',
   'settings':'settings',
   'system settings':'settings',
@@ -9798,7 +9895,7 @@ function stopRecording(){if(recognition&&isRecording)recognition.stop();}
 //               free-flow conversation, personal preference adaptation
 // ═══════════════════════════════════════════════════════════════════════
 
-const JOB_BASE_SYSTEM = `You are J.O.B Systems — the personal AI operating system of Justine Luis Inacay, Marketing Manager based in Las Piñas City, Metro Manila, Philippines.
+const JELIX_BASE_SYSTEM = `You are J.O.B Systems — the personal AI operating system of Justine Luis Inacay, Marketing Manager based in Las Piñas City, Metro Manila, Philippines.
 
 IDENTITY & CONTEXT:
 - Justine runs two shifts: Ideahub (2AM–10AM PHT, Tue–Sat) and Chainsmoker (10PM–2AM PHT, Mon–Fri)
@@ -9847,37 +9944,37 @@ const AGENTS={
   exec:{
     name:'✦ EXECUTIVE AGENT',
     desc:'Scheduling · Tasks · Daily Brief · Free-flow',
-    system:JOB_BASE_SYSTEM+'\n\nROLE: Executive command center. Handle scheduling, task management, daily briefs, decisions, email drafts. When in doubt, default to this agent.'
+    system:JELIX_BASE_SYSTEM+'\n\nROLE: Executive command center. Handle scheduling, task management, daily briefs, decisions, email drafts. When in doubt, default to this agent.'
   },
   marketing:{
     name:'📡 MARKETING AGENT',
     desc:'Campaigns · Copy · Reports',
-    system:JOB_BASE_SYSTEM+'\n\nROLE: Marketing specialist. Handle campaign briefs, copy, reports, content calendars for all Ideahub clients and Chainsmoker. No financial data.'
+    system:JELIX_BASE_SYSTEM+'\n\nROLE: Marketing specialist. Handle campaign briefs, copy, reports, content calendars for all Ideahub clients and Chainsmoker. No financial data.'
   },
   business:{
     name:'◈ BUSINESS AGENT',
     desc:'TJC · Operations · Strategy',
-    system:JOB_BASE_SYSTEM+'\n\nROLE: Business and venture strategy. Handle TJC operations, VA recruitment, partner management, J.O.B.S. framework, North American SMB positioning. No financial data.'
+    system:JELIX_BASE_SYSTEM+'\n\nROLE: Business and venture strategy. Handle TJC operations, VA recruitment, partner management, J.O.B.S. framework, North American SMB positioning. No financial data.'
   },
   voice:{
     name:'◉ VOICE AGENT',
     desc:'Taglish commands · OS control',
-    system:JOB_BASE_SYSTEM+'\n\nROLE: Voice command interpreter. Confirm actions taken, suggest follow-up commands, ultra-concise. Understands Taglish naturally.'
+    system:JELIX_BASE_SYSTEM+'\n\nROLE: Voice command interpreter. Confirm actions taken, suggest follow-up commands, ultra-concise. Understands Taglish naturally.'
   },
   hr:{
     name:'👥 HR & PEOPLE AGENT',
     desc:'VA ops · TJC hiring · Onboarding',
-    system:JOB_BASE_SYSTEM+'\n\nROLE: HR and people operations for The Job Collectives. VA hiring, onboarding, KPIs, shift scheduling. Rooted in Colossians 3:23 and J.O.B.S. values.'
+    system:JELIX_BASE_SYSTEM+'\n\nROLE: HR and people operations for The Job Collectives. VA hiring, onboarding, KPIs, shift scheduling. Rooted in Colossians 3:23 and J.O.B.S. values.'
   },
   design:{
     name:'🎨 GRAPHIC DESIGN AGENT',
     desc:'Creatives · Layouts · Branding',
-    system:JOB_BASE_SYSTEM+'\n\nROLE: Senior art director. Visual direction, creative briefs, brand guidelines for Ideahub clients (Chainsmoker, Millscope, Celtic Biotech, etc.) and TJC. Think in layouts and visual hierarchy.'
+    system:JELIX_BASE_SYSTEM+'\n\nROLE: Senior art director. Visual direction, creative briefs, brand guidelines for Ideahub clients (Chainsmoker, Millscope, Celtic Biotech, etc.) and TJC. Think in layouts and visual hierarchy.'
   },
   faith:{
     name:'✝ FAITH AGENT',
     desc:'CAA · Buklod · Spiritual reflection',
-    system:JOB_BASE_SYSTEM+'\n\nROLE: Faith companion. Support CAA congregation activities, Kapisanan Buklod scheduling, spiritual reflection, prayer journaling, and faith-driven decision-making grounded in scripture.'
+    system:JELIX_BASE_SYSTEM+'\n\nROLE: Faith companion. Support CAA congregation activities, Kapisanan Buklod scheduling, spiritual reflection, prayer journaling, and faith-driven decision-making grounded in scripture.'
   }
 };
 
@@ -9889,33 +9986,33 @@ const GEMINI_ENDPOINT='http://localhost:8000/v1/agents/run';
 
 const AGENT_MAP={
   civic:    {name:'Civic',    desc:'Public Sector Product Optimizer & GovTech Analyst',
-    system:JOB_BASE_SYSTEM+'\n\nROLE: You are Civic — Public Sector Product Optimizer and Enterprise GovTech Analyst. Specialize in government digital transformation, public sector procurement, GovTech product strategy, civic tech solutions, and enterprise-grade compliance frameworks. Help analyze government project opportunities, write procurement-ready briefs, and advise on policy-aligned digital products.'},
+    system:JELIX_BASE_SYSTEM+'\n\nROLE: You are Civic — Public Sector Product Optimizer and Enterprise GovTech Analyst. Specialize in government digital transformation, public sector procurement, GovTech product strategy, civic tech solutions, and enterprise-grade compliance frameworks. Help analyze government project opportunities, write procurement-ready briefs, and advise on policy-aligned digital products.'},
   foodie:   {name:'Foodie',   desc:'F&B Brand Management & Local Store Marketing Strategist',
-    system:JOB_BASE_SYSTEM+'\n\nROLE: You are Foodie — F&B Brand Management and Local Store Marketing Strategist. Specialize in restaurant marketing, food brand identity, UberEats/Grab Food optimization, seasonal campaign planning, menu engineering copy, and local store marketing for multi-branch F&B businesses. Primary clients include Chainsmoker Urban Halal BBQ (7 locations, Canada).'},
+    system:JELIX_BASE_SYSTEM+'\n\nROLE: You are Foodie — F&B Brand Management and Local Store Marketing Strategist. Specialize in restaurant marketing, food brand identity, UberEats/Grab Food optimization, seasonal campaign planning, menu engineering copy, and local store marketing for multi-branch F&B businesses. Primary clients include Chainsmoker Urban Halal BBQ (7 locations, Canada).'},
   bloo:     {name:'Bloo',     desc:'Residential Systems · Interior Layout · Blueprint Analyzer',
-    system:JOB_BASE_SYSTEM+'\n\nROLE: You are Bloo — Residential Systems and Interior Layout Planner. Specialize in interior design consultation, space planning, residential systems design, blueprint analysis, and home optimization. Help create room layout recommendations, space utilization strategies, and interior design briefs.'},
+    system:JELIX_BASE_SYSTEM+'\n\nROLE: You are Bloo — Residential Systems and Interior Layout Planner. Specialize in interior design consultation, space planning, residential systems design, blueprint analysis, and home optimization. Help create room layout recommendations, space utilization strategies, and interior design briefs.'},
   rider:    {name:'Rider',    desc:'Moto-Logistics & Mobile Asset Maintenance Analyst',
-    system:JOB_BASE_SYSTEM+'\n\nROLE: You are Rider — Moto-Logistics and Mobile Asset Maintenance Analyst. Specialize in motorcycle logistics operations, route optimization, mobile asset fleet management, preventive maintenance scheduling, and last-mile delivery systems. Help plan logistics operations and maintenance protocols.'},
+    system:JELIX_BASE_SYSTEM+'\n\nROLE: You are Rider — Moto-Logistics and Mobile Asset Maintenance Analyst. Specialize in motorcycle logistics operations, route optimization, mobile asset fleet management, preventive maintenance scheduling, and last-mile delivery systems. Help plan logistics operations and maintenance protocols.'},
   vee:      {name:'Vee',      desc:'Ministry Framework Builder & Organizational Development Consultant',
-    system:JOB_BASE_SYSTEM+'\n\nROLE: You are Vee — Ministry Framework Builder and Organizational Development Consultant. Specialize in faith-based organizational structures, ministry program design, leadership development frameworks, congregation engagement systems, and org chart planning for faith communities. Primary context: Kapisanan Buklod under CAA District of Metro Manila South, Iglesia ni Cristo.'},
+    system:JELIX_BASE_SYSTEM+'\n\nROLE: You are Vee — Ministry Framework Builder and Organizational Development Consultant. Specialize in faith-based organizational structures, ministry program design, leadership development frameworks, congregation engagement systems, and org chart planning for faith communities. Primary context: Kapisanan Buklod under CAA District of Metro Manila South, Iglesia ni Cristo.'},
   axis:     {name:'Axis',     desc:'Master Systems Architect & Productivity Engine',
-    system:JOB_BASE_SYSTEM+'\n\nROLE: You are Axis — Master Systems Architect and Productivity Engine. Specialize in personal operating system design, productivity frameworks, workflow automation, system architecture for tools and apps, and second-brain methodology. Help design and optimize J.O.B Systems itself, BUILD world apps, and productivity systems.'},
+    system:JELIX_BASE_SYSTEM+'\n\nROLE: You are Axis — Master Systems Architect and Productivity Engine. Specialize in personal operating system design, productivity frameworks, workflow automation, system architecture for tools and apps, and second-brain methodology. Help design and optimize J.O.B Systems itself, BUILD world apps, and productivity systems.'},
   fin:      {name:'Fin',      desc:'Personal Infrastructure & Financial Systems Engineer',
-    system:JOB_BASE_SYSTEM+'\n\nROLE: You are Fin — Personal Infrastructure and Financial Systems Engineer. Specialize in personal finance system design, cash flow structuring, budget frameworks, financial automation, and money management infrastructure. Help build and optimize the INACAY Cash Flow system and financial dashboards. Do NOT reveal specific peso amounts — structure systems only.'},
+    system:JELIX_BASE_SYSTEM+'\n\nROLE: You are Fin — Personal Infrastructure and Financial Systems Engineer. Specialize in personal finance system design, cash flow structuring, budget frameworks, financial automation, and money management infrastructure. Help build and optimize the INACAY Cash Flow system and financial dashboards. Do NOT reveal specific peso amounts — structure systems only.'},
   rocket:   {name:'Rocket',   desc:'Digital Productization Engine & E-Commerce Conversion Strategist',
-    system:JOB_BASE_SYSTEM+'\n\nROLE: You are Rocket — Digital Productization Engine and E-Commerce Conversion Strategist. Specialize in digital product development, e-commerce funnel optimization, conversion rate strategy, digital revenue streams, and online store growth. Help build and launch digital products on RaketPH, Etsy, and similar platforms.'},
+    system:JELIX_BASE_SYSTEM+'\n\nROLE: You are Rocket — Digital Productization Engine and E-Commerce Conversion Strategist. Specialize in digital product development, e-commerce funnel optimization, conversion rate strategy, digital revenue streams, and online store growth. Help build and launch digital products on RaketPH, Etsy, and similar platforms.'},
   frame:    {name:'Frame',    desc:'Multi-Domain UI/UX Technical Architect and Systems Reviewer',
-    system:JOB_BASE_SYSTEM+'\n\nROLE: You are Frame — Multi-Domain UI/UX Technical Architect and Systems Reviewer. Specialize in UI/UX architecture across multiple domains, design system creation, frontend code review, component structure planning, and cross-platform interface design. Review and improve web interfaces, HTML/CSS/JS apps, and design systems.'},
+    system:JELIX_BASE_SYSTEM+'\n\nROLE: You are Frame — Multi-Domain UI/UX Technical Architect and Systems Reviewer. Specialize in UI/UX architecture across multiple domains, design system creation, frontend code review, component structure planning, and cross-platform interface design. Review and improve web interfaces, HTML/CSS/JS apps, and design systems.'},
   draft:    {name:'Draft',    desc:'Strategic Corporate Communications & Career Architect',
-    system:JOB_BASE_SYSTEM+'\n\nROLE: You are Draft — Strategic Corporate Communications and Career Architect. Specialize in executive communications, professional writing, career positioning, LinkedIn strategy, personal brand narrative, proposal writing, and stakeholder communications. No dash punctuation in professional writing — use flowing prose. Help craft compelling professional narratives.'},
+    system:JELIX_BASE_SYSTEM+'\n\nROLE: You are Draft — Strategic Corporate Communications and Career Architect. Specialize in executive communications, professional writing, career positioning, LinkedIn strategy, personal brand narrative, proposal writing, and stakeholder communications. No dash punctuation in professional writing — use flowing prose. Help craft compelling professional narratives.'},
   lens:     {name:'Lens',     desc:'Technical Image Generation & Art Director',
-    system:JOB_BASE_SYSTEM+'\n\nROLE: You are Lens — Technical Image Generation and Art Director. Specialize in AI image generation prompting, art direction, visual creative briefs, photo art direction, brand visual identity, and creative direction for campaigns. Help craft precise image generation prompts and art direction documents for clients.'},
+    system:JELIX_BASE_SYSTEM+'\n\nROLE: You are Lens — Technical Image Generation and Art Director. Specialize in AI image generation prompting, art direction, visual creative briefs, photo art direction, brand visual identity, and creative direction for campaigns. Help craft precise image generation prompts and art direction documents for clients.'},
   archi:    {name:'Archi',    desc:'B2B Growth & Marketing Architect for Enterprise Client Acquisition and Strategic Workforce Distribution',
-    system:JOB_BASE_SYSTEM+'\n\nROLE: You are Archi — B2B Growth and Marketing Architect for enterprise client acquisition and strategic workforce distribution. Specialize in B2B lead generation, enterprise sales strategy, partnership development, workforce placement strategy, and growth architecture. Primary context: The Job Collectives (TJC) — Filipino-led VA agency targeting North American SMBs.'},
+    system:JELIX_BASE_SYSTEM+'\n\nROLE: You are Archi — B2B Growth and Marketing Architect for enterprise client acquisition and strategic workforce distribution. Specialize in B2B lead generation, enterprise sales strategy, partnership development, workforce placement strategy, and growth architecture. Primary context: The Job Collectives (TJC) — Filipino-led VA agency targeting North American SMBs.'},
   pixel:    {name:'Pixel',    desc:'Multi-Domain UI/UX Technical Architect',
-    system:JOB_BASE_SYSTEM+'\n\nROLE: You are Pixel — Multi-Domain UI/UX Technical Architect. Specialize in pixel-perfect UI implementation, design-to-code translation, multi-platform interface architecture, design tokens, and frontend component systems. Help translate design concepts into precise technical specifications and code.'},
+    system:JELIX_BASE_SYSTEM+'\n\nROLE: You are Pixel — Multi-Domain UI/UX Technical Architect. Specialize in pixel-perfect UI implementation, design-to-code translation, multi-platform interface architecture, design tokens, and frontend component systems. Help translate design concepts into precise technical specifications and code.'},
   brandy:   {name:'Brandy',   desc:'Executive Branding Manager',
-    system:JOB_BASE_SYSTEM+'\n\nROLE: You are Brandy — Executive Branding Manager. Specialize in personal executive brand strategy, brand voice development, brand guidelines creation, visual identity systems, brand positioning, and executive presence building. Help develop and maintain cohesive brand identities for Justine and her clients.'}
+    system:JELIX_BASE_SYSTEM+'\n\nROLE: You are Brandy — Executive Branding Manager. Specialize in personal executive brand strategy, brand voice development, brand guidelines creation, visual identity systems, brand positioning, and executive presence building. Help develop and maintain cohesive brand identities for Justine and her clients.'}
 };
 
 let currentAgent='civic', conversation=[], isThinking=false;
@@ -9935,7 +10032,7 @@ function setAgent(id, el){
   const relevantMems=(DB.memories||[]).filter(m=>m.world===world||m.category==='Agent Preference');
   const memCount=document.getElementById('agentMemCount');
   if(memCount) memCount.textContent=relevantMems.length;
-  const hasKey=!!(localStorage.getItem('j-JOB-api-key')||localStorage.getItem('j-anthropic-key'));
+  const hasKey=!!(localStorage.getItem('j-jelix-api-key')||localStorage.getItem('j-anthropic-key'));
   if(!hasKey){
     // Show onboarding setup screen
     if(msgsEl) msgsEl.innerHTML=`
@@ -10028,7 +10125,7 @@ async function sendAI(){
   const todayEvs=(DB.calEvents||[]).filter(e=>e.date===today).slice(0,5);
   const osCtx=`\n\nLIVE OS DATA (as of ${today} PHT):\nOpen tasks: ${openTasks.length} total, ${highTasks.length} high priority${highTasks.length?': '+highTasks.map(t=>t.title).join(', '):''}\nToday's events: ${todayEvs.length?todayEvs.map(e=>(e.time?e.time.slice(0,5)+' ':'')+e.title).join(', '):'none'}\nClients: ${(DB.clients||[]).length} · Tasks done today: ${(DB.tasks||[]).filter(t=>t.status==='Done').length}`;
 
-  const apiKey=localStorage.getItem('j-JOB-api-key')||localStorage.getItem('j-anthropic-key')||'';
+  const apiKey=localStorage.getItem('j-jelix-api-key')||localStorage.getItem('j-anthropic-key')||'';
 
   if(!apiKey){
     // Fallback to local conversational engine when no key
@@ -10051,7 +10148,7 @@ async function sendAI(){
     });
     if(!msgs.length||msgs[msgs.length-1].role!=='user') msgs.push({role:'user',content:text});
 
-    const fullSystem=(a.system||JOB_BASE_SYSTEM)+memCtx+osCtx;
+    const fullSystem=(a.system||JELIX_BASE_SYSTEM)+memCtx+osCtx;
 
     const res=await fetch('https://api.anthropic.com/v1/messages',{
       method:'POST',
@@ -10208,8 +10305,8 @@ function autoResize(el){el.style.height='auto';el.style.height=Math.min(el.scrol
 function runAIBrief(){/* local engine only */}
 
 // Personal preference memory — adapts per session
-const JOB_PREFS = JSON.parse(localStorage.getItem('j-ai-prefs')||'{}');
-function savePrefs(){ localStorage.setItem('j-ai-prefs',JSON.stringify(JOB_PREFS)); }
+const JELIX_PREFS = JSON.parse(localStorage.getItem('j-ai-prefs')||'{}');
+function savePrefs(){ localStorage.setItem('j-ai-prefs',JSON.stringify(JELIX_PREFS)); }
 
 // CMD PALETTE
 const CMD_ITEMS=[
@@ -10749,7 +10846,7 @@ updateTicker();
 // ═══════════════════════════════════════════════════════════════════════════
 (function initAmbientLayer(){
   const cvs=document.createElement('canvas');
-  cvs.id='JOBAmbient';
+  cvs.id='jelixAmbient';
   cvs.style.cssText='position:fixed;inset:0;z-index:99996;pointer-events:none;';
   document.body.insertBefore(cvs,document.body.firstChild);
 
@@ -10843,8 +10940,8 @@ updateTicker();
 // ── Particle mode switcher — called by loadOS() after unlock ─────────────
 function setParticleMode(mode){
   // mode: 'auth' = full (lock/boot screens), 'os' = subtle (main dashboard)
-  const webgl = document.getElementById('JOBParticles');
-  const ambient = document.getElementById('JOBAmbient');
+  const webgl = document.getElementById('jelixParticles');
+  const ambient = document.getElementById('jelixAmbient');
   if(mode === 'os'){
     // WebGL: fade to very subtle via CSS opacity
     if(webgl){
@@ -10891,7 +10988,7 @@ function setParticleMode(mode){
 
   // ── Mount canvas behind everything ──────────────────────────────────────
   const canvas = document.createElement('canvas');
-  canvas.id = 'JOBParticles';
+  canvas.id = 'jelixParticles';
   canvas.style.cssText = 'position:fixed;inset:0;z-index:99997;pointer-events:none;';
   document.body.insertBefore(canvas, document.body.firstChild);
 
@@ -13111,23 +13208,23 @@ function learnFromConversation(userMsg, agentReply){
   // Detect explicit preference signals
   const msg=userMsg.toLowerCase();
   if(/too long|keep it short|be brief|mas maikli/i.test(msg)){
-    JOB_PREFS.responseLength='brief';
+    JELIX_PREFS.responseLength='brief';
     savePrefs();
   }
   if(/more detail|elaborate|explain more|dagdag/i.test(msg)){
-    JOB_PREFS.responseLength='detailed';
+    JELIX_PREFS.responseLength='detailed';
     savePrefs();
   }
   if(/speak (in )?tagalog|sa tagalog|mag[- ]?tagalog/i.test(msg)){
-    JOB_PREFS.language='tagalog';
+    JELIX_PREFS.language='tagalog';
     savePrefs();
   }
   if(/english (lang|only|please)|english na/i.test(msg)){
-    JOB_PREFS.language='english';
+    JELIX_PREFS.language='english';
     savePrefs();
   }
   if(/don'?t (repeat|say that again)|paulit[- ]ulit/i.test(msg)){
-    JOB_PREFS.noRepeat=true;
+    JELIX_PREFS.noRepeat=true;
     savePrefs();
   }
 }
@@ -13156,7 +13253,7 @@ console.log('[J.O.B Systems] JARVIS Intelligence Layer loaded — Skills 1–7 +
 
 // ═══════════════════════════════════════════════════════════════════════════
 // J.O.B. WAKE WORD — always-on passive listener
-// Activates voice mode when "JOB" is detected in any utterance
+// Activates voice mode when "jelix" is detected in any utterance
 // Runs a separate lightweight continuous recogniser at low sensitivity
 // ═══════════════════════════════════════════════════════════════════════════
 // ═══════════════════════════════════════════════════════════════════════════
@@ -13172,8 +13269,8 @@ console.log('[J.O.B Systems] JARVIS Intelligence Layer loaded — Skills 1–7 +
   if(!SR) return;
 
   const WAKE_TRIGGERS=[
-    /\bJOB\b/i,/\bjalix\b/i,/\bjellix\b/i,/\bhelix\b/i,
-    /\bhey JOB\b/i,/\bhi JOB\b/i,/\bok JOB\b/i
+    /\bjelix\b/i,/\bjalix\b/i,/\bjellix\b/i,/\bhelix\b/i,
+    /\bhey jelix\b/i,/\bhi jelix\b/i,/\bok jelix\b/i
   ];
 
   let wakeRec=null;
@@ -13198,7 +13295,7 @@ console.log('[J.O.B Systems] JARVIS Intelligence Layer loaded — Skills 1–7 +
           if(WAKE_TRIGGERS.some(r=>r.test(txt))){
             _safeChime('chimeNotify');
             if(!isRecording){
-              const rest=txt.replace(/\b(hey |hi |ok )?(JOB|jalix|jellix|helix)\b/i,'').trim();
+              const rest=txt.replace(/\b(hey |hi |ok )?(jelix|jalix|jellix|helix)\b/i,'').trim();
               toggleVoice();
               if(rest) setTimeout(()=>{ const el=document.getElementById('vTranscript');if(el)el.textContent=rest; },200);
             }
@@ -13249,7 +13346,7 @@ console.log('[J.O.B Systems] JARVIS Intelligence Layer loaded — Skills 1–7 +
     localStorage.setItem('j-wake-enabled', wakeEnabled?'1':'0');
     updateWakeToggleUI(wakeEnabled);
     if(wakeEnabled){
-      showToast('✓ Wake word ON — say "JOB" to activate voice.');
+      showToast('✓ Wake word ON — say "Jelix" to activate voice.');
       // Requires a user gesture to start mic — start immediately since
       // this function is called from a button click (valid user gesture)
       startWakeListener();
@@ -13270,7 +13367,7 @@ console.log('[J.O.B Systems] JARVIS Intelligence Layer loaded — Skills 1–7 +
     if(!btn) return;
     btn.style.color         = on?'var(--green)':'var(--text3)';
     btn.style.borderColor   = on?'var(--green)':'var(--border2)';
-    btn.title               = on?'Wake word ON (say JOB)':'Wake word OFF — click to enable';
+    btn.title               = on?'Wake word ON (say Jelix)':'Wake word OFF — click to enable';
     const icon=btn.querySelector('i');
     if(icon) icon.className = on?'ti ti-ear':'ti ti-ear-off';
   }
@@ -13316,7 +13413,7 @@ console.log('[J.O.B Systems] JARVIS Intelligence Layer loaded — Skills 1–7 +
 <div id="mobileSearchOverlay" style="display:none">
   <div class="mso-bar">
     <i class="ti ti-search" style="color:var(--text3);font-size:16px;flex-shrink:0"></i>
-    <input class="mso-input" id="mobileSearchInput" type="search" placeholder="Search JOB..." autocomplete="off" oninput="runMobileSearch(this.value)">
+    <input class="mso-input" id="mobileSearchInput" type="search" placeholder="Search JELIX..." autocomplete="off" oninput="runMobileSearch(this.value)">
     <button class="mso-close" onclick="closeMobileSearch()">×</button>
   </div>
   <div class="mso-results" id="mobileSearchResults">
@@ -13450,7 +13547,7 @@ console.log('[J.O.B Systems] JARVIS Intelligence Layer loaded — Skills 1–7 +
   }
 
   // Resolve sw.js relative to the current page path so it works in subfolders
-  // e.g. https://justineinacay.github.io/JOBOS/sw.js
+  // e.g. https://justineinacay.github.io/JELIXOS/sw.js
   var swPath = new URL('sw.js', location.href).href;
 
   // Verify sw.js exists before registering — avoids the console error when
@@ -13481,7 +13578,7 @@ console.log('[J.O.B Systems] JARVIS Intelligence Layer loaded — Skills 1–7 +
 
 <script>
 
-// === JOB AUTO-SCHEDULER ===
+// === JELIX AUTO-SCHEDULER ===
 // Morning Intelligence: daily 10AM | Weekly Synthesis: Monday 10AM
 (function(){
   function check(){
@@ -13554,7 +13651,7 @@ window.addEventListener('appinstalled', () => {
 (function(){
   const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
   const isInStandalone = window.navigator.standalone === true;
-  const shownKey = 'JOB-ios-install-shown';
+  const shownKey = 'jelix-ios-install-shown';
   if(isIOS && !isInStandalone && !localStorage.getItem(shownKey)){
     localStorage.setItem(shownKey, '1');
     setTimeout(() => {
