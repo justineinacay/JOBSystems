@@ -2186,8 +2186,6 @@ select option{background:var(--navy3)}
         <div class="fg"><label class="fl"># Value</label><input type="number" id="tf-num" placeholder="e.g. hours, revenue…" style="width:100%"></div>
       </div>
       <div class="fr">
-        <div class="fg"><label class="fl">Timeline Start</label><input type="date" id="tf-timeline-s"></div>
-        <div class="fg"><label class="fl">Timeline End</label><input type="date" id="tf-timeline-e"></div>
       </div>
       <div class="fr">
         <div class="fg"><label class="fl">Platform</label><input id="tf-platform" placeholder="e.g. Instagram, Facebook..."></div>
@@ -3607,7 +3605,6 @@ select option{background:var(--navy3)}
             <!-- Column toggles -->
             <div id="boardColsToggle" style="display:flex;gap:4px;align-items:center">
               <span style="font-size:var(--text-xs);color:var(--text3);letter-spacing:.06em;text-transform:uppercase;white-space:nowrap">Cols:</span>
-              <button class="bvt active" id="col-timeline" onclick="toggleBoardCol('timeline',this)" style="padding:2px 7px;font-size:var(--text-xs)">Timeline</button>
               <button class="bvt active" id="col-time"     onclick="toggleBoardCol('time',this)"     style="padding:2px 7px;font-size:var(--text-xs)">Time</button>
             </div>
             <button class="btn btn-t" onclick="openModal('taskModal')" style="font-size:var(--text-xs);flex-shrink:0"><i class="ti ti-plus"></i> Task</button>
@@ -6014,7 +6011,7 @@ const BOARDS = [
 ];
 
 // ── Column visibility state ──────────────────────────────────────────────
-const boardColVis={timeline:true,conn:false,time:true};
+const boardColVis={timeline:false,conn:false,time:true};
 function toggleBoardCol(col,btn){
   boardColVis[col]=!boardColVis[col];
   btn.classList.toggle('active',boardColVis[col]);
@@ -6058,6 +6055,15 @@ function setBoardView(v){
     const b=document.getElementById('btv-'+vv);
     if(b)b.classList.toggle('active',vv===v);
   });
+  const bb=document.getElementById('boardBody');
+  if(bb){
+    // Ensure boardBody is visible and properly sized for kanban/boards
+    bb.style.overflow=v==='kanban'?'hidden':'';
+    bb.style.display='flex';
+    bb.style.flexDirection='column';
+    bb.style.flex='1';
+    bb.style.minHeight='0';
+  }
   renderTasks();
 }
 
@@ -6314,7 +6320,7 @@ function renderBoardKanban(tasks){
   const sch={'Todo':'pgr','In Progress':'pt','No Progress':'pam','Done':'pg'};
   const tgm={'Todo':'','In Progress':'prog','No Progress':'noprog','Done':'done'};
 
-  let html='<div class="kanban-wrap"><div class="kb-cols" style="overflow-y:hidden;overflow-x:auto;min-height:0">';
+  let html='<div class="kanban-wrap" style="height:100%;flex:1;overflow-x:auto;overflow-y:hidden"><div class="kb-cols" style="height:100%;overflow-y:hidden">';
   statuses.forEach(s=>{
     const items=tasks.filter(t=>t.status===s);
     html+=`<div class="kc">
@@ -6333,7 +6339,6 @@ function renderBoardKanban(tasks){
             ${t.platform?`<div class="kcm"><i class="ti ti-device-desktop" style="font-size:var(--text-xs);line-height:1;display:block"></i>${t.platform}</div>`:''}
             ${t.due?`<div class="kcp">Due: ${t.due}</div>`:''}
             <div class="kcm" style="margin-top:3px"><div class="pdot ${t.priority==='High'?'ph':t.priority==='Medium'?'pm':'pl'}"></div>${t.priority}</div>
-            ${(t.timelineS||t.timelineE)?`<div class="kc-timeline">${timelineBar(t)}</div>`:''}
             ${t.connBoard?`<div class="kc-conn">${connChip(t)}</div>`:''}
             ${hasSubs?`<div class="kc-subitems"><div style="font-size:var(--text-xs);color:var(--text3);margin-bottom:3px;text-transform:uppercase;letter-spacing:.07em">↳ ${hasSubs} sub-item${hasSubs>1?'s':''}</div>${subs.slice(0,3).map(s=>`<div class="kc-sub-row"><div class="pdot ${s.status==='Done'?'pg':''}" style="width:6px;height:6px;border-radius:50%;background:${s.status==='Done'?'var(--green)':'var(--text3)'}"></div>${s.title}</div>`).join('')}</div>`:''}
           </div>`;
@@ -6466,7 +6471,6 @@ function buildKanban(containerId,tasks,world,statusList,statusColors,isOrange){
             ${t.platform?`<div class="kcm"><i class="ti ti-device-desktop" style="font-size:var(--text-xs);line-height:1;display:block"></i>${t.platform}</div>`:''}
             ${t.due?`<div class="kcp">Due: ${t.due}</div>`:''}
             <div class="kcm" style="margin-top:3px"><div class="pdot ${t.priority==='High'?'ph':t.priority==='Medium'?'pm':'pl'}"></div>${t.priority}</div>
-            ${(t.timelineS&&t.timelineE)?`<div class="kc-timeline">${timelineBar(t)}</div>`:''}
             ${t.connBoard?`<div class="kc-conn">${connChip(t)}</div>`:''}
             ${subs.length?`<div class="kc-subitems"><div style="font-size:var(--text-xs);color:var(--text3);margin-bottom:3px">↳ ${subs.length} sub-item${subs.length>1?'s':''}</div></div>`:''}
           </div>`;
@@ -8996,7 +9000,7 @@ function saveMeetingApproved(){
   if(!DB.meetings) DB.meetings=[];
   DB.meetings.unshift(m);
   save('meetings');
-  SB.upsert('meetings',m,'meetings');
+  // Note: meetings table not in Supabase schema — local only
   addHistory('add','Meeting: '+title,{...m,_dbKey:'meetings'});
 
   // Create tasks from action items
@@ -9027,7 +9031,7 @@ function deleteMeeting(id,world){
   if(!confirm('Delete this meeting note?'))return;
   DB.meetings=DB.meetings.filter(m=>m.id!==id);
   save('meetings');
-  SB.remove('meetings',id,'meetings');
+  // meetings is local-only — no Supabase remove needed
   renderMeetingsPanel('meetingsPanel-'+world,world);
   showToast('Meeting deleted');
 }
