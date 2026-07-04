@@ -11,7 +11,7 @@
 <title>J.O.B Systems — Justine Operating Blueprint</title>
 <link rel="manifest" href="data:application/manifest+json,{
   &quot;name&quot;: &quot;J.O.B Systems&quot;,
-  &quot;short_name&quot;: &quot;JELIX&quot;,
+  &quot;short_name&quot;: &quot;JOB&quot;,
   &quot;description&quot;: &quot;Personal Operating System — Justine Luis Inacay&quot;,
   &quot;start_url&quot;: &quot;.&quot;,
   &quot;display&quot;: &quot;standalone&quot;,
@@ -251,7 +251,10 @@ select option{background:var(--navy3)}
 .gws-btn:active{transform:scale(.97)}
 .kanban-wrap{display:flex;flex-direction:column;height:100%;gap:0}
 .kb-cols{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;flex:1;overflow:hidden;height:100%;align-items:stretch}
-/* ── Meeting Note Taker ── */
+/* ── Calendar day-chip (repeat on) ── */
+.day-chip{cursor:pointer;padding:4px 9px;border-radius:12px;border:1px solid var(--border2);background:transparent;font-size:var(--text-xs);color:var(--text3);transition:all .15s;user-select:none}
+.day-chip:has(input:checked){background:rgba(0,212,200,.12);border-color:var(--teal);color:var(--teal)}
+.day-chip span{pointer-events:none}
 .meetings-panel{display:flex;flex-direction:column;height:100%;overflow:hidden}
 .meetings-recorder{flex-shrink:0;padding:14px 18px;border-bottom:1px solid var(--border);display:flex;flex-direction:column;gap:10px;background:var(--navy2)}
 .meetings-log{flex:1;overflow-y:auto;padding:14px 18px;display:flex;flex-direction:column;gap:8px;-webkit-overflow-scrolling:touch}
@@ -310,7 +313,7 @@ select option{background:var(--navy3)}
 .cal-mini-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-top:6px}
 
 /* ═══════════════════════════════════════════════════════
-   JELIX CALENDAR — Full GCal-parity module
+ JOB SYSTEMS CALENDAR — Full GCal-parity module
 ═══════════════════════════════════════════════════════ */
 
 /* ── Calendar shell ── */
@@ -462,7 +465,8 @@ select option{background:var(--navy3)}
 .mt{font-size:var(--text-sm);font-weight:700;color:var(--teal);letter-spacing:.08em;text-transform:uppercase}
 .mc{background:transparent;border:none;color:var(--text3);font-size:18px;cursor:pointer}
 .mc:hover{color:var(--red)}
-.mb{padding:16px}
+.mb{padding:16px;font-size:var(--text-sm)}
+.mb input,.mb select,.mb textarea{font-size:var(--text-sm)!important}
 .mf{padding:11px 16px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:7px}
 .fg{margin-bottom:10px}
 .fl{font-size:var(--text-xs);font-weight:700;color:var(--text3);letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px;display:block}
@@ -1091,7 +1095,7 @@ select option{background:var(--navy3)}
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   JELIX — THUMB-OPTIMISED PORTRAIT LAYOUT (≤430px)
+   JOB — THUMB-OPTIMISED PORTRAIT LAYOUT (≤430px)
    Elite mobile UX: GPU-accelerated, notch-safe, WAI-ARIA compliant
 ═══════════════════════════════════════════════════════════════ */
 @media (max-width:430px){
@@ -2058,7 +2062,7 @@ select option{background:var(--navy3)}
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   JELIX TASK OS — Monday.com structural layer
+   JOB TASK OS — Monday.com structural layer
    Token inheritance: all vars from :root
    ═══════════════════════════════════════════════════════════════ */
 .board-toolbar{display:flex;align-items:center;gap:8px;padding:8px 14px;border-bottom:1px solid var(--border);flex-shrink:0;background:var(--navy2);flex-wrap:wrap}
@@ -2423,13 +2427,13 @@ select option{background:var(--navy3)}
 <!-- CAL EVENT MODAL -->
 <div class="mov" id="calModal">
   <div class="modal" style="width:min(520px,96vw)">
-    <div class="mh"><div class="mt" id="calModalTitle">Add Event</div><button class="mc" onclick="closeModal('calModal')">×</button></div>
+    <div class="mh"><div class="mt" id="calModalTitle">ADD EVENT</div><button class="mc" onclick="closeModal('calModal')">×</button></div>
     <div class="mb">
       <div class="fg"><label class="fl">Title</label><input id="ce-title" placeholder="Event title..."></div>
       <div class="fr">
         <div class="fg"><label class="fl">Date</label><input type="date" id="ce-date"></div>
-        <div class="fg"><label class="fl">Start Time</label><select id="ce-time" style="font-size:var(--text-sm)"></select></div>
-        <div class="fg"><label class="fl">End Time</label><select id="ce-end-time" style="font-size:var(--text-sm)"></select></div>
+        <div class="fg"><label class="fl">Start Time</label><select id="ce-time"></select></div>
+        <div class="fg"><label class="fl">End Time</label><select id="ce-end-time"></select></div>
       </div>
       <div class="fr">
         <div class="fg"><label class="fl">World / Context</label><select id="ce-type">
@@ -2443,50 +2447,89 @@ select option{background:var(--navy3)}
         </select></div>
         <div class="fg"><label class="fl">Location / Link</label><input id="ce-loc" placeholder="Address or meeting link..."></div>
       </div>
-      <!-- Recurrence -->
-      <div class="fr">
-        <div class="fg"><label class="fl">Repeat</label><select id="ce-recur" onchange="toggleRecurOptions()">
+
+      <!-- Repeat -->
+      <div class="fg">
+        <label class="fl">Repeat</label>
+        <select id="ce-recur" onchange="toggleRecurOptions()">
           <option value="none">Does not repeat</option>
           <option value="daily">Daily</option>
-          <option value="weekly">Weekly (same day)</option>
+          <option value="weekdays">Every weekday (Mon–Fri)</option>
+          <option value="weekends">Every weekend (Sat–Sun)</option>
+          <option value="weekly">Weekly</option>
           <option value="biweekly">Every 2 weeks</option>
           <option value="monthly">Monthly (same date)</option>
-          <option value="monthly-nth">Monthly (nth weekday)</option>
+          <option value="monthly-nth">Monthly (same weekday)</option>
           <option value="yearly">Annually</option>
-          <option value="weekdays">Every weekday (Mon–Fri)</option>
-          <option value="custom">Custom interval…</option>
-        </select></div>
-        <div class="fg" id="ce-recur-end-wrap" style="display:none">
-          <label class="fl">Repeat Until</label><input type="date" id="ce-recur-end">
+          <option value="custom">Custom…</option>
+        </select>
+      </div>
+
+      <!-- Custom interval panel -->
+      <div id="ce-custom-wrap" style="display:none;background:rgba(0,212,200,.04);border:1px solid var(--border);border-radius:5px;padding:10px 12px;flex-direction:column;gap:8px;margin-bottom:4px">
+        <label class="fl" style="margin-bottom:4px">Custom Repeat</label>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <span style="color:var(--text2)">Every</span>
+          <input type="number" id="ce-custom-n" min="1" max="365" value="1" style="width:64px;text-align:center">
+          <select id="ce-custom-unit" style="width:auto;flex:1">
+            <option value="day">days</option>
+            <option value="week">weeks</option>
+            <option value="month">months</option>
+          </select>
+        </div>
+        <div id="ce-custom-days-wrap" style="display:none;flex-wrap:wrap;gap:5px">
+          <label class="fl" style="width:100%;margin-bottom:2px">Repeat on</label>
+          <label class="day-chip"><input type="checkbox" value="MO" style="display:none"><span>Mon</span></label>
+          <label class="day-chip"><input type="checkbox" value="TU" style="display:none"><span>Tue</span></label>
+          <label class="day-chip"><input type="checkbox" value="WE" style="display:none"><span>Wed</span></label>
+          <label class="day-chip"><input type="checkbox" value="TH" style="display:none"><span>Thu</span></label>
+          <label class="day-chip"><input type="checkbox" value="FR" style="display:none"><span>Fri</span></label>
+          <label class="day-chip"><input type="checkbox" value="SA" style="display:none"><span>Sat</span></label>
+          <label class="day-chip"><input type="checkbox" value="SU" style="display:none"><span>Sun</span></label>
         </div>
       </div>
-      <div class="fr" id="ce-custom-wrap" style="display:none">
-        <div class="fg"><label class="fl">Every N days</label><input type="number" id="ce-custom-n" min="1" max="365" placeholder="e.g. 3"></div>
+
+      <!-- End condition panel -->
+      <div id="ce-recur-end-wrap" style="display:none;background:rgba(0,212,200,.04);border:1px solid var(--border);border-radius:5px;padding:10px 12px;flex-direction:column;gap:7px;margin-bottom:4px">
+        <label class="fl" style="margin-bottom:2px">Ends</label>
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;color:var(--text2)">
+          <input type="radio" name="recur-end" value="never" checked id="re-never" style="width:auto;accent-color:var(--teal)"> Never
+        </label>
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;color:var(--text2)">
+          <input type="radio" name="recur-end" value="on" id="re-on" style="width:auto;accent-color:var(--teal)"> On date
+          <input type="date" id="ce-recur-end" style="flex:1;margin-left:4px" onclick="document.getElementById('re-on').checked=true">
+        </label>
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;color:var(--text2)">
+          <input type="radio" name="recur-end" value="after" id="re-after" style="width:auto;accent-color:var(--teal)"> After
+          <input type="number" id="ce-recur-count" min="1" max="999" value="10" style="width:64px;text-align:center;margin-left:4px" onclick="document.getElementById('re-after').checked=true">
+          <span style="color:var(--text2)">occurrences</span>
+        </label>
       </div>
-      <!-- All-day + Entry type toggle -->
-      <div style="display:flex;align-items:center;gap:12px;margin:4px 0;flex-wrap:wrap">
-        <div style="display:flex;align-items:center;gap:6px">
-          <input type="checkbox" id="ce-allday" onchange="toggleAllDay()" style="width:auto;accent-color:var(--teal)">
-          <label for="ce-allday" style="font-size:var(--text-sm);color:var(--text2);cursor:pointer">All-day</label>
-        </div>
-        <div style="display:flex;align-items:center;gap:6px">
-          <input type="checkbox" id="ce-overnight" style="width:auto;accent-color:var(--teal)">
-          <label for="ce-overnight" style="font-size:var(--text-sm);color:var(--text2);cursor:pointer">Ends next day</label>
-        </div>
-        <div style="display:flex;align-items:center;gap:6px">
-          <input type="checkbox" id="ce-also-task" onchange="toggleCalEntryType()" style="width:auto;accent-color:var(--purple,#a855f7)">
-          <label for="ce-also-task" style="font-size:var(--text-sm);color:var(--text2);cursor:pointer">Also add as Task</label>
-        </div>
+
+      <!-- Checkboxes row -->
+      <div style="display:flex;align-items:center;gap:14px;margin:6px 0;flex-wrap:wrap">
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;color:var(--text2)">
+          <input type="checkbox" id="ce-allday" onchange="toggleAllDay()" style="width:auto;accent-color:var(--teal)"> All-day
+        </label>
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;color:var(--text2)">
+          <input type="checkbox" id="ce-overnight" style="width:auto;accent-color:var(--teal)"> Ends next day
+        </label>
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;color:var(--text2)">
+          <input type="checkbox" id="ce-also-task" onchange="toggleCalEntryType()" style="width:auto;accent-color:var(--purple,#a855f7)"> Also add as Task
+        </label>
       </div>
+
       <!-- Reminder row -->
-      <div style="display:flex;align-items:center;gap:8px;margin:4px 0;flex-wrap:wrap">
-        <input type="checkbox" id="ce-reminder" onchange="toggleReminderInput()" style="width:auto;accent-color:var(--teal)">
-        <label for="ce-reminder" style="font-size:var(--text-sm);color:var(--text2);cursor:pointer">Remind me</label>
+      <div style="display:flex;align-items:center;gap:8px;margin:4px 0 8px;flex-wrap:wrap">
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;color:var(--text2)">
+          <input type="checkbox" id="ce-reminder" onchange="toggleReminderInput()" style="width:auto;accent-color:var(--teal)"> Remind me
+        </label>
         <div id="ce-remind-wrap" style="display:none;align-items:center;gap:6px">
-          <input type="number" id="ce-remind-min" min="1" max="1440" value="30" style="width:70px;font-size:var(--text-sm);padding:4px 6px;background:var(--navy3);border:1px solid var(--border2);border-radius:4px;color:var(--text1);text-align:center">
-          <span style="font-size:var(--text-sm);color:var(--text2)">minutes before</span>
+          <input type="number" id="ce-remind-min" min="1" max="1440" value="30" style="width:64px;text-align:center">
+          <span style="color:var(--text2)">minutes before</span>
         </div>
       </div>
+
       <div class="fg"><label class="fl">Notes / Agenda</label><textarea id="ce-notes" rows="2" placeholder="Additional notes or agenda..."></textarea></div>
     </div>
     <div class="mf">
@@ -2591,7 +2634,7 @@ select option{background:var(--navy3)}
 @keyframes bootspinrev{from{transform:rotate(0deg)}to{transform:rotate(-360deg)}}
 @keyframes bootfadeout{from{opacity:1;transform:scale(1)}to{opacity:0;transform:scale(1.05)}}
 @keyframes mbara{0%,100%{transform:scaleY(1)}50%{transform:scaleY(2.2)}}
-@keyframes jelixglow{0%,100%{text-shadow:0 0 20px rgba(0,212,200,.4),0 0 60px rgba(0,212,200,.15)}50%{text-shadow:0 0 40px rgba(0,212,200,.8),0 0 100px rgba(0,212,200,.3),0 0 140px rgba(0,212,200,.1)}}
+@keyframes JOBglow{0%,100%{text-shadow:0 0 20px rgba(0,212,200,.4),0 0 60px rgba(0,212,200,.15)}50%{text-shadow:0 0 40px rgba(0,212,200,.8),0 0 100px rgba(0,212,200,.3),0 0 140px rgba(0,212,200,.1)}}
 @keyframes letterflicker{0%,100%{opacity:1}92%{opacity:1}93%{opacity:.4}94%{opacity:1}96%{opacity:.7}97%{opacity:1}}
 @keyframes scanline{0%{transform:translateY(-100%)}100%{transform:translateY(100vh)}}
 @keyframes bootpulse{0%,100%{opacity:.3}50%{opacity:1}}
@@ -2637,11 +2680,11 @@ select option{background:var(--navy3)}
         <circle cx="76" cy="76" r="70" stroke="rgba(0,212,200,.05)" stroke-width="1" fill="none"/>
         <circle cx="76" cy="76" r="70" stroke="rgba(255,107,26,.4)" stroke-width="1" fill="none" stroke-dasharray="25 440" stroke-linecap="round"/>
       </svg>
-      <!-- CENTER LOGO -->
-      <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px">
-        <div style="font-size:clamp(28px,9vw,48px);font-weight:900;color:#00d4c8;letter-spacing:.1em;line-height:1;animation:jelixglow 3s ease-in-out infinite,letterflicker 7s infinite;font-family:Arial Black,Arial,sans-serif">J.O.B Systems</div>
-        <div style="width:120px;height:1px;background:linear-gradient(90deg,transparent,#00d4c8,transparent)"></div>
-        <div style="font-size:clamp(10px,2.5vw,13px);color:rgba(0,168,158,.85);letter-spacing:.4em;font-family:monospace;font-weight:700;text-transform:uppercase">Personal OS</div>
+      <!-- CENTER LOGO — centered inside orbit -->
+      <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px">
+        <div style="font-size:clamp(22px,7vw,36px);font-weight:900;color:#00d4c8;letter-spacing:.05em;line-height:1.1;animation:JOBglow 3s ease-in-out infinite,letterflicker 7s infinite;font-family:Arial Black,Arial,sans-serif;text-align:center">J.O.B<br>Systems</div>
+        <div style="width:70%;height:1px;background:linear-gradient(90deg,transparent,#00d4c8,transparent);margin:4px 0"></div>
+        <div style="font-size:clamp(7px,1.8vw,10px);color:rgba(0,168,158,.8);letter-spacing:.35em;font-family:monospace;font-weight:700;text-transform:uppercase">PERSONAL OS</div>
       </div>
       <!-- corner ticks on orbit -->
       <div style="position:absolute;top:0;left:50%;transform:translateX(-50%);width:6px;height:6px;background:#00d4c8;border-radius:50%;box-shadow:0 0 8px #00d4c8;animation:bootpulse 2s infinite"></div>
@@ -2762,7 +2805,7 @@ select option{background:var(--navy3)}
       <button class="tb-btn" onclick="toggleWakeWord()" id="wakeToggleBtn" title="Wake word OFF — click to enable" style="color:var(--text3)"><i class="ti ti-ear-off"></i></button>
       <button class="tb-btn" onclick="toggleMute()" id="muteBtn" title="Toggle voice output"><i class="ti ti-volume" id="muteIcon"></i></button>
       <button class="tb-btn" id="onyxBtn" onclick="setOpenAIKey()" title="Set OpenAI key for premium JARVIS voice" style="font-size:var(--text-xs);letter-spacing:.06em;color:var(--teal2);border-color:var(--teal2)">ONYX</button>
-      <button class="tb-btn" id="apiKeyBtn" onclick="setJelixAPIKey()" title="Set Anthropic API key for AI agents" style="font-size:var(--text-xs);letter-spacing:.06em;color:var(--amber);border-color:var(--amber)">JOB KEY</button>
+      <button class="tb-btn" id="apiKeyBtn" onclick="setJOBAPIKey()" title="Set Anthropic API key for AI agents" style="font-size:var(--text-xs);letter-spacing:.06em;color:var(--amber);border-color:var(--amber)">JOB KEY</button>
       <button class="tb-btn" onclick="setView('history')" title="History" id="historyBtn"><i class="ti ti-history"></i></button>
       <!-- Mobile-only: Voice + Settings (replaces ONYX/KEY) -->
       <button class="tb-btn mobile-only-btn" onclick="toggleVoice()" id="mobileVoiceBtn" title="Voice"><i class="ti ti-microphone"></i></button>
@@ -3812,7 +3855,7 @@ select option{background:var(--navy3)}
             </div>
           </div>
           <div class="ai-msgs" id="aiMsgs">
-            <div class="mr-row"><div class="mav aiv">J</div><div><div class="mbubble ai">Hello, sir. J.O.B Systems online.\n\nSay "hey jelix" to activate voice. Press Space to push-to-talk.\nAll worlds and Supabase connected. How can I assist?</div><div class="mtime" id="initTime"></div></div></div>
+            <div class="mr-row"><div class="mav aiv">J</div><div><div class="mbubble ai">Hello, sir. J.O.B Systems online.\n\nSay "hey JOB" to activate voice. Press Space to push-to-talk.\nAll worlds and Supabase connected. How can I assist?</div><div class="mtime" id="initTime"></div></div></div>
           </div>
           <div class="ai-input-area">
             <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:7px">
@@ -4070,7 +4113,7 @@ select option{background:var(--navy3)}
             <label class="fl">OpenAI API Key (JARVIS Onyx Voice TTS)</label>
             <div style="display:flex;gap:8px">
               <input type="password" id="set-openai-key" placeholder="sk-proj-..." style="flex:1">
-              <button class="btn btn-t" onclick="saveKey('jelix-openai-key','set-openai-key')">Save</button>
+              <button class="btn btn-t" onclick="saveKey('JOB-openai-key','set-openai-key')">Save</button>
             </div>
           </div>
         </div>
@@ -4226,7 +4269,7 @@ const SB={
   async upsert(table,row,key){
     const r={...row};
     if(table==='cashflow'){r.description=row.desc;delete r.desc;}
-    if(table==='cal_events'){delete r.allDay;delete r.overnight;delete r.remindMin;delete r.recurN;delete r.recurEnd;}
+    if(table==='cal_events'){delete r.allDay;delete r.overnight;delete r.remindMin;delete r.recurN;delete r.recurEnd;delete r.endDate;delete r.recurUnit;delete r.recurCount;}
     delete r._dbKey;
     try{
       await sbFetch(table,'POST',r);
@@ -4239,7 +4282,7 @@ const SB={
   async update(table,id,changes,key){
     const c={...changes};
     if(table==='cashflow'&&c.desc){c.description=c.desc;delete c.desc;}
-    if(table==='cal_events'){delete c.allDay;delete c.overnight;delete c.remindMin;delete c.recurN;delete c.recurEnd;}
+    if(table==='cal_events'){delete c.allDay;delete c.overnight;delete c.remindMin;delete c.recurN;delete c.recurEnd;delete c.endDate;delete c.recurUnit;delete c.recurCount;}
     try{
       await sbFetch(table,'PATCH',c,`id=eq.${id}`);
       save(key);
@@ -4520,7 +4563,7 @@ speechSynthesis.onvoiceschanged=loadVoices;loadVoices();
 async function speak(text){
   if(isMuted||!text)return;speechSynthesis.cancel();
   const clean=text.replace(/```[\s\S]*?```/g,'code block').replace(/[*_`#>\[\]]/g,'').replace(/https?:\/\/\S+/g,'link').replace(/\n{2,}/g,'. ').replace(/\n/g,' ').trim().substring(0,500);
-  const key=localStorage.getItem('jelix-openai-key');
+  const key=localStorage.getItem('JOB-openai-key');
   if(key){try{const res=await fetch('https://api.openai.com/v1/audio/speech',{method:'POST',headers:{'Authorization':'Bearer '+key,'Content-Type':'application/json'},body:JSON.stringify({model:'tts-1',voice:'onyx',input:clean,speed:0.82})});if(res.ok){const blob=await res.blob();new Audio(URL.createObjectURL(blob)).play();return;}}catch(e){}}
   const utt=new SpeechSynthesisUtterance(clean);utt.lang='en-GB';utt.rate=0.85;utt.pitch=0.80;utt.volume=1;if(ttsVoice)utt.voice=ttsVoice;speechSynthesis.speak(utt);
 }
@@ -4528,7 +4571,7 @@ async function speakSlow(text){
   // Morning brief — deliberate, word-by-word delivery
   if(isMuted||!text)return;speechSynthesis.cancel();
   const clean=text.replace(/```[\s\S]*?```/g,'').replace(/[*_`#>\[\]]/g,'').replace(/https?:\/\/\S+/g,'').replace(/₱/g,'PHP ').replace(/\n{2,}/g,'. ').replace(/\n/g,' ').replace(/\s+/g,' ').trim();
-  const key=localStorage.getItem('jelix-openai-key');
+  const key=localStorage.getItem('JOB-openai-key');
   if(key){try{const res=await fetch('https://api.openai.com/v1/audio/speech',{method:'POST',headers:{'Authorization':'Bearer '+key,'Content-Type':'application/json'},body:JSON.stringify({model:'tts-1',voice:'onyx',input:clean,speed:0.72})});if(res.ok){const blob=await res.blob();new Audio(URL.createObjectURL(blob)).play();return;}}catch(e){}}
   const utt=new SpeechSynthesisUtterance(clean);utt.lang='en-GB';utt.rate=0.72;utt.pitch=0.78;utt.volume=1;if(ttsVoice)utt.voice=ttsVoice;speechSynthesis.speak(utt);
 }
@@ -4551,8 +4594,8 @@ function lockOS(){
   }
 }
 function toggleMute(){isMuted=!isMuted;const btn=document.getElementById('muteBtn'),icon=document.getElementById('muteIcon');if(isMuted){speechSynthesis.cancel();icon.className='ti ti-volume-off';btn.style.borderColor='var(--red)';btn.style.color='var(--red)';showToast('Voice muted');}else{icon.className='ti ti-volume';btn.style.borderColor='var(--border2)';btn.style.color='var(--text2)';speak('Voice activated. J.O.B Systems online, sir.');}}
-function setOpenAIKey(){const e=localStorage.getItem('jelix-openai-key')||'';const k=prompt('Enter your OpenAI API key for ONYX voice:\n\nLeave blank to remove.',e);if(k===null)return;if(k.trim()){localStorage.setItem('jelix-openai-key',k.trim());showToast('ONYX key saved. Premium voice enabled.');speak('Premium voice activated. Good evening, sir.');}else{localStorage.removeItem('jelix-openai-key');showToast('Key removed. Using browser voice.');}}
-function setJelixAPIKey(){
+function setOpenAIKey(){const e=localStorage.getItem('JOB-openai-key')||'';const k=prompt('Enter your OpenAI API key for ONYX voice:\n\nLeave blank to remove.',e);if(k===null)return;if(k.trim()){localStorage.setItem('JOB-openai-key',k.trim());showToast('ONYX key saved. Premium voice enabled.');speak('Premium voice activated. Good evening, sir.');}else{localStorage.removeItem('JOB-openai-key');showToast('Key removed. Using browser voice.');}}
+function setJOBAPIKey(){
   const existing=localStorage.getItem('job-api-key')||'';
   const masked=existing?'sk-ant-...'+existing.slice(-6):'(not set)';
   const k=prompt('J.O.B Systems — Anthropic API Key\n\nCurrent: '+masked+'\n\nPaste your API key below (starts with sk-ant-):\nLeave blank to remove.','');
@@ -4758,7 +4801,7 @@ function exportLocalDB(){
   const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
   const a=document.createElement('a');
   a.href=URL.createObjectURL(blob);
-  a.download='JELIX_Backup_'+new Date().toISOString().split('T')[0]+'.json';
+  a.download='JOB_Backup_'+new Date().toISOString().split('T')[0]+'.json';
   a.click();
   showToast('✓ Backup downloaded, sir.');
 }
@@ -4789,7 +4832,7 @@ function factoryReset(){
 function renderSettingsView(){
   // Populate current key status
   const antKey=localStorage.getItem('job-api-key');
-  const oaiKey=localStorage.getItem('jelix-openai-key');
+  const oaiKey=localStorage.getItem('JOB-openai-key');
   const antEl=document.getElementById('set-anthropic-key');
   const oaiEl=document.getElementById('set-openai-key');
   if(antEl&&antKey)antEl.placeholder='sk-ant-...'+antKey.slice(-6)+' (set)';
@@ -5287,7 +5330,7 @@ window.toggleMobileMore=toggleMobileMore;
 window.syncMobileNavActive=syncMobileNavActive;
 
 // ═══════════════════════════════════════════════════════════════════════════
-// JELIX PORTRAIT ENGINE — Mobile Search · Swipe Tasks · Cal Week Strip
+// JOB PORTRAIT ENGINE — Mobile Search · Swipe Tasks · Cal Week Strip
 // ═══════════════════════════════════════════════════════════════════════════
 
 // ── Mobile Search Overlay ─────────────────────────────────────────────────
@@ -5987,7 +6030,7 @@ function renderBrief(){
 // ===== KANBAN BUILDER (shared) =====
 
 // ════════════════════════════════════════════════════════════════════════
-// JELIX BOARD ENGINE — Monday.com architecture: Workspace > Board > Group > Item > Subitem
+// JOB BOARD ENGINE — Monday.com architecture: Workspace > Board > Group > Item > Subitem
 // Supabase schema mapping: tasks (+ metadata JSONB) → DB.tasks
 // ════════════════════════════════════════════════════════════════════════
 
@@ -7940,7 +7983,7 @@ function saveTransfer(){
 // CALENDAR
 let selectedCalDate='';
 // ════════════════════════════════════════════════════════════════
-// JELIX CALENDAR ENGINE — GCal-parity functional module
+// JOB CALENDAR ENGINE — GCal-parity functional module
 // ════════════════════════════════════════════════════════════════
 
 // ── World config ─────────────────────────────────────────────────
@@ -8049,10 +8092,10 @@ function checkReminders(){
       const msg=`"${e.title}" starts in ${Math.round(diffMin)} min`;
       showToast('\u23f0 Reminder: '+msg,5000);
       // Dashboard urgent banner
-      let banner=document.getElementById('jelix-reminder-banner');
+      let banner=document.getElementById('JOB-reminder-banner');
       if(!banner){
         banner=document.createElement('div');
-        banner.id='jelix-reminder-banner';
+        banner.id='JOB-reminder-banner';
         banner.style.cssText='position:fixed;top:60px;left:50%;transform:translateX(-50%);z-index:9999;background:var(--navy2);border:1px solid var(--teal);border-radius:8px;padding:10px 18px;font-size:var(--text-sm);font-weight:700;color:var(--teal);display:flex;align-items:center;gap:10px;box-shadow:0 0 20px rgba(128,255,250,.2)';
         document.body.appendChild(banner);
       }
@@ -8060,7 +8103,7 @@ function checkReminders(){
       setTimeout(()=>{if(banner.parentElement)banner.remove();},remMin*60000);
       // Voice announcement
       if('speechSynthesis' in window){
-        const utt=new SpeechSynthesisUtterance('JELIX reminder. '+e.title+' starts in '+Math.round(diffMin)+' minutes.');
+        const utt=new SpeechSynthesisUtterance('JOB reminder. '+e.title+' starts in '+Math.round(diffMin)+' minutes.');
         utt.rate=0.95;utt.pitch=1.1;window.speechSynthesis.speak(utt);
       }
       // Browser notification
@@ -8561,8 +8604,12 @@ function toggleRecurOptions(){
   const v=document.getElementById('ce-recur')?.value;
   const endWrap=document.getElementById('ce-recur-end-wrap');
   const custWrap=document.getElementById('ce-custom-wrap');
-  if(endWrap)endWrap.style.display=(v&&v!=='none')?'':'none';
-  if(custWrap)custWrap.style.display=(v==='custom')?'':'none';
+  const daysWrap=document.getElementById('ce-custom-days-wrap');
+  const custUnit=document.getElementById('ce-custom-unit');
+  if(endWrap)  endWrap.style.display=(v&&v!=='none')?'flex':'none';
+  if(custWrap) custWrap.style.display=(v==='custom')?'flex':'none';
+  if(daysWrap&&custUnit) daysWrap.style.display=(v==='custom'&&custUnit.value==='week')?'flex':'none';
+  if(custUnit&&!custUnit._patched){custUnit._patched=true;custUnit.addEventListener('change',()=>{if(daysWrap)daysWrap.style.display=custUnit.value==='week'?'flex':'none';});}
 }
 function toggleAllDay(){
   const isAllDay=document.getElementById('ce-allday')?.checked;
@@ -8604,10 +8651,12 @@ function saveCalEvent(){
   }
   const remMin=parseInt(document.getElementById('ce-remind-min')?.value||30,10);
   const alsoTask=document.getElementById('ce-also-task')?.checked||false;
+  const recurEndMode=document.querySelector('input[name="recur-end"]:checked')?.value||'never';
+  const recurCount=recurEndMode==='after'?parseInt(document.getElementById('ce-recur-count')?.value||10,10):null;
   const e={
     id:calEditingId||Date.now(),
     title:document.getElementById('ce-title').value.trim()||'Event',
-    date:rawDate,endDate:endDate!==rawDate?endDate:'',
+    date:rawDate,
     time:startTimeVal,endTime:endTimeVal,
     type:document.getElementById('ce-type').value||'lif',
     loc:document.getElementById('ce-loc').value.trim(),
@@ -8616,8 +8665,10 @@ function saveCalEvent(){
     reminder:document.getElementById('ce-reminder')?.checked||false,
     remindMin:remMin,
     recur:document.getElementById('ce-recur')?.value||'none',
-    recurEnd:document.getElementById('ce-recur-end')?.value||'',
+    recurEnd:recurEndMode==='on'?(document.getElementById('ce-recur-end')?.value||''):'',
     recurN:document.getElementById('ce-custom-n')?.value||'',
+    recurUnit:document.getElementById('ce-custom-unit')?.value||'day',
+    recurCount:recurCount,
   };
   if(calEditingId){
     const i=DB.calEvents.findIndex(x=>x.id===calEditingId);
@@ -8940,7 +8991,7 @@ function openMeetingReview(transcript,world){
   }
 
   // If API key available, enhance summary with Claude
-  const apiKey=localStorage.getItem('j-anthropic-key')||localStorage.getItem('j-jelix-api-key');
+  const apiKey=localStorage.getItem('j-anthropic-key')||localStorage.getItem('j-JOB-api-key');
   if(apiKey && transcript.length>50){
     enhanceMeetingSummaryWithAI(transcript,apiKey);
   }
@@ -9118,7 +9169,7 @@ function renderMemory(){
 async function processCapture(){const input=document.getElementById('captureInput');const text=input.value.trim();if(!text)return;input.value='';await executeVoiceCommand(text);}
 
 // ===== VOICE COMMAND ENGINE =====
-const WAKE_WORDS=['hey jelix','hey felix','hey jelly','hey jellix','angelix','hi jelix','jelix'];
+const WAKE_WORDS=['hey JOB','hey felix','hey jelly','hey jellix','angelix','hi JOB','JOB'];
 function stripWakeWord(text){const t=text.toLowerCase().trim();for(const w of WAKE_WORDS){if(t.startsWith(w)){const rest=text.slice(w.length).replace(/^[\s,]+/,'').trim();return rest||null;}}return text;}
 
 // ── Levenshtein distance (character-level edit distance) ──
@@ -9246,7 +9297,7 @@ const NAV_MAP={
   'journal':'journal','diary':'journal',
   'tasks':'tasks','all tasks':'tasks',
   'notes':'notes',
-  'ai':'ai','jelix ai':'ai','agents':'ai',
+  'ai':'ai','JOB ai':'ai','agents':'ai',
   'memory':'memory',
   'settings':'settings',
   'system settings':'settings',
@@ -9747,7 +9798,7 @@ function stopRecording(){if(recognition&&isRecording)recognition.stop();}
 //               free-flow conversation, personal preference adaptation
 // ═══════════════════════════════════════════════════════════════════════
 
-const JELIX_BASE_SYSTEM = `You are J.O.B Systems — the personal AI operating system of Justine Luis Inacay, Marketing Manager based in Las Piñas City, Metro Manila, Philippines.
+const JOB_BASE_SYSTEM = `You are J.O.B Systems — the personal AI operating system of Justine Luis Inacay, Marketing Manager based in Las Piñas City, Metro Manila, Philippines.
 
 IDENTITY & CONTEXT:
 - Justine runs two shifts: Ideahub (2AM–10AM PHT, Tue–Sat) and Chainsmoker (10PM–2AM PHT, Mon–Fri)
@@ -9796,37 +9847,37 @@ const AGENTS={
   exec:{
     name:'✦ EXECUTIVE AGENT',
     desc:'Scheduling · Tasks · Daily Brief · Free-flow',
-    system:JELIX_BASE_SYSTEM+'\n\nROLE: Executive command center. Handle scheduling, task management, daily briefs, decisions, email drafts. When in doubt, default to this agent.'
+    system:JOB_BASE_SYSTEM+'\n\nROLE: Executive command center. Handle scheduling, task management, daily briefs, decisions, email drafts. When in doubt, default to this agent.'
   },
   marketing:{
     name:'📡 MARKETING AGENT',
     desc:'Campaigns · Copy · Reports',
-    system:JELIX_BASE_SYSTEM+'\n\nROLE: Marketing specialist. Handle campaign briefs, copy, reports, content calendars for all Ideahub clients and Chainsmoker. No financial data.'
+    system:JOB_BASE_SYSTEM+'\n\nROLE: Marketing specialist. Handle campaign briefs, copy, reports, content calendars for all Ideahub clients and Chainsmoker. No financial data.'
   },
   business:{
     name:'◈ BUSINESS AGENT',
     desc:'TJC · Operations · Strategy',
-    system:JELIX_BASE_SYSTEM+'\n\nROLE: Business and venture strategy. Handle TJC operations, VA recruitment, partner management, J.O.B.S. framework, North American SMB positioning. No financial data.'
+    system:JOB_BASE_SYSTEM+'\n\nROLE: Business and venture strategy. Handle TJC operations, VA recruitment, partner management, J.O.B.S. framework, North American SMB positioning. No financial data.'
   },
   voice:{
     name:'◉ VOICE AGENT',
     desc:'Taglish commands · OS control',
-    system:JELIX_BASE_SYSTEM+'\n\nROLE: Voice command interpreter. Confirm actions taken, suggest follow-up commands, ultra-concise. Understands Taglish naturally.'
+    system:JOB_BASE_SYSTEM+'\n\nROLE: Voice command interpreter. Confirm actions taken, suggest follow-up commands, ultra-concise. Understands Taglish naturally.'
   },
   hr:{
     name:'👥 HR & PEOPLE AGENT',
     desc:'VA ops · TJC hiring · Onboarding',
-    system:JELIX_BASE_SYSTEM+'\n\nROLE: HR and people operations for The Job Collectives. VA hiring, onboarding, KPIs, shift scheduling. Rooted in Colossians 3:23 and J.O.B.S. values.'
+    system:JOB_BASE_SYSTEM+'\n\nROLE: HR and people operations for The Job Collectives. VA hiring, onboarding, KPIs, shift scheduling. Rooted in Colossians 3:23 and J.O.B.S. values.'
   },
   design:{
     name:'🎨 GRAPHIC DESIGN AGENT',
     desc:'Creatives · Layouts · Branding',
-    system:JELIX_BASE_SYSTEM+'\n\nROLE: Senior art director. Visual direction, creative briefs, brand guidelines for Ideahub clients (Chainsmoker, Millscope, Celtic Biotech, etc.) and TJC. Think in layouts and visual hierarchy.'
+    system:JOB_BASE_SYSTEM+'\n\nROLE: Senior art director. Visual direction, creative briefs, brand guidelines for Ideahub clients (Chainsmoker, Millscope, Celtic Biotech, etc.) and TJC. Think in layouts and visual hierarchy.'
   },
   faith:{
     name:'✝ FAITH AGENT',
     desc:'CAA · Buklod · Spiritual reflection',
-    system:JELIX_BASE_SYSTEM+'\n\nROLE: Faith companion. Support CAA congregation activities, Kapisanan Buklod scheduling, spiritual reflection, prayer journaling, and faith-driven decision-making grounded in scripture.'
+    system:JOB_BASE_SYSTEM+'\n\nROLE: Faith companion. Support CAA congregation activities, Kapisanan Buklod scheduling, spiritual reflection, prayer journaling, and faith-driven decision-making grounded in scripture.'
   }
 };
 
@@ -9838,33 +9889,33 @@ const GEMINI_ENDPOINT='http://localhost:8000/v1/agents/run';
 
 const AGENT_MAP={
   civic:    {name:'Civic',    desc:'Public Sector Product Optimizer & GovTech Analyst',
-    system:JELIX_BASE_SYSTEM+'\n\nROLE: You are Civic — Public Sector Product Optimizer and Enterprise GovTech Analyst. Specialize in government digital transformation, public sector procurement, GovTech product strategy, civic tech solutions, and enterprise-grade compliance frameworks. Help analyze government project opportunities, write procurement-ready briefs, and advise on policy-aligned digital products.'},
+    system:JOB_BASE_SYSTEM+'\n\nROLE: You are Civic — Public Sector Product Optimizer and Enterprise GovTech Analyst. Specialize in government digital transformation, public sector procurement, GovTech product strategy, civic tech solutions, and enterprise-grade compliance frameworks. Help analyze government project opportunities, write procurement-ready briefs, and advise on policy-aligned digital products.'},
   foodie:   {name:'Foodie',   desc:'F&B Brand Management & Local Store Marketing Strategist',
-    system:JELIX_BASE_SYSTEM+'\n\nROLE: You are Foodie — F&B Brand Management and Local Store Marketing Strategist. Specialize in restaurant marketing, food brand identity, UberEats/Grab Food optimization, seasonal campaign planning, menu engineering copy, and local store marketing for multi-branch F&B businesses. Primary clients include Chainsmoker Urban Halal BBQ (7 locations, Canada).'},
+    system:JOB_BASE_SYSTEM+'\n\nROLE: You are Foodie — F&B Brand Management and Local Store Marketing Strategist. Specialize in restaurant marketing, food brand identity, UberEats/Grab Food optimization, seasonal campaign planning, menu engineering copy, and local store marketing for multi-branch F&B businesses. Primary clients include Chainsmoker Urban Halal BBQ (7 locations, Canada).'},
   bloo:     {name:'Bloo',     desc:'Residential Systems · Interior Layout · Blueprint Analyzer',
-    system:JELIX_BASE_SYSTEM+'\n\nROLE: You are Bloo — Residential Systems and Interior Layout Planner. Specialize in interior design consultation, space planning, residential systems design, blueprint analysis, and home optimization. Help create room layout recommendations, space utilization strategies, and interior design briefs.'},
+    system:JOB_BASE_SYSTEM+'\n\nROLE: You are Bloo — Residential Systems and Interior Layout Planner. Specialize in interior design consultation, space planning, residential systems design, blueprint analysis, and home optimization. Help create room layout recommendations, space utilization strategies, and interior design briefs.'},
   rider:    {name:'Rider',    desc:'Moto-Logistics & Mobile Asset Maintenance Analyst',
-    system:JELIX_BASE_SYSTEM+'\n\nROLE: You are Rider — Moto-Logistics and Mobile Asset Maintenance Analyst. Specialize in motorcycle logistics operations, route optimization, mobile asset fleet management, preventive maintenance scheduling, and last-mile delivery systems. Help plan logistics operations and maintenance protocols.'},
+    system:JOB_BASE_SYSTEM+'\n\nROLE: You are Rider — Moto-Logistics and Mobile Asset Maintenance Analyst. Specialize in motorcycle logistics operations, route optimization, mobile asset fleet management, preventive maintenance scheduling, and last-mile delivery systems. Help plan logistics operations and maintenance protocols.'},
   vee:      {name:'Vee',      desc:'Ministry Framework Builder & Organizational Development Consultant',
-    system:JELIX_BASE_SYSTEM+'\n\nROLE: You are Vee — Ministry Framework Builder and Organizational Development Consultant. Specialize in faith-based organizational structures, ministry program design, leadership development frameworks, congregation engagement systems, and org chart planning for faith communities. Primary context: Kapisanan Buklod under CAA District of Metro Manila South, Iglesia ni Cristo.'},
+    system:JOB_BASE_SYSTEM+'\n\nROLE: You are Vee — Ministry Framework Builder and Organizational Development Consultant. Specialize in faith-based organizational structures, ministry program design, leadership development frameworks, congregation engagement systems, and org chart planning for faith communities. Primary context: Kapisanan Buklod under CAA District of Metro Manila South, Iglesia ni Cristo.'},
   axis:     {name:'Axis',     desc:'Master Systems Architect & Productivity Engine',
-    system:JELIX_BASE_SYSTEM+'\n\nROLE: You are Axis — Master Systems Architect and Productivity Engine. Specialize in personal operating system design, productivity frameworks, workflow automation, system architecture for tools and apps, and second-brain methodology. Help design and optimize J.O.B Systems itself, BUILD world apps, and productivity systems.'},
+    system:JOB_BASE_SYSTEM+'\n\nROLE: You are Axis — Master Systems Architect and Productivity Engine. Specialize in personal operating system design, productivity frameworks, workflow automation, system architecture for tools and apps, and second-brain methodology. Help design and optimize J.O.B Systems itself, BUILD world apps, and productivity systems.'},
   fin:      {name:'Fin',      desc:'Personal Infrastructure & Financial Systems Engineer',
-    system:JELIX_BASE_SYSTEM+'\n\nROLE: You are Fin — Personal Infrastructure and Financial Systems Engineer. Specialize in personal finance system design, cash flow structuring, budget frameworks, financial automation, and money management infrastructure. Help build and optimize the INACAY Cash Flow system and financial dashboards. Do NOT reveal specific peso amounts — structure systems only.'},
+    system:JOB_BASE_SYSTEM+'\n\nROLE: You are Fin — Personal Infrastructure and Financial Systems Engineer. Specialize in personal finance system design, cash flow structuring, budget frameworks, financial automation, and money management infrastructure. Help build and optimize the INACAY Cash Flow system and financial dashboards. Do NOT reveal specific peso amounts — structure systems only.'},
   rocket:   {name:'Rocket',   desc:'Digital Productization Engine & E-Commerce Conversion Strategist',
-    system:JELIX_BASE_SYSTEM+'\n\nROLE: You are Rocket — Digital Productization Engine and E-Commerce Conversion Strategist. Specialize in digital product development, e-commerce funnel optimization, conversion rate strategy, digital revenue streams, and online store growth. Help build and launch digital products on RaketPH, Etsy, and similar platforms.'},
+    system:JOB_BASE_SYSTEM+'\n\nROLE: You are Rocket — Digital Productization Engine and E-Commerce Conversion Strategist. Specialize in digital product development, e-commerce funnel optimization, conversion rate strategy, digital revenue streams, and online store growth. Help build and launch digital products on RaketPH, Etsy, and similar platforms.'},
   frame:    {name:'Frame',    desc:'Multi-Domain UI/UX Technical Architect and Systems Reviewer',
-    system:JELIX_BASE_SYSTEM+'\n\nROLE: You are Frame — Multi-Domain UI/UX Technical Architect and Systems Reviewer. Specialize in UI/UX architecture across multiple domains, design system creation, frontend code review, component structure planning, and cross-platform interface design. Review and improve web interfaces, HTML/CSS/JS apps, and design systems.'},
+    system:JOB_BASE_SYSTEM+'\n\nROLE: You are Frame — Multi-Domain UI/UX Technical Architect and Systems Reviewer. Specialize in UI/UX architecture across multiple domains, design system creation, frontend code review, component structure planning, and cross-platform interface design. Review and improve web interfaces, HTML/CSS/JS apps, and design systems.'},
   draft:    {name:'Draft',    desc:'Strategic Corporate Communications & Career Architect',
-    system:JELIX_BASE_SYSTEM+'\n\nROLE: You are Draft — Strategic Corporate Communications and Career Architect. Specialize in executive communications, professional writing, career positioning, LinkedIn strategy, personal brand narrative, proposal writing, and stakeholder communications. No dash punctuation in professional writing — use flowing prose. Help craft compelling professional narratives.'},
+    system:JOB_BASE_SYSTEM+'\n\nROLE: You are Draft — Strategic Corporate Communications and Career Architect. Specialize in executive communications, professional writing, career positioning, LinkedIn strategy, personal brand narrative, proposal writing, and stakeholder communications. No dash punctuation in professional writing — use flowing prose. Help craft compelling professional narratives.'},
   lens:     {name:'Lens',     desc:'Technical Image Generation & Art Director',
-    system:JELIX_BASE_SYSTEM+'\n\nROLE: You are Lens — Technical Image Generation and Art Director. Specialize in AI image generation prompting, art direction, visual creative briefs, photo art direction, brand visual identity, and creative direction for campaigns. Help craft precise image generation prompts and art direction documents for clients.'},
+    system:JOB_BASE_SYSTEM+'\n\nROLE: You are Lens — Technical Image Generation and Art Director. Specialize in AI image generation prompting, art direction, visual creative briefs, photo art direction, brand visual identity, and creative direction for campaigns. Help craft precise image generation prompts and art direction documents for clients.'},
   archi:    {name:'Archi',    desc:'B2B Growth & Marketing Architect for Enterprise Client Acquisition and Strategic Workforce Distribution',
-    system:JELIX_BASE_SYSTEM+'\n\nROLE: You are Archi — B2B Growth and Marketing Architect for enterprise client acquisition and strategic workforce distribution. Specialize in B2B lead generation, enterprise sales strategy, partnership development, workforce placement strategy, and growth architecture. Primary context: The Job Collectives (TJC) — Filipino-led VA agency targeting North American SMBs.'},
+    system:JOB_BASE_SYSTEM+'\n\nROLE: You are Archi — B2B Growth and Marketing Architect for enterprise client acquisition and strategic workforce distribution. Specialize in B2B lead generation, enterprise sales strategy, partnership development, workforce placement strategy, and growth architecture. Primary context: The Job Collectives (TJC) — Filipino-led VA agency targeting North American SMBs.'},
   pixel:    {name:'Pixel',    desc:'Multi-Domain UI/UX Technical Architect',
-    system:JELIX_BASE_SYSTEM+'\n\nROLE: You are Pixel — Multi-Domain UI/UX Technical Architect. Specialize in pixel-perfect UI implementation, design-to-code translation, multi-platform interface architecture, design tokens, and frontend component systems. Help translate design concepts into precise technical specifications and code.'},
+    system:JOB_BASE_SYSTEM+'\n\nROLE: You are Pixel — Multi-Domain UI/UX Technical Architect. Specialize in pixel-perfect UI implementation, design-to-code translation, multi-platform interface architecture, design tokens, and frontend component systems. Help translate design concepts into precise technical specifications and code.'},
   brandy:   {name:'Brandy',   desc:'Executive Branding Manager',
-    system:JELIX_BASE_SYSTEM+'\n\nROLE: You are Brandy — Executive Branding Manager. Specialize in personal executive brand strategy, brand voice development, brand guidelines creation, visual identity systems, brand positioning, and executive presence building. Help develop and maintain cohesive brand identities for Justine and her clients.'}
+    system:JOB_BASE_SYSTEM+'\n\nROLE: You are Brandy — Executive Branding Manager. Specialize in personal executive brand strategy, brand voice development, brand guidelines creation, visual identity systems, brand positioning, and executive presence building. Help develop and maintain cohesive brand identities for Justine and her clients.'}
 };
 
 let currentAgent='civic', conversation=[], isThinking=false;
@@ -9884,7 +9935,7 @@ function setAgent(id, el){
   const relevantMems=(DB.memories||[]).filter(m=>m.world===world||m.category==='Agent Preference');
   const memCount=document.getElementById('agentMemCount');
   if(memCount) memCount.textContent=relevantMems.length;
-  const hasKey=!!(localStorage.getItem('j-jelix-api-key')||localStorage.getItem('j-anthropic-key'));
+  const hasKey=!!(localStorage.getItem('j-JOB-api-key')||localStorage.getItem('j-anthropic-key'));
   if(!hasKey){
     // Show onboarding setup screen
     if(msgsEl) msgsEl.innerHTML=`
@@ -9977,7 +10028,7 @@ async function sendAI(){
   const todayEvs=(DB.calEvents||[]).filter(e=>e.date===today).slice(0,5);
   const osCtx=`\n\nLIVE OS DATA (as of ${today} PHT):\nOpen tasks: ${openTasks.length} total, ${highTasks.length} high priority${highTasks.length?': '+highTasks.map(t=>t.title).join(', '):''}\nToday's events: ${todayEvs.length?todayEvs.map(e=>(e.time?e.time.slice(0,5)+' ':'')+e.title).join(', '):'none'}\nClients: ${(DB.clients||[]).length} · Tasks done today: ${(DB.tasks||[]).filter(t=>t.status==='Done').length}`;
 
-  const apiKey=localStorage.getItem('j-jelix-api-key')||localStorage.getItem('j-anthropic-key')||'';
+  const apiKey=localStorage.getItem('j-JOB-api-key')||localStorage.getItem('j-anthropic-key')||'';
 
   if(!apiKey){
     // Fallback to local conversational engine when no key
@@ -10000,7 +10051,7 @@ async function sendAI(){
     });
     if(!msgs.length||msgs[msgs.length-1].role!=='user') msgs.push({role:'user',content:text});
 
-    const fullSystem=(a.system||JELIX_BASE_SYSTEM)+memCtx+osCtx;
+    const fullSystem=(a.system||JOB_BASE_SYSTEM)+memCtx+osCtx;
 
     const res=await fetch('https://api.anthropic.com/v1/messages',{
       method:'POST',
@@ -10157,8 +10208,8 @@ function autoResize(el){el.style.height='auto';el.style.height=Math.min(el.scrol
 function runAIBrief(){/* local engine only */}
 
 // Personal preference memory — adapts per session
-const JELIX_PREFS = JSON.parse(localStorage.getItem('j-ai-prefs')||'{}');
-function savePrefs(){ localStorage.setItem('j-ai-prefs',JSON.stringify(JELIX_PREFS)); }
+const JOB_PREFS = JSON.parse(localStorage.getItem('j-ai-prefs')||'{}');
+function savePrefs(){ localStorage.setItem('j-ai-prefs',JSON.stringify(JOB_PREFS)); }
 
 // CMD PALETTE
 const CMD_ITEMS=[
@@ -10698,7 +10749,7 @@ updateTicker();
 // ═══════════════════════════════════════════════════════════════════════════
 (function initAmbientLayer(){
   const cvs=document.createElement('canvas');
-  cvs.id='jelixAmbient';
+  cvs.id='JOBAmbient';
   cvs.style.cssText='position:fixed;inset:0;z-index:99996;pointer-events:none;';
   document.body.insertBefore(cvs,document.body.firstChild);
 
@@ -10792,8 +10843,8 @@ updateTicker();
 // ── Particle mode switcher — called by loadOS() after unlock ─────────────
 function setParticleMode(mode){
   // mode: 'auth' = full (lock/boot screens), 'os' = subtle (main dashboard)
-  const webgl = document.getElementById('jelixParticles');
-  const ambient = document.getElementById('jelixAmbient');
+  const webgl = document.getElementById('JOBParticles');
+  const ambient = document.getElementById('JOBAmbient');
   if(mode === 'os'){
     // WebGL: fade to very subtle via CSS opacity
     if(webgl){
@@ -10840,7 +10891,7 @@ function setParticleMode(mode){
 
   // ── Mount canvas behind everything ──────────────────────────────────────
   const canvas = document.createElement('canvas');
-  canvas.id = 'jelixParticles';
+  canvas.id = 'JOBParticles';
   canvas.style.cssText = 'position:fixed;inset:0;z-index:99997;pointer-events:none;';
   document.body.insertBefore(canvas, document.body.firstChild);
 
@@ -13060,23 +13111,23 @@ function learnFromConversation(userMsg, agentReply){
   // Detect explicit preference signals
   const msg=userMsg.toLowerCase();
   if(/too long|keep it short|be brief|mas maikli/i.test(msg)){
-    JELIX_PREFS.responseLength='brief';
+    JOB_PREFS.responseLength='brief';
     savePrefs();
   }
   if(/more detail|elaborate|explain more|dagdag/i.test(msg)){
-    JELIX_PREFS.responseLength='detailed';
+    JOB_PREFS.responseLength='detailed';
     savePrefs();
   }
   if(/speak (in )?tagalog|sa tagalog|mag[- ]?tagalog/i.test(msg)){
-    JELIX_PREFS.language='tagalog';
+    JOB_PREFS.language='tagalog';
     savePrefs();
   }
   if(/english (lang|only|please)|english na/i.test(msg)){
-    JELIX_PREFS.language='english';
+    JOB_PREFS.language='english';
     savePrefs();
   }
   if(/don'?t (repeat|say that again)|paulit[- ]ulit/i.test(msg)){
-    JELIX_PREFS.noRepeat=true;
+    JOB_PREFS.noRepeat=true;
     savePrefs();
   }
 }
@@ -13105,7 +13156,7 @@ console.log('[J.O.B Systems] JARVIS Intelligence Layer loaded — Skills 1–7 +
 
 // ═══════════════════════════════════════════════════════════════════════════
 // J.O.B. WAKE WORD — always-on passive listener
-// Activates voice mode when "jelix" is detected in any utterance
+// Activates voice mode when "JOB" is detected in any utterance
 // Runs a separate lightweight continuous recogniser at low sensitivity
 // ═══════════════════════════════════════════════════════════════════════════
 // ═══════════════════════════════════════════════════════════════════════════
@@ -13121,8 +13172,8 @@ console.log('[J.O.B Systems] JARVIS Intelligence Layer loaded — Skills 1–7 +
   if(!SR) return;
 
   const WAKE_TRIGGERS=[
-    /\bjelix\b/i,/\bjalix\b/i,/\bjellix\b/i,/\bhelix\b/i,
-    /\bhey jelix\b/i,/\bhi jelix\b/i,/\bok jelix\b/i
+    /\bJOB\b/i,/\bjalix\b/i,/\bjellix\b/i,/\bhelix\b/i,
+    /\bhey JOB\b/i,/\bhi JOB\b/i,/\bok JOB\b/i
   ];
 
   let wakeRec=null;
@@ -13147,7 +13198,7 @@ console.log('[J.O.B Systems] JARVIS Intelligence Layer loaded — Skills 1–7 +
           if(WAKE_TRIGGERS.some(r=>r.test(txt))){
             _safeChime('chimeNotify');
             if(!isRecording){
-              const rest=txt.replace(/\b(hey |hi |ok )?(jelix|jalix|jellix|helix)\b/i,'').trim();
+              const rest=txt.replace(/\b(hey |hi |ok )?(JOB|jalix|jellix|helix)\b/i,'').trim();
               toggleVoice();
               if(rest) setTimeout(()=>{ const el=document.getElementById('vTranscript');if(el)el.textContent=rest; },200);
             }
@@ -13198,7 +13249,7 @@ console.log('[J.O.B Systems] JARVIS Intelligence Layer loaded — Skills 1–7 +
     localStorage.setItem('j-wake-enabled', wakeEnabled?'1':'0');
     updateWakeToggleUI(wakeEnabled);
     if(wakeEnabled){
-      showToast('✓ Wake word ON — say "Jelix" to activate voice.');
+      showToast('✓ Wake word ON — say "JOB" to activate voice.');
       // Requires a user gesture to start mic — start immediately since
       // this function is called from a button click (valid user gesture)
       startWakeListener();
@@ -13219,7 +13270,7 @@ console.log('[J.O.B Systems] JARVIS Intelligence Layer loaded — Skills 1–7 +
     if(!btn) return;
     btn.style.color         = on?'var(--green)':'var(--text3)';
     btn.style.borderColor   = on?'var(--green)':'var(--border2)';
-    btn.title               = on?'Wake word ON (say Jelix)':'Wake word OFF — click to enable';
+    btn.title               = on?'Wake word ON (say JOB)':'Wake word OFF — click to enable';
     const icon=btn.querySelector('i');
     if(icon) icon.className = on?'ti ti-ear':'ti ti-ear-off';
   }
@@ -13265,7 +13316,7 @@ console.log('[J.O.B Systems] JARVIS Intelligence Layer loaded — Skills 1–7 +
 <div id="mobileSearchOverlay" style="display:none">
   <div class="mso-bar">
     <i class="ti ti-search" style="color:var(--text3);font-size:16px;flex-shrink:0"></i>
-    <input class="mso-input" id="mobileSearchInput" type="search" placeholder="Search JELIX..." autocomplete="off" oninput="runMobileSearch(this.value)">
+    <input class="mso-input" id="mobileSearchInput" type="search" placeholder="Search JOB..." autocomplete="off" oninput="runMobileSearch(this.value)">
     <button class="mso-close" onclick="closeMobileSearch()">×</button>
   </div>
   <div class="mso-results" id="mobileSearchResults">
@@ -13399,7 +13450,7 @@ console.log('[J.O.B Systems] JARVIS Intelligence Layer loaded — Skills 1–7 +
   }
 
   // Resolve sw.js relative to the current page path so it works in subfolders
-  // e.g. https://justineinacay.github.io/JELIXOS/sw.js
+  // e.g. https://justineinacay.github.io/JOBOS/sw.js
   var swPath = new URL('sw.js', location.href).href;
 
   // Verify sw.js exists before registering — avoids the console error when
@@ -13430,7 +13481,7 @@ console.log('[J.O.B Systems] JARVIS Intelligence Layer loaded — Skills 1–7 +
 
 <script>
 
-// === JELIX AUTO-SCHEDULER ===
+// === JOB AUTO-SCHEDULER ===
 // Morning Intelligence: daily 10AM | Weekly Synthesis: Monday 10AM
 (function(){
   function check(){
@@ -13503,7 +13554,7 @@ window.addEventListener('appinstalled', () => {
 (function(){
   const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
   const isInStandalone = window.navigator.standalone === true;
-  const shownKey = 'jelix-ios-install-shown';
+  const shownKey = 'JOB-ios-install-shown';
   if(isIOS && !isInStandalone && !localStorage.getItem(shownKey)){
     localStorage.setItem(shownKey, '1');
     setTimeout(() => {
