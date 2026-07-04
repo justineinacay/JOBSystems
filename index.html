@@ -2096,13 +2096,13 @@ select option{background:var(--navy3)}
 
 /* ── Table body (inherits .ht styles) ──────────────────────── */
 .task-group-body{overflow-x:auto;-webkit-overflow-scrolling:touch}
-.board-table{width:100%;border-collapse:collapse;font-size:var(--text-sm);min-width:900px;line-height:1.5}
-.board-table thead th{text-align:left;padding:6px 10px;font-size:var(--text-xs);font-weight:700;letter-spacing:.09em;color:var(--text3);border-bottom:1px solid var(--border);text-transform:uppercase;white-space:nowrap;background:var(--navy2);position:sticky;top:0;z-index:2;cursor:pointer;user-select:none}
+.board-table{width:100%;border-collapse:collapse;font-size:12px;min-width:900px;line-height:1.5;table-layout:fixed}
+.board-table thead th{text-align:left;padding:6px 10px;font-size:11px;font-weight:700;letter-spacing:.09em;color:var(--text3);border-bottom:1px solid var(--border);text-transform:uppercase;white-space:nowrap;background:var(--navy2);position:sticky;top:0;z-index:2;cursor:pointer;user-select:none}
 .board-table thead th:hover{color:var(--teal)}
 .board-table thead th .sort-arrow{margin-left:4px;opacity:.4;font-size:var(--text-xs)}
 .board-table thead th.sort-asc .sort-arrow::after{content:'↑';opacity:1}
 .board-table thead th.sort-desc .sort-arrow::after{content:'↓';opacity:1}
-.board-table td{padding:6px 10px;border-bottom:1px solid var(--border);color:var(--text1);vertical-align:middle;white-space:nowrap;max-width:220px;overflow:hidden;text-overflow:ellipsis;font-size:var(--text-sm)}
+.board-table td{padding:6px 10px;border-bottom:1px solid var(--border);color:var(--text1);vertical-align:middle;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:12px}
 .board-table tr.item-row{cursor:pointer;transition:background .1s}
 .board-table tr.item-row:hover td{background:var(--teal4)}
 .board-table tr.item-row.selected td{background:rgba(128,255,250,.06);outline:1px solid var(--teal2)}
@@ -4395,7 +4395,8 @@ function renderSideNav(){
     const dotOrBtn=isCustom
       ?('<button onclick="event.stopPropagation();deleteWorld(\''+w.id+'\')" style="margin-left:auto;background:transparent;border:none;color:var(--text3);cursor:pointer;font-size:var(--text-xs);padding:2px 4px;opacity:.5;transition:opacity .15s" onmouseover="this.style.opacity=\'1\'" onmouseout="this.style.opacity=\'.5\'" title="Delete world"><i class="ti ti-x" style="font-size:var(--text-xs);line-height:1;display:block"></i></button>')
       :('<div style="width:5px;height:5px;border-radius:50%;background:'+colorVal+';margin-left:auto;flex-shrink:0"></div>');
-    return '<div class="ni" onclick="setView(\''+w.id+'\')" data-view="'+w.id+'" style="position:relative"><i class="ti '+(w.icon||'ti-star')+'" style="color:'+colorVal+'"></i>'+w.label+dotOrBtn+'</div>';
+    return '<div class="ni world-ni" onclick="setView(\''+w.id+'\')" data-view="'+w.id+'" style="position:relative;--ni-color:'+colorVal+'">'
+      +'<i class="ti '+(w.icon||'ti-star')+'" style="color:'+colorVal+'"></i>'+w.label+dotOrBtn+'</div>';
   }).join('');
   // Sync active state
   document.querySelectorAll('[data-view]').forEach(function(el){el.classList.toggle('active',el.dataset.view===currentView);});
@@ -6228,18 +6229,17 @@ function renderBoardTable(tasks){
   const el=document.getElementById('boardBody');
   if(!el)return;
 
-  // Dynamic columns
+  // Equalized column widths — no auto stretch
   const cols=[
-    {key:'title',    label:'Item',      w:'auto',   sortable:true},
-    {key:'world',    label:'Board',     w:'100px',  sortable:true},
+    {key:'title',    label:'Item',      w:'280px',  sortable:true},
+    {key:'world',    label:'Board',     w:'110px',  sortable:true},
     {key:'client',   label:'Person',    w:'120px',  sortable:true},
     {key:'priority', label:'Priority',  w:'90px',   sortable:true},
-    {key:'status',   label:'Status',    w:'120px',  sortable:true},
-    ...(boardColVis.timeline?[{key:'timeline',label:'Timeline',w:'200px',sortable:false}]:[]),
+    {key:'status',   label:'Status',    w:'110px',  sortable:true},
     {key:'due',      label:'Deadline',  w:'100px',  sortable:true},
     ...(boardColVis.time?[{key:'startTime',label:'Time',w:'90px',sortable:false}]:[]),
     {key:'platform', label:'Platform',  w:'100px',  sortable:true},
-    {key:'_actions', label:'',          w:'40px',   sortable:false},
+    {key:'_actions', label:'',          w:'42px',   sortable:false},
   ];
   const cc=cols.length;
 
@@ -6276,23 +6276,22 @@ function renderBoardTable(tasks){
           const sel=selectedTaskIds.has(t.id);
           const hasSubs=(t.subitems||[]).length;
           const expanded=subitemExpanded.has(t.id);
-          tbodyHtml+=`<tr class="item-row${sel?' selected':''}" onclick="editTask(${t.id})" oncontextmenu="showCtx(event,${t.id},'task')">
-            <td style="font-weight:500;max-width:220px">
-              <div style="display:flex;align-items:center;gap:6px">
+          tbodyHtml+=`<tr class="item-row${sel?' selected':''}" onclick="editTask(${t.id})" oncontextmenu="showCtx(event,${t.id},'task')" style="font-size:12px">
+            <td style="font-weight:600;width:280px;max-width:280px">
+              <div style="display:flex;align-items:center;gap:6px;overflow:hidden">
                 ${hasSubs?`<button class="subitem-toggle-btn" onclick="event.stopPropagation();toggleSubitems(${t.id})">${expanded?'▾':'▸'}</button>`:'<span style="width:14px;display:inline-block;flex-shrink:0"></span>'}
-                <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${t.title}</span>
-                ${t.priority==='High'?'<span style="color:var(--red);font-size:var(--text-xs);flex-shrink:0">!</span>':''}
+                <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1">${t.title}</span>
+                ${t.priority==='High'?'<span style="color:var(--red);font-size:11px;flex-shrink:0">!</span>':''}
               </div>
             </td>
-            <td>${worldPill(t)}</td>
-            <td style="font-size:var(--text-xs);color:var(--text3)">${t.client||'—'}</td>
-            <td><span style="display:flex;align-items:center;gap:4px"><div class="pdot ${t.priority==='High'?'ph':t.priority==='Medium'?'pm':'pl'}"></div>${t.priority||'—'}</span></td>
-            <td><span class="pill ${t.status==='Done'?'pg':t.status==='In Progress'?'pt':t.status==='No Progress'?'pam':'pgr'}">${t.status}</span></td>
-            ${boardColVis.timeline?`<td style="min-width:180px">${timelineBar(t)}</td>`:''}
-            <td style="font-size:var(--text-xs);color:var(--text3)">${t.due||'—'}</td>
-            ${boardColVis.time?`<td style="font-size:var(--text-xs);color:var(--text3)">${t.startTime?t.startTime.substring(0,5)+(t.endTime?' – '+t.endTime.substring(0,5):''):'—'}</td>`:''}
-            <td style="font-size:var(--text-xs);color:var(--text3);white-space:nowrap">${t.platform||'—'}</td>
-            <td onclick="event.stopPropagation()"><button class="btn btn-d" style="padding:2px 7px" onclick="deleteTask(event,${t.id})"><i class="ti ti-trash" style="font-size:var(--text-xs);line-height:1;display:block"></i></button></td>
+            <td style="width:110px">${worldPill(t)}</td>
+            <td style="width:120px;color:var(--text3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${t.client||'—'}</td>
+            <td style="width:90px"><span style="display:flex;align-items:center;gap:4px"><div class="pdot ${t.priority==='High'?'ph':t.priority==='Medium'?'pm':'pl'}"></div>${t.priority||'—'}</span></td>
+            <td style="width:110px"><span class="pill ${t.status==='Done'?'pg':t.status==='In Progress'?'pt':t.status==='No Progress'?'pam':'pgr'}">${t.status}</span></td>
+            <td style="width:100px;color:var(--text3)">${t.due||'—'}</td>
+            ${boardColVis.time?`<td style="width:90px;color:var(--text3)">${t.startTime?t.startTime.substring(0,5)+(t.endTime?' – '+t.endTime.substring(0,5):''):'—'}</td>`:''}
+            <td style="width:100px;color:var(--text3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${t.platform||'—'}</td>
+            <td style="width:42px" onclick="event.stopPropagation()"><button class="btn btn-d" style="padding:2px 7px" onclick="deleteTask(event,${t.id})"><i class="ti ti-trash" style="font-size:11px;line-height:1;display:block"></i></button></td>
           </tr>
           ${renderSubitemRows(t,cc)}`;
         });
@@ -6305,7 +6304,7 @@ function renderBoardTable(tasks){
 
   if(!tasks.length) tbodyHtml+='<tr><td colspan="'+cc+'" style="padding:32px;text-align:center;color:var(--text3);font-size:var(--text-sm)">No tasks match the current filters, sir.</td></tr>';
 
-  el.innerHTML='<div style="overflow:auto;flex:1;height:100%"><table class="board-table" style="min-width:700px"><thead>'+thead+'</thead><tbody>'+tbodyHtml+'</tbody></table></div>';
+  el.innerHTML='<div style="overflow:auto;flex:1;height:100%"><table class="board-table" style="min-width:1000px;table-layout:fixed;width:100%"><thead>'+thead+'</thead><tbody>'+tbodyHtml+'</tbody></table></div>';
 }
 
 // ── KANBAN VIEW (upgraded with subitems + timeline + connected) ────────────
@@ -8907,14 +8906,33 @@ function openMeetingReview(transcript,world){
   const actEl=document.getElementById('mr-actions');
   if(actEl){
     if(extracted.actionItems.length){
-      actEl.innerHTML=extracted.actionItems.map((a,i)=>`
-        <div style="display:flex;align-items:center;gap:7px;padding:5px 8px;background:#050a12;border:1px solid var(--border);border-radius:3px">
-          <input type="checkbox" checked id="mra-${i}" style="accent-color:var(--teal);flex-shrink:0">
-          <input value="${a.text.replace(/"/g,'&quot;')}" id="mrat-${i}" style="flex:1;background:transparent;border:none;color:var(--text1);font-size:var(--text-xs);outline:none">
-          <button onclick="this.parentElement.remove()" style="background:transparent;border:none;color:var(--text3);cursor:pointer;font-size:var(--text-xs)">×</button>
-        </div>`).join('');
+      actEl.innerHTML=extracted.actionItems.map((a,i)=>{
+        const id='ai-ext-'+i;
+        return`<div class="meet-action-row" id="mar-${id}" style="margin-bottom:4px">
+          <div style="display:flex;align-items:flex-start;gap:8px;padding:7px 10px;background:#050a12;border:1px solid var(--border);border-radius:4px">
+            <input type="checkbox" checked id="mra-${id}" style="accent-color:var(--teal);flex-shrink:0;margin-top:2px;width:14px;height:14px;cursor:pointer">
+            <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:5px">
+              <input value="${a.text.replace(/"/g,'&quot;')}" id="mrat-${id}"
+                style="width:100%;background:transparent;border:none;border-bottom:1px solid var(--border2);color:var(--text1);font-size:12px;outline:none;padding:1px 0 4px"
+                onfocus="this.style.borderBottomColor='var(--teal)'" onblur="this.style.borderBottomColor='var(--border2)'">
+              <div id="mrad-wrap-${id}" style="display:none">
+                <textarea id="mrad-${id}" placeholder="Details..." rows="2"
+                  style="width:100%;background:rgba(0,0,0,.2);border:1px solid var(--border);border-radius:3px;color:var(--text2);font-size:11px;outline:none;padding:5px 7px;resize:vertical;font-family:var(--font)"></textarea>
+              </div>
+              <div style="display:flex;align-items:center;gap:8px">
+                <button onclick="document.getElementById('mrad-wrap-${id}').style.display=document.getElementById('mrad-wrap-${id}').style.display==='none'?'':'none';this.textContent=document.getElementById('mrad-wrap-${id}').style.display==='none'?'+ details':'− details'"
+                  style="background:transparent;border:none;color:var(--text3);font-size:11px;cursor:pointer;padding:0">+ details</button>
+                <select id="mraa-${id}" style="font-size:11px;background:var(--navy3);border:1px solid var(--border);border-radius:3px;color:var(--text3);padding:1px 5px">
+                  <option value="">Assign to...</option><option>Me</option><option>Client</option><option>Team</option>
+                </select>
+              </div>
+            </div>
+            <button onclick="document.getElementById('mar-${id}').remove()" style="background:transparent;border:none;color:var(--text3);cursor:pointer;flex-shrink:0;padding:2px 4px;font-size:13px;line-height:1">×</button>
+          </div>
+        </div>`;
+      }).join('');
     } else {
-      actEl.innerHTML='<div style="font-size:var(--text-xs);color:var(--text3);font-style:italic">None detected. Click + Add to enter manually.</div>';
+      actEl.innerHTML='<div class="meet-action-empty" style="font-size:11px;color:var(--text3);font-style:italic;padding:4px">None detected. Click + Add to enter manually.</div>';
     }
   }
   // Decisions
@@ -8952,12 +8970,10 @@ async function enhanceMeetingSummaryWithAI(transcript,apiKey){
     if(json.summary) document.getElementById('mr-summary').value=json.summary;
     if(json.actionItems?.length){
       const actEl=document.getElementById('mr-actions');
-      if(actEl) actEl.innerHTML=json.actionItems.map((a,i)=>`
-        <div style="display:flex;align-items:center;gap:7px;padding:5px 8px;background:#050a12;border:1px solid var(--border);border-radius:3px">
-          <input type="checkbox" checked id="mra-${i}" style="accent-color:var(--teal);flex-shrink:0">
-          <input value="${a.replace(/"/g,'&quot;')}" id="mrat-${i}" style="flex:1;background:transparent;border:none;color:var(--text1);font-size:var(--text-xs);outline:none">
-          <button onclick="this.parentElement.remove()" style="background:transparent;border:none;color:var(--text3);cursor:pointer;font-size:var(--text-xs)">×</button>
-        </div>`).join('');
+      if(actEl) actEl.innerHTML=json.actionItems.map((a,idx)=>{
+        const id='ai-ai-'+idx;
+        return`<div class="meet-action-row" id="mar-${id}" style="margin-bottom:4px"><div style="display:flex;align-items:flex-start;gap:8px;padding:7px 10px;background:#050a12;border:1px solid var(--border);border-radius:4px"><input type="checkbox" checked id="mra-${id}" style="accent-color:var(--teal);flex-shrink:0;margin-top:2px;width:14px;height:14px;cursor:pointer"><div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:4px"><input value="${(a||'').replace(/"/g,'&quot;')}" id="mrat-${id}" style="width:100%;background:transparent;border:none;border-bottom:1px solid var(--border2);color:var(--text1);font-size:12px;outline:none;padding:1px 0 4px"></div><button onclick="document.getElementById('mar-${id}').remove()" style="background:transparent;border:none;color:var(--text3);cursor:pointer;flex-shrink:0;font-size:13px;line-height:1">×</button></div></div>`;
+      }).join('');
       showToast('✓ AI enhanced your meeting summary');
     }
   }catch(e){/* fail silently — regex fallback already populated */}
@@ -8965,11 +8981,36 @@ async function enhanceMeetingSummaryWithAI(transcript,apiKey){
 
 function addMeetingActionItem(){
   const actEl=document.getElementById('mr-actions');if(!actEl)return;
-  const i=Date.now();
+  const i='ai-'+Date.now();
   const row=document.createElement('div');
-  row.style.cssText='display:flex;align-items:center;gap:7px;padding:5px 8px;background:#050a12;border:1px solid var(--border);border-radius:3px';
-  row.innerHTML=`<input type="checkbox" checked id="mra-${i}" style="accent-color:var(--teal);flex-shrink:0"><input placeholder="Action item..." id="mrat-${i}" style="flex:1;background:transparent;border:none;color:var(--text1);font-size:var(--text-xs);outline:none"><button onclick="this.parentElement.remove()" style="background:transparent;border:none;color:var(--text3);cursor:pointer;font-size:var(--text-xs)">×</button>`;
-  actEl.appendChild(row);row.querySelector('input[type=text],input:not([type])').focus();
+  row.className='meet-action-row';
+  row.id='mar-'+i;
+  row.innerHTML=`
+    <div style="display:flex;align-items:flex-start;gap:8px;padding:7px 10px;background:#050a12;border:1px solid var(--border);border-radius:4px;margin-bottom:4px">
+      <input type="checkbox" checked id="mra-${i}" style="accent-color:var(--teal);flex-shrink:0;margin-top:2px;width:14px;height:14px;cursor:pointer">
+      <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:5px">
+        <input placeholder="Action item..." id="mrat-${i}"
+          style="width:100%;background:transparent;border:none;border-bottom:1px solid var(--border2);color:var(--text1);font-size:12px;outline:none;padding:1px 0 4px"
+          onfocus="this.style.borderBottomColor='var(--teal)'" onblur="this.style.borderBottomColor='var(--border2)'">
+        <div id="mrad-wrap-${i}" style="display:none">
+          <textarea id="mrad-${i}" placeholder="Details, context, or notes..." rows="2"
+            style="width:100%;background:rgba(0,0,0,.2);border:1px solid var(--border);border-radius:3px;color:var(--text2);font-size:11px;outline:none;padding:5px 7px;resize:vertical;font-family:var(--font)"></textarea>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <button onclick="document.getElementById('mrad-wrap-${i}').style.display=document.getElementById('mrad-wrap-${i}').style.display==='none'?'':'none';this.textContent=document.getElementById('mrad-wrap-${i}').style.display==='none'?'+ details':'− details'"
+            style="background:transparent;border:none;color:var(--text3);font-size:11px;cursor:pointer;padding:0">+ details</button>
+          <select id="mraa-${i}" style="font-size:11px;background:var(--navy3);border:1px solid var(--border);border-radius:3px;color:var(--text3);padding:1px 5px">
+            <option value="">Assign to...</option>
+            <option>Me</option><option>Client</option><option>Team</option>
+          </select>
+        </div>
+      </div>
+      <button onclick="document.getElementById('mar-${i}').remove()" style="background:transparent;border:none;color:var(--text3);cursor:pointer;flex-shrink:0;padding:2px 4px;font-size:13px;line-height:1">×</button>
+    </div>`;
+  // Remove empty-state placeholder if present
+  const empty=actEl.querySelector('.meet-action-empty');if(empty)empty.remove();
+  actEl.appendChild(row);
+  row.querySelector('input[type=text],input:not([type=checkbox]):not([type=button])').focus();
 }
 
 function saveMeetingApproved(){
@@ -8979,14 +9020,21 @@ function saveMeetingApproved(){
   const transcript=document.getElementById('mr-transcript').value.trim();
   const today=new Date().toISOString().split('T')[0];
 
-  // Collect checked action items
+  // Collect checked action items from new checklist structure
   const actionItems=[];
-  document.querySelectorAll('#mr-actions [id^="mra-"]').forEach(cb=>{
-    if(cb.checked){
-      const idx=cb.id.replace('mra-','');
-      const txt=(document.getElementById('mrat-'+idx)||{}).value?.trim();
-      if(txt) actionItems.push({text:txt,done:false});
-    }
+  document.querySelectorAll('#mr-actions .meet-action-row').forEach(row=>{
+    const cb=row.querySelector('input[type="checkbox"]');
+    if(!cb||!cb.checked) return;
+    const titleInput=row.querySelector('input:not([type="checkbox"])');
+    const detailInput=row.querySelector('textarea');
+    const assignInput=row.querySelector('select');
+    const txt=titleInput?.value?.trim();
+    if(txt) actionItems.push({
+      text:txt,
+      details:detailInput?.value?.trim()||'',
+      assignedTo:assignInput?.value||'',
+      done:false
+    });
   });
 
   const m={
@@ -12621,9 +12669,36 @@ window.executeVoiceCommand=function(rawText){
     #claudeMDBody textarea:focus{border-color:var(--teal);box-shadow:0 0 8px rgba(0,255,242,.15)}
 
     /* Intelligence nav group glow */
-    .ngl~.ni[data-view^="jarvis"]:hover{background:rgba(168,85,247,.08);color:var(--purple);border-left-color:var(--purple)}
-    .ngl~.ni[data-view^="jarvis"].active{background:rgba(168,85,247,.1);color:var(--purple);border-left-color:var(--purple);font-weight:700}
-    .ngl~.ni[data-view^="jarvis"].active::after{color:var(--purple)}
+/* ── Nav: world-specific active highlight colors ── */
+.ni[data-view="work-ih"]:hover,.ni[data-view="work-ih"].active{background:rgba(255,140,0,.08);color:var(--w-ideahub);border-left-color:var(--w-ideahub)}
+.ni[data-view="work-ih"].active::after{color:var(--w-ideahub)}
+.ni[data-view="work-cs"]:hover,.ni[data-view="work-cs"].active{background:rgba(128,255,250,.06);color:var(--w-chainsmoker);border-left-color:var(--w-chainsmoker)}
+.ni[data-view="work-cs"].active::after{color:var(--w-chainsmoker)}
+.ni[data-view="venture"]:hover,.ni[data-view="venture"].active{background:rgba(59,130,246,.08);color:var(--w-venture);border-left-color:var(--w-venture)}
+.ni[data-view="venture"].active::after{color:var(--w-venture)}
+.ni[data-view="build"]:hover,.ni[data-view="build"].active{background:rgba(16,185,129,.08);color:var(--w-build);border-left-color:var(--w-build)}
+.ni[data-view="build"].active::after{color:var(--w-build)}
+.ni[data-view="sides"]:hover,.ni[data-view="sides"].active{background:rgba(245,158,11,.08);color:var(--w-sides);border-left-color:var(--w-sides)}
+.ni[data-view="sides"].active::after{color:var(--w-sides)}
+.ni[data-view="faith"]:hover,.ni[data-view="faith"].active{background:rgba(239,68,68,.08);color:var(--w-faith);border-left-color:var(--w-faith)}
+.ni[data-view="faith"].active::after{color:var(--w-faith)}
+.ni[data-view="life"]:hover,.ni[data-view="life"].active{background:rgba(139,92,246,.08);color:var(--w-life);border-left-color:var(--w-life)}
+.ni[data-view="life"].active::after{color:var(--w-life)}
+/* Command / dashboard items — teal default */
+.ni[data-view="dashboard"]:hover,.ni[data-view="dashboard"].active{background:rgba(0,255,242,.07);color:var(--teal);border-left-color:var(--teal)}
+.ni[data-view="tasks"]:hover,.ni[data-view="tasks"].active{background:rgba(0,255,242,.07);color:var(--teal);border-left-color:var(--teal)}
+.ni[data-view="notes"]:hover,.ni[data-view="notes"].active{background:rgba(0,255,242,.07);color:var(--teal);border-left-color:var(--teal)}
+.ni[data-view="calendar"]:hover,.ni[data-view="calendar"].active{background:rgba(0,255,242,.07);color:var(--teal);border-left-color:var(--teal)}
+.ni[data-view="ai"]:hover,.ni[data-view="ai"].active{background:rgba(0,255,242,.07);color:var(--teal);border-left-color:var(--teal)}
+.ni[data-view="memory"]:hover,.ni[data-view="memory"].active{background:rgba(0,255,242,.07);color:var(--teal);border-left-color:var(--teal)}
+.ni[data-view="history"]:hover,.ni[data-view="history"].active{background:rgba(0,255,242,.07);color:var(--teal);border-left-color:var(--teal)}
+/* Intelligence section — purple */
+.ni[data-view^="jarvis"]:hover,.ni[data-view^="jarvis"].active{background:rgba(168,85,247,.08);color:var(--purple);border-left-color:var(--purple)}
+.ni[data-view^="jarvis"].active::after{color:var(--purple)}
+/* Dynamic world nav items — inherit --ni-color set per item */
+.ni.world-ni:hover{background:color-mix(in srgb,var(--ni-color,var(--teal)) 8%,transparent);color:var(--ni-color,var(--teal));border-left-color:var(--ni-color,var(--teal))}
+.ni.world-ni.active{background:color-mix(in srgb,var(--ni-color,var(--teal)) 10%,transparent);color:var(--ni-color,var(--teal));border-left-color:var(--ni-color,var(--teal));font-weight:700}
+.ni.world-ni.active::after{color:var(--ni-color,var(--teal))}
 
     /* Morning brief amber accent */
     #view-jarvis-morning .vh{border-bottom-color:var(--orange2)}
