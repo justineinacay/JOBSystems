@@ -2182,14 +2182,12 @@ select option{background:var(--navy3)}
       </div>
       <div class="fr">
         <div class="fg"><label class="fl">Status</label><select id="tf-status"><option>Todo</option><option>In Progress</option><option>No Progress</option><option>Done</option></select></div>
-        <div class="fg"><label class="fl">Deadline</label><input type="date" id="tf-due"></div>
+        <div class="fg"><label class="fl">Start Date</label><input type="date" id="tf-start-date"></div>
+        <div class="fg"><label class="fl">Deadline (End)</label><input type="date" id="tf-due"></div>
       </div>
       <div class="fr">
         <div class="fg"><label class="fl">Start Time</label><input type="time" id="tf-start-time"></div>
         <div class="fg"><label class="fl">End Time</label><input type="time" id="tf-end-time"></div>
-        <div class="fg"><label class="fl"># Value</label><input type="number" id="tf-num" placeholder="e.g. hours, revenue…" style="width:100%"></div>
-      </div>
-      <div class="fr">
       </div>
       <div class="fr">
         <div class="fg"><label class="fl">Platform</label><input id="tf-platform" placeholder="e.g. Instagram, Facebook..."></div>
@@ -2430,9 +2428,14 @@ select option{background:var(--navy3)}
     <div class="mh"><div class="mt" id="calModalTitle">ADD EVENT</div><button class="mc" onclick="closeModal('calModal')">×</button></div>
     <div class="mb">
       <div class="fg"><label class="fl">Title</label><input id="ce-title" placeholder="Event title..."></div>
+      <!-- Start: date + time -->
       <div class="fr">
-        <div class="fg"><label class="fl">Date</label><input type="date" id="ce-date"></div>
+        <div class="fg"><label class="fl">Start Date</label><input type="date" id="ce-date" oninput="syncEndDateMin()"></div>
         <div class="fg"><label class="fl">Start Time</label><select id="ce-time"></select></div>
+      </div>
+      <!-- End: date + time -->
+      <div class="fr">
+        <div class="fg"><label class="fl">End Date</label><input type="date" id="ce-end-date" oninput="checkOvernightFromDates()"></div>
         <div class="fg"><label class="fl">End Time</label><select id="ce-end-time"></select></div>
       </div>
       <div class="fr">
@@ -6719,13 +6722,13 @@ let editingTaskId=null;
 function saveTask(){
   const startTime=document.getElementById('tf-start-time')?.value||'';
   const endTime=document.getElementById('tf-end-time')?.value||'';
+  const startDate=document.getElementById('tf-start-date')?.value||'';
   const existing=editingTaskId?DB.tasks.find(x=>x.id===editingTaskId):{};
-  const t={id:editingTaskId||Date.now(),title:document.getElementById('tf-title').value.trim()||'Untitled Task',world:document.getElementById('tf-world').value,priority:document.getElementById('tf-prio').value,status:document.getElementById('tf-status').value,due:document.getElementById('tf-due').value,platform:document.getElementById('tf-platform').value.trim(),client:document.getElementById('tf-client').value.trim(),notes:document.getElementById('tf-notes').value,startTime,endTime,
-    // Monday.com schema fields (preserved on edit, defaults on create)
+  const t={id:editingTaskId||Date.now(),title:document.getElementById('tf-title').value.trim()||'Untitled Task',world:document.getElementById('tf-world').value,priority:document.getElementById('tf-prio').value,status:document.getElementById('tf-status').value,startDate,due:document.getElementById('tf-due').value,platform:document.getElementById('tf-platform').value.trim(),client:document.getElementById('tf-client').value.trim(),notes:document.getElementById('tf-notes').value,startTime,endTime,
     groupId:    existing.groupId    || null,
     subitems:   existing.subitems   || [],
-    timelineS:  document.getElementById('tf-timeline-s')?.value || existing.timelineS || '',
-    timelineE:  document.getElementById('tf-timeline-e')?.value || existing.timelineE || '',
+    timelineS:  startDate || existing.timelineS || '',
+    timelineE:  document.getElementById('tf-due')?.value || existing.timelineE || '',
     numValue:   parseFloat(document.getElementById('tf-num')?.value)||existing.numValue||null,
     connBoard:  existing.connBoard  || null,
     connItemId: existing.connItemId || null,
@@ -6755,6 +6758,7 @@ function editTask(id){
   document.getElementById('tf-prio').value=t.priority;
   document.getElementById('tf-status').value=t.status;
   document.getElementById('tf-due').value=t.due||'';
+  const sdEl=document.getElementById('tf-start-date');if(sdEl)sdEl.value=t.startDate||t.timelineS||'';
   document.getElementById('tf-platform').value=t.platform||'';
   document.getElementById('tf-client').value=t.client||'';
   document.getElementById('tf-notes').value=t.notes||'';
@@ -8702,6 +8706,17 @@ function toggleRecurOptions(){
   if(daysWrap&&custUnit) daysWrap.style.display=(v==='custom'&&custUnit.value==='week')?'flex':'none';
   if(custUnit&&!custUnit._patched){custUnit._patched=true;custUnit.addEventListener('change',()=>{if(daysWrap)daysWrap.style.display=custUnit.value==='week'?'flex':'none';});}
 }
+function syncEndDateMin(){
+  const sd=document.getElementById('ce-date')?.value;
+  const ed=document.getElementById('ce-end-date');
+  if(sd&&ed){ed.min=sd;if(!ed.value||ed.value<sd)ed.value=sd;}
+}
+function checkOvernightFromDates(){
+  const sd=document.getElementById('ce-date')?.value;
+  const ed=document.getElementById('ce-end-date')?.value;
+  const overnightCb=document.getElementById('ce-overnight');
+  if(sd&&ed&&overnightCb) overnightCb.checked=ed>sd;
+}
 function toggleAllDay(){
   const isAllDay=document.getElementById('ce-allday')?.checked;
   const tf=document.getElementById('ce-time');
@@ -8729,22 +8744,25 @@ function toggleReminderInput(){
 }
 function toggleCalEntryType(){}
 function saveCalEvent(){
-  const rawDate=document.getElementById('ce-date').value||selectedCalDate;
+  const rawDate=document.getElementById('ce-date').value||selectedCalDate||new Date().toISOString().split('T')[0];
   const allDay=document.getElementById('ce-allday')?.checked||false;
-  // Auto-detect overnight — if endTime < startTime, it crosses midnight
-  let overnight=document.getElementById('ce-overnight')?.checked||false;
-  if(startTimeVal&&endTimeVal&&!overnight){
-    const[sh,sm]=startTimeVal.split(':').map(Number);
-    const[eh,em]=endTimeVal.split(':').map(Number);
-    if(eh*60+em<=sh*60+sm) overnight=true;
-  }
+  // Read times FIRST before using them
   const startTimeVal=allDay?'':document.getElementById('ce-time')?.value||'';
   const endTimeVal=allDay?'':document.getElementById('ce-end-time')?.value||'';
-  let endDate=rawDate;
-  if(overnight&&startTimeVal&&endTimeVal){
-    const [sh,sm]=startTimeVal.split(':').map(Number);
-    const [eh,em]=endTimeVal.split(':').map(Number);
-    if(eh*60+em<=sh*60+sm){const d=new Date(rawDate+'T00:00:00');d.setDate(d.getDate()+1);endDate=d.toISOString().split('T')[0];}
+  // Read end date — if explicitly set use it, otherwise auto-detect overnight
+  let endDate=document.getElementById('ce-end-date')?.value||rawDate;
+  let overnight=document.getElementById('ce-overnight')?.checked||false;
+  if(startTimeVal&&endTimeVal){
+    const[sh,sm]=startTimeVal.split(':').map(Number);
+    const[eh,em]=endTimeVal.split(':').map(Number);
+    if(eh*60+em<=sh*60+sm){
+      overnight=true;
+      // Only auto-advance endDate if not manually set
+      if(!document.getElementById('ce-end-date')?.value||endDate===rawDate){
+        const d=new Date(rawDate+'T00:00:00');d.setDate(d.getDate()+1);
+        endDate=d.toISOString().split('T')[0];
+      }
+    }
   }
   const remMin=parseInt(document.getElementById('ce-remind-min')?.value||30,10);
   const alsoTask=document.getElementById('ce-also-task')?.checked||false;
@@ -8754,6 +8772,7 @@ function saveCalEvent(){
     id:calEditingId||Date.now(),
     title:document.getElementById('ce-title').value.trim()||'Event',
     date:rawDate,
+    endDate:endDate!==rawDate?endDate:'',
     time:startTimeVal,endTime:endTimeVal,
     type:document.getElementById('ce-type').value||'lif',
     loc:document.getElementById('ce-loc').value.trim(),
@@ -8776,7 +8795,7 @@ function saveCalEvent(){
     SB.upsert('cal_events',e,'calEvents');
   }
   if(alsoTask&&!calEditingId){
-    const t={id:Date.now()+2,title:e.title,world:e.type==='cs'?'WORK-CS':e.type==='ih'?'WORK-IH':'LIFE',priority:'Medium',status:'Todo',due:rawDate,platform:'',client:'',notes:e.notes,startTime:startTimeVal,endTime:endTimeVal,groupId:null,subitems:[],timelineS:'',timelineE:'',numValue:null,connBoard:null,connItemId:null};
+    const t={id:Date.now()+2,title:e.title,world:e.type==='cs'?'WORK-CS':e.type==='ih'?'WORK-IH':'LIFE',priority:'Medium',status:'Todo',due:rawDate,endDate:endDate!==rawDate?endDate:'',platform:'',client:'',notes:e.notes,startTime:startTimeVal,endTime:endTimeVal,groupId:null,subitems:[],timelineS:'',timelineE:'',numValue:null,connBoard:null,connItemId:null};
     DB.tasks.unshift(t);SB.upsert('tasks',t,'tasks');
     addHistory('add','Added task from event: '+t.title,{...t,_dbKey:'tasks'});
   }
@@ -8787,7 +8806,7 @@ function saveCalEvent(){
   ['ce-title','ce-loc','ce-notes'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   const recurEl=document.getElementById('ce-recur');if(recurEl)recurEl.value='none';
   ['ce-overnight','ce-also-task','ce-reminder'].forEach(id=>{const el=document.getElementById(id);if(el)el.checked=false;});
-  toggleReminderInput();
+  toggleReminderInput();toggleRecurOptions();
   closeModal('calModal');
   addHistory('add','Added event: '+e.title+(alsoTask?' + task':''),{...e,_dbKey:'calEvents'});
   renderCalendar();renderBrief();
@@ -8800,6 +8819,7 @@ function openCalEventModalOnDate(date){
   selectedCalDate=date;
   document.getElementById('calModalTitle').textContent='Add Event';
   document.getElementById('ce-date').value=date;
+  const edEl=document.getElementById('ce-end-date');if(edEl){edEl.value=date;edEl.min=date;}
   build12hOptions('ce-time','');
   build12hOptions('ce-end-time','');
   ['ce-title','ce-loc','ce-notes'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
