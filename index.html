@@ -904,22 +904,15 @@ select option{background:var(--navy3)}
   #overheadScoreboard .bd-val{font-size:18px !important;}
   #overheadScoreboard .bd-label{font-size:var(--text-xs) !important;letter-spacing:.04em !important;}
 
-  /* ── BRIEF: Quick Capture Bar — stack input above buttons ── */
+  /* ── BRIEF: Quick Capture Bar — compact single row on mobile ── */
   #briefCaptureBar{
-    flex-direction:column !important;
-    align-items:stretch !important;
-    gap:8px !important;
-    padding:10px !important;
+    flex-direction:row !important;
+    align-items:center !important;
+    gap:6px !important;
+    padding:5px 8px !important;
   }
-  #briefCaptureBar > i { display:none !important; }
-  #captureInput{font-size:16px !important;width:100% !important;}
-  #briefCaptureBtns{
-    display:grid !important;
-    grid-template-columns:repeat(4,1fr) !important;
-    gap:5px !important;
-    flex-shrink:0 !important;
-    width:100% !important;
-  }
+  #captureInput{font-size:13px !important;width:100% !important;}
+  #briefCaptureBtns{display:none !important;}
   #briefCaptureBtns .btn{
     padding:6px 4px !important;
     font-size:var(--text-xs) !important;
@@ -2875,12 +2868,12 @@ select option{background:var(--navy3)}
         <!-- OVERHEAD SCOREBOARD -->
         <div id="overheadScoreboard" style="display:grid;grid-template-columns:repeat(6,1fr);gap:7px;flex-shrink:0"></div>
 
-        <!-- ROW 2: SMART QUICK-ADD BAR (moved above todo/cash for visual priority) -->
-        <div id="briefCaptureBar" style="background:#050a12;border:1px solid var(--teal2);border-radius:4px;padding:8px 12px;display:flex;gap:8px;align-items:center;flex-shrink:0">
-          <span style="font-size:var(--text-xs);font-weight:800;letter-spacing:.14em;color:var(--teal2);text-transform:uppercase;flex-shrink:0;white-space:nowrap">CMD</span>
-          <div style="width:1px;height:14px;background:var(--border2);flex-shrink:0"></div>
-          <input id="captureInput" style="border:none;background:transparent;flex:1;font-size:var(--text-sm);outline:none;color:var(--text1);min-width:0;font-family:var(--font)" placeholder="/cs · /ih · /build · /faith · /venture · /sides · /life · /debit 500 desc · /credit 1000 desc" onkeydown="if(event.key==='Enter'){event.preventDefault();runCapture();}">
-          <button onclick="runCapture()" style="flex-shrink:0;background:var(--teal);color:var(--navy);border:none;border-radius:3px;padding:5px 14px;font-size:var(--text-xs);font-weight:800;cursor:pointer;display:flex;align-items:center;gap:5px;white-space:nowrap;font-family:var(--font)"><i class="ti ti-corner-down-left" style="font-size:var(--text-xs);line-height:1;display:block"></i> Enter</button>
+        <!-- ROW 2: SMART QUICK-ADD BAR -->
+        <div id="briefCaptureBar" style="background:#050a12;border:1px solid var(--teal2);border-radius:4px;padding:6px 10px;display:flex;gap:7px;align-items:center;flex-shrink:0">
+          <span style="font-size:10px;font-weight:800;letter-spacing:.14em;color:var(--teal2);text-transform:uppercase;flex-shrink:0;white-space:nowrap">CMD</span>
+          <div style="width:1px;height:12px;background:var(--border2);flex-shrink:0"></div>
+          <input id="captureInput" style="border:none;background:transparent;flex:1;font-size:var(--text-xs);outline:none;color:var(--text1);min-width:0;font-family:var(--font)" placeholder="/cs /ih /build /faith /venture /debit 500 · /credit 1000" onkeydown="if(event.key==='Enter'){event.preventDefault();runCapture();}">
+          <button onclick="runCapture()" style="flex-shrink:0;background:var(--teal);color:var(--navy);border:none;border-radius:3px;padding:4px 10px;font-size:10px;font-weight:800;cursor:pointer;display:flex;align-items:center;gap:4px;white-space:nowrap;font-family:var(--font)"><i class="ti ti-corner-down-left" style="font-size:10px;line-height:1;display:block"></i> Enter</button>
         </div>
 
         <!-- ROW 1: TO DO NOW (left) + CASH FLOW (right) -->
@@ -3474,13 +3467,13 @@ select option{background:var(--navy3)}
 
           <!-- BIO MONITOR TAB (moved from standalone Health view) -->
           <div id="cf-biomonitor" style="display:none">
-            <div class="mr" style="grid-template-columns:repeat(6,1fr);margin-bottom:14px">
-              <div class="hc"><div class="cl">Heart Rate</div><div style="font-size:var(--text-lg);font-weight:800;color:var(--w-faith)" id="h-hr">—</div><div class="csub" id="h-hr-sub">bpm · resting</div></div>
-              <div class="hc"><div class="cl">Blood Pressure</div><div style="font-size:var(--text-lg);font-weight:800;color:var(--w-faith)" id="h-bp">—</div><div class="csub" id="h-bp-sub">mmHg · systolic/diastolic</div></div>
-              <div class="hc"><div class="cl">Steps Today</div><div style="font-size:var(--text-lg);font-weight:800;color:var(--w-build)" id="h-steps">—</div><div class="csub" id="h-steps-sub">goal: 10,000</div></div>
-              <div class="hc"><div class="cl">Sleep</div><div style="font-size:var(--text-lg);font-weight:800;color:var(--w-life)" id="h-sleep">—</div><div class="csub" id="h-sleep-sub">hrs · last night</div></div>
-              <div class="hc"><div class="cl">Weight</div><div style="font-size:var(--text-lg);font-weight:800;color:var(--teal)" id="h-weight">—</div><div class="csub" id="h-weight-sub">kg</div></div>
-              <div class="hc"><div class="cl">Water</div><div style="font-size:var(--text-lg);font-weight:800;color:#38bdf8" id="h-water">0</div><div class="csub" id="h-water-sub">0 / 8 glasses today</div></div>
+            <div class="mr" style="grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px">
+              <div class="hc" style="padding:14px 12px"><div class="cl" style="font-size:10px">Heart Rate</div><div style="font-size:22px;font-weight:800;color:var(--w-faith);line-height:1" id="h-hr">—</div><div class="csub" id="h-hr-sub">bpm</div></div>
+              <div class="hc" style="padding:14px 12px"><div class="cl" style="font-size:10px">Blood Pressure</div><div style="font-size:22px;font-weight:800;color:var(--w-faith);line-height:1" id="h-bp">—</div><div class="csub" id="h-bp-sub">mmHg</div></div>
+              <div class="hc" style="padding:14px 12px"><div class="cl" style="font-size:10px">Steps</div><div style="font-size:22px;font-weight:800;color:var(--w-build);line-height:1" id="h-steps">—</div><div class="csub" id="h-steps-sub">/ 10,000</div></div>
+              <div class="hc" style="padding:14px 12px"><div class="cl" style="font-size:10px">Sleep</div><div style="font-size:22px;font-weight:800;color:var(--w-life);line-height:1" id="h-sleep">—</div><div class="csub" id="h-sleep-sub">hrs last night</div></div>
+              <div class="hc" style="padding:14px 12px"><div class="cl" style="font-size:10px">Weight</div><div style="font-size:22px;font-weight:800;color:var(--teal);line-height:1" id="h-weight">—</div><div class="csub" id="h-weight-sub">kg</div></div>
+              <div class="hc" style="padding:14px 12px"><div class="cl" style="font-size:10px">Water</div><div style="font-size:22px;font-weight:800;color:#38bdf8;line-height:1" id="h-water">0</div><div class="csub" id="h-water-sub">/ 8 glasses</div></div>
             </div>
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
               <div style="font-size:var(--text-xs);font-weight:700;color:var(--text3);letter-spacing:.1em;text-transform:uppercase">⚡ Quick Log</div>
@@ -3582,6 +3575,16 @@ select option{background:var(--navy3)}
           </div>
           <!-- Context filter pills — own row, horizontally scrollable -->
           <div class="cal-ctx-filters" id="calCtxFilters" style="width:100%;overflow-x:auto;white-space:nowrap;padding:2px 0 4px;-webkit-overflow-scrolling:touch"></div>
+          <!-- View tabs — always visible, scrollable on mobile -->
+          <div style="width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:2px">
+            <div style="display:flex;gap:4px;min-width:max-content">
+              <button class="cal-vt"        id="cvt-day2"    onclick="setCalView('day')"    style="padding:6px 14px;min-height:32px">Day</button>
+              <button class="cal-vt"        id="cvt-week2"   onclick="setCalView('week')"   style="padding:6px 14px;min-height:32px">Week</button>
+              <button class="cal-vt"        id="cvt-month2"  onclick="setCalView('month')"  style="padding:6px 14px;min-height:32px">Month</button>
+              <button class="cal-vt"        id="cvt-quarter2"onclick="setCalView('quarter')" style="padding:6px 14px;min-height:32px">Quarter</button>
+              <button class="cal-vt active" id="cvt-agenda2" onclick="setCalView('agenda')" style="padding:6px 14px;min-height:32px">Agenda</button>
+            </div>
+          </div>
         </div>
 
         <!-- BODY -->
@@ -3777,7 +3780,7 @@ select option{background:var(--navy3)}
         <div id="mobileTaskBar" style="display:none;flex-direction:column;flex:1;min-height:0;overflow:hidden">
           <div style="display:flex;gap:8px;padding:10px 14px;flex-shrink:0;border-bottom:1px solid var(--border);background:var(--navy2)">
             <input type="search" id="mobileTaskSearch" style="flex:1;background:var(--navy3);border:1px solid var(--border);border-radius:4px;padding:7px 10px;font-size:var(--text-sm);color:var(--text1);outline:none" placeholder="Search tasks..." oninput="taskSearchFilter=this.value;renderTasks()">
-            <button class="btn btn-t" onclick="openTaskModal()" style="flex-shrink:0;padding:8px 16px;font-size:var(--text-sm);font-weight:700;white-space:nowrap">+ Task</button>
+            <button class="btn btn-t" onclick="editingTaskId=null;document.getElementById('taskModalTitle').textContent='New Task';openModal('taskModal')" style="flex-shrink:0;padding:8px 16px;font-size:var(--text-sm);font-weight:700;white-space:nowrap">+ Task</button>
           </div>
           <div id="mobileTaskContainer" style="flex:1;overflow-y:auto;overscroll-behavior-y:contain;padding-bottom:80px"></div>
         </div>
@@ -4272,7 +4275,8 @@ const SB={
   async upsert(table,row,key){
     const r={...row};
     if(table==='cashflow'){r.description=row.desc;delete r.desc;}
-    if(table==='cal_events'){delete r.allDay;delete r.overnight;delete r.remindMin;delete r.recurN;delete r.recurEnd;delete r.endDate;delete r.recurUnit;delete r.recurCount;}
+    if(table==='cal_events'){delete r.allDay;delete r.overnight;delete r.remindMin;delete r.recurN;delete r.recurEnd;delete r.endDate;delete r.recurUnit;delete r.recurCount;delete r.recur;delete r.reminder;}
+    if(table==='memories'){delete r.source;}
     delete r._dbKey;
     try{
       await sbFetch(table,'POST',r);
@@ -4285,7 +4289,8 @@ const SB={
   async update(table,id,changes,key){
     const c={...changes};
     if(table==='cashflow'&&c.desc){c.description=c.desc;delete c.desc;}
-    if(table==='cal_events'){delete c.allDay;delete c.overnight;delete c.remindMin;delete c.recurN;delete c.recurEnd;delete c.endDate;delete c.recurUnit;delete c.recurCount;}
+    if(table==='cal_events'){delete c.allDay;delete c.overnight;delete c.remindMin;delete c.recurN;delete c.recurEnd;delete c.endDate;delete c.recurUnit;delete c.recurCount;delete c.recur;delete c.reminder;}
+    if(table==='memories'){delete c.source;}
     try{
       await sbFetch(table,'PATCH',c,`id=eq.${id}`);
       save(key);
@@ -5472,35 +5477,28 @@ function renderMobileTaskCards(tasks,container){
 
       html+=
         '<div class="mobile-task-card" data-task-id="'+t.id+'" '+
-          'style="border-left-color:'+sc+'" '+
+          'style="border-left-color:'+sc+';padding:12px 14px" '+
           'onclick="openTaskEdit('+t.id+')">'+
 
-          // Row 1: title + STATUS block (matching reference exactly)
-          '<div class="mtc-row1">'+
-            '<div class="mtc-title">'+t.title+'</div>'+
-            '<div class="mtc-status-wrap">'+
-              '<span class="mtc-status-label">Status</span>'+
-              '<span class="mtc-status-pill">'+(t.status||'Todo')+'</span>'+
-            '</div>'+
+          // Row 1: title + status pill
+          '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:7px">'+
+            '<div style="font-size:var(--text-sm);font-weight:700;color:var(--text1);line-height:1.35;flex:1">'+t.title+'</div>'+
+            '<span class="pill '+(t.status==='Done'?'pg':t.status==='In Progress'?'pt':t.status==='No Progress'?'pam':'pgr')+'" style="font-size:10px;flex-shrink:0;white-space:nowrap">'+(t.status||'Todo')+'</span>'+
           '</div>'+
 
-          // Tags row: world pill + priority pill
-          '<div class="mtc-tags">'+
-            (wl?'<span style="font-size:var(--text-xs);font-weight:600;color:'+sc+';border:1px solid '+sc+';border-radius:3px;padding:1px 6px;white-space:nowrap">'+wl+'</span>':'')+
-            (t.priority?'<span style="display:inline-flex;align-items:center;gap:4px;font-size:var(--text-xs);color:var(--text2);border:1px solid var(--border2);border-radius:3px;padding:1px 6px;white-space:nowrap">'+
-              '<span style="width:6px;height:6px;border-radius:50%;background:'+pd+';flex-shrink:0"></span>'+
-              t.priority+
-            '</span>':'')+
+          // Tags row: world + priority dot
+          '<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">'+
+            (wl?'<span style="font-size:10px;font-weight:700;color:'+sc+';border:1px solid '+sc+'40;border-radius:3px;padding:1px 7px;background:'+sc+'10;white-space:nowrap">'+wl+'</span>':'')+
+            (t.priority?'<span style="display:inline-flex;align-items:center;gap:4px;font-size:10px;color:var(--text3)">'+
+              '<span style="width:6px;height:6px;border-radius:50%;background:'+pd+';flex-shrink:0;display:inline-block"></span>'+
+              t.priority+'</span>':'')+
+            (t.client?'<span style="font-size:10px;color:var(--text3)">· '+t.client+'</span>':'')+
+            (t.due?'<span style="font-size:10px;color:'+(t.due<new Date().toISOString().split('T')[0]?'var(--red)':'var(--text3)')+';margin-left:auto">'+t.due+'</span>':'')+
           '</div>'+
-
-          // Detail rows matching reference: Priority · Person · Status
-          '<div class="mtc-detail"><span class="mtc-detail-label">Priority:</span> <span style="color:var(--text2)">'+(t.priority||'—')+'</span></div>'+
-          '<div class="mtc-detail"><span class="mtc-detail-label">Person:</span> <span class="mtc-detail-val">'+(t.client||'—')+'</span></div>'+
-          (t.due?'<div class="mtc-detail"><span class="mtc-detail-label">Due:</span> <span style="color:var(--text3)">'+t.due+'</span></div>':'')+
 
           // Swipe actions
           '<div class="mtc-actions">'+
-            '<button class="mtc-action-btn del" onclick="event.stopPropagation();deleteTask('+t.id+')" title="Delete"><i class="ti ti-trash"></i>DEL</button>'+
+            '<button class="mtc-action-btn del" onclick="event.stopPropagation();deleteTask(event,'+t.id+')" title="Delete"><i class="ti ti-trash"></i>DEL</button>'+
             '<button class="mtc-action-btn edit" onclick="event.stopPropagation();completeMobileTask('+t.id+')" title="Complete"><i class="ti ti-check"></i>DONE</button>'+
           '</div>'+
         '</div>';
@@ -8135,8 +8133,11 @@ function detectConflicts(dateStr,startTime,endTime,excludeId){
 function setCalView(v){
   calView=v;
   ['day','week','month','quarter','agenda'].forEach(vv=>{
-    const btn=document.getElementById('cvt-'+vv);
-    if(btn)btn.classList.toggle('active',vv===v);
+    // Sync both sets of buttons (desktop + mobile)
+    ['cvt-'+vv,'cvt-'+vv+'2'].forEach(id=>{
+      const btn=document.getElementById(id);
+      if(btn)btn.classList.toggle('active',vv===v);
+    });
   });
   renderCalendar();
 }
