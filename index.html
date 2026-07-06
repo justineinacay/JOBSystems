@@ -347,7 +347,7 @@ select option{background:var(--navy3)}
 .cal-vt.active{background:var(--teal3);color:var(--teal);border:1px solid var(--teal2)}
 .cal-ctx-filters{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
 .cal-ctx-pill{
-  padding:6px 14px;
+  padding:6px 12px;
   border-radius:100px;
   font-size:11px;
   font-weight:700;
@@ -355,17 +355,18 @@ select option{background:var(--navy3)}
   border:1.5px solid rgba(255,255,255,.12);
   transition:all .15s;
   text-transform:uppercase;
-  letter-spacing:.07em;
+  letter-spacing:.06em;
   opacity:.5;
   white-space:nowrap;
   flex-shrink:0;
   line-height:1;
-  min-height:32px;
   height:32px;
+  min-width:80px;
   display:inline-flex;
   align-items:center;
   justify-content:center;
   box-sizing:border-box;
+  text-align:center;
 }
 .cal-ctx-pill.on{opacity:1;box-shadow:0 0 8px rgba(0,0,0,.3)}
 
@@ -803,6 +804,10 @@ select option{background:var(--navy3)}
   }
   .tb-logo{font-size:var(--text-sm);letter-spacing:.1em;flex-shrink:0;white-space:nowrap}
   #dataTicker{display:none}
+  /* Hide topbar search and data strip on mobile — clean header */
+  .tb-search-wrap{display:none !important}
+  #desktopSearchBar{display:none !important}
+  #mobileSearchTrigger{display:none !important}
   .tb-r .hpill{display:none}
   .tb-btn{padding:6px;font-size:var(--text-xs);min-height:36px;min-width:36px;justify-content:center;flex-shrink:0}
   .tb-btn i{margin:0}
@@ -827,9 +832,12 @@ select option{background:var(--navy3)}
     flex-direction:column;
   }
 
-  /* Life tabs — horizontal scroll on mobile */
-  .cfbt-wrap{overflow-x:auto !important;-webkit-overflow-scrolling:touch;flex-wrap:nowrap !important;padding-bottom:4px}
-  .cfbt{flex-shrink:0 !important;white-space:nowrap !important;font-size:var(--text-xs) !important;padding:6px 10px !important}
+  /* Calendar: show filter button on mobile, hide pill row */
+  .cal-ctx-desktop{display:none !important}
+  #calFilterBtn{display:flex !important}
+  #calCtxFiltersWrap{flex-wrap:wrap}
+  .cfbt-wrap{overflow-x:auto !important;-webkit-overflow-scrolling:touch;flex-wrap:nowrap !important;padding-bottom:4px;gap:4px !important}
+  .cfbt{flex-shrink:0 !important;white-space:nowrap !important;font-size:10px !important;padding:5px 8px !important;min-height:28px !important}
   /* View body scrolls to top on tab switch */
   .vb{scroll-behavior:smooth}
   .vt{font-size:var(--text-sm)}
@@ -939,7 +947,10 @@ select option{background:var(--navy3)}
   /* Accounts, forecast, loans all single col */
   #cf-accounts-grid,#cf-forecast-grid,#loan-summary-cards,#buildApps,#vtcKanban,#vtpKanban{grid-template-columns:1fr !important}
 
-  /* Touch targets — minimum 44×44pt (Apple HIG) */
+  /* Tasks mobile: hide view toggles and search, show only + Task */
+  #taskViewToggle{display:none !important}
+  #taskSearchWrap{display:none !important}
+  .bvt-wrap{display:none !important}
   button,.btn,.ni,.mbn-tab,.mbn-center{min-height:44px}
   .kcard{min-height:54px}
   .mbn-tab{min-height:56px}
@@ -1677,7 +1688,8 @@ select option{background:var(--navy3)}
     gap:3px;font-size:var(--text-xs);font-weight:800;letter-spacing:.04em;
     cursor:pointer;border:none;min-height:auto;
   }
-  .mtc-action-btn.edit{background:rgba(34,197,94,.9);color:#fff}
+  .mtc-action-btn.edit{background:rgba(0,212,200,.9);color:#000}
+  .mtc-action-btn.done{background:rgba(34,197,94,.9);color:#fff}
   .mtc-action-btn.del{background:rgba(200,40,40,.9);color:#fff}
   .mtc-action-btn i{font-size:18px;display:block;line-height:1}
 
@@ -1785,6 +1797,7 @@ select option{background:var(--navy3)}
   padding-left:env(safe-area-inset-left);
   padding-right:env(safe-area-inset-right);
   pointer-events:none;
+  /* allow voice pill to position relative to this */
 }
 @media (max-width:768px){body.os-active .mobile-bottom-nav{display:block}}
 
@@ -1804,6 +1817,7 @@ select option{background:var(--navy3)}
   pointer-events:all;
   position:relative;
 }
+#mbnVoiceBtn{pointer-events:all}
 
 .mbn-tab{
   flex:1;
@@ -3745,8 +3759,26 @@ select option{background:var(--navy3)}
             </div>
             <button class="btn btn-t" onclick="openCalEventModal()" style="font-size:var(--text-xs);flex-shrink:0"><i class="ti ti-plus"></i> Event</button>
           </div>
-          <!-- Context filter pills — own row, horizontally scrollable -->
-          <div class="cal-ctx-filters" id="calCtxFilters" style="width:100%;overflow-x:auto;white-space:nowrap;padding:2px 0 4px;-webkit-overflow-scrolling:touch"></div>
+          <!-- Context filter — compact Filter button on mobile, pills on desktop -->
+          <div id="calCtxFiltersWrap" style="display:flex;align-items:center;gap:8px;position:relative">
+            <!-- Desktop: pill row -->
+            <div class="cal-ctx-filters cal-ctx-desktop" id="calCtxFilters" style="width:100%;overflow-x:auto;white-space:nowrap;padding:2px 0 4px;-webkit-overflow-scrolling:touch"></div>
+            <!-- Mobile: single filter button -->
+            <button id="calFilterBtn" onclick="toggleCalFilterDropdown()" style="display:none;align-items:center;gap:6px;padding:6px 14px;border-radius:100px;border:1.5px solid rgba(128,255,250,.3);background:rgba(128,255,250,.08);color:var(--teal);font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;white-space:nowrap;flex-shrink:0">
+              <i class="ti ti-filter" style="font-size:13px;line-height:1;display:block"></i>
+              Filter <span id="calFilterCount" style="background:var(--teal);color:var(--navy);border-radius:8px;padding:1px 6px;font-size:9px;font-weight:800"></span>
+            </button>
+            <!-- Filter dropdown -->
+            <div id="calFilterDropdown" style="display:none;position:absolute;top:calc(100% + 8px);left:0;right:0;background:var(--navy3);border:1px solid var(--border2);border-radius:12px;padding:10px;z-index:200;box-shadow:0 8px 32px rgba(0,0,0,.6)">
+              <div style="font-size:10px;font-weight:700;letter-spacing:.1em;color:var(--text3);text-transform:uppercase;margin-bottom:8px">Filter by World</div>
+              <div id="calFilterList" style="display:flex;flex-direction:column;gap:6px"></div>
+              <div style="display:flex;gap:6px;margin-top:10px;border-top:1px solid var(--border);padding-top:10px">
+                <button onclick="calFilterSelectAll()" style="flex:1;padding:6px;border-radius:6px;border:1px solid var(--border2);background:transparent;color:var(--text2);font-size:11px;cursor:pointer">All</button>
+                <button onclick="calFilterClearAll()" style="flex:1;padding:6px;border-radius:6px;border:1px solid var(--border2);background:transparent;color:var(--text2);font-size:11px;cursor:pointer">None</button>
+                <button onclick="toggleCalFilterDropdown()" style="flex:1;padding:6px;border-radius:6px;border:1px solid rgba(128,255,250,.3);background:rgba(128,255,250,.1);color:var(--teal);font-size:11px;font-weight:700;cursor:pointer">Done</button>
+              </div>
+            </div>
+          </div>
           <!-- View tabs — always visible, scrollable on mobile -->
           <div style="width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:2px">
             <div style="display:flex;gap:4px;min-width:max-content">
@@ -3816,12 +3848,14 @@ select option{background:var(--navy3)}
 
           <!-- ROW 1: View tabs + search + add button -->
           <div style="display:flex;align-items:center;gap:8px;padding:8px 14px;border-bottom:1px solid var(--border);flex-wrap:wrap">
-            <div class="board-view-tabs">
+            <div class="board-view-tabs" id="taskViewToggle">
               <button class="bvt active" id="btv-table"   onclick="setBoardView('table')">Table</button>
               <button class="bvt"        id="btv-kanban"  onclick="setBoardView('kanban')">Kanban</button>
               <button class="bvt"        id="btv-boards"  onclick="setBoardView('boards')">Boards</button>
             </div>
-            <input class="board-search" id="boardSearch" placeholder="🔍 Search tasks…" oninput="renderTasks()" style="width:clamp(100px,30vw,200px)">
+            <div id="taskSearchWrap" style="display:flex;flex:1;min-width:100px">
+              <input class="board-search" id="boardSearch" placeholder="🔍 Search tasks…" oninput="renderTasks()" style="width:100%">
+            </div>
             <div style="flex:1"></div>
             <!-- Column toggles -->
             <div id="boardColsToggle" style="display:flex;gap:4px;align-items:center">
@@ -4241,6 +4275,44 @@ select option{background:var(--navy3)}
       </div>
     </div>
 
+    <!-- ===== WORLDS + SETTINGS (mobile combined) ===== -->
+    <div class="view" id="view-worlds-settings">
+      <div class="vh">
+        <div><div class="vt"><i class="ti ti-grid-dots" style="color:var(--teal)"></i>Worlds</div><div class="vs">Navigate worlds · System settings</div></div>
+      </div>
+      <div class="vb" style="padding:16px;overflow-y:auto">
+        <!-- Voice command -->
+        <button onclick="toggleVoice()" style="width:100%;display:flex;align-items:center;justify-content:center;gap:10px;padding:14px;border-radius:12px;background:rgba(128,255,250,.08);border:1.5px solid rgba(128,255,250,.2);color:var(--teal);font-size:13px;font-weight:700;cursor:pointer;margin-bottom:6px;transition:all .2s" onmouseover="this.style.background='rgba(128,255,250,.14)'" onmouseout="this.style.background='rgba(128,255,250,.08)'">
+          <i class="ti ti-microphone" style="font-size:20px;line-height:1;display:block"></i>
+          Voice Command
+        </button>
+        <div style="font-size:10px;color:var(--text3);text-align:center;margin-bottom:18px;line-height:1.5">Tap above to activate · or press <strong style="color:rgba(255,255,255,.5)">Space</strong> on keyboard<br>For power button: set up via <strong style="color:rgba(255,255,255,.5)">Shortcuts app → Accessibility → J.O.B Voice</strong></div>
+        <!-- World grid -->
+        <div style="font-size:10px;font-weight:700;letter-spacing:.12em;color:rgba(255,255,255,.35);text-transform:uppercase;margin-bottom:10px">My Worlds</div>
+        <div id="mobileWorldsGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px"></div>
+        <!-- Settings shortcuts -->
+        <div style="font-size:10px;font-weight:700;letter-spacing:.12em;color:rgba(255,255,255,.35);text-transform:uppercase;margin-bottom:10px">Settings</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div onclick="setView('settings')" style="background:var(--navy2);border:1px solid var(--border);border-radius:12px;padding:16px 14px;cursor:pointer;display:flex;align-items:center;gap:10px;transition:border-color .15s" onmouseover="this.style.borderColor='rgba(128,255,250,.3)'" onmouseout="this.style.borderColor='var(--border)'">
+            <i class="ti ti-settings" style="font-size:20px;color:rgba(255,255,255,.5);flex-shrink:0;line-height:1;display:block"></i>
+            <div><div style="font-size:12px;font-weight:700;color:var(--text1)">System</div><div style="font-size:10px;color:var(--text3)">Settings</div></div>
+          </div>
+          <div onclick="setView('memory')" style="background:var(--navy2);border:1px solid var(--border);border-radius:12px;padding:16px 14px;cursor:pointer;display:flex;align-items:center;gap:10px;transition:border-color .15s" onmouseover="this.style.borderColor='rgba(128,255,250,.3)'" onmouseout="this.style.borderColor='var(--border)'">
+            <i class="ti ti-brain" style="font-size:20px;color:var(--teal);flex-shrink:0;line-height:1;display:block"></i>
+            <div><div style="font-size:12px;font-weight:700;color:var(--text1)">Memory</div><div style="font-size:10px;color:var(--text3)">AI context</div></div>
+          </div>
+          <div onclick="setView('jarvis-context')" style="background:var(--navy2);border:1px solid var(--border);border-radius:12px;padding:16px 14px;cursor:pointer;display:flex;align-items:center;gap:10px;transition:border-color .15s" onmouseover="this.style.borderColor='rgba(128,255,250,.3)'" onmouseout="this.style.borderColor='var(--border)'">
+            <i class="ti ti-cpu" style="font-size:20px;color:var(--purple);flex-shrink:0;line-height:1;display:block"></i>
+            <div><div style="font-size:12px;font-weight:700;color:var(--text1)">Intelligence</div><div style="font-size:10px;color:var(--text3)">Context engine</div></div>
+          </div>
+          <div onclick="setView('notes')" style="background:var(--navy2);border:1px solid var(--border);border-radius:12px;padding:16px 14px;cursor:pointer;display:flex;align-items:center;gap:10px;transition:border-color .15s" onmouseover="this.style.borderColor='rgba(128,255,250,.3)'" onmouseout="this.style.borderColor='var(--border)'">
+            <i class="ti ti-notes" style="font-size:20px;color:var(--amber);flex-shrink:0;line-height:1;display:block"></i>
+            <div><div style="font-size:12px;font-weight:700;color:var(--text1)">Notes</div><div style="font-size:10px;color:var(--text3)">Journal</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- ===== SYSTEM SETTINGS ===== -->
     <div class="view" id="view-settings">
       <div class="vh">
@@ -4547,6 +4619,7 @@ const Store={
     history:()=>{try{renderHistory();}catch(e){}},
     'jarvis-morning':()=>{},
     ai:()=>{},
+    'worlds-settings':()=>{try{renderWorldsSettings();}catch(e){}},
     settings:()=>{try{renderSettingsView();}catch(e){}},
   },
   // notify(view) — re-render specific view; if omitted, re-render only active view
@@ -4985,8 +5058,23 @@ function factoryReset(){
   }
 }
 
+function renderWorldsSettings(){
+  const grid=document.getElementById('mobileWorldsGrid');
+  if(!grid)return;
+  const worlds=DB.worlds||[];
+  grid.innerHTML=worlds.map(w=>{
+    const colorVal=(w.color&&/^#/.test(w.color))?w.color:('var('+(w.cssVar||'--teal')+')');
+    const isLife=w.id==='life';
+    return`<div onclick="setView('${w.id}')" style="background:var(--navy2);border:1px solid var(--border);border-top:2px solid ${colorVal};border-radius:12px;padding:16px 14px;cursor:pointer;display:flex;align-items:center;gap:10px;transition:all .15s;${isLife?'grid-column:1/-1;':''}" onmouseover="this.style.boxShadow='0 4px 20px rgba(0,0,0,.4)';this.style.borderTopColor='${colorVal}'" onmouseout="this.style.boxShadow='';this.style.borderTopColor='${colorVal}'">
+      <i class="ti ${w.icon||'ti-star'}" style="font-size:22px;color:${colorVal};flex-shrink:0;line-height:1;display:block"></i>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;font-weight:800;color:var(--text1);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${w.label}</div>
+      </div>
+      <i class="ti ti-chevron-right" style="font-size:14px;color:var(--text3);flex-shrink:0;line-height:1;display:block"></i>
+    </div>`;
+  }).join('');
+}
 function renderSettingsView(){
-  // Populate current key status
   const antKey=localStorage.getItem('job-api-key');
   const oaiKey=localStorage.getItem('jelix-openai-key');
   const antEl=document.getElementById('set-anthropic-key');
@@ -5317,7 +5405,7 @@ function setView(v){
   currentView=v;addHistory('navigate','Navigated to '+v,{view:v});
   LearnEngine.onNavigate(v);
   renderSideNav();
-  const r={dashboard:renderBrief,'work-ih':renderWorkIH,'work-cs':renderWorkCS,venture:renderVenture,build:renderBuild,sides:renderSides,faith:renderFaith,life:renderLife,calendar:renderCalendar,tasks:renderTasks,notes:renderNotesList,journal:renderJournal,memory:renderMemory,history:renderHistory,settings:renderSettingsView};
+  const r={dashboard:renderBrief,'work-ih':renderWorkIH,'work-cs':renderWorkCS,venture:renderVenture,build:renderBuild,sides:renderSides,faith:renderFaith,life:renderLife,calendar:renderCalendar,tasks:renderTasks,notes:renderNotesList,journal:renderJournal,memory:renderMemory,history:renderHistory,settings:renderSettingsView,'worlds-settings':renderWorldsSettings};
   if(v==='life'){renderLife();}
   else if(v==='biomonitor'){setView('life');setTimeout(()=>{const btns=document.querySelectorAll('.cfbt');btns.forEach(b=>{if(b.textContent.includes('Bio Monitor')){setCFTab('biomonitor',b);}});},150);}
   else if(r[v])r[v]();
@@ -5350,6 +5438,7 @@ function syncMobileNavActive(view){
     'dashboard':'mbt-dashboard',
     'calendar':'mbt-calendar',
     'settings':'mbt-more',
+    'worlds-settings':'mbt-more',
   };
   nav.querySelectorAll('.mbn-tab').forEach(t=>t.classList.remove('active'));
   const center=document.getElementById('mbt-dashboard');
@@ -5659,10 +5748,11 @@ function renderMobileTaskCards(tasks,container){
             (t.due?'<span style="font-size:10px;color:'+(t.due<new Date().toISOString().split('T')[0]?'var(--red)':'var(--text3)')+';margin-left:auto">'+t.due+'</span>':'')+
           '</div>'+
 
-          // Swipe actions
+          // Swipe actions — Edit · Done · Delete
           '<div class="mtc-actions">'+
+            '<button class="mtc-action-btn edit" onclick="event.stopPropagation();editTask('+t.id+')" title="Edit"><i class="ti ti-pencil"></i>EDIT</button>'+
+            '<button class="mtc-action-btn done" onclick="event.stopPropagation();completeMobileTask('+t.id+')" title="Done"><i class="ti ti-check"></i>DONE</button>'+
             '<button class="mtc-action-btn del" onclick="event.stopPropagation();deleteTask(event,'+t.id+')" title="Delete"><i class="ti ti-trash"></i>DEL</button>'+
-            '<button class="mtc-action-btn edit" onclick="event.stopPropagation();completeMobileTask('+t.id+')" title="Complete"><i class="ti ti-check"></i>DONE</button>'+
           '</div>'+
         '</div>';
     });
@@ -8468,6 +8558,42 @@ function renderCalSidebar(){
   }
 }
 
+function toggleCalFilterDropdown(){
+  const dd=document.getElementById('calFilterDropdown');
+  if(!dd)return;
+  const open=dd.style.display==='none'||!dd.style.display;
+  dd.style.display=open?'block':'none';
+  if(open) renderCalFilterList();
+}
+function renderCalFilterList(){
+  const list=document.getElementById('calFilterList');
+  if(!list)return;
+  const worlds=(DB.worlds||[]).map(w=>({
+    id:w.id,label:w.label,
+    hex:(w.color&&/^#/.test(w.color))?w.color:'var(--teal)'
+  }));
+  list.innerHTML=worlds.map(w=>`
+    <label style="display:flex;align-items:center;gap:10px;cursor:pointer;padding:6px 8px;border-radius:6px;background:${calContextFilter.has(w.id)?'rgba(128,255,250,.06)':'transparent'};transition:background .1s">
+      <input type="checkbox" ${calContextFilter.has(w.id)?'checked':''} onchange="toggleCalContext('${w.id}',null);renderCalFilterList();updateCalFilterCount()" style="width:16px;height:16px;accent-color:${w.hex};flex-shrink:0;cursor:pointer">
+      <span style="width:8px;height:8px;border-radius:50%;background:${w.hex};flex-shrink:0;display:inline-block"></span>
+      <span style="font-size:12px;font-weight:600;color:var(--text1)">${w.label}</span>
+    </label>`).join('');
+  updateCalFilterCount();
+}
+function updateCalFilterCount(){
+  const cnt=document.getElementById('calFilterCount');
+  const total=(DB.worlds||[]).length;
+  const active=calContextFilter.size;
+  if(cnt) cnt.textContent=active<total?active+'/'+total:'All';
+}
+function calFilterSelectAll(){(DB.worlds||[]).forEach(w=>{calContextFilter.add(w.id);});renderCalendar();renderCalFilterList();}
+function calFilterClearAll(){calContextFilter.clear();renderCalendar();renderCalFilterList();}
+// Close filter dropdown on outside click
+document.addEventListener('click',function(e){
+  const dd=document.getElementById('calFilterDropdown');
+  const btn=document.getElementById('calFilterBtn');
+  if(dd&&btn&&!dd.contains(e.target)&&!btn.contains(e.target)){dd.style.display='none';}
+},true);
 function toggleCalContext(id,el){
   if(calContextFilter.has(id))calContextFilter.delete(id);
   else calContextFilter.add(id);
@@ -13577,10 +13703,10 @@ console.log('[J.O.B Systems] JARVIS Intelligence Layer loaded — Skills 1–7 +
 
 <div class="mobile-bottom-nav" id="mobileBottomNav">
   <div class="mbn-bar">
-    <!-- Cash / Life -->
+    <!-- Life -->
     <div class="mbn-tab" id="mbt-life" onclick="mobileNav('life',this)">
-      <i class="ti ti-coin"></i>
-      <span>Cash</span>
+      <i class="ti ti-leaf"></i>
+      <span>Life</span>
     </div>
     <!-- Tasks -->
     <div class="mbn-tab" id="mbt-tasks" onclick="mobileNav('tasks',this)">
@@ -13597,10 +13723,10 @@ console.log('[J.O.B Systems] JARVIS Intelligence Layer loaded — Skills 1–7 +
       <i class="ti ti-calendar"></i>
       <span>Calendar</span>
     </div>
-    <!-- Settings (replaces Worlds) -->
-    <div class="mbn-tab" id="mbt-more" onclick="mobileNav('settings',this)">
-      <i class="ti ti-settings"></i>
-      <span>Settings</span>
+    <!-- Worlds + Settings -->
+    <div class="mbn-tab" id="mbt-more" onclick="mobileNav('worlds-settings',this)">
+      <i class="ti ti-grid-dots"></i>
+      <span>Worlds</span>
     </div>
   </div>
 </div>
