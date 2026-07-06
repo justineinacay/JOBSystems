@@ -4404,7 +4404,7 @@ const SB={
   },
   async upsert(table,row,key){
     const r={...row};
-    if(table==='cashflow'){r.description=row.desc;delete r.desc;}
+    if(table==='cashflow'){r.description=row.desc;delete r.desc;delete r._fromAccount;delete r._toAccount;}
     if(table==='cal_events'){delete r.allDay;delete r.overnight;delete r.remindMin;delete r.recurN;delete r.recurEnd;delete r.endDate;delete r.recurUnit;delete r.recurCount;delete r.recur;delete r.reminder;}
     if(table==='memories'){delete r.source;}
     delete r._dbKey;
@@ -4418,7 +4418,7 @@ const SB={
   },
   async update(table,id,changes,key){
     const c={...changes};
-    if(table==='cashflow'&&c.desc){c.description=c.desc;delete c.desc;}
+    if(table==='cashflow'&&c.desc){c.description=c.desc;delete c.desc;delete c._fromAccount;delete c._toAccount;}
     if(table==='cal_events'){delete c.allDay;delete c.overnight;delete c.remindMin;delete c.recurN;delete c.recurEnd;delete c.endDate;delete c.recurUnit;delete c.recurCount;delete c.recur;delete c.reminder;}
     if(table==='memories'){delete c.source;}
     try{
@@ -6154,21 +6154,21 @@ function renderBrief(){
   const sparkSvg=spark.length>1?`<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" style="overflow:visible"><polyline points="${pts}" fill="none" stroke="var(--teal)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`:'';
   document.getElementById('briefFinances').innerHTML=`
     <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px">
-      <div style="flex:1;min-width:0">
-        <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:7px">
-          <span style="font-size:var(--text-xs);font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);flex-shrink:0;width:52px">DEBIT</span>
-          <span style="font-size:var(--text-lg);font-weight:800;color:var(--green);letter-spacing:-.01em;line-height:1">${fmt(total)}</span>
+      <div style="flex:1;min-width:0;overflow:hidden">
+        <div style="display:flex;align-items:baseline;gap:6px;margin-bottom:6px">
+          <span style="font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);flex-shrink:0;width:48px">DEBIT</span>
+          <span style="font-size:clamp(16px,3.5vw,22px);font-weight:800;color:var(--green);letter-spacing:-.02em;line-height:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${fmt(total)}</span>
         </div>
-        <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:7px">
-          <span style="font-size:var(--text-xs);font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);flex-shrink:0;width:52px">CREDIT</span>
-          <span style="font-size:var(--text-lg);font-weight:800;color:var(--amber);letter-spacing:-.01em;line-height:1">${fmt(creditTotal)}</span>
+        <div style="display:flex;align-items:baseline;gap:6px;margin-bottom:6px">
+          <span style="font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);flex-shrink:0;width:48px">CREDIT</span>
+          <span style="font-size:clamp(16px,3.5vw,22px);font-weight:800;color:var(--amber);letter-spacing:-.02em;line-height:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${fmt(creditTotal)}</span>
         </div>
-        <div style="display:flex;align-items:baseline;gap:8px">
-          <span style="font-size:var(--text-xs);font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);flex-shrink:0;width:52px">BALANCE</span>
-          <span style="font-size:var(--text-lg);font-weight:800;color:${balance>0?'var(--green)':balance<0?'var(--red)':'var(--text2)'};letter-spacing:-.01em;line-height:1">${balance>=0?'+':''}${fmt(balance)}</span>
+        <div style="display:flex;align-items:baseline;gap:6px">
+          <span style="font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);flex-shrink:0;width:48px">BAL</span>
+          <span style="font-size:clamp(16px,3.5vw,22px);font-weight:800;color:${balance>0?'var(--green)':balance<0?'var(--red)':'var(--text2)'};letter-spacing:-.02em;line-height:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${balance>=0?'+':''}${fmt(balance)}</span>
         </div>
       </div>
-      <div style="opacity:.7;flex-shrink:0">${sparkSvg}</div>
+      <div style="opacity:.7;flex-shrink:0;margin-left:8px">${sparkSvg}</div>
     </div>`;
 
   // TO DO NOW — full row list style matching screenshot
