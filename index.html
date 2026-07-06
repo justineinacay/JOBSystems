@@ -2412,7 +2412,19 @@ select option{background:var(--navy3)}
       </div>
       <div class="fg"><label class="fl">Short Description</label><input id="am-desc" placeholder="What does this app do?"></div>
       <div class="fr">
-        <div class="fg"><label class="fl">Icon (Tabler)</label><input id="am-icon" placeholder="ti-rocket"></div>
+        <div class="fg">
+          <label class="fl">Icon</label>
+          <div style="border:1px solid var(--border2);border-radius:8px;overflow:hidden">
+            <div style="display:flex;align-items:center;gap:8px;padding:8px 10px;border-bottom:1px solid var(--border);background:var(--navy3)">
+              <i id="am-icon-preview" class="ti ti-device-mobile" style="font-size:20px;color:var(--teal);line-height:1;display:block;flex-shrink:0"></i>
+              <input id="am-icon" placeholder="ti-device-mobile" oninput="document.getElementById('am-icon-preview').className='ti '+this.value" style="flex:1;border:none;background:transparent;font-size:var(--text-xs);outline:none">
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(8,1fr);gap:2px;padding:6px;max-height:120px;overflow-y:auto;background:var(--navy2)" id="iconGrid">
+              <!-- Common app icons -->
+            </div>
+          </div>
+          <div style="font-size:9px;color:var(--text3);margin-top:3px">Tap an icon or type any tabler icon name</div>
+        </div>
         <div class="fg" style="max-width:110px">
           <label class="fl">Color</label>
           <div style="display:flex;align-items:center;gap:6px">
@@ -2526,7 +2538,14 @@ select option{background:var(--navy3)}
     <div class="mb">
       <div class="fr">
         <div class="fg"><label class="fl">Type</label><select id="ca-type"><option>Debit</option><option>Credit</option></select></div>
-        <div class="fg"><label class="fl">Date</label><input type="date" id="ca-date"></div>
+        <div class="fg"><label class="fl">Date</label>
+        <input type="date" id="ca-date" oninput="syncDateDisplay('ca-date','ca-date-display')" style="position:absolute;opacity:0;pointer-events:none;width:0;height:0">
+        <div id="ca-date-display" onclick="document.getElementById('ca-date').showPicker?document.getElementById('ca-date').showPicker():document.getElementById('ca-date').click()" style="display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--navy3);border:1px solid var(--border2);border-radius:8px;cursor:pointer;font-size:var(--text-sm);color:var(--text1)">
+          <i class="ti ti-calendar" style="font-size:16px;color:var(--teal);line-height:1;display:block;flex-shrink:0"></i>
+          <span id="ca-date-label" style="flex:1">Select date...</span>
+          <i class="ti ti-chevron-down" style="font-size:12px;color:var(--text3);line-height:1;display:block;flex-shrink:0"></i>
+        </div>
+      </div>
       </div>
       <div class="fg"><label class="fl">Description</label><input id="ca-desc" placeholder="e.g. Meta Ads, Salary, Rent..."></div>
       <div class="fr">
@@ -2542,7 +2561,7 @@ select option{background:var(--navy3)}
         <div class="fg"><label class="fl">Category</label><select id="ca-cat" onchange="toggleCashCatOther()">
           <option>Housing</option><option>Food</option><option>Transport</option><option>Utilities</option>
           <option>Business</option><option>Health</option><option>Entertainment</option><option>Income</option>
-          <option>Loan</option><option>Subscription</option><option>Family</option><option>Other</option>
+          <option>Loan</option><option>Payment</option><option>Subscription</option><option>Family</option><option>Other</option>
         </select></div>
         <div class="fg" id="ca-cat-other-wrap" style="display:none"><label class="fl">Category Notes</label><input id="ca-cat-other" placeholder="Describe the category..."></div>
       </div>
@@ -3542,11 +3561,20 @@ select option{background:var(--navy3)}
 
           <!-- OVERVIEW TAB -->
           <div id="cf-overview">
+            <!-- Month selector for overview -->
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+              <div style="display:flex;align-items:center;gap:8px">
+                <button onclick="shiftOverviewMonth(-1)" style="background:var(--navy3);border:1px solid var(--border2);border-radius:6px;padding:4px 10px;color:var(--text2);cursor:pointer;font-size:14px">‹</button>
+                <span id="cf-month-label" style="font-size:var(--text-sm);font-weight:700;color:var(--text1);min-width:120px;text-align:center"></span>
+                <button onclick="shiftOverviewMonth(1)" style="background:var(--navy3);border:1px solid var(--border2);border-radius:6px;padding:4px 10px;color:var(--text2);cursor:pointer;font-size:14px">›</button>
+              </div>
+              <button onclick="setOverviewMonthToday()" style="font-size:var(--text-xs);background:var(--teal3);border:1px solid var(--teal2);color:var(--teal);border-radius:6px;padding:4px 10px;cursor:pointer">This Month</button>
+            </div>
             <div class="mr" style="grid-template-columns:repeat(4,1fr);margin-bottom:14px">
-              <div class="hc"><div class="cl">Total Income</div><div class="cv" id="cf-income" style="font-size:24px;font-weight:800;margin-top:4px;color:var(--green);line-height:1.1">₱0.00</div><div class="csub">Debit transactions</div></div>
-              <div class="hc oc"><div class="cl">Total Expenses</div><div class="cv oc" id="cf-expense" style="font-size:24px;font-weight:800;margin-top:4px;line-height:1.1">₱0.00</div><div class="csub">Credit transactions</div></div>
-              <div class="hc"><div class="cl">Net Cash Flow</div><div class="cv" id="cf-net" style="font-size:24px;font-weight:800;margin-top:4px;line-height:1.1">₱0.00</div><div class="csub" id="cf-net-label">Income − Expenses</div></div>
-              <div class="hc"><div class="cl">Transactions</div><div class="cv" id="cf-count" style="font-size:24px;font-weight:800;margin-top:4px">0</div><div class="csub">All entries</div></div>
+              <div class="hc"><div class="cl">Income</div><div class="cv" id="cf-income" style="font-size:24px;font-weight:800;margin-top:4px;color:var(--green);line-height:1.1">₱0.00</div><div class="csub">Debit this month</div></div>
+              <div class="hc oc"><div class="cl">Expenses</div><div class="cv oc" id="cf-expense" style="font-size:24px;font-weight:800;margin-top:4px;line-height:1.1">₱0.00</div><div class="csub">Credit this month</div></div>
+              <div class="hc"><div class="cl">Net This Month</div><div class="cv" id="cf-net" style="font-size:24px;font-weight:800;margin-top:4px;line-height:1.1">₱0.00</div><div class="csub" id="cf-net-label">Income − Expenses</div></div>
+              <div class="hc"><div class="cl">Carried Balance</div><div class="cv" id="cf-carried" style="font-size:24px;font-weight:800;margin-top:4px;color:var(--teal);line-height:1.1">₱0.00</div><div class="csub">From previous months</div></div>
             </div>
             <!-- Account balances strip -->
             <div id="cf-account-strip" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px;margin-bottom:14px"></div>
@@ -3601,10 +3629,11 @@ select option{background:var(--navy3)}
           <!-- TRANSACTIONS TAB -->
           <div id="cf-transactions" style="display:none">
             <div id="cashFilterRow" style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap">
-              <select id="cf-filter-type" onchange="renderCashTable()" style="font-size:var(--text-xs);width:120px;padding:5px 8px"><option value="all">All Types</option><option value="Debit">Debit (Income)</option><option value="Credit">Credit (Expense)</option><option value="Transfer">Transfer</option></select>
+              <select id="cf-filter-type" onchange="renderCashTable()" style="font-size:var(--text-xs);width:120px;padding:5px 8px"><option value="all">All Types</option><option value="Debit">Debit (Income)</option><option value="Credit">Credit (Expense)</option><option value="Payment">Payment</option><option value="Transfer">Transfer</option></select>
               <select id="cf-filter-account" onchange="renderCashTable()" style="font-size:var(--text-xs);width:130px;padding:5px 8px"><option value="all">All Accounts</option></select>
               <select id="cf-filter-cat" onchange="renderCashTable()" style="font-size:var(--text-xs);width:130px;padding:5px 8px"><option value="all">All Categories</option></select>
               <input type="month" id="cf-filter-month" onchange="renderCashTable()" style="font-size:var(--text-xs);padding:5px 8px;width:140px">
+              <button id="cashSortBtn" onclick="toggleCashSort()" class="btn btn-g" style="font-size:var(--text-xs);padding:5px 10px;white-space:nowrap"><i class="ti ti-arrows-sort" style="font-size:12px;line-height:1;display:inline-block;margin-right:3px"></i>Newest</button>
             </div>
             <div id="mobileTransactionList" style="display:none;margin:0 -14px"></div>
             <table id="cashTransactionTable" class="ht">
@@ -3631,14 +3660,25 @@ select option{background:var(--navy3)}
 
           <!-- PROPERTY TAB -->
           <div id="cf-property" style="display:none">
-            <div class="hc">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+              <div style="font-size:var(--text-sm);font-weight:700;color:var(--teal)">Rental Property</div>
+              <button class="btn btn-t" style="font-size:var(--text-xs)" onclick="openCashModal('Debit')"><i class="ti ti-plus"></i> Log Transaction</button>
+            </div>
+            <div class="hc" style="margin-bottom:12px">
               <div class="cl" style="margin-bottom:8px">Culasi Compound — Las Piñas</div>
               <div class="mr" style="grid-template-columns:repeat(3,1fr);margin-bottom:10px">
-                <div style="background:var(--navy3);border:1px solid var(--border);border-radius:4px;padding:9px"><div class="cl" style="font-size:var(--text-xs)">Monthly Rent</div><div style="font-size:16px;color:var(--teal)">₱0</div></div>
-                <div style="background:var(--navy3);border:1px solid var(--border);border-radius:4px;padding:9px"><div class="cl" style="font-size:var(--text-xs)">Tenants</div><div style="font-size:16px;color:var(--teal)">—</div></div>
-                <div style="background:var(--navy3);border:1px solid var(--border);border-radius:4px;padding:9px"><div class="cl" style="font-size:var(--text-xs)">Status</div><div style="font-size:var(--text-xs);color:var(--green);margin-top:2px">ACTIVE</div></div>
+                <div style="background:var(--navy3);border:1px solid var(--border);border-radius:8px;padding:12px"><div class="cl" style="font-size:var(--text-xs)">Monthly Rent</div><div style="font-size:16px;font-weight:800;color:var(--teal)">₱0</div></div>
+                <div style="background:var(--navy3);border:1px solid var(--border);border-radius:8px;padding:12px"><div class="cl" style="font-size:var(--text-xs)">Tenants</div><div style="font-size:16px;font-weight:800;color:var(--teal)">—</div></div>
+                <div style="background:var(--navy3);border:1px solid var(--border);border-radius:8px;padding:12px"><div class="cl" style="font-size:var(--text-xs)">Status</div><div style="font-size:var(--text-xs);color:var(--green);margin-top:4px;font-weight:700">ACTIVE</div></div>
               </div>
-              <div style="font-size:var(--text-xs);color:var(--text3)">Lessor: Lou E. Inacay · Log rental income via Debit button above</div>
+              <div style="font-size:var(--text-xs);color:var(--text3)">Lessor: Lou E. Inacay · Log rental income as Debit / payments as Credit</div>
+            </div>
+            <!-- Property transactions -->
+            <div class="bd-block">
+              <div class="bd-h"><i class="ti ti-list" style="color:var(--teal)"></i>Property Transactions</div>
+              <div id="property-txn-list" style="margin-top:8px">
+                <div style="font-size:var(--text-xs);color:var(--text3);text-align:center;padding:20px">No property transactions yet. Use "Log Transaction" above to record rent payments and expenses.</div>
+              </div>
             </div>
           </div>
 
@@ -7288,8 +7328,18 @@ function openAppModal(id){
   editingAppId=id||null;
   const a=id?(DB.buildApps||[]).find(x=>x.id===id):null;
   document.getElementById('appModalTitle').textContent=a?'Edit App':'Add App';
-  ['name','desc','status','icon','tech','repo','playstore','appstore','notes'].forEach(f=>{
-    const el=document.getElementById('am-'+f);if(el)el.value=a?(a[f]||''):'';
+  const iconInput=document.getElementById('am-icon');
+  const iconPreview=document.getElementById('am-icon-preview');
+  const iconGrid=document.getElementById('iconGrid');
+  const currentIcon=a?a.icon:'ti-device-mobile';
+  if(iconInput){iconInput.value=currentIcon;}
+  if(iconPreview){iconPreview.className='ti '+currentIcon;}
+  if(iconGrid){
+    const ICONS=['ti-device-mobile','ti-device-tablet','ti-brand-android','ti-brand-apple','ti-rocket','ti-code','ti-cpu','ti-database','ti-api','ti-terminal','ti-bug','ti-shield','ti-lock','ti-heart','ti-star','ti-crown','ti-bolt','ti-flame','ti-leaf','ti-brain','ti-robot','ti-camera','ti-music','ti-map','ti-compass','ti-car','ti-plane','ti-home','ti-shopping-cart','ti-chart-bar','ti-chart-line','ti-coins','ti-wallet','ti-receipt','ti-users','ti-user','ti-message','ti-mail','ti-bell','ti-calendar','ti-clock','ti-settings','ti-tool','ti-brush','ti-palette','ti-photo','ti-video','ti-microphone','ti-headphones','ti-game-pad','ti-puzzle'];
+    iconGrid.innerHTML=ICONS.map(ic=>`<div onclick="document.getElementById('am-icon').value='${ic}';document.getElementById('am-icon-preview').className='ti ${ic}';document.querySelectorAll('#iconGrid .icon-btn').forEach(b=>b.classList.remove('sel'));this.classList.add('sel')" class="icon-btn${currentIcon===ic?' sel':''}" style="display:flex;align-items:center;justify-content:center;padding:6px;border-radius:5px;cursor:pointer;border:1px solid ${currentIcon===ic?'var(--teal2)':'transparent'};background:${currentIcon===ic?'rgba(128,255,250,.1)':'transparent'};transition:all .1s" title="${ic}"><i class="ti ${ic}" style="font-size:16px;color:${currentIcon===ic?'var(--teal)':'var(--text3)'};line-height:1;display:block"></i></div>`).join('');
+  }
+  // Populate text fields
+  ['name','desc','status','tech','repo','playstore','appstore','notes'].forEach(f=>{
   });
   const colorVal=a?(a.color&&/^#/.test(a.color)?a.color:'#00d4c8'):'#00d4c8';
   document.getElementById('am-color').value=colorVal;
@@ -7575,6 +7625,16 @@ function setCFTab(t,btn){
 
 
 let editingCashId=null;
+function syncDateDisplay(inputId,displayId){
+  const inp=document.getElementById(inputId);
+  const lbl=document.getElementById(displayId.replace('-display','-label'));
+  if(!inp||!lbl)return;
+  if(inp.value){
+    const d=new Date(inp.value+'T00:00:00');
+    lbl.textContent=d.toLocaleDateString('en-PH',{weekday:'short',year:'numeric',month:'long',day:'numeric'});
+    lbl.style.color='var(--text1)';
+  }else{lbl.textContent='Select date...';lbl.style.color='var(--text3)';}
+}
 function toggleCashAccountOther(){const v=document.getElementById('ca-account').value;const w=document.getElementById('ca-account-other-wrap');if(w)w.style.display=v==='Other'?'':'none';}
 function toggleCashCatOther(){const v=document.getElementById('ca-cat').value;const w=document.getElementById('ca-cat-other-wrap');if(w)w.style.display=v==='Other'?'':'none';}
 function openCashModal(type,id){
@@ -7583,6 +7643,7 @@ function openCashModal(type,id){
   document.getElementById('cashModalTitle').textContent=existing?'Edit Transaction':'Add '+(type==='Debit'?'Debit':'Credit');
   document.getElementById('ca-type').value=existing?existing.type:(type||'Debit');
   document.getElementById('ca-date').value=existing?existing.date:new Date().toISOString().split('T')[0];
+  syncDateDisplay('ca-date','ca-date-display');
   document.getElementById('ca-desc').value=existing?existing.desc:'';
   document.getElementById('ca-amount').value=existing?existing.amount:'';
   document.getElementById('ca-notes').value=existing?(existing.notes||''):'';
@@ -7595,7 +7656,7 @@ function openCashModal(type,id){
   }else{acctSel.value='Cash';}
   // Category
   const catSel=document.getElementById('ca-cat');
-  const knownCats=['Housing','Food','Transport','Utilities','Business','Health','Entertainment','Income','Loan','Subscription','Other'];
+  const knownCats=['Housing','Food','Transport','Utilities','Business','Health','Entertainment','Income','Loan','Payment','Subscription','Other'];
   if(existing){
     if(knownCats.includes(existing.category)){catSel.value=existing.category;}
     else{catSel.value='Other';}
@@ -7669,31 +7730,60 @@ function getAccountBalance(account){
 const fmtPHP = v => '₱'+Math.abs(v).toLocaleString('en-PH',{minimumFractionDigits:2,maximumFractionDigits:2});
 const signedFmt = v => (v>0?'+':v<0?'-':'')+fmtPHP(v);
 
+// ── Overview month state ──────────────────────────────────────────────────
+let overviewYear=new Date().getFullYear(), overviewMonth=new Date().getMonth();
+function shiftOverviewMonth(dir){
+  overviewMonth+=dir;
+  if(overviewMonth>11){overviewMonth=0;overviewYear++;}
+  if(overviewMonth<0){overviewMonth=11;overviewYear--;}
+  renderLife();
+}
+function setOverviewMonthToday(){overviewYear=new Date().getFullYear();overviewMonth=new Date().getMonth();renderLife();}
+
 function renderLife(){
   const txns = DB.cashflow||[];
-  const debits  = txns.filter(t=>t.type==='Debit');      // income
-  const credits = txns.filter(t=>t.type==='Credit');     // expenses
-  const totalIncome  = debits.reduce((s,t)=>s+(t.amount||0),0);
-  const totalExpense = credits.reduce((s,t)=>s+(t.amount||0),0);
-  const net = totalIncome - totalExpense;  // positive = surplus
+  const monthStr=`${overviewYear}-${String(overviewMonth+1).padStart(2,'0')}`;
+  const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+  // Month label
+  const lbl=document.getElementById('cf-month-label');
+  if(lbl)lbl.textContent=MONTHS[overviewMonth]+' '+overviewYear;
+
+  // This month's transactions
+  const thisMonth=txns.filter(t=>t.date&&t.date.startsWith(monthStr));
+  const debits=thisMonth.filter(t=>t.type==='Debit'||t.type==='Payment');
+  const credits=thisMonth.filter(t=>t.type==='Credit');
+  const payments=thisMonth.filter(t=>t.type==='Payment');
+  const totalIncome=debits.filter(t=>t.type==='Debit').reduce((s,t)=>s+(t.amount||0),0);
+  const totalExpense=credits.reduce((s,t)=>s+(t.amount||0),0)+payments.reduce((s,t)=>s+(t.amount||0),0);
+  const net=totalIncome-totalExpense;
+
+  // Carried balance = all transactions BEFORE this month
+  const prevTxns=txns.filter(t=>t.date&&t.date<monthStr+'-01');
+  const prevInc=prevTxns.filter(t=>t.type==='Debit').reduce((s,t)=>s+(t.amount||0),0);
+  const prevExp=prevTxns.filter(t=>t.type==='Credit'||t.type==='Payment').reduce((s,t)=>s+(t.amount||0),0);
+  const carried=prevInc-prevExp;
 
   // ── Summary cards ──────────────────────────────────────────────────────
   const elIncome = document.getElementById('cf-income');
   if(elIncome) elIncome.textContent = fmtPHP(totalIncome);
   const elExpense = document.getElementById('cf-expense');
   if(elExpense) elExpense.textContent = fmtPHP(totalExpense);
+  const elCarried = document.getElementById('cf-carried');
+  if(elCarried){elCarried.textContent=(carried>=0?'+':'-')+fmtPHP(carried);elCarried.style.color=carried>=0?'var(--green)':'var(--red)';}
 
-  // Net: positive surplus → show as negative per convention (more income than expense = "-" sign)
+  // Net: positive surplus → green, negative deficit → red
   const elNet = document.getElementById('cf-net');
   const elNetLabel = document.getElementById('cf-net-label');
   if(elNet){
     elNet.textContent = (net>0?'+':net<0?'-':'')+fmtPHP(net);
     elNet.style.color = net>0?'var(--green)':net<0?'var(--red)':'var(--text2)';
+
   }
   if(elNetLabel) elNetLabel.textContent = net>0?'Surplus':net<0?'Deficit':'Balanced';
 
   const elCount = document.getElementById('cf-count');
-  if(elCount) elCount.textContent = txns.length;
+  if(elCount) elCount.textContent = thisMonth.length;
 
   // ── Account balance strip ──────────────────────────────────────────────
   const usedAccounts=[...new Set(txns.map(t=>t.account).filter(Boolean))];
@@ -7864,6 +7954,14 @@ function deleteLoan(id){
   showToast('Loan removed');
 }
 
+let cashSortOrder='desc'; // 'desc' = newest first, 'asc' = oldest first
+function toggleCashSort(){
+  cashSortOrder=cashSortOrder==='desc'?'asc':'desc';
+  const btn=document.getElementById('cashSortBtn');
+  if(btn){btn.innerHTML='<i class="ti ti-arrows-sort" style="font-size:12px;line-height:1;display:inline-block;margin-right:3px"></i>'+(cashSortOrder==='desc'?'Newest':'Oldest');}
+  renderCashTable();
+}
+
 function renderCashTable(){
   const typeF    = document.getElementById('cf-filter-type')?.value    || 'all';
   const acctF    = document.getElementById('cf-filter-account')?.value || 'all';
@@ -7882,7 +7980,10 @@ function renderCashTable(){
     cats.forEach(c=>{const o=document.createElement('option');o.value=c;o.textContent=c;catSel.appendChild(o);});
   }
 
-  let txns=[...(DB.cashflow||[])].sort((a,b)=>b.date>a.date?1:-1);
+  let txns=[...(DB.cashflow||[])].sort((a,b)=>{
+    if(cashSortOrder==='asc') return a.date>b.date?1:a.date<b.date?-1:0;
+    return b.date>a.date?1:b.date<a.date?-1:0;
+  });
   if(typeF!=='all')  txns=txns.filter(t=>t.type===typeF);
   if(acctF!=='all')  txns=txns.filter(t=>t.account===acctF);
   if(catF!=='all')   txns=txns.filter(t=>t.category===catF);
