@@ -807,9 +807,16 @@ select option{background:var(--navy3)}
   /* Remove search + gray rectangle from topbar on mobile */
   #desktopSearchBar{display:none !important}
   #mobileSearchTrigger{display:none !important}
+  #dataTicker{display:none !important}
   /* Hide the vertical divider between logo and search */
   .topbar > div:first-child > div:nth-child(2){display:none !important}
   .tb-search-wrap{display:none !important}
+  /* Collapse the topbar to just logo + right buttons — no extra height */
+  .topbar{padding-top:6px !important;padding-bottom:6px !important;min-height:0 !important}
+  /* Hide topbar entirely on mobile since nav pill handles navigation */
+  .topbar{display:none !important}
+  /* Push app grid to top */
+  .app{grid-template-rows:0 1fr !important}
   .tb-r .hpill{display:none}
   .tb-btn{padding:6px;font-size:var(--text-xs);min-height:36px;min-width:36px;justify-content:center;flex-shrink:0}
   .tb-btn i{margin:0}
@@ -836,7 +843,9 @@ select option{background:var(--navy3)}
 
   /* Calendar: hide ALL pill rows on mobile - worlds in filter dropdown only */
   #calCtxFiltersWrap{display:none !important}
-  #calMobileFilterRow{display:flex !important}
+  #calMobileFilterRow{display:none !important}
+  /* Show inline world dots filter on mobile */
+  #calWorldDots{display:flex !important}
   .cfbt-wrap{overflow-x:auto !important;-webkit-overflow-scrolling:touch;flex-wrap:nowrap !important;padding-bottom:4px;gap:4px !important}
   .cfbt{flex-shrink:0 !important;white-space:nowrap !important;font-size:10px !important;padding:5px 8px !important;min-height:28px !important}
   /* View body scrolls to top on tab switch */
@@ -3750,6 +3759,23 @@ select option{background:var(--navy3)}
             <button onclick="calNavToday()" class="btn" style="font-size:var(--text-xs);padding:4px 10px;background:var(--teal3);border:1px solid var(--teal2);color:var(--teal);font-weight:700;letter-spacing:.06em">TODAY</button>
             <button onclick="calNav(1)" class="cal-nav-btn" style="border-radius:4px;padding:4px 9px">›</button>
             <div class="cal-toolbar-title" id="calToolbarTitle" style="flex:1"></div>
+            <!-- Mobile: color-coded world filter dots (inline, same row as title) -->
+            <div id="calWorldDots" style="display:none;align-items:center;gap:4px;flex-shrink:0;position:relative">
+              <button onclick="toggleCalFilterDropdown()" style="display:flex;align-items:center;gap:5px;padding:5px 10px;border-radius:20px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.06);cursor:pointer;-webkit-tap-highlight-color:transparent">
+                <span id="calWorldDotRow" style="display:flex;align-items:center;gap:3px"></span>
+                <i class="ti ti-chevron-down" style="font-size:10px;color:var(--text3);line-height:1;display:block"></i>
+              </button>
+              <!-- Filter dropdown -->
+              <div id="calFilterDropdown" style="display:none;position:absolute;top:calc(100% + 6px);right:0;width:220px;background:var(--navy3);border:1px solid var(--border2);border-radius:12px;padding:12px;z-index:300;box-shadow:0 8px 32px rgba(0,0,0,.8)">
+                <div style="font-size:10px;font-weight:700;letter-spacing:.1em;color:var(--text3);text-transform:uppercase;margin-bottom:8px">Filter by World</div>
+                <div id="calFilterList" style="display:flex;flex-direction:column;gap:4px"></div>
+                <div style="display:flex;gap:6px;margin-top:10px;border-top:1px solid var(--border);padding-top:10px">
+                  <button onclick="calFilterSelectAll()" style="flex:1;padding:7px;border-radius:8px;border:1px solid var(--border2);background:transparent;color:var(--text2);font-size:11px;cursor:pointer">All</button>
+                  <button onclick="calFilterClearAll()" style="flex:1;padding:7px;border-radius:8px;border:1px solid var(--border2);background:transparent;color:var(--text2);font-size:11px;cursor:pointer">None</button>
+                  <button onclick="document.getElementById('calFilterDropdown').style.display='none'" style="flex:1;padding:7px;border-radius:8px;border:1px solid rgba(128,255,250,.3);background:rgba(128,255,250,.1);color:var(--teal);font-size:11px;font-weight:700;cursor:pointer">Done</button>
+                </div>
+              </div>
+            </div>
             <!-- View tabs — hidden on mobile via CSS -->
             <div class="cal-view-tabs">
               <button class="cal-vt"        id="cvt-day"    onclick="setCalView('day')">Day</button>
@@ -3760,24 +3786,7 @@ select option{background:var(--navy3)}
             </div>
             <button class="btn btn-t" onclick="openCalEventModal()" style="font-size:var(--text-xs);flex-shrink:0"><i class="ti ti-plus"></i> Event</button>
           </div>
-          <!-- Mobile: Filter button row (shown on mobile, hidden on desktop) -->
-          <div id="calMobileFilterRow" style="display:none;align-items:center;justify-content:space-between;padding:4px 0;gap:8px;position:relative">
-            <button onclick="toggleCalFilterDropdown()" style="display:flex;align-items:center;gap:6px;padding:6px 14px;border-radius:100px;border:1.5px solid rgba(128,255,250,.3);background:rgba(128,255,250,.08);color:var(--teal);font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;white-space:nowrap">
-              <i class="ti ti-filter" style="font-size:13px;line-height:1;display:block"></i>
-              Filter <span id="calFilterCount" style="background:var(--teal);color:var(--navy);border-radius:8px;padding:1px 6px;font-size:9px;font-weight:800;margin-left:2px">All</span>
-            </button>
-            <!-- Filter dropdown -->
-            <div id="calFilterDropdown" style="display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;background:var(--navy3);border:1px solid var(--border2);border-radius:12px;padding:12px;z-index:200;box-shadow:0 8px 32px rgba(0,0,0,.7)">
-              <div style="font-size:10px;font-weight:700;letter-spacing:.1em;color:var(--text3);text-transform:uppercase;margin-bottom:8px">Filter by World</div>
-              <div id="calFilterList" style="display:flex;flex-direction:column;gap:4px"></div>
-              <div style="display:flex;gap:6px;margin-top:10px;border-top:1px solid var(--border);padding-top:10px">
-                <button onclick="calFilterSelectAll()" style="flex:1;padding:7px;border-radius:8px;border:1px solid var(--border2);background:transparent;color:var(--text2);font-size:11px;cursor:pointer">All</button>
-                <button onclick="calFilterClearAll()" style="flex:1;padding:7px;border-radius:8px;border:1px solid var(--border2);background:transparent;color:var(--text2);font-size:11px;cursor:pointer">None</button>
-                <button onclick="document.getElementById('calFilterDropdown').style.display='none'" style="flex:1;padding:7px;border-radius:8px;border:1px solid rgba(128,255,250,.3);background:rgba(128,255,250,.1);color:var(--teal);font-size:11px;font-weight:700;cursor:pointer">Done</button>
-              </div>
-            </div>
-          </div>
-          <!-- View tabs — always visible, scrollable on mobile -->
+          <!-- View tabs — scrollable on mobile -->
           <div style="width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:2px">
             <div style="display:flex;gap:4px;min-width:max-content">
               <button class="cal-vt"        id="cvt-day2"    onclick="setCalView('day')"    style="padding:6px 14px;min-height:32px">Day</button>
@@ -8524,10 +8533,13 @@ function renderCalSidebar(){
       <span style="opacity:${calContextFilter.has(w.id)?1:.4}">${w.label}</span>
     </div>`).join('');
 
-  // Context pills in toolbar
+  // Context pills in toolbar (desktop)
   const pills=document.getElementById('calCtxFilters');
   if(pills)pills.innerHTML=CAL_WORLDS.map(w=>`
     <div class="cal-ctx-pill${calContextFilter.has(w.id)?' on':''}" style="background:${calContextFilter.has(w.id)?w.hex+'22':'transparent'};border-color:${calContextFilter.has(w.id)?w.hex:'rgba(255,255,255,.12)'};color:${calContextFilter.has(w.id)?w.hex:'var(--text3)'}" onclick="toggleCalContext('${w.id}',null)">${w.label}</div>`).join('');
+  // World dots for mobile inline filter
+  const dotRow=document.getElementById('calWorldDotRow');
+  if(dotRow)dotRow.innerHTML=CAL_WORLDS.map(w=>`<span style="width:8px;height:8px;border-radius:50%;background:${w.hex};display:inline-block;opacity:${calContextFilter.has(w.id)?1:.2};flex-shrink:0" title="${w.label}"></span>`).join('');
 
   // Upcoming events (next 7 days)
   const up=document.getElementById('calUpcoming');
@@ -8559,17 +8571,21 @@ function toggleCalFilterDropdown(){
 }
 function renderCalFilterList(){
   const list=document.getElementById('calFilterList');
-  if(!list)return;
+  const dotRow=document.getElementById('calWorldDotRow');
   const worlds=(DB.worlds||[]).map(w=>({
     id:w.id,label:w.label,
     hex:(w.color&&/^#/.test(w.color))?w.color:'var(--teal)'
   }));
-  list.innerHTML=worlds.map(w=>`
-    <label style="display:flex;align-items:center;gap:10px;cursor:pointer;padding:6px 8px;border-radius:6px;background:${calContextFilter.has(w.id)?'rgba(128,255,250,.06)':'transparent'};transition:background .1s">
+  // Populate dropdown checkboxes
+  if(list) list.innerHTML=worlds.map(w=>`
+    <label style="display:flex;align-items:center;gap:10px;cursor:pointer;padding:6px 8px;border-radius:6px;background:${calContextFilter.has(w.id)?'rgba(128,255,250,.06)':'transparent'}">
       <input type="checkbox" ${calContextFilter.has(w.id)?'checked':''} onchange="toggleCalContext('${w.id}',null);renderCalFilterList();updateCalFilterCount()" style="width:16px;height:16px;accent-color:${w.hex};flex-shrink:0;cursor:pointer">
       <span style="width:8px;height:8px;border-radius:50%;background:${w.hex};flex-shrink:0;display:inline-block"></span>
       <span style="font-size:12px;font-weight:600;color:var(--text1)">${w.label}</span>
     </label>`).join('');
+  // Update dot row - show colored dots for each world
+  if(dotRow) dotRow.innerHTML=worlds.map(w=>`
+    <span style="width:8px;height:8px;border-radius:50%;background:${w.hex};display:inline-block;opacity:${calContextFilter.has(w.id)?1:.25};flex-shrink:0" title="${w.label}"></span>`).join('');
   updateCalFilterCount();
 }
 function updateCalFilterCount(){
