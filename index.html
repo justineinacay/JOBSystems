@@ -823,8 +823,11 @@ select option{background:var(--navy3)}
     flex-direction:column;
   }
 
-  /* View header */
-  .vh{padding:10px 14px;flex-shrink:0}
+  /* Life tabs — horizontal scroll on mobile */
+  .cfbt-wrap{overflow-x:auto !important;-webkit-overflow-scrolling:touch;flex-wrap:nowrap !important;padding-bottom:4px}
+  .cfbt{flex-shrink:0 !important;white-space:nowrap !important;font-size:var(--text-xs) !important;padding:6px 10px !important}
+  /* View body scrolls to top on tab switch */
+  .vb{scroll-behavior:smooth}
   .vt{font-size:var(--text-sm)}
   .vs{display:none}
   .va{gap:5px;flex-wrap:wrap}
@@ -917,7 +920,20 @@ select option{background:var(--navy3)}
   /* Cards — single column */
   #ihClientCards{grid-template-columns:1fr}
   #sidesProductGrid{grid-template-columns:1fr}
-  .mr{grid-template-columns:repeat(2,1fr)}
+  /* Single column for all metric/card grids on mobile */
+  .mr{grid-template-columns:1fr !important}
+  /* 2-col exceptions for small metric cards that still fit */
+  #briefMetrics .mr{grid-template-columns:1fr 1fr !important}
+  #cf-biomonitor .mr{grid-template-columns:1fr 1fr !important}
+  /* Force all inline multi-col grids to single col */
+  [style*="grid-template-columns:repeat(4"],[style*="grid-template-columns:repeat(3"],[style*="grid-template-columns:1fr 1fr 1fr"],[style*="grid-template-columns:1fr 1fr"]{grid-template-columns:1fr !important}
+  /* Exceptions: keep 2-col for mood/stress/energy rows */
+  #moodBtns,#energyBtns,#stressBtns{display:flex !important;grid-template-columns:unset !important}
+  /* Flex column for wins/losses brief section */
+  #briefWinsLosses{flex-direction:column !important}
+  #briefWinsLosses>div{width:100% !important;min-width:0 !important}
+  /* Accounts, forecast, loans all single col */
+  #cf-accounts-grid,#cf-forecast-grid,#loan-summary-cards,#buildApps,#vtcKanban,#vtpKanban{grid-template-columns:1fr !important}
 
   /* Touch targets — minimum 44×44pt (Apple HIG) */
   button,.btn,.ni,.mbn-tab,.mbn-center{min-height:44px}
@@ -3645,39 +3661,40 @@ select option{background:var(--navy3)}
               </div>
               <div class="bd-block">
                 <div class="bd-h"><i class="ti ti-activity" style="color:var(--w-sides)"></i>Today's Wellness Check</div>
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
-                  <div>
-                    <div style="font-size:var(--text-xs);color:var(--text3);margin-bottom:6px;letter-spacing:.06em;text-transform:uppercase">Mood</div>
-                    <div style="display:flex;gap:5px;flex-wrap:wrap" id="moodBtns">
-                      <button class="mood-btn" onclick="setWellness('mood','1',this)" title="Very low" style="flex:1;min-width:28px;padding:6px 4px;display:flex;flex-direction:column;align-items:center;gap:3px;border-radius:6px;border:1px solid var(--border2);background:transparent;cursor:pointer;color:var(--text3);transition:all .15s"><i class="ti ti-mood-sad" style="font-size:16px;line-height:1"></i><span style="font-size:9px">Low</span></button>
-                      <button class="mood-btn" onclick="setWellness('mood','2',this)" title="Low" style="flex:1;min-width:28px;padding:6px 4px;display:flex;flex-direction:column;align-items:center;gap:3px;border-radius:6px;border:1px solid var(--border2);background:transparent;cursor:pointer;color:var(--text3);transition:all .15s"><i class="ti ti-mood-confuzed" style="font-size:16px;line-height:1"></i><span style="font-size:9px">Meh</span></button>
-                      <button class="mood-btn" onclick="setWellness('mood','3',this)" title="Neutral" style="flex:1;min-width:28px;padding:6px 4px;display:flex;flex-direction:column;align-items:center;gap:3px;border-radius:6px;border:1px solid var(--border2);background:transparent;cursor:pointer;color:var(--text3);transition:all .15s"><i class="ti ti-mood-neutral" style="font-size:16px;line-height:1"></i><span style="font-size:9px">OK</span></button>
-                      <button class="mood-btn" onclick="setWellness('mood','4',this)" title="Good" style="flex:1;min-width:28px;padding:6px 4px;display:flex;flex-direction:column;align-items:center;gap:3px;border-radius:6px;border:1px solid var(--border2);background:transparent;cursor:pointer;color:var(--text3);transition:all .15s"><i class="ti ti-mood-smile" style="font-size:16px;line-height:1"></i><span style="font-size:9px">Good</span></button>
-                      <button class="mood-btn" onclick="setWellness('mood','5',this)" title="Excellent" style="flex:1;min-width:28px;padding:6px 4px;display:flex;flex-direction:column;align-items:center;gap:3px;border-radius:6px;border:1px solid var(--border2);background:transparent;cursor:pointer;color:var(--text3);transition:all .15s"><i class="ti ti-mood-happy" style="font-size:16px;line-height:1"></i><span style="font-size:9px">Great</span></button>
-                    </div>
-                  </div>
-                  <div>
-                    <div style="font-size:var(--text-xs);color:var(--text3);margin-bottom:6px;letter-spacing:.06em;text-transform:uppercase">Energy</div>
-                    <div style="display:flex;gap:5px" id="energyBtns">
-                      <button class="mood-btn" onclick="setWellness('energy','1',this)" title="Low energy" style="flex:1;padding:6px 4px;display:flex;flex-direction:column;align-items:center;gap:3px;border-radius:6px;border:1px solid var(--border2);background:transparent;cursor:pointer;color:var(--text3);transition:all .15s"><i class="ti ti-battery-1" style="font-size:16px;line-height:1"></i><span style="font-size:9px">Low</span></button>
-                      <button class="mood-btn" onclick="setWellness('energy','2',this)" title="Medium energy" style="flex:1;padding:6px 4px;display:flex;flex-direction:column;align-items:center;gap:3px;border-radius:6px;border:1px solid var(--border2);background:transparent;cursor:pointer;color:var(--text3);transition:all .15s"><i class="ti ti-battery-2" style="font-size:16px;line-height:1"></i><span style="font-size:9px">Mid</span></button>
-                      <button class="mood-btn" onclick="setWellness('energy','3',this)" title="High energy" style="flex:1;padding:6px 4px;display:flex;flex-direction:column;align-items:center;gap:3px;border-radius:6px;border:1px solid var(--border2);background:transparent;cursor:pointer;color:var(--text3);transition:all .15s"><i class="ti ti-bolt" style="font-size:16px;line-height:1"></i><span style="font-size:9px">High</span></button>
-                    </div>
+                <!-- Mood -->
+                <div style="margin-bottom:12px">
+                  <div style="font-size:var(--text-xs);color:var(--text3);margin-bottom:7px;letter-spacing:.06em;text-transform:uppercase">Mood</div>
+                  <div style="display:flex;gap:6px;width:100%" id="moodBtns">
+                    <button class="mood-btn" onclick="setWellness('mood','1',this)" title="Very low" style="flex:1;padding:8px 4px;display:flex;flex-direction:column;align-items:center;gap:4px;border-radius:8px;border:1px solid var(--border2);background:transparent;cursor:pointer;color:var(--text3);transition:all .15s"><i class="ti ti-mood-sad" style="font-size:18px;line-height:1"></i><span style="font-size:9px;font-weight:600">Low</span></button>
+                    <button class="mood-btn" onclick="setWellness('mood','2',this)" title="Low" style="flex:1;padding:8px 4px;display:flex;flex-direction:column;align-items:center;gap:4px;border-radius:8px;border:1px solid var(--border2);background:transparent;cursor:pointer;color:var(--text3);transition:all .15s"><i class="ti ti-mood-confuzed" style="font-size:18px;line-height:1"></i><span style="font-size:9px;font-weight:600">Meh</span></button>
+                    <button class="mood-btn" onclick="setWellness('mood','3',this)" title="Neutral" style="flex:1;padding:8px 4px;display:flex;flex-direction:column;align-items:center;gap:4px;border-radius:8px;border:1px solid var(--border2);background:transparent;cursor:pointer;color:var(--text3);transition:all .15s"><i class="ti ti-mood-neutral" style="font-size:18px;line-height:1"></i><span style="font-size:9px;font-weight:600">OK</span></button>
+                    <button class="mood-btn" onclick="setWellness('mood','4',this)" title="Good" style="flex:1;padding:8px 4px;display:flex;flex-direction:column;align-items:center;gap:4px;border-radius:8px;border:1px solid var(--border2);background:transparent;cursor:pointer;color:var(--text3);transition:all .15s"><i class="ti ti-mood-smile" style="font-size:18px;line-height:1"></i><span style="font-size:9px;font-weight:600">Good</span></button>
+                    <button class="mood-btn" onclick="setWellness('mood','5',this)" title="Excellent" style="flex:1;padding:8px 4px;display:flex;flex-direction:column;align-items:center;gap:4px;border-radius:8px;border:1px solid var(--border2);background:transparent;cursor:pointer;color:var(--text3);transition:all .15s"><i class="ti ti-mood-happy" style="font-size:18px;line-height:1"></i><span style="font-size:9px;font-weight:600">Great</span></button>
                   </div>
                 </div>
-                <div style="margin-bottom:10px">
-                  <div style="font-size:var(--text-xs);color:var(--text3);margin-bottom:5px;letter-spacing:.06em;text-transform:uppercase">Stress</div>
-                  <div style="display:flex;gap:5px">
+                <!-- Energy -->
+                <div style="margin-bottom:12px">
+                  <div style="font-size:var(--text-xs);color:var(--text3);margin-bottom:7px;letter-spacing:.06em;text-transform:uppercase">Energy</div>
+                  <div style="display:flex;gap:6px;width:100%" id="energyBtns">
+                    <button class="mood-btn" onclick="setWellness('energy','1',this)" title="Low energy" style="flex:1;padding:8px 4px;display:flex;flex-direction:column;align-items:center;gap:4px;border-radius:8px;border:1px solid var(--border2);background:transparent;cursor:pointer;color:var(--text3);transition:all .15s"><i class="ti ti-battery-1" style="font-size:18px;line-height:1"></i><span style="font-size:9px;font-weight:600">Low</span></button>
+                    <button class="mood-btn" onclick="setWellness('energy','2',this)" title="Medium energy" style="flex:1;padding:8px 4px;display:flex;flex-direction:column;align-items:center;gap:4px;border-radius:8px;border:1px solid var(--border2);background:transparent;cursor:pointer;color:var(--text3);transition:all .15s"><i class="ti ti-battery-2" style="font-size:18px;line-height:1"></i><span style="font-size:9px;font-weight:600">Mid</span></button>
+                    <button class="mood-btn" onclick="setWellness('energy','3',this)" title="High energy" style="flex:1;padding:8px 4px;display:flex;flex-direction:column;align-items:center;gap:4px;border-radius:8px;border:1px solid var(--border2);background:transparent;cursor:pointer;color:var(--text3);transition:all .15s"><i class="ti ti-bolt" style="font-size:18px;line-height:1"></i><span style="font-size:9px;font-weight:600">High</span></button>
+                  </div>
+                </div>
+                <!-- Stress -->
+                <div style="margin-bottom:12px">
+                  <div style="font-size:var(--text-xs);color:var(--text3);margin-bottom:7px;letter-spacing:.06em;text-transform:uppercase">Stress</div>
+                  <div style="display:flex;gap:6px">
                     <button class="btn btn-g" style="flex:1;font-size:var(--text-xs)" onclick="setWellness('stress','Low',this)"><i class="ti ti-wind" style="font-size:var(--text-xs);line-height:1;display:inline-block;margin-right:3px"></i>Low</button>
                     <button class="btn btn-g" style="flex:1;font-size:var(--text-xs)" onclick="setWellness('stress','Mid',this)"><i class="ti ti-flame" style="font-size:var(--text-xs);line-height:1;display:inline-block;margin-right:3px"></i>Mid</button>
                     <button class="btn btn-g" style="flex:1;font-size:var(--text-xs);color:var(--w-faith)" onclick="setWellness('stress','High',this)"><i class="ti ti-alert-triangle" style="font-size:var(--text-xs);line-height:1;display:inline-block;margin-right:3px"></i>High</button>
                   </div>
                 </div>
-                <div style="margin-bottom:10px">
+                <div style="margin-bottom:12px">
                   <div style="font-size:var(--text-xs);color:var(--text3);margin-bottom:5px">Notes</div>
                   <textarea class="mi" id="wellnessNotes" rows="2" placeholder="How are you feeling today, sir?" style="resize:none"></textarea>
                 </div>
-                <button class="btn btn-t" style="width:100%;font-size:var(--text-xs)" onclick="saveWellnessCheckin()"><i class="ti ti-check" style="font-size:var(--text-xs);line-height:1;display:inline-block;margin-right:4px"></i>Save Today's Check-in</button>
+                <button class="btn btn-t" style="width:100%;font-size:var(--text-xs);justify-content:center" onclick="saveWellnessCheckin()"><i class="ti ti-check" style="font-size:var(--text-xs);line-height:1;display:inline-block;margin-right:4px"></i>Save Today's Check-in</button>
               </div>
             </div>
             <div class="bd-block" style="margin-top:12px">
@@ -5291,7 +5308,7 @@ function setView(v){
   LearnEngine.onNavigate(v);
   renderSideNav();
   const r={dashboard:renderBrief,'work-ih':renderWorkIH,'work-cs':renderWorkCS,venture:renderVenture,build:renderBuild,sides:renderSides,faith:renderFaith,life:renderLife,calendar:renderCalendar,tasks:renderTasks,notes:renderNotesList,journal:renderJournal,memory:renderMemory,history:renderHistory,settings:renderSettingsView};
-  if(v==='life'){renderLife();setTimeout(()=>{const btns=document.querySelectorAll('.cfbt');btns.forEach(b=>{if(b.textContent.includes('Bio Monitor')){setCFTab('biomonitor',b);}});},100);}
+  if(v==='life'){renderLife();}
   else if(v==='biomonitor'){setView('life');setTimeout(()=>{const btns=document.querySelectorAll('.cfbt');btns.forEach(b=>{if(b.textContent.includes('Bio Monitor')){setCFTab('biomonitor',b);}});},150);}
   else if(r[v])r[v]();
   // Sync mobile bottom-nav active state
@@ -7439,6 +7456,8 @@ function renderFaithTopics(){
 let cfActiveTab='overview',cfCharts={};
 function setCFTab(t,btn){
   cfActiveTab=t;
+  // Scroll content to top
+  const vb=document.querySelector('#view-life .vb');if(vb)vb.scrollTop=0;
   ['overview','transactions','budget','accounts','property','loans','biomonitor'].forEach(tab=>{
     const el=document.getElementById('cf-'+tab);
     if(el) el.style.display=tab===t?'':'none';
