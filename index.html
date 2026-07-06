@@ -2337,7 +2337,54 @@ select option{background:var(--navy3)}
         </div>
       </div>
     </div>
-    <div class="mf"><button class="btn btn-g" onclick="closeModal('worldModal')">Cancel</button><button class="btn btn-t" onclick="saveWorld()"><i class="ti ti-plus"></i> Create World</button></div>
+    <div class="mf" style="justify-content:space-between">
+      <button id="wm-delete-btn" class="btn btn-d" style="display:none" onclick="deleteWorld(editingWorldId)"><i class="ti ti-trash"></i> Delete</button>
+      <div style="display:flex;gap:8px;margin-left:auto">
+        <button class="btn btn-g" onclick="closeModal('worldModal')">Cancel</button>
+        <button class="btn btn-t" onclick="saveWorld()"><i class="ti ti-check"></i> Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- APP MODAL -->
+<div class="mov" id="appModal">
+  <div class="modal" style="max-width:520px">
+    <div class="mh"><div class="mt" id="appModalTitle">Add App</div><button class="mc" onclick="closeModal('appModal')">×</button></div>
+    <div class="mb">
+      <div class="fr">
+        <div class="fg"><label class="fl">App Name *</label><input id="am-name" placeholder="e.g. NAKNAK v8"></div>
+        <div class="fg" style="max-width:110px">
+          <label class="fl">Status</label>
+          <select id="am-status"><option>Active</option><option>In Dev</option><option>Beta</option><option>Concept</option><option>Paused</option><option>Launched</option></select>
+        </div>
+      </div>
+      <div class="fg"><label class="fl">Short Description</label><input id="am-desc" placeholder="What does this app do?"></div>
+      <div class="fr">
+        <div class="fg"><label class="fl">Icon (Tabler)</label><input id="am-icon" placeholder="ti-rocket"></div>
+        <div class="fg" style="max-width:110px">
+          <label class="fl">Color</label>
+          <div style="display:flex;align-items:center;gap:6px">
+            <input type="color" id="am-color-picker" value="#00d4c8" style="width:32px;height:28px;padding:1px;border:1px solid var(--border2);border-radius:4px;background:#050a12;cursor:pointer;flex-shrink:0" oninput="document.getElementById('am-color').value=this.value">
+            <input id="am-color" placeholder="#00d4c8" style="flex:1;min-width:0" oninput="if(/^#[0-9a-fA-F]{6}$/.test(this.value))document.getElementById('am-color-picker').value=this.value">
+          </div>
+        </div>
+      </div>
+      <div class="fg"><label class="fl">Tech Stack</label><input id="am-tech" placeholder="e.g. React Native, Supabase, Node.js"></div>
+      <div class="fr">
+        <div class="fg"><label class="fl">GitHub / Repo URL</label><input id="am-repo" placeholder="https://github.com/..."></div>
+        <div class="fg"><label class="fl">Play Store URL</label><input id="am-playstore" placeholder="https://play.google.com/..."></div>
+      </div>
+      <div class="fg"><label class="fl">App Store URL</label><input id="am-appstore" placeholder="https://apps.apple.com/..."></div>
+      <div class="fg"><label class="fl">Notes / Roadmap</label><textarea id="am-notes" rows="3" placeholder="Current sprint goals, blockers, next milestones..."></textarea></div>
+    </div>
+    <div class="mf" style="justify-content:space-between">
+      <button id="am-delete-btn" class="btn btn-d" style="display:none" onclick="deleteApp()"><i class="ti ti-trash"></i> Delete</button>
+      <div style="display:flex;gap:8px;margin-left:auto">
+        <button class="btn btn-g" onclick="closeModal('appModal')">Cancel</button>
+        <button class="btn btn-t" onclick="saveApp()"><i class="ti ti-check"></i> Save App</button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -2532,7 +2579,7 @@ select option{background:var(--navy3)}
         <div class="fg"><label class="fl">World / Context</label><select id="ce-type">
           <option value="ih">WORK — Ideahub</option>
           <option value="cs">WORK — Chainsmoker</option>
-          <option value="ven">VENTURE — TJC</option>
+          <option value="ven">Job Collectives</option>
           <option value="bld">BUILD</option>
           <option value="sid">SIDES</option>
           <option value="fth">FAITH / Church</option>
@@ -2929,7 +2976,7 @@ select option{background:var(--navy3)}
       <div class="ni" onclick="setView('jarvis-capture')" data-view="jarvis-capture"><i class="ti ti-capture" style="color:var(--teal)"></i>Capture Processor</div>
       <div class="ni" onclick="setView('jarvis-connect')" data-view="jarvis-connect"><i class="ti ti-link" style="color:var(--purple)"></i>Connection Finder</div>
       <div class="ni" onclick="setView('jarvis-weekly')" data-view="jarvis-weekly"><i class="ti ti-calendar-week" style="color:var(--green)"></i>Weekly Synthesis</div>
-      <div class="ni" onclick="setView('jarvis-belief')" data-view="jarvis-belief"><i class="ti ti-shield-check" style="color:var(--teal)"></i>Belief Tracker</div>
+      <div class="ni" onclick="setView('jarvis-context')" data-view="jarvis-context"><i class="ti ti-brain" style="color:var(--teal)"></i>Context Engine</div>
       <div class="ni" onclick="setView('jarvis-pattern')" data-view="jarvis-pattern"><i class="ti ti-trending-up" style="color:var(--orange)"></i>Pattern Detector</div>
       <div class="ni" onclick="setView('jarvis-decision')" data-view="jarvis-decision"><i class="ti ti-scale" style="color:var(--amber)"></i>Decision Intel</div>
       <div class="ni" onclick="setView('jarvis-claude')" data-view="jarvis-claude"><i class="ti ti-id" style="color:var(--pink)"></i>CLAUDE.md</div>
@@ -3127,7 +3174,7 @@ select option{background:var(--navy3)}
     <!-- ===== VENTURE ===== -->
     <div class="view" id="view-venture">
       <div class="vh">
-        <div><div class="vt" style="color:var(--orange)"><i class="ti ti-rocket"></i>VENTURE — TJC HQ</div><div class="vs">The Job Collectives · Built on Endurance. Rooted in Faith.</div></div>
+        <div><div class="vt" style="color:var(--orange)"><i class="ti ti-rocket"></i>Job Collectives</div><div class="vs">Job Collectives · Built on Endurance. Rooted in Faith.</div></div>
         <div class="va">
           <button class="btn btn-g wo" id="vt-c" onclick="setVentureTab('clients',this)" style="background:var(--orange3);border-color:var(--orange2);color:var(--orange)">Client Pipeline</button>
           <button class="btn btn-g" id="vt-p" onclick="setVentureTab('partners',this)">Partner / VA</button>
@@ -3201,7 +3248,7 @@ select option{background:var(--navy3)}
 
     <!-- ===== BUILD ===== -->
     <div class="view" id="view-build">
-      <div class="vh"><div><div class="vt" style="color:var(--green)"><i class="ti ti-code"></i>BUILD — App Studio</div><div class="vs">NAKNAK · DISKARTE · PASAHERO</div></div><div class="va"><button class="btn btn-g" onclick="openTaskFor('BUILD')"><i class="ti ti-plus"></i> Task</button></div></div>
+      <div class="vh"><div><div class="vt" style="color:var(--green)"><i class="ti ti-code"></i>Code Collectives</div><div class="vs">NAKNAK · DISKARTE · PASAHERO</div></div><div class="va"><button class="btn btn-g" onclick="openTaskFor('BUILD')"><i class="ti ti-plus"></i> Task</button></div></div>
       <div class="vb" style="padding:0;display:flex;flex-direction:column;overflow:hidden">
         <div id="buildAppsWrap" style="padding:14px 18px;flex-shrink:0"><div id="buildApps" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px"></div></div>
         <!-- BUILD tasks -->
@@ -3222,7 +3269,7 @@ select option{background:var(--navy3)}
 
     <!-- ===== SIDES ===== -->
     <div class="view" id="view-sides">
-      <div class="vh"><div><div class="vt" style="color:var(--amber)"><i class="ti ti-coins"></i>SIDES — Income Hub</div><div class="vs">RaketPH · Etsy · Digital Products</div></div><div class="va"><button class="btn btn-o" onclick="addSidesProduct()"><i class="ti ti-plus"></i> Product</button></div></div>
+      <div class="vh"><div><div class="vt" style="color:var(--amber)"><i class="ti ti-coins"></i>Creative Collectives</div><div class="vs">Digital products · Creative services</div></div><div class="va"><button class="btn btn-o" onclick="addSidesProduct()"><i class="ti ti-plus"></i> Product</button></div></div>
       <div class="vb" style="overflow-y:auto;-webkit-overflow-scrolling:touch">
         <div class="mr" style="margin-bottom:12px"><div class="hc"><div class="cl">Total Products</div><div class="cv" id="sidesCount">0</div></div><div class="hc"><div class="cl">Active Listings</div><div class="cv" id="sidesActive" style="color:var(--green)">0</div></div><div class="hc oc"><div class="cl">Total Revenue</div><div class="cv oc" id="sidesRevenue">₱0</div></div></div>
         <div id="sidesProductGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px"></div>
@@ -3423,7 +3470,7 @@ select option{background:var(--navy3)}
     <!-- ===== LIFE ===== -->
     <div class="view" id="view-life">
       <div class="vh">
-        <div><div class="vt" style="color:var(--teal2)"><i class="ti ti-leaf"></i>LIFE — Personal Cash Flow</div><div class="vs">INACAY Cash Flow · Debit & Credit · Personal Accounts</div></div>
+        <div><div class="vt" style="color:var(--teal2)"><i class="ti ti-leaf"></i>LIFE</div><div class="vs">INACAY · Personal Finance · Health · Wellbeing</div></div>
         <div class="va">
           <button class="btn" style="background:rgba(34,197,94,.15);color:var(--green);border:1px solid rgba(34,197,94,.4);font-weight:600" onclick="openCashModal('Debit')"><i class="ti ti-plus"></i> Debit</button>
           <button class="btn btn-d" onclick="openCashModal('Credit')"><i class="ti ti-minus"></i> Credit</button>
@@ -3596,40 +3643,40 @@ select option{background:var(--navy3)}
                 <div id="healthLogList" style="overflow-y:auto;max-height:260px;-webkit-overflow-scrolling:touch"></div>
               </div>
               <div class="bd-block">
-                <div class="bd-h"><i class="ti ti-mood-happy" style="color:var(--w-sides)"></i>Today's Wellness Check</div>
+                <div class="bd-h"><i class="ti ti-activity" style="color:var(--w-sides)"></i>Today's Wellness Check</div>
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
                   <div>
-                    <div style="font-size:var(--text-xs);color:var(--text3);margin-bottom:5px;letter-spacing:.06em">MOOD</div>
-                    <div style="display:flex;gap:6px" id="moodBtns">
-                      <div class="mood-btn" onclick="setWellness('mood','😢')">😢</div>
-                      <div class="mood-btn" onclick="setWellness('mood','😕')">😕</div>
-                      <div class="mood-btn" onclick="setWellness('mood','😐')">😐</div>
-                      <div class="mood-btn" onclick="setWellness('mood','🙂')">🙂</div>
-                      <div class="mood-btn" onclick="setWellness('mood','😊')">😊</div>
+                    <div style="font-size:var(--text-xs);color:var(--text3);margin-bottom:6px;letter-spacing:.06em;text-transform:uppercase">Mood</div>
+                    <div style="display:flex;gap:5px;flex-wrap:wrap" id="moodBtns">
+                      <button class="mood-btn" onclick="setWellness('mood','1',this)" title="Very low" style="flex:1;min-width:28px;padding:6px 4px;display:flex;flex-direction:column;align-items:center;gap:3px;border-radius:6px;border:1px solid var(--border2);background:transparent;cursor:pointer;color:var(--text3);transition:all .15s"><i class="ti ti-mood-sad" style="font-size:16px;line-height:1"></i><span style="font-size:9px">Low</span></button>
+                      <button class="mood-btn" onclick="setWellness('mood','2',this)" title="Low" style="flex:1;min-width:28px;padding:6px 4px;display:flex;flex-direction:column;align-items:center;gap:3px;border-radius:6px;border:1px solid var(--border2);background:transparent;cursor:pointer;color:var(--text3);transition:all .15s"><i class="ti ti-mood-confuzed" style="font-size:16px;line-height:1"></i><span style="font-size:9px">Meh</span></button>
+                      <button class="mood-btn" onclick="setWellness('mood','3',this)" title="Neutral" style="flex:1;min-width:28px;padding:6px 4px;display:flex;flex-direction:column;align-items:center;gap:3px;border-radius:6px;border:1px solid var(--border2);background:transparent;cursor:pointer;color:var(--text3);transition:all .15s"><i class="ti ti-mood-neutral" style="font-size:16px;line-height:1"></i><span style="font-size:9px">OK</span></button>
+                      <button class="mood-btn" onclick="setWellness('mood','4',this)" title="Good" style="flex:1;min-width:28px;padding:6px 4px;display:flex;flex-direction:column;align-items:center;gap:3px;border-radius:6px;border:1px solid var(--border2);background:transparent;cursor:pointer;color:var(--text3);transition:all .15s"><i class="ti ti-mood-smile" style="font-size:16px;line-height:1"></i><span style="font-size:9px">Good</span></button>
+                      <button class="mood-btn" onclick="setWellness('mood','5',this)" title="Excellent" style="flex:1;min-width:28px;padding:6px 4px;display:flex;flex-direction:column;align-items:center;gap:3px;border-radius:6px;border:1px solid var(--border2);background:transparent;cursor:pointer;color:var(--text3);transition:all .15s"><i class="ti ti-mood-happy" style="font-size:16px;line-height:1"></i><span style="font-size:9px">Great</span></button>
                     </div>
                   </div>
                   <div>
-                    <div style="font-size:var(--text-xs);color:var(--text3);margin-bottom:5px;letter-spacing:.06em">ENERGY</div>
-                    <div style="display:flex;gap:6px">
-                      <div class="mood-btn" onclick="setWellness('energy','⚡')">⚡</div>
-                      <div class="mood-btn" onclick="setWellness('energy','⚡⚡')">⚡⚡</div>
-                      <div class="mood-btn" onclick="setWellness('energy','⚡⚡⚡')">⚡⚡⚡</div>
+                    <div style="font-size:var(--text-xs);color:var(--text3);margin-bottom:6px;letter-spacing:.06em;text-transform:uppercase">Energy</div>
+                    <div style="display:flex;gap:5px" id="energyBtns">
+                      <button class="mood-btn" onclick="setWellness('energy','1',this)" title="Low energy" style="flex:1;padding:6px 4px;display:flex;flex-direction:column;align-items:center;gap:3px;border-radius:6px;border:1px solid var(--border2);background:transparent;cursor:pointer;color:var(--text3);transition:all .15s"><i class="ti ti-battery-1" style="font-size:16px;line-height:1"></i><span style="font-size:9px">Low</span></button>
+                      <button class="mood-btn" onclick="setWellness('energy','2',this)" title="Medium energy" style="flex:1;padding:6px 4px;display:flex;flex-direction:column;align-items:center;gap:3px;border-radius:6px;border:1px solid var(--border2);background:transparent;cursor:pointer;color:var(--text3);transition:all .15s"><i class="ti ti-battery-2" style="font-size:16px;line-height:1"></i><span style="font-size:9px">Mid</span></button>
+                      <button class="mood-btn" onclick="setWellness('energy','3',this)" title="High energy" style="flex:1;padding:6px 4px;display:flex;flex-direction:column;align-items:center;gap:3px;border-radius:6px;border:1px solid var(--border2);background:transparent;cursor:pointer;color:var(--text3);transition:all .15s"><i class="ti ti-bolt" style="font-size:16px;line-height:1"></i><span style="font-size:9px">High</span></button>
                     </div>
                   </div>
                 </div>
                 <div style="margin-bottom:10px">
-                  <div style="font-size:var(--text-xs);color:var(--text3);margin-bottom:5px;letter-spacing:.06em">STRESS</div>
-                  <div style="display:flex;gap:6px">
-                    <button class="btn btn-g" style="flex:1;font-size:var(--text-xs)" onclick="setWellness('stress','Low')">Low</button>
-                    <button class="btn btn-g" style="flex:1;font-size:var(--text-xs)" onclick="setWellness('stress','Mid')">Mid</button>
-                    <button class="btn btn-g" style="flex:1;font-size:var(--text-xs);color:var(--w-faith)" onclick="setWellness('stress','High')">High</button>
+                  <div style="font-size:var(--text-xs);color:var(--text3);margin-bottom:5px;letter-spacing:.06em;text-transform:uppercase">Stress</div>
+                  <div style="display:flex;gap:5px">
+                    <button class="btn btn-g" style="flex:1;font-size:var(--text-xs)" onclick="setWellness('stress','Low',this)"><i class="ti ti-wind" style="font-size:var(--text-xs);line-height:1;display:inline-block;margin-right:3px"></i>Low</button>
+                    <button class="btn btn-g" style="flex:1;font-size:var(--text-xs)" onclick="setWellness('stress','Mid',this)"><i class="ti ti-flame" style="font-size:var(--text-xs);line-height:1;display:inline-block;margin-right:3px"></i>Mid</button>
+                    <button class="btn btn-g" style="flex:1;font-size:var(--text-xs);color:var(--w-faith)" onclick="setWellness('stress','High',this)"><i class="ti ti-alert-triangle" style="font-size:var(--text-xs);line-height:1;display:inline-block;margin-right:3px"></i>High</button>
                   </div>
                 </div>
                 <div style="margin-bottom:10px">
-                  <div style="font-size:var(--text-xs);color:var(--text3);margin-bottom:5px">NOTES</div>
+                  <div style="font-size:var(--text-xs);color:var(--text3);margin-bottom:5px">Notes</div>
                   <textarea class="mi" id="wellnessNotes" rows="2" placeholder="How are you feeling today, sir?" style="resize:none"></textarea>
                 </div>
-                <button class="btn btn-t" style="width:100%;font-size:var(--text-xs)" onclick="saveWellnessCheckin()">Save Today's Check-in</button>
+                <button class="btn btn-t" style="width:100%;font-size:var(--text-xs)" onclick="saveWellnessCheckin()"><i class="ti ti-check" style="font-size:var(--text-xs);line-height:1;display:inline-block;margin-right:4px"></i>Save Today's Check-in</button>
               </div>
             </div>
             <div class="bd-block" style="margin-top:12px">
@@ -4097,8 +4144,16 @@ select option{background:var(--navy3)}
       </div>
     </div>
 
-    <!-- ===== JARVIS BELIEF TRACKER ===== -->
-    <div class="view" id="view-jarvis-belief">
+    <!-- ===== CONTEXT ENGINE ===== -->
+    <div class="view" id="view-jarvis-context">
+      <div class="vh">
+        <div><div class="vt"><i class="ti ti-brain" style="color:var(--teal)"></i>Context Engine</div><div class="vs">Your operating context · memories · patterns · daily intelligence</div></div>
+        <div class="va"><button class="btn btn-t" onclick="renderContextEngine()"><i class="ti ti-refresh"></i> Refresh</button></div>
+      </div>
+      <div class="vb" style="padding:20px 24px;overflow-y:auto" id="contextEngineBody">
+        <div style="text-align:center;padding:40px;color:var(--text3)"><i class="ti ti-brain" style="font-size:32px;display:block;margin-bottom:10px;opacity:.3"></i>Click Refresh to generate your context snapshot, sir.</div>
+      </div>
+    </div>
       <div class="vh">
         <div><div class="vt"><i class="ti ti-shield-check" style="color:var(--teal)"></i>Belief Tracker</div><div class="vs">Log beliefs · tag evidence · weekly audit</div></div>
         <div class="va">
@@ -4269,38 +4324,6 @@ select option{background:var(--navy3)}
       </div>
     </div>
 
-    <!-- BELIEF MODAL -->
-    <div class="mov" id="beliefModal">
-      <div class="modal" style="width:min(500px,96vw)">
-        <div class="mh"><span class="mt">LOG BELIEF</span><button class="mc" onclick="closeModal('beliefModal')">×</button></div>
-        <div class="mb">
-          <div class="fg"><label class="fl">Belief Statement</label><textarea id="bel-statement" rows="3" placeholder="e.g. Consistency beats intensity for creative output"></textarea></div>
-          <div class="fr">
-            <div class="fg"><label class="fl">Evidence Tag</label>
-              <select id="bel-evidence">
-                <option value="Confirms">✅ Confirms</option>
-                <option value="Challenges">⚠ Challenges</option>
-                <option value="Complicates">🔀 Complicates</option>
-                <option value="Irrelevant">— Irrelevant</option>
-              </select>
-            </div>
-            <div class="fg"><label class="fl">World</label>
-              <select id="bel-world">
-                <option value="WORK-IH">WORK-IH</option>
-                <option value="VENTURE">VENTURE</option>
-                <option value="BUILD">BUILD</option>
-                <option value="SIDES">SIDES</option>
-                <option value="FAITH">FAITH</option>
-                <option value="LIFE">LIFE</option>
-                <option value="ALL">ALL</option>
-              </select>
-            </div>
-          </div>
-          <div class="fg"><label class="fl">Evidence / Observation</label><textarea id="bel-obs" rows="2" placeholder="What happened that informed this belief?"></textarea></div>
-        </div>
-        <div class="mf"><button class="btn btn-g" onclick="closeModal('beliefModal')">Cancel</button><button class="btn btn-t" onclick="saveBelief()"><i class="ti ti-check"></i> Log</button></div>
-      </div>
-    </div>
 
     <!-- DECISION MODAL -->
     <div class="mov" id="decisionModal">
@@ -4538,46 +4561,62 @@ function renderSideNav(){
   const container=document.getElementById('navWorldsList');
   if(!container)return;
   container.innerHTML=(DB.worlds||[]).map(function(w){
-    const isCustom=!w.core;
     const colorVal=(w.color&&/^#/.test(w.color))?w.color:('var('+(w.cssVar||'--w-ideahub')+')');
-    const dotOrBtn=isCustom
-      ?('<button onclick="event.stopPropagation();deleteWorld(\''+w.id+'\')" style="margin-left:auto;background:transparent;border:none;color:var(--text3);cursor:pointer;font-size:var(--text-xs);padding:2px 4px;opacity:.5;transition:opacity .15s" onmouseover="this.style.opacity=\'1\'" onmouseout="this.style.opacity=\'.5\'" title="Delete world"><i class="ti ti-x" style="font-size:var(--text-xs);line-height:1;display:block"></i></button>')
-      :('<div style="width:5px;height:5px;border-radius:50%;background:'+colorVal+';margin-left:auto;flex-shrink:0"></div>');
-    return '<div class="ni world-ni" onclick="setView(\''+w.id+'\')" data-view="'+w.id+'" style="position:relative;--ni-color:'+colorVal+'">'
-      +'<i class="ti '+(w.icon||'ti-star')+'" style="color:'+colorVal+'"></i>'+w.label+dotOrBtn+'</div>';
+    return '<div class="ni world-ni" data-view="'+w.id+'" data-world-id="'+w.id+'" style="cursor:pointer;position:relative;--ni-color:'+colorVal+'">'
+      +'<i class="ti '+(w.icon||'ti-star')+'" style="color:'+colorVal+'"></i>'
+      +'<span style="flex:1">'+w.label+'</span>'
+      +'<button data-edit-world="'+w.id+'" style="margin-left:auto;background:transparent;border:none;color:var(--text3);cursor:pointer;font-size:var(--text-xs);padding:2px 5px;opacity:0;transition:opacity .15s" class="world-edit-btn" title="Edit"><i class="ti ti-pencil" style="font-size:var(--text-xs);line-height:1;display:block"></i></button>'
+      +'</div>';
   }).join('');
-  // Sync active state
-  document.querySelectorAll('[data-view]').forEach(function(el){el.classList.toggle('active',el.dataset.view===currentView);});
+  // Attach click handlers safely (no inline quotes)
+  container.querySelectorAll('[data-world-id]').forEach(function(el){
+    el.addEventListener('click',function(e){
+      if(e.target.closest('[data-edit-world]')){
+        e.stopPropagation();
+        openWorldModal(e.target.closest('[data-edit-world]').dataset.editWorld);
+        return;
+      }
+      setView(el.dataset.worldId);
+    });
+    var btn=el.querySelector('[data-edit-world]');
+    if(btn){
+      el.addEventListener('mouseenter',function(){btn.style.opacity='1';});
+      el.addEventListener('mouseleave',function(){btn.style.opacity='0';});
+    }
+  });
+  document.querySelectorAll('[data-view]').forEach(function(el){
+    el.classList.toggle('active',el.dataset.view===currentView);
+  });
 }
 let editingWorldId=null;
 function openWorldModal(id){
   editingWorldId=id||null;
   const w=id?(DB.worlds||[]).find(x=>x.id===id):null;
-  document.getElementById('worldModalTitle').textContent=id?'Edit World':'Add World';
+  document.getElementById('worldModalTitle').textContent=w?'Edit World':'Add World';
   document.getElementById('wm-label').value=w?w.label:'';
   document.getElementById('wm-id').value=w?w.id:'';
+  document.getElementById('wm-id').disabled=!!id;
   document.getElementById('wm-icon').value=w?w.icon:'ti-star';
   const colorVal=w?(w.color&&/^#/.test(w.color)?w.color:'#00d4c8'):'#00d4c8';
   document.getElementById('wm-color').value=colorVal;
   document.getElementById('wm-color-picker').value=colorVal;
-  if(id){document.getElementById('wm-id').disabled=true;}
-  else{document.getElementById('wm-id').disabled=false;}
+  const delBtn=document.getElementById('wm-delete-btn');
+  if(delBtn){const prot=w&&(w.id==='work-ih'||w.id==='work-cs');delBtn.style.display=(w&&!prot)?'block':'none';}
   openModal('worldModal');
 }
 function saveWorld(){
   const label=document.getElementById('wm-label').value.trim();
-  const rawId=document.getElementById('wm-id').value.trim().toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,'');
+  const rawId=editingWorldId||document.getElementById('wm-id').value.trim().toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,'');
   if(!label||!rawId){showToast('Name and slug required');return;}
   if(!editingWorldId&&(DB.worlds||[]).some(w=>w.id===rawId)){showToast('A world with that slug already exists');return;}
   const color=document.getElementById('wm-color').value.trim()||'#00d4c8';
   const icon=document.getElementById('wm-icon').value.trim()||'ti-star';
-  const world={id:rawId,label,icon,color,cssVar:null,core:false};
   if(editingWorldId){
     const i=(DB.worlds||[]).findIndex(w=>w.id===editingWorldId);
     if(i>=0){DB.worlds[i]={...DB.worlds[i],label,icon,color};}
   }else{
     if(!DB.worlds)DB.worlds=[];
-    DB.worlds.push(world);
+    DB.worlds.push({id:rawId,label,icon,color,cssVar:null,core:false});
   }
   save('worlds');
   closeModal('worldModal');
@@ -4586,11 +4625,13 @@ function saveWorld(){
 }
 function deleteWorld(id){
   const w=(DB.worlds||[]).find(x=>x.id===id);
-  if(!w||w.core){showToast('Cannot delete a core world, sir.');return;}
-  if(!confirm(`Delete world "${w.label}"? This will not delete its tasks.`))return;
+  if(!w){showToast('World not found');return;}
+  if(w.id==='work-ih'||w.id==='work-cs'){showToast('Cannot delete primary WORK worlds, sir.');return;}
+  if(!confirm(`Delete world "${w.label}"?`))return;
   DB.worlds=DB.worlds.filter(x=>x.id!==id);
   save('worlds');
   renderSideNav();
+  closeModal('worldModal');
   showToast('World deleted');
 }
 
@@ -5010,14 +5051,19 @@ const DB={
   loans:JSON.parse(localStorage.getItem('j-loans')||'null')||[],
   accounts:JSON.parse(localStorage.getItem('j-accounts')||'null')||[],
   meetings:JSON.parse(localStorage.getItem('j-meetings')||'null')||[],
+  buildApps:JSON.parse(localStorage.getItem('j-buildApps')||'null')||[
+    {id:1001,name:'NAKNAK v8',desc:'Family safety & health monitoring app',status:'Active',color:'var(--teal)',icon:'ti-heart-rate-monitor',tech:'React Native, Supabase',repo:'',playstore:'',appstore:'',notes:''},
+    {id:1002,name:'DISKARTE',desc:'POS + inventory for micro-retailers',status:'In Dev',color:'var(--green)',icon:'ti-receipt',tech:'Vanilla JS, Supabase',repo:'',playstore:'',appstore:'',notes:''},
+    {id:1003,name:'PASAHERO RPG',desc:'Filipino commuter retro RPG',status:'Concept',color:'var(--purple)',icon:'ti-rocket',tech:'Godot / HTML5',repo:'',playstore:'',appstore:'',notes:''},
+  ],
   worlds:JSON.parse(localStorage.getItem('j-worlds')||'null')||[
-    {id:'work-ih',  label:'WORK — Ideahub',    icon:'ti-briefcase',    color:'var(--w-ideahub)',   cssVar:'--w-ideahub',   core:true},
-    {id:'work-cs',  label:'WORK — Chainsmoker', icon:'ti-flame',        color:'var(--w-chainsmoker)',cssVar:'--w-chainsmoker',core:true},
-    {id:'venture',  label:'VENTURE — TJC',      icon:'ti-rocket',       color:'var(--w-venture)',   cssVar:'--w-venture',   core:true},
-    {id:'build',    label:'BUILD',               icon:'ti-code',         color:'var(--w-build)',     cssVar:'--w-build',     core:true},
-    {id:'sides',    label:'SIDES',               icon:'ti-coins',        color:'var(--w-sides)',     cssVar:'--w-sides',     core:true},
-    {id:'faith',    label:'FAITH',               icon:'ti-heart-handshake',color:'var(--w-faith)',  cssVar:'--w-faith',     core:true},
-    {id:'life',     label:'LIFE — Cash Flow',    icon:'ti-cash',         color:'var(--w-life)',      cssVar:'--w-life',      core:true},
+    {id:'work-ih',  label:'WORK — Ideahub',        icon:'ti-briefcase',      color:'var(--w-ideahub)',    cssVar:'--w-ideahub',   core:true},
+    {id:'work-cs',  label:'WORK — Chainsmoker',     icon:'ti-flame',          color:'var(--w-chainsmoker)',cssVar:'--w-chainsmoker',core:true},
+    {id:'venture',  label:'Job Collectives',         icon:'ti-rocket',         color:'var(--w-venture)',    cssVar:'--w-venture',   core:true},
+    {id:'build',    label:'Code Collectives',        icon:'ti-code',           color:'var(--w-build)',      cssVar:'--w-build',     core:true},
+    {id:'sides',    label:'Creative Collectives',    icon:'ti-palette',        color:'var(--w-sides)',      cssVar:'--w-sides',     core:true},
+    {id:'faith',    label:'FAITH',                   icon:'ti-heart-handshake',color:'var(--w-faith)',      cssVar:'--w-faith',     core:true},
+    {id:'life',     label:'LIFE',                    icon:'ti-leaf',           color:'var(--w-life)',       cssVar:'--w-life',      core:true},
   ],
 };
 function save(k){localStorage.setItem('j-'+k,JSON.stringify(DB[k]))}
@@ -7139,51 +7185,92 @@ function dropVentureCard(e,newStage){
   renderVenture();showToast('Moved to '+newStage+', sir');
   _dragVentureId=null;
 }
+let editingAppId=null;
+function openAppModal(id){
+  editingAppId=id||null;
+  const a=id?(DB.buildApps||[]).find(x=>x.id===id):null;
+  document.getElementById('appModalTitle').textContent=a?'Edit App':'Add App';
+  ['name','desc','status','icon','tech','repo','playstore','appstore','notes'].forEach(f=>{
+    const el=document.getElementById('am-'+f);if(el)el.value=a?(a[f]||''):'';
+  });
+  const colorVal=a?(a.color&&/^#/.test(a.color)?a.color:'#00d4c8'):'#00d4c8';
+  document.getElementById('am-color').value=colorVal;
+  const cp=document.getElementById('am-color-picker');if(cp)cp.value=colorVal;
+  const delBtn=document.getElementById('am-delete-btn');if(delBtn)delBtn.style.display=a?'block':'none';
+  openModal('appModal');
+}
+function saveApp(){
+  const name=document.getElementById('am-name').value.trim();
+  if(!name){showToast('App name required');return;}
+  const color=document.getElementById('am-color').value.trim()||'#00d4c8';
+  const a={
+    id:editingAppId||Date.now(),
+    name,
+    desc:document.getElementById('am-desc').value.trim(),
+    status:document.getElementById('am-status').value,
+    icon:document.getElementById('am-icon').value.trim()||'ti-device-mobile',
+    color:/^#[0-9a-fA-F]{6}$/.test(color)?color:'var(--teal)',
+    tech:document.getElementById('am-tech').value.trim(),
+    repo:document.getElementById('am-repo').value.trim(),
+    playstore:document.getElementById('am-playstore').value.trim(),
+    appstore:document.getElementById('am-appstore').value.trim(),
+    notes:document.getElementById('am-notes').value.trim(),
+  };
+  if(!DB.buildApps)DB.buildApps=[];
+  if(editingAppId){const i=DB.buildApps.findIndex(x=>x.id===editingAppId);if(i>=0)DB.buildApps[i]=a;}
+  else DB.buildApps.unshift(a);
+  save('buildApps');
+  closeModal('appModal');
+  renderBuild();
+  showToast('✓ App saved');
+}
+function deleteApp(){
+  if(!editingAppId)return;
+  const a=(DB.buildApps||[]).find(x=>x.id===editingAppId);
+  if(!a||!confirm(`Delete "${a.name}"?`))return;
+  DB.buildApps=DB.buildApps.filter(x=>x.id!==editingAppId);
+  save('buildApps');
+  closeModal('appModal');
+  renderBuild();
+  showToast('App deleted');
+}
+
 function renderBuild(){
-  const knownApps=[
-    {name:'NAKNAK v8',   desc:'Family safety & health monitoring',    color:'var(--teal)',   icon:'ti-heart-rate-monitor', key:'NAKNAK'},
-    {name:'DISKARTE',    desc:'POS + inventory for micro-retailers',   color:'var(--green)',  icon:'ti-receipt',            key:'DISKARTE'},
-    {name:'PASAHERO RPG',desc:'Filipino commuter retro RPG',           color:'var(--purple)', icon:'ti-rocket',             key:'PASAHERO'}
-  ];
+  const apps=DB.buildApps||[];
   const grid=document.getElementById('buildApps');
   if(grid){
-    grid.innerHTML=knownApps.map(app=>{
-      const appTasks=DB.tasks.filter(t=>t.world==='BUILD'&&(t.client===app.name||(t.title||'').toLowerCase().includes(app.key.toLowerCase())));
-      const open=appTasks.filter(t=>t.status!=='Done');
-      const done=appTasks.filter(t=>t.status==='Done').length;
-      const total=appTasks.length;
-      const pct=total?Math.round(done/total*100):0;
-      const high=open.filter(t=>t.priority==='High');
-      const next=open[0];
-      return`<div style="background:#05090f;border:1px solid ${app.color}30;border-top:2px solid ${app.color};border-radius:5px;padding:12px 14px;display:flex;flex-direction:column;gap:8px">
-        <div style="display:flex;align-items:center;gap:8px">
-          <i class="ti ${app.icon}" style="font-size:18px;color:${app.color};line-height:1;display:block"></i>
-          <div style="flex:1">
-            <div style="font-size:var(--text-sm);font-weight:800;color:${app.color}">${app.name}</div>
-            <div style="font-size:var(--text-xs);color:var(--text3)">${app.desc}</div>
+    grid.innerHTML=(apps.length?apps:[]).map(app=>{
+      const appTasks=DB.tasks.filter(t=>t.world==='build'&&(t.client===app.name||(t.title||'').includes(app.name)));
+      const open=appTasks.filter(t=>t.status!=='Done');const done=appTasks.filter(t=>t.status==='Done').length;
+      const total=appTasks.length;const pct=total?Math.round(done/total*100):0;
+      const accentColor=/^#/.test(app.color)?app.color:'var(--teal)';
+      const statusColor=app.status==='Active'||app.status==='Launched'?'var(--green)':app.status==='In Dev'||app.status==='Beta'?'var(--amber)':app.status==='Paused'?'var(--red)':'var(--text3)';
+      return`<div style="background:var(--navy2);border:1px solid var(--border);border-top:2px solid ${accentColor};border-radius:14px;display:flex;flex-direction:column;gap:8px;padding:16px;transition:box-shadow .2s;cursor:pointer" onclick="openAppModal(${app.id})">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="width:38px;height:38px;border-radius:10px;background:${accentColor}18;border:1px solid ${accentColor}35;display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="ti ${app.icon||'ti-device-mobile'}" style="font-size:18px;color:${accentColor};line-height:1;display:block"></i></div>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:var(--text-sm);font-weight:800;color:var(--text1);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${app.name}</div>
+            <div style="font-size:var(--text-xs);color:${statusColor};font-weight:600">${app.status}</div>
           </div>
         </div>
-        <!-- Sprint progress bar -->
+        ${app.desc?`<div style="font-size:var(--text-xs);color:var(--text3);line-height:1.5">${app.desc}</div>`:''}
+        ${app.tech?`<div style="font-size:var(--text-xs);color:var(--text3)"><i class="ti ti-code" style="font-size:10px;display:inline-block;margin-right:4px"></i>${app.tech}</div>`:''}
         <div>
           <div style="display:flex;justify-content:space-between;margin-bottom:4px">
-            <span style="font-size:var(--text-xs);color:var(--text3)">${done}/${total} tasks done</span>
-            <span style="font-size:var(--text-xs);font-weight:700;color:${app.color}">${pct}%</span>
+            <span style="font-size:var(--text-xs);color:var(--text3)">${done}/${total} tasks</span>
+            <span style="font-size:var(--text-xs);font-weight:700;color:${accentColor}">${pct}%</span>
           </div>
-          <div style="height:4px;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden">
-            <div style="height:100%;width:${pct}%;background:${app.color};border-radius:2px;transition:width .4s"></div>
-          </div>
+          <div style="height:3px;background:rgba(255,255,255,.06);border-radius:2px"><div style="height:100%;width:${pct}%;background:${accentColor};border-radius:2px;transition:width .4s"></div></div>
         </div>
-        <!-- Stats row -->
-        <div style="display:flex;gap:10px;font-size:var(--text-xs)">
-          <span style="color:var(--text3)">${open.length} open</span>
-          ${high.length?`<span style="color:var(--red);font-weight:700">⚑ ${high.length} high</span>`:''}
-          <span style="color:var(--green)">${done} done</span>
+        ${open.length?`<div style="font-size:var(--text-xs);color:var(--text2);background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:6px;padding:6px 8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">→ ${open[0].title}</div>`:''}
+        <div style="display:flex;gap:5px;margin-top:2px">
+          ${app.repo?`<a href="${app.repo}" target="_blank" onclick="event.stopPropagation()" style="font-size:var(--text-xs);color:var(--text3);display:inline-flex;align-items:center;gap:3px;padding:3px 8px;border:1px solid var(--border);border-radius:5px;text-decoration:none;transition:all .15s" onmouseover="this.style.borderColor=this.style.color='var(--teal)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text3)'"><i class="ti ti-brand-github" style="font-size:11px;line-height:1;display:block"></i>Repo</a>`:''}
+          ${app.playstore?`<a href="${app.playstore}" target="_blank" onclick="event.stopPropagation()" style="font-size:var(--text-xs);color:var(--text3);display:inline-flex;align-items:center;gap:3px;padding:3px 8px;border:1px solid var(--border);border-radius:5px;text-decoration:none"><i class="ti ti-brand-google-play" style="font-size:11px;line-height:1;display:block"></i>Play</a>`:''}
+          ${app.appstore?`<a href="${app.appstore}" target="_blank" onclick="event.stopPropagation()" style="font-size:var(--text-xs);color:var(--text3);display:inline-flex;align-items:center;gap:3px;padding:3px 8px;border:1px solid var(--border);border-radius:5px;text-decoration:none"><i class="ti ti-brand-apple" style="font-size:11px;line-height:1;display:block"></i>App Store</a>`:''}
+          <button onclick="event.stopPropagation();openTaskFor('build')" style="font-size:var(--text-xs);color:var(--text3);padding:3px 8px;border:1px solid var(--border);border-radius:5px;background:transparent;cursor:pointer;margin-left:auto;transition:all .15s" onmouseover="this.style.borderColor='var(--teal)';this.style.color='var(--teal)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text3)'"><i class="ti ti-plus" style="font-size:10px;line-height:1;display:inline-block;margin-right:3px"></i>Task</button>
         </div>
-        <!-- Next task preview -->
-        ${next?`<div style="background:#0a1220;border:1px solid var(--border);border-left:2px solid ${app.color};border-radius:3px;padding:5px 8px;font-size:var(--text-xs);color:var(--text2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${next.title}">→ ${next.title}</div>`:'<div style="font-size:var(--text-xs);color:var(--text3);font-style:italic">No open tasks</div>'}
-        <button class="btn btn-g" style="width:100%;font-size:var(--text-xs)" onclick="openTaskFor('BUILD')"><i class="ti ti-plus" style="font-size:var(--text-xs);line-height:1;display:inline-block"></i> Add Sprint Task</button>
       </div>`;
-    }).join('');
+    }).join('')+(apps.length<8?`<div onclick="openAppModal()" style="background:var(--navy2);border:2px dashed var(--border);border-radius:14px;padding:24px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;cursor:pointer;color:var(--text3);transition:all .15s" onmouseover="this.style.borderColor='var(--teal)';this.style.color='var(--teal)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text3)'"><i class="ti ti-plus" style="font-size:24px;line-height:1;display:block"></i><span style="font-size:var(--text-xs);font-weight:700;letter-spacing:.06em;text-transform:uppercase">Add App</span></div>`:'');
   }
   renderBuildTasks();
 }
@@ -7891,23 +7978,54 @@ function renderCashCharts(){
 // ── 30/60/90-day cash flow forecast ──────────────────────────────────────
 function renderCashForecast(){
   const txn=DB.cashflow||[];
-  if(!txn.length){return;}
-  // Use last 90 days to compute average monthly income & expense
+  if(!txn.length)return;
+  // Group by month to get true monthly averages (not just /3 of 90 days)
+  const monthMap={};
+  txn.forEach(t=>{
+    if(!t.date)return;
+    const mo=t.date.substring(0,7); // YYYY-MM
+    if(!monthMap[mo])monthMap[mo]={inc:0,exp:0};
+    if(t.type==='Debit') monthMap[mo].inc+=(t.amount||0);
+    if(t.type==='Credit') monthMap[mo].exp+=(t.amount||0);
+  });
+  const months=Object.keys(monthMap).sort();
+  if(!months.length)return;
+  // Use last 3 months for average (or all if fewer)
+  const recent=months.slice(-3);
+  const avgInc=recent.reduce((s,m)=>s+monthMap[m].inc,0)/recent.length;
+  const avgExp=recent.reduce((s,m)=>s+monthMap[m].exp,0)/recent.length;
+  const runrate=avgInc-avgExp;
+  // Current month partial balance (what's already in this month)
+  const thisMonth=new Date().toISOString().substring(0,7);
+  const thisInc=(monthMap[thisMonth]||{inc:0}).inc;
+  const thisExp=(monthMap[thisMonth]||{exp:0}).exp;
+  const partialNet=thisInc-thisExp;
+  // Days remaining in current month
   const now=new Date();
-  const d90=new Date(now-90*86400000);
-  const recent=txn.filter(t=>t.date&&new Date(t.date)>=d90);
-  const inc90=recent.filter(t=>t.type==='Debit').reduce((s,t)=>s+(t.amount||0),0);
-  const exp90=recent.filter(t=>t.type==='Credit').reduce((s,t)=>s+(t.amount||0),0);
-  const avgMonthlyInc=inc90/3;const avgMonthlyExp=exp90/3;const runrate=avgMonthlyInc-avgMonthlyExp;
+  const daysInMonth=new Date(now.getFullYear(),now.getMonth()+1,0).getDate();
+  const daysPassed=now.getDate();
+  const daysLeft=daysInMonth-daysPassed;
+  const dailyRate=runrate/30;
+  // Projections: current month remainder + future months
+  const p30=partialNet+(dailyRate*daysLeft);
+  const p60=p30+runrate;
+  const p90=p60+runrate;
   const fmt=v=>(v>=0?'+':'')+fmtPHP(Math.abs(v));
   const color=v=>v>=0?'var(--green)':'var(--red)';
   const set=(id,v)=>{const el=document.getElementById(id);if(el){el.textContent=fmt(v);el.style.color=color(v);}};
-  set('cf-f30',runrate);set('cf-f60',runrate*2);set('cf-f90',runrate*3);
+  set('cf-f30',p30);set('cf-f60',p60);set('cf-f90',p90);
   const lbl=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v>=0?'Projected surplus':'Projected deficit';};
-  lbl('cf-f30-lbl',runrate);lbl('cf-f60-lbl',runrate*2);lbl('cf-f90-lbl',runrate*3);
-  const ai=document.getElementById('cf-avg-income');if(ai)ai.textContent=fmtPHP(avgMonthlyInc);
-  const ae=document.getElementById('cf-avg-exp');if(ae)ae.textContent=fmtPHP(avgMonthlyExp);
+  lbl('cf-f30-lbl',p30);lbl('cf-f60-lbl',p60);lbl('cf-f90-lbl',p90);
+  const ai=document.getElementById('cf-avg-income');if(ai)ai.textContent=fmtPHP(avgInc);
+  const ae=document.getElementById('cf-avg-exp');if(ae)ae.textContent=fmtPHP(avgExp);
   const rr=document.getElementById('cf-runrate');if(rr){rr.textContent=(runrate>=0?'+':'')+fmtPHP(Math.abs(runrate))+'/mo';rr.style.color=color(runrate);}
+  // Update forecast grid border colors
+  const f30c=document.querySelector('#cf-forecast-grid>div:nth-child(1)');
+  const f60c=document.querySelector('#cf-forecast-grid>div:nth-child(2)');
+  const f90c=document.querySelector('#cf-forecast-grid>div:nth-child(3)');
+  if(f30c)f30c.style.borderTopColor=color(p30);
+  if(f60c)f60c.style.borderTopColor=color(p60);
+  if(f90c)f90c.style.borderTopColor=color(p90);
 }
 
 // ── Budget tab ────────────────────────────────────────────────────────────
@@ -8028,7 +8146,7 @@ function renderAccountsTab(){
           <div style="font-size:var(--text-sm);font-weight:700;color:var(--text1)">${acct}</div>
           <div style="font-size:var(--text-xs);color:var(--text3)">${txns.length} txn${txns.length!==1?'s':''}</div>
         </div>
-        <div style="font-size:22px;font-weight:900;color:${bal>0?'var(--green)':bal<0?'var(--red)':'var(--text2)'};margin-bottom:8px">${bal>0?'-':bal<0?'+':''}${fmtPHP(bal)}</div>
+        <div style="font-size:22px;font-weight:900;color:${bal>=0?'var(--green)':'var(--red)'};margin-bottom:8px">${bal>=0?'+':'-'}${fmtPHP(Math.abs(bal))}</div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px">
           <div style="background:rgba(34,197,94,.07);border:1px solid rgba(34,197,94,.2);border-radius:3px;padding:6px 8px">
             <div style="font-size:var(--text-xs);color:var(--text3);text-transform:uppercase;letter-spacing:.06em">Income</div>
@@ -10444,7 +10562,7 @@ const CMD_ITEMS=[
   {label:'Dashboard',sub:'Home dashboard',icon:'🏠',action:()=>setView('dashboard'),group:'Navigate'},
   {label:'WORK — Ideahub',sub:'Clients + Task Kanban',icon:'💼',action:()=>setView('work-ih'),group:'Navigate'},
   {label:'WORK — Chainsmoker & Sweetheart',sub:'CS tasks kanban',icon:'🔥',action:()=>setView('work-cs'),group:'Navigate'},
-  {label:'VENTURE — TJC',sub:'Client + Partner kanban',icon:'🚀',action:()=>setView('venture'),group:'Navigate'},
+  {label:'Job Collectives',sub:'Client + Partner kanban',icon:'🚀',action:()=>setView('venture'),group:'Navigate'},
   {label:'BUILD — Apps',sub:'NAKNAK · DISKARTE · PASAHERO',icon:'🔧',action:()=>setView('build'),group:'Navigate'},
   {label:'SIDES — Income',sub:'RaketPH · Etsy',icon:'💰',action:()=>setView('sides'),group:'Navigate'},
   {label:'FAITH — Buklod',sub:'CAA activities log',icon:'✝',action:()=>setView('faith'),group:'Navigate'},
@@ -10741,11 +10859,21 @@ function getWellness(){return JSON.parse(localStorage.getItem(DB_WELLNESS_KEY)||
 function saveWellnessData(d){localStorage.setItem(DB_WELLNESS_KEY,JSON.stringify(d));}
 
 // ── Wellness chips ──
-let todayWellness={mood:0,energy:0,stress:0,water:0,notes:''};
+let todayWellness={mood:0,energy:0,stress:'',water:0,notes:''};
 function setWellness(type,val,el){
   todayWellness[type]=val;
-  el.closest('div').querySelectorAll('.wellness-chip').forEach(c=>c.classList.remove('sel'));
-  el.classList.add('sel');
+  // Find the parent container and deselect all sibling buttons
+  const container=el?el.closest('[id]')||el.parentElement:null;
+  if(container){
+    container.querySelectorAll('.mood-btn,.btn-g').forEach(b=>{
+      b.style.background='';b.style.borderColor='';b.style.color='';
+    });
+  }
+  // Highlight selected button
+  if(el){
+    const accent=type==='mood'?'var(--w-sides)':type==='energy'?'var(--teal)':'var(--amber)';
+    el.style.background='rgba(128,255,250,.1)';el.style.borderColor=accent;el.style.color=accent;
+  }
 }
 function logWater(n){
   todayWellness.water=n;
@@ -11790,7 +11918,7 @@ window.setView = function(v){
     'jarvis-capture':renderCaptureView,
     'jarvis-connect':renderConnectionsView,
     'jarvis-weekly':renderWeeklyView,
-    'jarvis-belief':renderBeliefView,
+    'jarvis-context':()=>{try{renderContextEngine();}catch(e){}},
     'jarvis-pattern':renderPatternView,
     'jarvis-decision':renderDecisionView,
     'jarvis-claude':renderClaudeMD
@@ -11809,8 +11937,8 @@ if(typeof NAV_MAP!=='undefined'){
   NAV_MAP['connection finder']='jarvis-connect';
   NAV_MAP['weekly']='jarvis-weekly';
   NAV_MAP['weekly synthesis']='jarvis-weekly';
-  NAV_MAP['beliefs']='jarvis-belief';
-  NAV_MAP['belief tracker']='jarvis-belief';
+  NAV_MAP['context']='jarvis-context';
+  NAV_MAP['context engine']='jarvis-context';
   NAV_MAP['patterns']='jarvis-pattern';
   NAV_MAP['pattern detector']='jarvis-pattern';
   NAV_MAP['decisions']='jarvis-decision';
@@ -11824,7 +11952,7 @@ const _origReRenderJIL = window.reRenderAll;
 window.reRenderAll = function(){
   if(_origReRenderJIL) _origReRenderJIL.apply(this,arguments);
   // Refresh JIL views only if currently active
-  const jilViews=['jarvis-morning','jarvis-capture','jarvis-connect','jarvis-weekly','jarvis-belief','jarvis-pattern','jarvis-decision','jarvis-claude'];
+  const jilViews=['jarvis-morning','jarvis-capture','jarvis-connect','jarvis-weekly','jarvis-context','jarvis-pattern','jarvis-decision','jarvis-claude'];
   if(jilViews.includes(window.currentView||'')){
     setView(window.currentView);
   }
@@ -12403,124 +12531,6 @@ function renderWeeklyArchive(){
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// SKILL 5 — BELIEF TRACKER
-// ═══════════════════════════════════════════════════════════════════════════
-
-function openBeliefModal(id){
-  const existing=id?DB.beliefs.find(b=>b.id===id):null;
-  document.getElementById('bel-statement').value=existing?existing.statement:'';
-  document.getElementById('bel-evidence').value=existing?existing.evidence:'Confirms';
-  document.getElementById('bel-world').value=existing?existing.world:'ALL';
-  document.getElementById('bel-obs').value=existing?existing.obs:'';
-  document.getElementById('beliefModal').dataset.editId=id||'';
-  openModal('beliefModal');
-  setTimeout(()=>document.getElementById('bel-statement').focus(),80);
-}
-
-function saveBelief(){
-  const statement=document.getElementById('bel-statement').value.trim();
-  if(!statement){showToast('⚠ Enter a belief statement, sir.');return;}
-  const editId=document.getElementById('beliefModal').dataset.editId;
-  const b={
-    id:editId?parseInt(editId):Date.now(),
-    statement,
-    evidence:document.getElementById('bel-evidence').value,
-    world:document.getElementById('bel-world').value,
-    obs:document.getElementById('bel-obs').value.trim(),
-    date:new Date().toISOString().split('T')[0],
-    updatedAt:new Date().toISOString()
-  };
-  if(editId){const i=DB.beliefs.findIndex(x=>x.id===parseInt(editId));if(i>=0)DB.beliefs[i]=b;else DB.beliefs.unshift(b);}
-  else DB.beliefs.unshift(b);
-  save('beliefs');
-  closeModal('beliefModal');
-  renderBeliefView();
-  showToast('✓ Belief logged');
-  addHistory('add','Belief: '+statement.substring(0,40),{...b});
-}
-
-function runBeliefAudit(){
-  if(!DB.beliefs||!DB.beliefs.length){showToast('No beliefs logged yet, sir.');return;}
-  const confirmed=DB.beliefs.filter(b=>b.evidence==='Confirms').length;
-  const challenged=DB.beliefs.filter(b=>b.evidence==='Challenges').length;
-  const complicated=DB.beliefs.filter(b=>b.evidence==='Complicates').length;
-  const total=DB.beliefs.length;
-
-  const el=document.getElementById('beliefAuditResult');
-  if(!el)return;
-  const recommendations=[];
-  if(challenged>total*0.4)recommendations.push('More than 40% of your beliefs are being challenged — significant worldview pressure. Time to update some priors, sir.');
-  if(confirmed>total*0.7)recommendations.push('Over 70% confirmed — your worldview is coherent. Slight risk of confirmation bias. Seek contradictory evidence.');
-  if(complicated>0)recommendations.push(`${complicated} belief(s) are complicated by new evidence — these need deliberate reassessment.`);
-
-  el.innerHTML=`
-    <div style="background:rgba(0,255,242,.05);border:1px solid var(--border);border-radius:6px;padding:14px;margin-bottom:12px">
-      <div style="font-size:var(--text-xs);font-weight:700;color:var(--teal);letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px">◈ BELIEF AUDIT</div>
-      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px">
-        <div style="text-align:center"><div style="font-size:var(--text-lg);font-weight:800;color:var(--teal)">${total}</div><div style="font-size:var(--text-xs);color:var(--text3)">Total</div></div>
-        <div style="text-align:center"><div style="font-size:var(--text-lg);font-weight:800;color:var(--green)">${confirmed}</div><div style="font-size:var(--text-xs);color:var(--text3)">Confirmed</div></div>
-        <div style="text-align:center"><div style="font-size:var(--text-lg);font-weight:800;color:var(--orange)">${challenged}</div><div style="font-size:var(--text-xs);color:var(--text3)">Challenged</div></div>
-        <div style="text-align:center"><div style="font-size:var(--text-lg);font-weight:800;color:var(--purple)">${complicated}</div><div style="font-size:var(--text-xs);color:var(--text3)">Complicated</div></div>
-      </div>
-      ${recommendations.map(r=>`<div style="font-size:var(--text-xs);color:var(--text2);padding:6px 0;border-top:1px solid var(--border);line-height:1.5">→ ${r}</div>`).join('')}
-    </div>`;
-
-  showToast('✓ Belief audit complete');
-}
-
-let beliefFilter='all';
-function filterBeliefs(f){beliefFilter=f;renderBeliefView();}
-
-function renderBeliefView(){
-  if(!DB.beliefs)DB.beliefs=[];
-  const total=DB.beliefs.length;
-  const confirmed=DB.beliefs.filter(b=>b.evidence==='Confirms').length;
-  const challenged=DB.beliefs.filter(b=>b.evidence==='Challenges').length;
-  const complicated=DB.beliefs.filter(b=>b.evidence==='Complicates').length;
-
-  const bt=document.getElementById('beliefTotal');if(bt)bt.textContent=total;
-  const bc=document.getElementById('beliefConfirmed');if(bc)bc.textContent=confirmed;
-  const bch=document.getElementById('beliefChallenged');if(bch)bch.textContent=challenged;
-  const bco=document.getElementById('beliefComplicated');if(bco)bco.textContent=complicated;
-
-  const list=document.getElementById('beliefList');
-  if(!list)return;
-  let items=beliefFilter==='all'?DB.beliefs:DB.beliefs.filter(b=>b.evidence===beliefFilter);
-
-  const evColor={Confirms:'var(--green)',Challenges:'var(--orange)',Complicates:'var(--purple)',Irrelevant:'var(--text3)'};
-  const evIcon={Confirms:'ti-check',Challenges:'ti-alert-triangle',Complicates:'ti-arrows-shuffle',Irrelevant:'ti-minus'};
-
-  list.innerHTML=items.length?items.map(b=>`
-    <div style="background:var(--navy2);border:1px solid var(--border);border-radius:6px;padding:12px 14px;margin-bottom:8px;border-left:3px solid ${evColor[b.evidence]||'var(--teal)'}">
-      <div style="display:flex;align-items:flex-start;gap:10px">
-        <div style="width:26px;height:26px;border-radius:50%;border:1px solid ${evColor[b.evidence]};display:flex;align-items:center;justify-content:center;flex-shrink:0">
-          <i class="ti ${evIcon[b.evidence]||'ti-check'}" style="font-size:var(--text-sm);color:${evColor[b.evidence]};line-height:1;display:block"></i>
-        </div>
-        <div style="flex:1;min-width:0">
-          <div style="font-size:var(--text-sm);font-weight:600;color:var(--text1);line-height:1.4;margin-bottom:4px">${b.statement}</div>
-          ${b.obs?`<div style="font-size:var(--text-xs);color:var(--text3);font-style:italic;margin-bottom:4px">"${b.obs}"</div>`:''}
-          <div style="display:flex;gap:6px;flex-wrap:wrap">
-            <span style="font-size:var(--text-xs);color:${evColor[b.evidence]};font-weight:700;border:1px solid ${evColor[b.evidence]};border-radius:2px;padding:1px 5px">${b.evidence}</span>
-            <span class="pill pgr">${b.world}</span>
-            <span style="font-size:var(--text-xs);color:var(--text3)">${b.date}</span>
-          </div>
-        </div>
-        <div style="display:flex;gap:5px;flex-shrink:0">
-          <button onclick="openBeliefModal(${b.id})" class="btn btn-g" style="padding:3px 7px;font-size:var(--text-xs)"><i class="ti ti-pencil" style="font-size:var(--text-xs);line-height:1;display:block"></i></button>
-          <button onclick="deleteBelief(${b.id})" class="btn btn-d" style="padding:3px 7px;font-size:var(--text-xs)"><i class="ti ti-trash" style="font-size:var(--text-xs);line-height:1;display:block"></i></button>
-        </div>
-      </div>
-    </div>`).join('')
-  :'<div style="text-align:center;padding:30px;color:var(--text3);font-size:var(--text-sm)">No beliefs logged yet, sir.</div>';
-}
-
-function deleteBelief(id){
-  DB.beliefs=DB.beliefs.filter(b=>b.id!==id);
-  save('beliefs');
-  renderBeliefView();showToast('Belief deleted');
-}
-
-// ═══════════════════════════════════════════════════════════════════════════
 // SKILL 6 — PATTERN DETECTOR
 // ═══════════════════════════════════════════════════════════════════════════
 
@@ -12830,7 +12840,7 @@ function renderClaudeMD(){
     {label:'CLAUDE.md',sub:'Live intelligence profile',icon:'🪪',action:()=>setView('jarvis-claude'),group:'Intelligence'},
     {label:'Run Morning Intelligence',sub:'Generate now',icon:'☀',action:()=>{setView('jarvis-morning');setTimeout(runMorningIntelligence,200);},group:'Intelligence'},
     {label:'Log Decision',sub:'Open decision modal',icon:'⚖',action:()=>{setView('jarvis-decision');setTimeout(openDecisionModal,200);},group:'Intelligence'},
-    {label:'Log Belief',sub:'Open belief modal',icon:'🛡',action:()=>{setView('jarvis-belief');setTimeout(openBeliefModal,200);},group:'Intelligence'},
+    {label:'Context Engine',sub:'Open context snapshot',icon:'ti-brain',action:()=>setView('jarvis-context'),group:'Intelligence'},
     {label:'Detect Patterns',sub:'Run monthly pattern scan',icon:'📈',action:()=>{setView('jarvis-pattern');setTimeout(runPatternDetector,200);},group:'Intelligence'},
     {label:'Find Connections',sub:'Scan recent activity',icon:'🔗',action:()=>{setView('jarvis-connect');setTimeout(runConnectionFinder,200);},group:'Intelligence'},
     {label:'Run Weekly Synthesis',sub:'Generate weekly report',icon:'📊',action:()=>{setView('jarvis-weekly');setTimeout(runWeeklySynthesis,200);},group:'Intelligence'},
@@ -12934,7 +12944,7 @@ window.executeVoiceCommand=function(rawText){
   s.textContent=`
     /* JIL view transitions */
     #view-jarvis-morning .vb,#view-jarvis-capture .vb,#view-jarvis-connect .vb,
-    #view-jarvis-weekly .vb,#view-jarvis-belief .vb,#view-jarvis-pattern .vb,
+    #view-jarvis-weekly .vb,#view-jarvis-pattern .vb,
     #view-jarvis-decision .vb{overflow-y:auto;-webkit-overflow-scrolling:touch}
 
     /* CLAUDE.md layout */
