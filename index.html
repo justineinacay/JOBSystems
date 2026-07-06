@@ -804,10 +804,12 @@ select option{background:var(--navy3)}
   }
   .tb-logo{font-size:var(--text-sm);letter-spacing:.1em;flex-shrink:0;white-space:nowrap}
   #dataTicker{display:none}
-  /* Hide topbar search and data strip on mobile — clean header */
-  .tb-search-wrap{display:none !important}
+  /* Remove search + gray rectangle from topbar on mobile */
   #desktopSearchBar{display:none !important}
   #mobileSearchTrigger{display:none !important}
+  /* Hide the vertical divider between logo and search */
+  .topbar > div:first-child > div:nth-child(2){display:none !important}
+  .tb-search-wrap{display:none !important}
   .tb-r .hpill{display:none}
   .tb-btn{padding:6px;font-size:var(--text-xs);min-height:36px;min-width:36px;justify-content:center;flex-shrink:0}
   .tb-btn i{margin:0}
@@ -832,10 +834,9 @@ select option{background:var(--navy3)}
     flex-direction:column;
   }
 
-  /* Calendar: show filter button on mobile, hide pill row */
-  .cal-ctx-desktop{display:none !important}
-  #calFilterBtn{display:flex !important}
-  #calCtxFiltersWrap{flex-wrap:wrap}
+  /* Calendar: hide ALL pill rows on mobile - worlds in filter dropdown only */
+  #calCtxFiltersWrap{display:none !important}
+  #calMobileFilterRow{display:flex !important}
   .cfbt-wrap{overflow-x:auto !important;-webkit-overflow-scrolling:touch;flex-wrap:nowrap !important;padding-bottom:4px;gap:4px !important}
   .cfbt{flex-shrink:0 !important;white-space:nowrap !important;font-size:10px !important;padding:5px 8px !important;min-height:28px !important}
   /* View body scrolls to top on tab switch */
@@ -3759,23 +3760,20 @@ select option{background:var(--navy3)}
             </div>
             <button class="btn btn-t" onclick="openCalEventModal()" style="font-size:var(--text-xs);flex-shrink:0"><i class="ti ti-plus"></i> Event</button>
           </div>
-          <!-- Context filter — compact Filter button on mobile, pills on desktop -->
-          <div id="calCtxFiltersWrap" style="display:flex;align-items:center;gap:8px;position:relative">
-            <!-- Desktop: pill row -->
-            <div class="cal-ctx-filters cal-ctx-desktop" id="calCtxFilters" style="width:100%;overflow-x:auto;white-space:nowrap;padding:2px 0 4px;-webkit-overflow-scrolling:touch"></div>
-            <!-- Mobile: single filter button -->
-            <button id="calFilterBtn" onclick="toggleCalFilterDropdown()" style="display:none;align-items:center;gap:6px;padding:6px 14px;border-radius:100px;border:1.5px solid rgba(128,255,250,.3);background:rgba(128,255,250,.08);color:var(--teal);font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;white-space:nowrap;flex-shrink:0">
+          <!-- Mobile: Filter button row (shown on mobile, hidden on desktop) -->
+          <div id="calMobileFilterRow" style="display:none;align-items:center;justify-content:space-between;padding:4px 0;gap:8px;position:relative">
+            <button onclick="toggleCalFilterDropdown()" style="display:flex;align-items:center;gap:6px;padding:6px 14px;border-radius:100px;border:1.5px solid rgba(128,255,250,.3);background:rgba(128,255,250,.08);color:var(--teal);font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;white-space:nowrap">
               <i class="ti ti-filter" style="font-size:13px;line-height:1;display:block"></i>
-              Filter <span id="calFilterCount" style="background:var(--teal);color:var(--navy);border-radius:8px;padding:1px 6px;font-size:9px;font-weight:800"></span>
+              Filter <span id="calFilterCount" style="background:var(--teal);color:var(--navy);border-radius:8px;padding:1px 6px;font-size:9px;font-weight:800;margin-left:2px">All</span>
             </button>
             <!-- Filter dropdown -->
-            <div id="calFilterDropdown" style="display:none;position:absolute;top:calc(100% + 8px);left:0;right:0;background:var(--navy3);border:1px solid var(--border2);border-radius:12px;padding:10px;z-index:200;box-shadow:0 8px 32px rgba(0,0,0,.6)">
+            <div id="calFilterDropdown" style="display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;background:var(--navy3);border:1px solid var(--border2);border-radius:12px;padding:12px;z-index:200;box-shadow:0 8px 32px rgba(0,0,0,.7)">
               <div style="font-size:10px;font-weight:700;letter-spacing:.1em;color:var(--text3);text-transform:uppercase;margin-bottom:8px">Filter by World</div>
-              <div id="calFilterList" style="display:flex;flex-direction:column;gap:6px"></div>
+              <div id="calFilterList" style="display:flex;flex-direction:column;gap:4px"></div>
               <div style="display:flex;gap:6px;margin-top:10px;border-top:1px solid var(--border);padding-top:10px">
-                <button onclick="calFilterSelectAll()" style="flex:1;padding:6px;border-radius:6px;border:1px solid var(--border2);background:transparent;color:var(--text2);font-size:11px;cursor:pointer">All</button>
-                <button onclick="calFilterClearAll()" style="flex:1;padding:6px;border-radius:6px;border:1px solid var(--border2);background:transparent;color:var(--text2);font-size:11px;cursor:pointer">None</button>
-                <button onclick="toggleCalFilterDropdown()" style="flex:1;padding:6px;border-radius:6px;border:1px solid rgba(128,255,250,.3);background:rgba(128,255,250,.1);color:var(--teal);font-size:11px;font-weight:700;cursor:pointer">Done</button>
+                <button onclick="calFilterSelectAll()" style="flex:1;padding:7px;border-radius:8px;border:1px solid var(--border2);background:transparent;color:var(--text2);font-size:11px;cursor:pointer">All</button>
+                <button onclick="calFilterClearAll()" style="flex:1;padding:7px;border-radius:8px;border:1px solid var(--border2);background:transparent;color:var(--text2);font-size:11px;cursor:pointer">None</button>
+                <button onclick="document.getElementById('calFilterDropdown').style.display='none'" style="flex:1;padding:7px;border-radius:8px;border:1px solid rgba(128,255,250,.3);background:rgba(128,255,250,.1);color:var(--teal);font-size:11px;font-weight:700;cursor:pointer">Done</button>
               </div>
             </div>
           </div>
@@ -4281,13 +4279,7 @@ select option{background:var(--navy3)}
         <div><div class="vt"><i class="ti ti-grid-dots" style="color:var(--teal)"></i>Worlds</div><div class="vs">Navigate worlds · System settings</div></div>
       </div>
       <div class="vb" style="padding:16px;overflow-y:auto">
-        <!-- Voice command -->
-        <button onclick="toggleVoice()" style="width:100%;display:flex;align-items:center;justify-content:center;gap:10px;padding:14px;border-radius:12px;background:rgba(128,255,250,.08);border:1.5px solid rgba(128,255,250,.2);color:var(--teal);font-size:13px;font-weight:700;cursor:pointer;margin-bottom:6px;transition:all .2s" onmouseover="this.style.background='rgba(128,255,250,.14)'" onmouseout="this.style.background='rgba(128,255,250,.08)'">
-          <i class="ti ti-microphone" style="font-size:20px;line-height:1;display:block"></i>
-          Voice Command
-        </button>
-        <div style="font-size:10px;color:var(--text3);text-align:center;margin-bottom:18px;line-height:1.5">Tap above to activate · or press <strong style="color:rgba(255,255,255,.5)">Space</strong> on keyboard<br>For power button: set up via <strong style="color:rgba(255,255,255,.5)">Shortcuts app → Accessibility → J.O.B Voice</strong></div>
-        <!-- World grid -->
+        <!-- World grid — 2 col, LIFE spans full row at bottom -->
         <div style="font-size:10px;font-weight:700;letter-spacing:.12em;color:rgba(255,255,255,.35);text-transform:uppercase;margin-bottom:10px">My Worlds</div>
         <div id="mobileWorldsGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px"></div>
         <!-- Settings shortcuts -->
@@ -5062,17 +5054,17 @@ function renderWorldsSettings(){
   const grid=document.getElementById('mobileWorldsGrid');
   if(!grid)return;
   const worlds=DB.worlds||[];
-  grid.innerHTML=worlds.map(w=>{
-    const colorVal=(w.color&&/^#/.test(w.color))?w.color:('var('+(w.cssVar||'--teal')+')');
-    const isLife=w.id==='life';
-    return`<div onclick="setView('${w.id}')" style="background:var(--navy2);border:1px solid var(--border);border-top:2px solid ${colorVal};border-radius:12px;padding:16px 14px;cursor:pointer;display:flex;align-items:center;gap:10px;transition:all .15s;${isLife?'grid-column:1/-1;':''}" onmouseover="this.style.boxShadow='0 4px 20px rgba(0,0,0,.4)';this.style.borderTopColor='${colorVal}'" onmouseout="this.style.boxShadow='';this.style.borderTopColor='${colorVal}'">
-      <i class="ti ${w.icon||'ti-star'}" style="font-size:22px;color:${colorVal};flex-shrink:0;line-height:1;display:block"></i>
-      <div style="flex:1;min-width:0">
-        <div style="font-size:13px;font-weight:800;color:var(--text1);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${w.label}</div>
-      </div>
+  const nonLife=worlds.filter(w=>w.id!=='life');
+  const life=worlds.find(w=>w.id==='life');
+  const makeCard=(w,fullRow)=>{
+    const c=(w.color&&/^#/.test(w.color))?w.color:('var('+(w.cssVar||'--teal')+')');
+    return`<div onclick="setView('${w.id}')" style="background:var(--navy2);border:1px solid var(--border);border-top:2px solid ${c};border-radius:12px;padding:16px 14px;cursor:pointer;display:flex;align-items:center;gap:12px;transition:all .15s;${fullRow?'grid-column:1/-1;':''}" onmouseover="this.style.boxShadow='0 4px 20px rgba(0,0,0,.4)'" onmouseout="this.style.boxShadow=''">
+      <i class="ti ${w.icon||'ti-star'}" style="font-size:22px;color:${c};flex-shrink:0;line-height:1;display:block"></i>
+      <div style="flex:1;min-width:0;font-size:13px;font-weight:800;color:var(--text1);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${w.label}</div>
       <i class="ti ti-chevron-right" style="font-size:14px;color:var(--text3);flex-shrink:0;line-height:1;display:block"></i>
     </div>`;
-  }).join('');
+  };
+  grid.innerHTML=nonLife.map(w=>makeCard(w,false)).join('')+(life?makeCard(life,true):'');
 }
 function renderSettingsView(){
   const antKey=localStorage.getItem('job-api-key');
@@ -13702,6 +13694,10 @@ console.log('[J.O.B Systems] JARVIS Intelligence Layer loaded — Skills 1–7 +
 <div id="mobileCalAgenda" style="display:none"></div>
 
 <div class="mobile-bottom-nav" id="mobileBottomNav">
+  <!-- Fixed voice button - floats above nav pill always visible -->
+  <button id="mbnVoiceBtn" onclick="toggleVoice()" style="position:absolute;bottom:calc(100% + 10px);right:18px;width:46px;height:46px;border-radius:50%;background:rgba(5,10,18,.95);border:1.5px solid rgba(128,255,250,.3);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--teal);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);box-shadow:0 4px 16px rgba(0,0,0,.5);transition:all .2s;pointer-events:all;-webkit-tap-highlight-color:transparent" onmouseover="this.style.borderColor='rgba(128,255,250,.7)';this.style.background='rgba(0,212,200,.12)'" onmouseout="this.style.borderColor='rgba(128,255,250,.3)';this.style.background='rgba(5,10,18,.95)'">
+    <i class="ti ti-microphone" id="mbnVoiceIcon" style="font-size:20px;line-height:1;display:block"></i>
+  </button>
   <div class="mbn-bar">
     <!-- Life -->
     <div class="mbn-tab" id="mbt-life" onclick="mobileNav('life',this)">
