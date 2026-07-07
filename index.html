@@ -4383,15 +4383,24 @@ select option{background:var(--navy3)}
         <!-- AI INTEGRATIONS -->
         <div class="hc" style="margin-bottom:16px">
           <div style="font-size:var(--text-xs);font-weight:700;color:var(--teal);letter-spacing:.1em;text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:6px"><i class="ti ti-api" style="font-size:var(--text-sm);line-height:1;display:block"></i>AI Integrations</div>
+          <!-- ElevenLabs — TIER 1 JARVIS VOICE -->
           <div class="fg" style="margin-bottom:12px">
-            <label class="fl">Anthropic API Key (Claude · J.O.B Systems Agents)</label>
+            <label class="fl" style="display:flex;align-items:center;gap:6px">ElevenLabs API Key <span style="font-size:9px;background:rgba(128,255,250,.12);color:var(--teal);padding:1px 7px;border-radius:10px;font-weight:800;letter-spacing:.06em">JARVIS VOICE · TIER 1</span></label>
+            <div style="display:flex;gap:8px">
+              <input type="password" id="set-elevenlabs-key" placeholder="Enter ElevenLabs API key..." style="flex:1">
+              <button class="btn btn-t" onclick="saveKey('jelix-elevenlabs-key','set-elevenlabs-key');speak('JARVIS voice online, sir.')">Save</button>
+            </div>
+            <div style="font-size:9px;color:var(--text3);margin-top:4px">elevenlabs.io → Profile → API Keys · Voice: <code style="color:var(--text2)">NOpBlnGInO9m6vDvFkFC</code> · Model: eleven_v3</div>
+          </div>
+          <div class="fg" style="margin-bottom:12px">
+            <label class="fl">Anthropic API Key <span style="font-size:9px;background:rgba(128,255,250,.06);color:var(--text3);padding:1px 7px;border-radius:10px;font-weight:700;letter-spacing:.06em">CLAUDE AGENTS</span></label>
             <div style="display:flex;gap:8px">
               <input type="password" id="set-anthropic-key" placeholder="sk-ant-..." style="flex:1">
               <button class="btn btn-t" onclick="saveKey('job-api-key','set-anthropic-key')">Save</button>
             </div>
           </div>
           <div class="fg">
-            <label class="fl">OpenAI API Key (JARVIS Onyx Voice TTS)</label>
+            <label class="fl">OpenAI API Key <span style="font-size:9px;background:rgba(128,255,250,.06);color:var(--text3);padding:1px 7px;border-radius:10px;font-weight:700;letter-spacing:.06em">ONYX TTS · TIER 2</span></label>
             <div style="display:flex;gap:8px">
               <input type="password" id="set-openai-key" placeholder="sk-proj-..." style="flex:1">
               <button class="btn btn-t" onclick="saveKey('jelix-openai-key','set-openai-key')">Save</button>
@@ -4830,23 +4839,103 @@ function runCapture(){
 let isMuted=false,ttsVoice=null;
 function loadVoices(){const v=speechSynthesis.getVoices();ttsVoice=v.find(x=>x.name.includes('Daniel')||x.name.includes('Google UK English Male')||x.name.includes('Microsoft George')||(x.lang==='en-GB'&&x.localService))||v.find(x=>x.lang.startsWith('en'))||null;}
 speechSynthesis.onvoiceschanged=loadVoices;loadVoices();
+// ── TTS Priority: ElevenLabs (JARVIS) → OpenAI (Onyx) → Browser ─────────
+const ELEVENLABS_VOICE_ID='NOpBlnGInO9m6vDvFkFC'; // JARVIS voice
+const ELEVENLABS_MODEL='eleven_v3';
+let currentAudio=null; // track playing audio to allow cancel
+
+function cleanForSpeech(text){
+  return text
+    .replace(/```[\s\S]*?```/g,'code block')
+    .replace(/[*_`#>\[\]]/g,'')
+    .replace(/https?:\/\/\S+/g,'link')
+    .replace(/₱/g,'PHP ')
+    .replace(/\n{2,}/g,'. ')
+    .replace(/\n/g,' ')
+    .replace(/\s+/g,' ')
+    .trim()
+    .substring(0,800);
+}
+
+async function speakElevenLabs(text, stability=0.45, speed=0.9){
+  const key=localStorage.getItem('jelix-elevenlabs-key');
+  if(!key) return false;
+  try{
+    const res=await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${ELEVENLABS_VOICE_ID}`,{
+      method:'POST',
+      headers:{
+        'xi-api-key':key,
+        'Content-Type':'application/json',
+        'Accept':'audio/mpeg'
+      },
+      body:JSON.stringify({
+        text,
+        model_id:ELEVENLABS_MODEL,
+        language_code:'en',
+        voice_settings:{
+          stability,
+          similarity_boost:0.82,
+          style:0.3,
+          use_speaker_boost:true,
+          speed
+        }
+      })
+    });
+    if(!res.ok) return false;
+    const blob=await res.blob();
+    if(currentAudio){currentAudio.pause();currentAudio=null;}
+    currentAudio=new Audio(URL.createObjectURL(blob));
+    currentAudio.play();
+    return true;
+  }catch(e){return false;}
+}
+
 async function speak(text){
-  if(isMuted||!text)return;speechSynthesis.cancel();
-  const clean=text.replace(/```[\s\S]*?```/g,'code block').replace(/[*_`#>\[\]]/g,'').replace(/https?:\/\/\S+/g,'link').replace(/\n{2,}/g,'. ').replace(/\n/g,' ').trim().substring(0,500);
-  const key=localStorage.getItem('jelix-openai-key');
-  if(key){try{const res=await fetch('https://api.openai.com/v1/audio/speech',{method:'POST',headers:{'Authorization':'Bearer '+key,'Content-Type':'application/json'},body:JSON.stringify({model:'tts-1',voice:'onyx',input:clean,speed:0.82})});if(res.ok){const blob=await res.blob();new Audio(URL.createObjectURL(blob)).play();return;}}catch(e){}}
+  if(isMuted||!text)return;
+  speechSynthesis.cancel();
+  if(currentAudio){currentAudio.pause();currentAudio=null;}
+  const clean=cleanForSpeech(text);
+  // Tier 1: ElevenLabs JARVIS
+  if(await speakElevenLabs(clean, 0.45, 0.88)) return;
+  // Tier 2: OpenAI Onyx
+  const oaiKey=localStorage.getItem('jelix-openai-key');
+  if(oaiKey){try{const res=await fetch('https://api.openai.com/v1/audio/speech',{method:'POST',headers:{'Authorization':'Bearer '+oaiKey,'Content-Type':'application/json'},body:JSON.stringify({model:'tts-1',voice:'onyx',input:clean,speed:0.82})});if(res.ok){const blob=await res.blob();currentAudio=new Audio(URL.createObjectURL(blob));currentAudio.play();return;}}catch(e){}}
+  // Tier 3: Browser TTS
   const utt=new SpeechSynthesisUtterance(clean);utt.lang='en-GB';utt.rate=0.85;utt.pitch=0.80;utt.volume=1;if(ttsVoice)utt.voice=ttsVoice;speechSynthesis.speak(utt);
 }
+
 async function speakSlow(text){
-  // Morning brief — deliberate, word-by-word delivery
-  if(isMuted||!text)return;speechSynthesis.cancel();
-  const clean=text.replace(/```[\s\S]*?```/g,'').replace(/[*_`#>\[\]]/g,'').replace(/https?:\/\/\S+/g,'').replace(/₱/g,'PHP ').replace(/\n{2,}/g,'. ').replace(/\n/g,' ').replace(/\s+/g,' ').trim();
-  const key=localStorage.getItem('jelix-openai-key');
-  if(key){try{const res=await fetch('https://api.openai.com/v1/audio/speech',{method:'POST',headers:{'Authorization':'Bearer '+key,'Content-Type':'application/json'},body:JSON.stringify({model:'tts-1',voice:'onyx',input:clean,speed:0.72})});if(res.ok){const blob=await res.blob();new Audio(URL.createObjectURL(blob)).play();return;}}catch(e){}}
+  // Morning brief — deliberate delivery
+  if(isMuted||!text)return;
+  speechSynthesis.cancel();
+  if(currentAudio){currentAudio.pause();currentAudio=null;}
+  const clean=cleanForSpeech(text);
+  // Tier 1: ElevenLabs — slower, steadier
+  if(await speakElevenLabs(clean, 0.52, 0.74)) return;
+  // Tier 2: OpenAI
+  const oaiKey=localStorage.getItem('jelix-openai-key');
+  if(oaiKey){try{const res=await fetch('https://api.openai.com/v1/audio/speech',{method:'POST',headers:{'Authorization':'Bearer '+oaiKey,'Content-Type':'application/json'},body:JSON.stringify({model:'tts-1',voice:'onyx',input:clean,speed:0.72})});if(res.ok){const blob=await res.blob();currentAudio=new Audio(URL.createObjectURL(blob));currentAudio.play();return;}}catch(e){}}
+  // Tier 3: Browser
   const utt=new SpeechSynthesisUtterance(clean);utt.lang='en-GB';utt.rate=0.72;utt.pitch=0.78;utt.volume=1;if(ttsVoice)utt.voice=ttsVoice;speechSynthesis.speak(utt);
+}
+
+function setElevenLabsKey(){
+  const existing=localStorage.getItem('jelix-elevenlabs-key')||'';
+  const masked=existing?existing.substring(0,8)+'...'+existing.slice(-4):'(not set)';
+  const k=prompt('ElevenLabs API Key — JARVIS Voice\n\nCurrent: '+masked+'\n\nPaste your ElevenLabs API key:\n(Get it at elevenlabs.io → Profile → API Keys)\nLeave blank to remove.','');
+  if(k===null)return;
+  if(k.trim()){
+    localStorage.setItem('jelix-elevenlabs-key',k.trim());
+    showToast('✓ JARVIS voice activated.');
+    speak('JARVIS voice online. ElevenLabs ready, sir.');
+  }else{
+    localStorage.removeItem('jelix-elevenlabs-key');
+    showToast('ElevenLabs key removed. Falling back to Onyx or browser voice.');
+  }
 }
 function lockOS(){
   speechSynthesis.cancel();
+  if(currentAudio){currentAudio.pause();currentAudio=null;}
   currentPinInput='';
   const dots=document.querySelectorAll('.pin-dot');
   dots.forEach(d=>d.classList.remove('filled'));
@@ -4863,7 +4952,7 @@ function lockOS(){
     speak('J.O.B Systems locked. Enter PIN to continue.');
   }
 }
-function toggleMute(){isMuted=!isMuted;const btn=document.getElementById('muteBtn'),icon=document.getElementById('muteIcon');if(isMuted){speechSynthesis.cancel();icon.className='ti ti-volume-off';btn.style.borderColor='var(--red)';btn.style.color='var(--red)';showToast('Voice muted');}else{icon.className='ti ti-volume';btn.style.borderColor='var(--border2)';btn.style.color='var(--text2)';speak('Voice activated. J.O.B Systems online, sir.');}}
+function toggleMute(){isMuted=!isMuted;const btn=document.getElementById('muteBtn'),icon=document.getElementById('muteIcon');if(isMuted){speechSynthesis.cancel();if(currentAudio){currentAudio.pause();currentAudio=null;}icon.className='ti ti-volume-off';btn.style.borderColor='var(--red)';btn.style.color='var(--red)';showToast('Voice muted');}else{icon.className='ti ti-volume';btn.style.borderColor='var(--border2)';btn.style.color='var(--text2)';speak('Voice activated. J.O.B Systems online, sir.');}}
 function setOpenAIKey(){const e=localStorage.getItem('jelix-openai-key')||'';const k=prompt('Enter your OpenAI API key for ONYX voice:\n\nLeave blank to remove.',e);if(k===null)return;if(k.trim()){localStorage.setItem('jelix-openai-key',k.trim());showToast('ONYX key saved. Premium voice enabled.');speak('Premium voice activated. Good evening, sir.');}else{localStorage.removeItem('jelix-openai-key');showToast('Key removed. Using browser voice.');}}
 function setJelixAPIKey(){
   const existing=localStorage.getItem('job-api-key')||'';
@@ -5118,10 +5207,13 @@ function renderWorldsSettings(){
 function renderSettingsView(){
   const antKey=localStorage.getItem('job-api-key');
   const oaiKey=localStorage.getItem('jelix-openai-key');
+  const elKey=localStorage.getItem('jelix-elevenlabs-key');
   const antEl=document.getElementById('set-anthropic-key');
   const oaiEl=document.getElementById('set-openai-key');
+  const elEl=document.getElementById('set-elevenlabs-key');
   if(antEl&&antKey)antEl.placeholder='sk-ant-...'+antKey.slice(-6)+' (set)';
   if(oaiEl&&oaiKey)oaiEl.placeholder='sk-proj-...'+oaiKey.slice(-6)+' (set)';
+  if(elEl&&elKey)elEl.placeholder=elKey.substring(0,8)+'...'+elKey.slice(-4)+' (set)';
   // Bio toggle button
   const bioBtn=document.getElementById('bioToggleBtn');
   if(bioBtn){
