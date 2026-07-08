@@ -6,6 +6,10 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="J.O.B Systems">
+<meta http-equiv="X-Content-Type-Options" content="nosniff">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
+<meta name="referrer" content="no-referrer">
 <meta name="theme-color" content="#000000">
 <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%23000000'/><text y='72' x='10' font-size='60' fill='%2300fff2' font-family='monospace' font-weight='bold'>J</text></svg>">
 <title>J.O.B Systems — Justine Operating Blueprint</title>
@@ -121,7 +125,7 @@ img,svg,video,canvas{max-width:100%;height:auto}
 /* Light theme removed — JARVIS dark locked */
 
 /* ── Lock Screen ─────────────────────────────────────────────── */
-#lockScreen{position:fixed;inset:0;background:rgba(0,0,0,.72);backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);z-index:99998;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0}
+#lockScreen{position:fixed;inset:0;background:#000;z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0}
 .pin-display{display:flex;gap:clamp(8px,3vw,12px);margin-bottom:clamp(12px,3vh,30px)}
 .pin-dot{width:16px;height:16px;border-radius:50%;border:2px solid var(--teal2);transition:all .2s}
 .pin-dot.filled{background:var(--teal);box-shadow:0 0 10px var(--teal)}
@@ -252,7 +256,7 @@ select option{background:var(--navy3)}
 .gws-btn:hover{border-color:var(--gws-c,var(--teal));background:color-mix(in srgb,var(--gws-c,var(--teal)) 10%,#050a12);box-shadow:0 0 10px color-mix(in srgb,var(--gws-c,var(--teal)) 20%,transparent)}
 .gws-btn:active{transform:scale(.97)}
 .kanban-wrap{display:flex;flex-direction:column;height:100%;gap:0}
-.kb-cols{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;flex:1;overflow:hidden;height:100%;align-items:stretch}
+.kb-cols{display:flex;gap:10px;flex:1;overflow-x:auto;height:100%;align-items:stretch;padding:12px}
 /* ── Calendar day-chip (repeat on) ── */
 .day-chip{cursor:pointer;padding:4px 9px;border-radius:12px;border:1px solid var(--border2);background:transparent;font-size:var(--text-xs);color:var(--text3);transition:all .15s;user-select:none}
 .day-chip:has(input:checked){background:rgba(0,212,200,.12);border-color:var(--teal);color:var(--teal)}
@@ -2628,6 +2632,7 @@ select option{background:var(--navy3)}
           <option value="100">100% — At limit only</option>
         </select>
       </div>
+      <div class="fg"><label class="fl">Linked Account <span style="font-size:9px;color:var(--text3)">transactions auto-deduct from this account</span></label><select id="bgt-account"><option value="">No linked account</option></select></div>
     </div>
     <div class="mf">
       <button class="btn btn-g" onclick="closeModal('budgetModal')">Cancel</button>
@@ -2749,6 +2754,16 @@ select option{background:var(--navy3)}
       </div>
 
       <div class="fg"><label class="fl">Notes / Agenda</label><textarea id="ce-notes" rows="2" placeholder="Additional notes or agenda..."></textarea></div>
+      <!-- Event Tasks — synced to Tasks dashboard -->
+      <div class="fg">
+        <label class="fl" style="display:flex;align-items:center;justify-content:space-between">
+          Event Tasks
+          <button onclick="addEventTask()" type="button" style="font-size:9px;background:rgba(128,255,250,.1);border:1px solid rgba(128,255,250,.2);color:var(--teal);padding:1px 8px;border-radius:4px;cursor:pointer"><i class="ti ti-plus" style="font-size:9px;display:inline-block;margin-right:2px"></i>Add Task</button>
+        </label>
+        <div id="ce-tasks-list" style="display:flex;flex-direction:column;gap:5px;min-height:0"></div>
+        <div style="font-size:9px;color:var(--text3);margin-top:3px">Tasks added here will also appear in your Tasks dashboard</div>
+      </div>
+
     </div>
     <div class="mf">
       <button class="btn btn-g" onclick="closeModal('calModal')">Cancel</button>
@@ -3326,31 +3341,110 @@ select option{background:var(--navy3)}
 
     <!-- ===== BUILD ===== -->
     <div class="view" id="view-build">
-      <div class="vh"><div><div class="vt" style="color:var(--green)"><i class="ti ti-code"></i>Code Collectives</div><div class="vs">NAKNAK · DISKARTE · PASAHERO</div></div><div class="va"><button class="btn btn-g" onclick="openTaskFor('BUILD')"><i class="ti ti-plus"></i> Task</button></div></div>
+      <div class="vh">
+        <div><div class="vt" style="color:var(--green)"><i class="ti ti-code"></i>Code Collectives</div><div class="vs">App & software development · Web · Mobile · Client projects</div></div>
+        <div class="va"><button class="btn" style="background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.3);color:var(--green)" onclick="openAppModal()"><i class="ti ti-plus"></i> App</button></div>
+      </div>
       <div class="vb" style="padding:0;display:flex;flex-direction:column;overflow:hidden">
-        <div id="buildAppsWrap" style="padding:14px 18px;flex-shrink:0"><div id="buildApps" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px"></div></div>
-        <!-- BUILD tasks -->
-        <div style="flex:1;min-height:0;border-top:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden">
+        <!-- KPI row -->
+        <div class="mr" style="grid-template-columns:repeat(4,1fr);padding:14px 18px 0;flex-shrink:0">
+          <div class="hc"><div class="cl">Total Apps</div><div class="cv" id="buildTotalApps">0</div></div>
+          <div class="hc"><div class="cl">Active</div><div class="cv" style="color:var(--green)" id="buildActiveApps">0</div></div>
+          <div class="hc"><div class="cl">Open Tasks</div><div class="cv" style="color:var(--amber)" id="buildOpenTasks">0</div></div>
+          <div class="hc"><div class="cl">Tech Stack</div><div class="cv" style="color:var(--teal)" id="buildTechCount">0</div></div>
+        </div>
+        <!-- Tabs -->
+        <div class="cftab" style="padding:0 18px;flex-shrink:0">
+          <div class="cfbt active" id="bctab-apps" onclick="setBuildTab('apps',this)"><i class="ti ti-device-mobile" style="font-size:var(--text-xs);display:inline-block;margin-right:4px"></i>Apps</div>
+          <div class="cfbt" id="bctab-stack" onclick="setBuildTab('stack',this)"><i class="ti ti-stack-2" style="font-size:var(--text-xs);display:inline-block;margin-right:4px"></i>Tech Stack</div>
+          <div class="cfbt" id="bctab-clients" onclick="setBuildTab('clients',this)"><i class="ti ti-users" style="font-size:var(--text-xs);display:inline-block;margin-right:4px"></i>Dev Clients</div>
+          <div class="cfbt" id="bctab-tasks" onclick="setBuildTab('tasks',this)"><i class="ti ti-checklist" style="font-size:var(--text-xs);display:inline-block;margin-right:4px"></i>Tasks</div>
+        </div>
+        <!-- Apps tab -->
+        <div id="bc-apps" style="flex:1;overflow-y:auto;padding:14px 18px">
+          <div id="buildApps" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px"></div>
+        </div>
+        <!-- Stack tab -->
+        <div id="bc-stack" style="display:none;flex:1;overflow-y:auto;padding:14px 18px">
+          <div id="bc-stack-body"></div>
+        </div>
+        <!-- Clients tab -->
+        <div id="bc-clients" style="display:none;flex:1;overflow-y:auto;padding:14px 18px">
+          <div id="bc-clients-body"></div>
+          <button class="btn btn-g" onclick="addBuildClient()" style="margin-top:10px;font-size:var(--text-xs)"><i class="ti ti-plus"></i> Add Dev Client</button>
+        </div>
+        <!-- Tasks tab -->
+        <div id="bc-tasks" style="display:none;flex:1;min-height:0;overflow:hidden;display:flex;flex-direction:column">
           <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 18px;border-bottom:1px solid var(--border);flex-shrink:0">
-            <div style="font-size:var(--text-xs);font-weight:700;color:var(--green);letter-spacing:.1em;text-transform:uppercase;display:flex;align-items:center;gap:5px"><i class="ti ti-checklist" style="font-size:var(--text-sm);line-height:1;display:block"></i>BUILD TASKS</div>
-            <select id="buildTaskFilter" onchange="renderBuildTasks()" class="filter-chip-sel" style="font-size:var(--text-xs)">
-              <option value="all">All Status</option>
-              <option>Todo</option><option>In Progress</option><option>Done</option>
-            </select>
+            <div style="font-size:var(--text-xs);font-weight:700;color:var(--green);letter-spacing:.1em;text-transform:uppercase">Dev Tasks</div>
+            <div style="display:flex;gap:6px">
+              <select id="buildTaskFilter" onchange="renderBuildTasks()" class="filter-chip-sel" style="font-size:var(--text-xs)"><option value="all">All</option><option>Todo</option><option>In Progress</option><option>Done</option></select>
+              <button class="btn btn-g" style="font-size:var(--text-xs)" onclick="openTaskForWorld('build')"><i class="ti ti-plus"></i> Task</button>
+            </div>
           </div>
-          <div id="buildTaskBody" style="flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch">
+          <div id="buildTaskBody" style="flex:1;overflow-y:auto">
             <table class="ht"><thead><tr><th>Task</th><th>App</th><th>Priority</th><th>Status</th><th>Due</th><th></th></tr></thead><tbody id="buildTbody"></tbody></table>
           </div>
         </div>
       </div>
     </div>
+    </div>
 
-    <!-- ===== SIDES ===== -->
+    <!-- ===== CREATIVE COLLECTIVES (SIDES) ===== -->
     <div class="view" id="view-sides">
-      <div class="vh"><div><div class="vt" style="color:var(--amber)"><i class="ti ti-coins"></i>Creative Collectives</div><div class="vs">Digital products · Creative services</div></div><div class="va"><button class="btn btn-o" onclick="addSidesProduct()"><i class="ti ti-plus"></i> Product</button></div></div>
-      <div class="vb" style="overflow-y:auto;-webkit-overflow-scrolling:touch">
-        <div class="mr" style="margin-bottom:12px"><div class="hc"><div class="cl">Total Products</div><div class="cv" id="sidesCount">0</div></div><div class="hc"><div class="cl">Active Listings</div><div class="cv" id="sidesActive" style="color:var(--green)">0</div></div><div class="hc oc"><div class="cl">Total Revenue</div><div class="cv oc" id="sidesRevenue">₱0</div></div></div>
-        <div id="sidesProductGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px"></div>
+      <div class="vh">
+        <div><div class="vt" style="color:var(--amber)"><i class="ti ti-palette"></i>Creative Collectives</div><div class="vs">Marketing · Design · Social Media · Collaterals</div></div>
+        <div class="va">
+          <button class="btn btn-o" onclick="openCreativeModal()"><i class="ti ti-plus"></i> Project</button>
+        </div>
+      </div>
+      <div class="vb" style="overflow-y:auto;padding:18px 20px">
+        <!-- KPI row -->
+        <div class="mr" style="grid-template-columns:repeat(4,1fr);margin-bottom:16px">
+          <div class="hc"><div class="cl">Projects</div><div class="cv" id="ccTotalProjects">0</div></div>
+          <div class="hc"><div class="cl">Active</div><div class="cv" style="color:var(--green)" id="ccActiveProjects">0</div></div>
+          <div class="hc oc"><div class="cl">Deliverables</div><div class="cv oc" id="ccDeliverables">0</div></div>
+          <div class="hc"><div class="cl">Clients</div><div class="cv" style="color:var(--amber)" id="ccClients">0</div></div>
+        </div>
+        <!-- Tabs -->
+        <div class="cftab" style="margin-bottom:14px">
+          <div class="cfbt active" id="cctab-projects" onclick="setCCTab('projects',this)"><i class="ti ti-folder" style="font-size:var(--text-xs);display:inline-block;margin-right:4px"></i>Projects</div>
+          <div class="cfbt" id="cctab-collaterals" onclick="setCCTab('collaterals',this)"><i class="ti ti-file-text" style="font-size:var(--text-xs);display:inline-block;margin-right:4px"></i>Collaterals</div>
+          <div class="cfbt" id="cctab-social" onclick="setCCTab('social',this)"><i class="ti ti-brand-instagram" style="font-size:var(--text-xs);display:inline-block;margin-right:4px"></i>Social Media</div>
+          <div class="cfbt" id="cctab-tasks" onclick="setCCTab('tasks',this)"><i class="ti ti-checklist" style="font-size:var(--text-xs);display:inline-block;margin-right:4px"></i>Tasks</div>
+        </div>
+        <!-- Projects Tab -->
+        <div id="cc-projects">
+          <div id="sidesProductGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px"></div>
+        </div>
+        <!-- Collaterals Tab -->
+        <div id="cc-collaterals" style="display:none">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+            <div style="font-size:var(--text-xs);font-weight:700;color:var(--text3);letter-spacing:.08em;text-transform:uppercase">Marketing Collaterals</div>
+            <button class="btn btn-o" style="font-size:var(--text-xs)" onclick="openCollateralModal()"><i class="ti ti-plus"></i> Add</button>
+          </div>
+          <div id="cc-collaterals-list" style="display:flex;flex-direction:column;gap:8px"></div>
+        </div>
+        <!-- Social Media Tab -->
+        <div id="cc-social" style="display:none">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+            <div style="font-size:var(--text-xs);font-weight:700;color:var(--text3);letter-spacing:.08em;text-transform:uppercase">Social Media Content</div>
+            <button class="btn btn-o" style="font-size:var(--text-xs)" onclick="openSocialPostModal()"><i class="ti ti-plus"></i> Post</button>
+          </div>
+          <!-- Platform summary -->
+          <div class="mr" style="grid-template-columns:repeat(4,1fr);margin-bottom:14px">
+            <div class="hc" style="text-align:center;cursor:pointer" onclick="filterSocialPlatform('Instagram')"><i class="ti ti-brand-instagram" style="font-size:20px;color:#e1306c;display:block;margin-bottom:4px"></i><div class="cl">Instagram</div><div class="cv" id="cc-ig-count" style="color:#e1306c;font-size:18px">0</div></div>
+            <div class="hc" style="text-align:center;cursor:pointer" onclick="filterSocialPlatform('Facebook')"><i class="ti ti-brand-facebook" style="font-size:20px;color:#1877f2;display:block;margin-bottom:4px"></i><div class="cl">Facebook</div><div class="cv" id="cc-fb-count" style="color:#1877f2;font-size:18px">0</div></div>
+            <div class="hc" style="text-align:center;cursor:pointer" onclick="filterSocialPlatform('TikTok')"><i class="ti ti-brand-tiktok" style="font-size:20px;color:var(--text1);display:block;margin-bottom:4px"></i><div class="cl">TikTok</div><div class="cv" id="cc-tt-count" style="font-size:18px">0</div></div>
+            <div class="hc" style="text-align:center;cursor:pointer" onclick="filterSocialPlatform('LinkedIn')"><i class="ti ti-brand-linkedin" style="font-size:20px;color:#0a66c2;display:block;margin-bottom:4px"></i><div class="cl">LinkedIn</div><div class="cv" id="cc-li-count" style="color:#0a66c2;font-size:18px">0</div></div>
+          </div>
+          <div id="cc-social-list" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px"></div>
+        </div>
+        <!-- Tasks Tab -->
+        <div id="cc-tasks" style="display:none">
+          <div id="cc-tasks-list"></div>
+          <button class="btn btn-o" style="font-size:var(--text-xs);margin-top:10px" onclick="openTaskForWorld('sides')"><i class="ti ti-plus"></i> Add Task</button>
+        </div>
       </div>
     </div>
 
@@ -3645,7 +3739,7 @@ select option{background:var(--navy3)}
             </div>
             <div id="mobileTransactionList" style="display:none;margin:0 -14px"></div>
             <table id="cashTransactionTable" class="ht">
-              <thead><tr><th>Date</th><th>Description</th><th>Type</th><th>Category</th><th>Account</th><th>Amount</th><th>Balance</th><th></th></tr></thead>
+              <thead><tr><th>Date</th><th>Description</th><th>Type</th><th>Category</th><th>Account</th><th>Amount</th><th title="Cumulative total across all your accounts">Total Balance</th><th></th></tr></thead>
               <tbody id="cashTbody"></tbody>
             </table>
             <div style="margin-top:8px;font-size:var(--text-xs);color:var(--text3);text-align:center" id="cashEmpty" style="display:none">No transactions yet.</div>
@@ -3663,7 +3757,12 @@ select option{background:var(--navy3)}
 
           <!-- ACCOUNTS TAB -->
           <div id="cf-accounts" style="display:none">
-            <div id="cf-accounts-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px"></div>
+            <div id="cf-accounts-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px">
+              <div onclick="addNewAccount()" style="background:var(--navy2);border:2px dashed var(--border);border-radius:14px;padding:20px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:var(--text3);transition:all .15s;min-height:160px" onmouseover="this.style.borderColor='var(--teal)';this.style.color='var(--teal)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text3)'">
+                <i class="ti ti-plus" style="font-size:24px;line-height:1;display:block"></i>
+                <span style="font-size:var(--text-xs);font-weight:700;letter-spacing:.06em;text-transform:uppercase">Add Account</span>
+              </div>
+            </div>
           </div>
 
           <!-- PROPERTY TAB -->
@@ -4056,35 +4155,48 @@ select option{background:var(--navy3)}
       </div>
     </div>
     <!-- NOTE EDITOR OVERLAY -->
-    <div class="mov" id="noteEditorModal">
-      <div class="modal" style="width:min(680px,96vw);max-height:85vh">
-        <div class="mh">
-          <div id="noteTitle" contenteditable="true" style="font-size:var(--text-sm);font-weight:700;outline:none;color:var(--teal);flex:1;padding:0 4px;min-width:200px" onblur="saveNoteTitle()">Untitled Note</div>
-          <button class="mc" onclick="closeModal('noteEditorModal')">×</button>
-        </div>
-        <div class="mb" style="padding:14px">
-          <div id="blocksContainer"></div>
-          <div class="addbl" onclick="showBlockMenu(event)"><span style="font-size:var(--text-md)">+</span><span>Add block</span></div>
-          <div class="bmenu" id="blockMenu" style="min-width:180px">
-  <div style="font-size:var(--text-xs);font-weight:700;color:var(--text3);letter-spacing:.1em;padding:5px 9px 2px;text-transform:uppercase">Text</div>
-  <div class="bmi" onclick="addBlock('h1')"><i class="ti ti-h-1" style="font-size:var(--text-sm);margin-right:6px;line-height:1;display:inline-block"></i>H1 Heading</div>
-  <div class="bmi" onclick="addBlock('h2')"><i class="ti ti-h-2" style="font-size:var(--text-sm);margin-right:6px;line-height:1;display:inline-block"></i>H2 Heading</div>
-  <div class="bmi" onclick="addBlock('p')"><i class="ti ti-pilcrow" style="font-size:var(--text-sm);margin-right:6px;line-height:1;display:inline-block"></i>Paragraph</div>
-  <div style="height:1px;background:var(--border);margin:3px 0"></div>
-  <div style="font-size:var(--text-xs);font-weight:700;color:var(--text3);letter-spacing:.1em;padding:5px 9px 2px;text-transform:uppercase">Lists</div>
-  <div class="bmi" onclick="addBlock('todo')"><i class="ti ti-checkbox" style="font-size:var(--text-sm);margin-right:6px;line-height:1;display:inline-block"></i>To-do</div>
-  <div class="bmi" onclick="addBlock('bullet')"><i class="ti ti-list" style="font-size:var(--text-sm);margin-right:6px;line-height:1;display:inline-block"></i>Bullet List</div>
-  <div style="height:1px;background:var(--border);margin:3px 0"></div>
-  <div style="font-size:var(--text-xs);font-weight:700;color:var(--text3);letter-spacing:.1em;padding:5px 9px 2px;text-transform:uppercase">Special</div>
-  <div class="bmi" onclick="addBlock('quote')"><i class="ti ti-quote" style="font-size:var(--text-sm);margin-right:6px;line-height:1;display:inline-block"></i>Quote</div>
-  <div class="bmi" onclick="addBlock('code')"><i class="ti ti-code" style="font-size:var(--text-sm);margin-right:6px;line-height:1;display:inline-block"></i>Code Block</div>
-  <div class="bmi" onclick="addBlock('divider')"><i class="ti ti-minus" style="font-size:var(--text-sm);margin-right:6px;line-height:1;display:inline-block"></i>Divider</div>
-  <div class="bmi" onclick="addBlock('callout')"><i class="ti ti-bulb" style="font-size:var(--text-sm);margin-right:6px;line-height:1;display:inline-block"></i>Callout</div>
-</div>
-        </div>
-        <div class="mf"><button class="btn btn-d" style="margin-right:auto;font-size:var(--text-xs)" onclick="deleteCurrentNote()"><i class="ti ti-trash"></i> Delete Note</button><button class="btn btn-t" onclick="closeModal('noteEditorModal')">Done</button></div>
+  <div class="mov" id="noteEditorModal">
+    <div class="modal" style="width:min(680px,96vw);max-height:90vh;display:flex;flex-direction:column">
+      <div class="mh">
+        <div id="noteTitle" contenteditable="true" style="font-size:var(--text-sm);font-weight:700;outline:none;color:var(--teal);flex:1;padding:0 4px;min-width:200px" onblur="saveNoteTitle()">Untitled Note</div>
+        <button class="mc" onclick="closeModal('noteEditorModal')">×</button>
       </div>
+      <!-- Notes toolbar -->
+      <div style="display:flex;align-items:center;gap:5px;padding:8px 14px;border-bottom:1px solid var(--border);background:var(--navy2);flex-wrap:wrap;flex-shrink:0">
+        <button onclick="addBlock('p')" class="btn btn-g" style="font-size:var(--text-xs);padding:3px 8px"><i class="ti ti-pilcrow" style="font-size:11px;line-height:1;display:inline-block;margin-right:2px"></i>Para</button>
+        <button onclick="addBlock('bullet')" class="btn btn-g" style="font-size:var(--text-xs);padding:3px 8px"><i class="ti ti-list" style="font-size:11px;line-height:1;display:inline-block;margin-right:2px"></i>Bullet</button>
+        <button onclick="addBlock('todo')" class="btn btn-g" style="font-size:var(--text-xs);padding:3px 8px" title="Checkbox — can push to Tasks"><i class="ti ti-checkbox" style="font-size:11px;line-height:1;display:inline-block;margin-right:2px"></i>Task</button>
+        <button onclick="addBlock('h1')" class="btn btn-g" style="font-size:var(--text-xs);padding:3px 8px">H1</button>
+        <button onclick="addBlock('h2')" class="btn btn-g" style="font-size:var(--text-xs);padding:3px 8px">H2</button>
+        <button onclick="addBlock('callout')" class="btn btn-g" style="font-size:var(--text-xs);padding:3px 8px"><i class="ti ti-bulb" style="font-size:11px;line-height:1;display:inline-block;margin-right:2px"></i>Callout</button>
+        <button onclick="addBlock('divider')" class="btn btn-g" style="font-size:var(--text-xs);padding:3px 8px">—</button>
+        <div style="flex:1"></div>
+        <button onclick="pushNoteCheckboxesToTasks()" class="btn btn-t" style="font-size:var(--text-xs);padding:3px 10px" title="Push unchecked checkbox items to Tasks dashboard">
+          <i class="ti ti-arrow-right" style="font-size:11px;line-height:1;display:inline-block;margin-right:2px"></i>→ Tasks
+        </button>
+      </div>
+      <div class="mb" style="padding:14px;flex:1;overflow-y:auto">
+        <div id="blocksContainer"></div>
+        <div class="addbl" onclick="showBlockMenu(event)"><span style="font-size:var(--text-md)">+</span><span>Add block</span></div>
+        <div class="bmenu" id="blockMenu" style="min-width:180px">
+          <div style="font-size:var(--text-xs);font-weight:700;color:var(--text3);letter-spacing:.1em;padding:5px 9px 2px;text-transform:uppercase">Text</div>
+          <div class="bmi" onclick="addBlock('h1')"><i class="ti ti-h-1" style="font-size:var(--text-sm);margin-right:6px;line-height:1;display:inline-block"></i>H1 Heading</div>
+          <div class="bmi" onclick="addBlock('h2')"><i class="ti ti-h-2" style="font-size:var(--text-sm);margin-right:6px;line-height:1;display:inline-block"></i>H2 Heading</div>
+          <div class="bmi" onclick="addBlock('p')"><i class="ti ti-pilcrow" style="font-size:var(--text-sm);margin-right:6px;line-height:1;display:inline-block"></i>Paragraph</div>
+          <div style="height:1px;background:var(--border);margin:3px 0"></div>
+          <div style="font-size:var(--text-xs);font-weight:700;color:var(--text3);letter-spacing:.1em;padding:5px 9px 2px;text-transform:uppercase">Lists</div>
+          <div class="bmi" onclick="addBlock('todo')"><i class="ti ti-checkbox" style="font-size:var(--text-sm);margin-right:6px;line-height:1;display:inline-block"></i>Checkbox → Task</div>
+          <div class="bmi" onclick="addBlock('bullet')"><i class="ti ti-list" style="font-size:var(--text-sm);margin-right:6px;line-height:1;display:inline-block"></i>Bullet List</div>
+          <div style="height:1px;background:var(--border);margin:3px 0"></div>
+          <div style="font-size:var(--text-xs);font-weight:700;color:var(--text3);letter-spacing:.1em;padding:5px 9px 2px;text-transform:uppercase">Special</div>
+          <div class="bmi" onclick="addBlock('callout')"><i class="ti ti-bulb" style="font-size:var(--text-sm);margin-right:6px;line-height:1;display:inline-block"></i>Callout</div>
+          <div class="bmi" onclick="addBlock('code')"><i class="ti ti-code" style="font-size:var(--text-sm);margin-right:6px;line-height:1;display:inline-block"></i>Code Block</div>
+          <div class="bmi" onclick="addBlock('divider')"><i class="ti ti-minus" style="font-size:var(--text-sm);margin-right:6px;line-height:1;display:inline-block"></i>Divider</div>
+        </div>
+      </div>
+      <div class="mf"><button class="btn btn-d" style="margin-right:auto;font-size:var(--text-xs)" onclick="deleteCurrentNote()"><i class="ti ti-trash"></i> Delete</button><button class="btn btn-t" onclick="closeModal('noteEditorModal')">Done</button></div>
     </div>
+  </div>
 
 
 
@@ -4372,11 +4484,11 @@ select option{background:var(--navy3)}
         <!-- SECURITY -->
         <div class="hc" style="margin-bottom:16px">
           <div style="font-size:var(--text-xs);font-weight:700;color:var(--teal);letter-spacing:.1em;text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:6px"><i class="ti ti-shield-lock" style="font-size:var(--text-sm);line-height:1;display:block"></i>Security & Access</div>
-          <div style="display:flex;gap:8px;margin-bottom:10px">
-            <input type="password" id="set-new-pin" placeholder="New 4-digit PIN" maxlength="4" pattern="[0-9]*" inputmode="numeric" style="flex:1;max-width:220px">
+          <div style="display:flex;gap:8px;margin-bottom:6px">
+            <input type="password" id="set-new-pin" placeholder="New 4-digit PIN" maxlength="4" pattern="[0-9]*" inputmode="numeric" style="flex:1;max-width:220px;letter-spacing:.3em">
             <button class="btn btn-t" onclick="updateSystemPin()">Update PIN</button>
           </div>
-          <div style="font-size:var(--text-xs);color:var(--text3);margin-bottom:14px" id="pinSetHint">PIN not set — using system default</div>
+          <div style="font-size:9px;color:var(--text3);margin-bottom:14px;display:flex;align-items:center;gap:6px" id="pinSetHint"><i class="ti ti-lock" style="font-size:11px;color:var(--teal);line-height:1;display:block"></i>PIN stored as SHA-256 hash — never in plain text</div>
           <div style="padding-top:12px;border-top:1px solid var(--border);display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:10px">
             <button class="btn btn-o" onclick="toggleBiometricSetting()" id="bioToggleBtn" style="font-size:var(--text-sm)"><i class="ti ti-scan" style="font-size:var(--text-sm);line-height:1;display:inline-block;margin-right:5px"></i>Enable FaceID / TouchID</button>
             <span style="font-size:var(--text-xs);color:var(--text3)">Requires device biometric hardware (Face ID / Touch ID).</span>
@@ -4990,8 +5102,53 @@ function setJelixAPIKey(){
 // J.O.B. SECURITY ENGINE — PIN + WebAuthn Biometric
 // ═══════════════════════════════════════════════════════════════════════════
 let currentPinInput='';
+// ── Security: SHA-256 PIN hashing ─────────────────────────────────────────
+async function sha256(str){
+  const buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+
+// ── Migrate legacy plaintext PIN to hashed on first run ───────────────────
+(async function migratePinIfNeeded(){
+  const plain=localStorage.getItem('j-sys-pin');
+  const hashed=localStorage.getItem('j-sys-pin-hash');
+  if(plain&&!hashed){
+    const h=await sha256(plain);
+    localStorage.setItem('j-sys-pin-hash',h);
+    localStorage.removeItem('j-sys-pin');
+  } else if(!hashed){
+    // No PIN ever set — default 0000 (will prompt change on first unlock)
+    const h=await sha256('0000');
+    localStorage.setItem('j-sys-pin-hash',h);
+    localStorage.setItem('j-pin-is-default','1');
+  }
+})();
+
+// ── Attempt throttling ────────────────────────────────────────────────────
+const MAX_ATTEMPTS=5;
+const LOCKOUT_MS=30000; // 30 seconds
+let _failedAttempts=parseInt(sessionStorage.getItem('j-fail-attempts')||'0');
+let _lockoutUntil=parseInt(sessionStorage.getItem('j-lockout-until')||'0');
+
+function _isLockedOut(){return Date.now()<_lockoutUntil;}
+function _recordFailure(){
+  _failedAttempts++;
+  sessionStorage.setItem('j-fail-attempts',_failedAttempts);
+  if(_failedAttempts>=MAX_ATTEMPTS){
+    _lockoutUntil=Date.now()+LOCKOUT_MS;
+    sessionStorage.setItem('j-lockout-until',_lockoutUntil);
+    _failedAttempts=0;sessionStorage.setItem('j-fail-attempts','0');
+  }
+}
+function _resetAttempts(){_failedAttempts=0;_lockoutUntil=0;sessionStorage.removeItem('j-fail-attempts');sessionStorage.removeItem('j-lockout-until');}
+
+// ── Session token (re-locks on page refresh) ──────────────────────────────
+function _issueSessionToken(){const t=Date.now()+'-'+Math.random().toString(36).slice(2);sessionStorage.setItem('j-session',t);}
+function _hasValidSession(){return!!sessionStorage.getItem('j-session');}
+
 function getSystemPin(){return localStorage.getItem('j-sys-pin')||'0000';}
 function setSystemPin(p){localStorage.setItem('j-sys-pin',p);}
+async function setSystemPinHashed(p){const h=await sha256(p);localStorage.setItem('j-sys-pin-hash',h);localStorage.removeItem('j-sys-pin');localStorage.removeItem('j-pin-is-default');showToast('✓ PIN updated and secured, sir.');}
 
 // ── Hardware keyboard PIN trap ──────────────────────────────────────────
 // Single authoritative handler. rawPinInput is readonly — no oninput, no onkeydown.
@@ -5035,17 +5192,36 @@ function enterPin(num){
   if(currentPinInput.length===4) _checkPin();
 }
 function _checkPin(){
-  const correct=getSystemPin();
-  if(currentPinInput===correct){
-    clearPin();_safeChime('chimeSuccess');unlockSystem();
-  }else{
-    const display=document.getElementById('pinDisplay');
+  // Check lockout first
+  if(_isLockedOut()){
+    const secs=Math.ceil((_lockoutUntil-Date.now())/1000);
     const err=document.getElementById('pinError');
-    if(display)display.style.animation='shake 0.4s';
-    if(err){err.textContent='INCORRECT PIN';err.style.opacity='1';}
-    _safeChime('chimeError');
-    setTimeout(()=>{if(display)display.style.animation='';if(err)err.style.opacity='0';clearPin();},800);
+    if(err){err.textContent='TOO MANY ATTEMPTS · WAIT '+secs+'s';err.style.opacity='1';}
+    clearPin();_safeChime('chimeError');
+    setTimeout(()=>{if(err)err.style.opacity='0';},2000);
+    return;
   }
+  sha256(currentPinInput).then(entered=>{
+    const stored=localStorage.getItem('j-sys-pin-hash');
+    if(entered===stored){
+      _resetAttempts();
+      _issueSessionToken();
+      clearPin();_safeChime('chimeSuccess');unlockSystem();
+      // Prompt PIN change if still on default
+      if(localStorage.getItem('j-pin-is-default')==='1'){
+        setTimeout(()=>showToast('⚠ You are using the default PIN (0000). Change it in Settings → Security, sir.'),2000);
+      }
+    }else{
+      _recordFailure();
+      const display=document.getElementById('pinDisplay');
+      const err=document.getElementById('pinError');
+      const remaining=MAX_ATTEMPTS-_failedAttempts;
+      if(display)display.style.animation='shake 0.4s';
+      if(err){err.textContent=_isLockedOut()?'LOCKED · WAIT 30s':'INCORRECT PIN · '+remaining+' ATTEMPT'+(remaining===1?'':'S')+' LEFT';err.style.opacity='1';}
+      _safeChime('chimeError');
+      setTimeout(()=>{if(display)display.style.animation='';if(err)err.style.opacity='0';clearPin();},900);
+    }
+  });
 }
 function clearPin(){
   currentPinInput='';
@@ -5116,6 +5292,36 @@ async function triggerBiometric(){
 
 // Auto-trigger biometric on lock screen load
 document.addEventListener('DOMContentLoaded',()=>{
+  // ── Security: prevent iframe embedding ──────────────────────────────────
+  if(window.top!==window.self){document.body.innerHTML='<div style="display:flex;align-items:center;justify-content:center;height:100vh;font-family:monospace;color:#ff2244;font-size:14px">Access denied. Direct access only.</div>';throw new Error('Frame blocked');}
+
+  // ── Security: auto-lock on tab hide / app switch ──────────────────────
+  document.addEventListener('visibilitychange',()=>{
+    if(document.hidden&&_osLoaded&&_hasValidSession()){
+      // Don't lock immediately — give 60 seconds before locking (prevents accidental lock on notification)
+      window._autoLockTimer=setTimeout(()=>{
+        lockOS();sessionStorage.removeItem('j-session');
+      },60000);
+    } else {
+      clearTimeout(window._autoLockTimer);
+    }
+  });
+
+  // ── Security: disable right-click on lock screen ──────────────────────
+  document.addEventListener('contextmenu',e=>{
+    const ls=document.getElementById('lockScreen');
+    if(ls&&ls.style.display!=='none')e.preventDefault();
+  });
+
+  // ── Security: block common devtools shortcuts on lock screen ─────────
+  document.addEventListener('keydown',e=>{
+    const ls=document.getElementById('lockScreen');
+    if(!ls||ls.style.display==='none')return;
+    if(e.key==='F12'||(e.ctrlKey&&e.shiftKey&&['I','J','C'].includes(e.key))||(e.ctrlKey&&e.key==='U')){
+      e.preventDefault();e.stopImmediatePropagation();
+    }
+  },true);
+
   // Render dynamic world navigation
   renderSideNav();
   // Auto-trigger biometric on lock screen (first thing shown)
@@ -5137,9 +5343,8 @@ document.addEventListener('DOMContentLoaded',()=>{
 function updateSystemPin(){
   const input=document.getElementById('set-new-pin')?.value||'';
   if(/^\d{4}$/.test(input)){
-    setSystemPin(input);
+    setSystemPinHashed(input);
     document.getElementById('set-new-pin').value='';
-    showToast('✓ System PIN updated, sir.');
   }else{
     showToast('⚠ PIN must be exactly 4 digits.');
   }
@@ -5231,9 +5436,14 @@ function renderSettingsView(){
     bioBtn.innerHTML='<i class="ti ti-scan" style="font-size:var(--text-sm);line-height:1;display:inline-block;margin-right:5px"></i>'+(enabled?'Disable FaceID / TouchID':'Enable FaceID / TouchID');
   }
   // PIN setup hint
-  const hasPin=localStorage.getItem('j-sys-pin');
   const pinHint=document.getElementById('pinSetHint');
-  if(pinHint)pinHint.textContent=hasPin?'PIN configured ✓':'PIN not set — using system default';
+  if(pinHint){
+    const isHashed=!!localStorage.getItem('j-sys-pin-hash');
+    const isDefault=localStorage.getItem('j-pin-is-default')==='1';
+    pinHint.innerHTML=isDefault
+      ?'<i class="ti ti-alert-triangle" style="font-size:11px;color:var(--amber);line-height:1;display:inline-block;margin-right:4px"></i><span style="color:var(--amber)">Using default PIN (0000) — change this now, sir.</span>'
+      :'<i class="ti ti-lock" style="font-size:11px;color:var(--teal);line-height:1;display:inline-block;margin-right:4px"></i><span>PIN secured via SHA-256 hash ✓</span>';
+  }
 }
 
 // ===== DB =====
@@ -7517,44 +7727,150 @@ function deleteApp(){
   showToast('App deleted');
 }
 
+let buildActiveTab='apps';
+function setBuildTab(tab,el){
+  buildActiveTab=tab;
+  ['apps','stack','clients','tasks'].forEach(t=>{
+    const d=document.getElementById('bc-'+t);if(d)d.style.display=t===tab?'flex':'none';
+    const b=document.getElementById('bctab-'+t);if(b)b.classList.toggle('active',t===tab);
+  });
+  if(tab==='apps')renderBuildApps();
+  else if(tab==='stack')renderBuildStack();
+  else if(tab==='clients')renderBuildClients();
+  else if(tab==='tasks')renderBuildTasks();
+}
+
 function renderBuild(){
   const apps=DB.buildApps||[];
+  const buildTasks=DB.tasks.filter(t=>t.world==='build');
+  const update=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
+  update('buildTotalApps',apps.length);
+  update('buildActiveApps',apps.filter(a=>a.status==='Active'||a.status==='In Dev').length);
+  update('buildOpenTasks',buildTasks.filter(t=>t.status!=='Done').length);
+  // Count unique technologies
+  const allTech=apps.flatMap(a=>(a.tech||'').split(',').map(t=>t.trim())).filter(Boolean);
+  update('buildTechCount',[...new Set(allTech)].length);
+  if(buildActiveTab==='apps'||!buildActiveTab) renderBuildApps();
+  else if(buildActiveTab==='stack') renderBuildStack();
+  else if(buildActiveTab==='clients') renderBuildClients();
+  else if(buildActiveTab==='tasks') renderBuildTasks();
+}
+
+function renderBuildApps(){
+  const apps=DB.buildApps||[];
   const grid=document.getElementById('buildApps');
-  if(grid){
-    grid.innerHTML=(apps.length?apps:[]).map(app=>{
-      const appTasks=DB.tasks.filter(t=>t.world==='build'&&(t.client===app.name||(t.title||'').includes(app.name)));
-      const open=appTasks.filter(t=>t.status!=='Done');const done=appTasks.filter(t=>t.status==='Done').length;
-      const total=appTasks.length;const pct=total?Math.round(done/total*100):0;
-      const accentColor=/^#/.test(app.color)?app.color:'var(--teal)';
-      const statusColor=app.status==='Active'||app.status==='Launched'?'var(--green)':app.status==='In Dev'||app.status==='Beta'?'var(--amber)':app.status==='Paused'?'var(--red)':'var(--text3)';
-      return`<div style="background:var(--navy2);border:1px solid var(--border);border-top:2px solid ${accentColor};border-radius:14px;display:flex;flex-direction:column;gap:8px;padding:16px;transition:box-shadow .2s;cursor:pointer" onclick="openAppModal(${app.id})">
-        <div style="display:flex;align-items:center;gap:10px">
-          <div style="width:38px;height:38px;border-radius:10px;background:${accentColor}18;border:1px solid ${accentColor}35;display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="ti ${app.icon||'ti-device-mobile'}" style="font-size:18px;color:${accentColor};line-height:1;display:block"></i></div>
-          <div style="flex:1;min-width:0">
-            <div style="font-size:var(--text-sm);font-weight:800;color:var(--text1);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${app.name}</div>
-            <div style="font-size:var(--text-xs);color:${statusColor};font-weight:600">${app.status}</div>
-          </div>
+  if(!grid)return;
+  grid.innerHTML=(apps.length?apps:[]).map(app=>{
+    const appTasks=DB.tasks.filter(t=>t.world==='build'&&(t.client===app.name||(t.title||'').includes(app.name)));
+    const open=appTasks.filter(t=>t.status!=='Done');const done=appTasks.filter(t=>t.status==='Done').length;
+    const total=appTasks.length;const pct=total?Math.round(done/total*100):0;
+    const accentColor=/^#/.test(app.color)?app.color:'var(--teal)';
+    const statusColor=app.status==='Active'||app.status==='Launched'?'var(--green)':app.status==='In Dev'||app.status==='Beta'?'var(--amber)':app.status==='Paused'?'var(--red)':'var(--text3)';
+    return`<div style="background:var(--navy2);border:1px solid var(--border);border-top:2px solid ${accentColor};border-radius:14px;display:flex;flex-direction:column;gap:8px;padding:16px;transition:box-shadow .2s;cursor:pointer" onclick="openAppModal(${app.id})" onmouseover="this.style.boxShadow='0 4px 20px rgba(0,0,0,.3)'" onmouseout="this.style.boxShadow=''">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div style="width:38px;height:38px;border-radius:10px;background:${accentColor}18;border:1px solid ${accentColor}35;display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="ti ${app.icon||'ti-device-mobile'}" style="font-size:18px;color:${accentColor};line-height:1;display:block"></i></div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:var(--text-sm);font-weight:800;color:var(--text1);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${app.name}</div>
+          <div style="font-size:var(--text-xs);color:${statusColor};font-weight:600">${app.status}</div>
         </div>
-        ${app.desc?`<div style="font-size:var(--text-xs);color:var(--text3);line-height:1.5">${app.desc}</div>`:''}
-        ${app.tech?`<div style="font-size:var(--text-xs);color:var(--text3)"><i class="ti ti-code" style="font-size:10px;display:inline-block;margin-right:4px"></i>${app.tech}</div>`:''}
-        <div>
-          <div style="display:flex;justify-content:space-between;margin-bottom:4px">
-            <span style="font-size:var(--text-xs);color:var(--text3)">${done}/${total} tasks</span>
-            <span style="font-size:var(--text-xs);font-weight:700;color:${accentColor}">${pct}%</span>
-          </div>
-          <div style="height:3px;background:rgba(255,255,255,.06);border-radius:2px"><div style="height:100%;width:${pct}%;background:${accentColor};border-radius:2px;transition:width .4s"></div></div>
+      </div>
+      ${app.desc?`<div style="font-size:var(--text-xs);color:var(--text3);line-height:1.5">${app.desc}</div>`:''}
+      ${app.tech?`<div style="font-size:var(--text-xs);color:var(--text3)"><i class="ti ti-code" style="font-size:10px;display:inline-block;margin-right:4px"></i>${app.tech}</div>`:''}
+      <div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+          <span style="font-size:var(--text-xs);color:var(--text3)">${done}/${total} tasks</span>
+          <span style="font-size:var(--text-xs);font-weight:700;color:${accentColor}">${pct}%</span>
         </div>
-        ${open.length?`<div style="font-size:var(--text-xs);color:var(--text2);background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:6px;padding:6px 8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">→ ${open[0].title}</div>`:''}
-        <div style="display:flex;gap:5px;margin-top:2px">
-          ${app.repo?`<a href="${app.repo}" target="_blank" onclick="event.stopPropagation()" style="font-size:var(--text-xs);color:var(--text3);display:inline-flex;align-items:center;gap:3px;padding:3px 8px;border:1px solid var(--border);border-radius:5px;text-decoration:none;transition:all .15s" onmouseover="this.style.borderColor=this.style.color='var(--teal)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text3)'"><i class="ti ti-brand-github" style="font-size:11px;line-height:1;display:block"></i>Repo</a>`:''}
-          ${app.playstore?`<a href="${app.playstore}" target="_blank" onclick="event.stopPropagation()" style="font-size:var(--text-xs);color:var(--text3);display:inline-flex;align-items:center;gap:3px;padding:3px 8px;border:1px solid var(--border);border-radius:5px;text-decoration:none"><i class="ti ti-brand-google-play" style="font-size:11px;line-height:1;display:block"></i>Play</a>`:''}
-          ${app.appstore?`<a href="${app.appstore}" target="_blank" onclick="event.stopPropagation()" style="font-size:var(--text-xs);color:var(--text3);display:inline-flex;align-items:center;gap:3px;padding:3px 8px;border:1px solid var(--border);border-radius:5px;text-decoration:none"><i class="ti ti-brand-apple" style="font-size:11px;line-height:1;display:block"></i>App Store</a>`:''}
-          <button onclick="event.stopPropagation();openTaskFor('build')" style="font-size:var(--text-xs);color:var(--text3);padding:3px 8px;border:1px solid var(--border);border-radius:5px;background:transparent;cursor:pointer;margin-left:auto;transition:all .15s" onmouseover="this.style.borderColor='var(--teal)';this.style.color='var(--teal)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text3)'"><i class="ti ti-plus" style="font-size:10px;line-height:1;display:inline-block;margin-right:3px"></i>Task</button>
-        </div>
-      </div>`;
-    }).join('')+(apps.length<8?`<div onclick="openAppModal()" style="background:var(--navy2);border:2px dashed var(--border);border-radius:14px;padding:24px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;cursor:pointer;color:var(--text3);transition:all .15s" onmouseover="this.style.borderColor='var(--teal)';this.style.color='var(--teal)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text3)'"><i class="ti ti-plus" style="font-size:24px;line-height:1;display:block"></i><span style="font-size:var(--text-xs);font-weight:700;letter-spacing:.06em;text-transform:uppercase">Add App</span></div>`:'');
-  }
-  renderBuildTasks();
+        <div style="height:3px;background:rgba(255,255,255,.06);border-radius:2px"><div style="height:100%;width:${pct}%;background:${accentColor};border-radius:2px;transition:width .4s"></div></div>
+      </div>
+      ${open.length?`<div style="font-size:var(--text-xs);color:var(--text2);background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:6px;padding:6px 8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">→ ${open[0].title}</div>`:''}
+      <div style="display:flex;gap:5px;margin-top:2px;flex-wrap:wrap">
+        ${app.repo?`<a href="${app.repo}" target="_blank" onclick="event.stopPropagation()" style="font-size:var(--text-xs);color:var(--text3);display:inline-flex;align-items:center;gap:3px;padding:3px 8px;border:1px solid var(--border);border-radius:5px;text-decoration:none" onmouseover="this.style.color='var(--teal)'" onmouseout="this.style.color='var(--text3)'"><i class="ti ti-brand-github" style="font-size:11px;line-height:1;display:block"></i>Repo</a>`:''}
+        ${app.playstore?`<a href="${app.playstore}" target="_blank" onclick="event.stopPropagation()" style="font-size:var(--text-xs);color:var(--text3);display:inline-flex;align-items:center;gap:3px;padding:3px 8px;border:1px solid var(--border);border-radius:5px;text-decoration:none"><i class="ti ti-brand-google-play" style="font-size:11px;line-height:1;display:block"></i>Play</a>`:''}
+        ${app.appstore?`<a href="${app.appstore}" target="_blank" onclick="event.stopPropagation()" style="font-size:var(--text-xs);color:var(--text3);display:inline-flex;align-items:center;gap:3px;padding:3px 8px;border:1px solid var(--border);border-radius:5px;text-decoration:none"><i class="ti ti-brand-apple" style="font-size:11px;line-height:1;display:block"></i>iOS</a>`:''}
+        <button onclick="event.stopPropagation();openTaskForWorld('build')" style="font-size:var(--text-xs);color:var(--text3);padding:3px 8px;border:1px solid var(--border);border-radius:5px;background:transparent;cursor:pointer;margin-left:auto" onmouseover="this.style.color='var(--teal)'" onmouseout="this.style.color='var(--text3)'"><i class="ti ti-plus" style="font-size:10px;line-height:1;display:inline-block;margin-right:3px"></i>Task</button>
+      </div>
+    </div>`;
+  }).join('')+`<div onclick="openAppModal()" style="background:var(--navy2);border:2px dashed var(--border);border-radius:14px;padding:24px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;cursor:pointer;color:var(--text3);transition:all .15s" onmouseover="this.style.borderColor='var(--green)';this.style.color='var(--green)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text3)'"><i class="ti ti-plus" style="font-size:24px;line-height:1;display:block"></i><span style="font-size:var(--text-xs);font-weight:700;text-transform:uppercase;letter-spacing:.06em">New App</span></div>`;
+}
+
+function renderBuildStack(){
+  const el=document.getElementById('bc-stack-body');if(!el)return;
+  const apps=DB.buildApps||[];
+  // Build tech map
+  const techMap={};
+  apps.forEach(a=>{
+    (a.tech||'').split(',').map(t=>t.trim()).filter(Boolean).forEach(t=>{
+      if(!techMap[t])techMap[t]=[];
+      techMap[t].push(a.name);
+    });
+  });
+  const categories={
+    'Frontend':['React Native','React','Vue','Angular','HTML5','Tailwind','Svelte','Next.js','Vanilla JS'],
+    'Backend':['Node.js','Python','Django','FastAPI','Express','Laravel','PHP','Ruby'],
+    'Database':['Supabase','Firebase','PostgreSQL','MySQL','MongoDB','SQLite'],
+    'Mobile':['React Native','Flutter','Swift','Kotlin','Expo','Capacitor'],
+    'AI/ML':['OpenAI','Anthropic','Claude','GPT','TensorFlow','PyTorch','ElevenLabs'],
+    'Tools':['GitHub','Vercel','Netlify','Figma','Docker','Godot']
+  };
+  el.innerHTML=Object.entries(techMap).length?`
+    <div style="margin-bottom:16px">
+      <div style="font-size:var(--text-xs);font-weight:700;color:var(--text3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px">Your Stack</div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px">
+        ${Object.entries(techMap).map(([tech,appNames])=>`<div style="background:var(--navy2);border:1px solid var(--border);border-radius:8px;padding:8px 12px;display:flex;align-items:center;gap:8px">
+          <span style="font-size:var(--text-sm);font-weight:700;color:var(--teal)">${tech}</span>
+          <span style="font-size:var(--text-xs);color:var(--text3)">${appNames.join(', ')}</span>
+        </div>`).join('')}
+      </div>
+    </div>
+    <div style="font-size:var(--text-xs);font-weight:700;color:var(--text3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px">Add Technologies</div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap">
+      ${['React Native','Node.js','Supabase','Vue','Python','Flutter','Next.js','TypeScript','Firebase','Figma','OpenAI','Vercel'].filter(t=>!techMap[t]).map(t=>`<button onclick="addTechToApp('${t}')" style="font-size:var(--text-xs);padding:4px 10px;border:1px dashed var(--border);border-radius:6px;background:transparent;color:var(--text3);cursor:pointer" onmouseover="this.style.borderColor='var(--teal)';this.style.color='var(--teal)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text3)'">${t}</button>`).join('')}
+    </div>`:'<div style="text-align:center;padding:40px;color:var(--text3)"><i class="ti ti-stack-2" style="font-size:32px;display:block;margin-bottom:10px;opacity:.3"></i>Add apps with tech stack to see your stack here</div>';
+}
+function addTechToApp(tech){
+  const apps=DB.buildApps||[];if(!apps.length){showToast('Add an app first, sir.');return;}
+  const names=apps.map(a=>a.name);
+  const choice=prompt('Add "'+tech+'" to which app?\n\n'+names.map((n,i)=>(i+1)+'. '+n).join('\n')+'\n\nType app name:','');
+  if(!choice)return;
+  const app=apps.find(a=>a.name.toLowerCase()===choice.trim().toLowerCase());
+  if(!app){showToast('App not found, sir.');return;}
+  const existing=(app.tech||'').split(',').map(t=>t.trim()).filter(Boolean);
+  if(!existing.includes(tech)){existing.push(tech);app.tech=existing.join(', ');}
+  localStorage.setItem('j-buildApps',JSON.stringify(DB.buildApps));save('buildApps');
+  renderBuild();showToast('✓ '+tech+' added to '+app.name);
+}
+
+// Build clients
+if(!DB.buildClients)DB.buildClients=JSON.parse(localStorage.getItem('j-buildClients')||'[]');
+function renderBuildClients(){
+  const el=document.getElementById('bc-clients-body');if(!el)return;
+  const clients=DB.buildClients||[];
+  if(!clients.length){el.innerHTML='<div style="text-align:center;padding:30px;color:var(--text3)"><i class="ti ti-users" style="font-size:32px;display:block;margin-bottom:10px;opacity:.3"></i>No dev clients yet. Click Add Dev Client below.</div>';return;}
+  el.innerHTML=clients.map((c,i)=>`<div style="background:var(--navy2);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:10px;display:flex;align-items:center;gap:12px">
+    <div style="width:36px;height:36px;border-radius:50%;background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.3);display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="ti ti-building" style="font-size:16px;color:var(--green);line-height:1;display:block"></i></div>
+    <div style="flex:1;min-width:0">
+      <div style="font-size:var(--text-sm);font-weight:700;color:var(--text1)">${c.name}</div>
+      <div style="font-size:var(--text-xs);color:var(--text3)">${c.project||'—'} · ${c.status||'Active'}</div>
+      ${c.contact?`<div style="font-size:var(--text-xs);color:var(--teal);margin-top:2px">${c.contact}</div>`:''}
+    </div>
+    <button onclick="deleteBuildClient(${i})" style="background:transparent;border:none;color:var(--text3);cursor:pointer;font-size:13px;padding:0 4px" onmouseover="this.style.color='var(--red)'" onmouseout="this.style.color='var(--text3)'">×</button>
+  </div>`).join('');
+}
+function addBuildClient(){
+  const name=prompt('Client name:');if(!name)return;
+  const project=prompt('Project / what you\'re building for them:','')||'';
+  const contact=prompt('Contact (email / number):','')||'';
+  if(!DB.buildClients)DB.buildClients=[];
+  DB.buildClients.unshift({name:name.trim(),project,contact,status:'Active'});
+  localStorage.setItem('j-buildClients',JSON.stringify(DB.buildClients));
+  renderBuildClients();showToast('✓ Client added');
+}
+function deleteBuildClient(i){
+  if(!confirm('Remove client?'))return;
+  DB.buildClients.splice(i,1);
+  localStorage.setItem('j-buildClients',JSON.stringify(DB.buildClients));
+  renderBuildClients();
 }
 function renderBuildTasks(){
   const tbody=document.getElementById('buildTbody');if(!tbody)return;
@@ -7573,36 +7889,214 @@ function renderBuildTasks(){
     <td><button class="btn btn-d" style="padding:2px 6px" onclick="event.stopPropagation();deleteTask(event,${t.id})"><i class="ti ti-trash" style="font-size:var(--text-xs);line-height:1;display:block"></i></button></td>
   </tr>`).join(''):`<tr><td colspan="6" style="text-align:center;color:var(--text3);font-size:var(--text-sm);padding:20px">No BUILD tasks yet. Use + Task to add one.</td></tr>`;
 }
-function renderSides(){
-  const countEl=document.getElementById('sidesCount');if(countEl)countEl.textContent=DB.sides.length;
-  const activeEl=document.getElementById('sidesActive');if(activeEl)activeEl.textContent=DB.sides.filter(p=>p.status==='Active').length;
-  const rev=DB.sides.reduce((s,p)=>s+(p.price||0),0);const revEl=document.getElementById('sidesRevenue');if(revEl)revEl.textContent='₱'+rev.toLocaleString('en-PH');
-  const grid=document.getElementById('sidesProductGrid');if(!grid)return;
-  if(!DB.sides.length){grid.innerHTML='<div style="font-size:var(--text-xs);color:var(--text3);grid-column:1/-1">No products yet. Click + Product to start.</div>';return;}
-  grid.innerHTML=DB.sides.map(p=>{
-    const todos=p.todos||[];const done=todos.filter(t=>t.done).length;
-    return`<div style="background:var(--navy2);border:1px solid var(--border);border-radius:6px;overflow:hidden">
-      <div style="padding:11px 13px;border-bottom:1px solid var(--border);background:rgba(245,158,11,.05)">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px"><div style="font-size:var(--text-xs);font-weight:700;color:var(--amber)">${p.name}</div><span class="pill pt" style="font-size:var(--text-xs)">${p.status}</span></div>
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-top:3px"><div style="font-size:var(--text-xs);color:var(--text3)">${p.platform||'—'}</div>${p.price?`<span style="font-size:var(--text-xs);font-weight:700;color:var(--amber)">₱${p.price.toLocaleString()}</span>`:''}</div>
-        ${p.drive?`<a href="${p.drive}" target="_blank" onclick="event.stopPropagation()" style="font-size:var(--text-xs);color:var(--teal);display:inline-flex;align-items:center;gap:3px;margin-top:4px"><i class="ti ti-brand-google-drive" style="font-size:var(--text-xs);line-height:1;display:block"></i>Drive</a>`:''}
-      </div>
-      <div style="padding:10px 13px">
-        <div style="font-size:var(--text-xs);font-weight:700;color:var(--text3);letter-spacing:.08em;text-transform:uppercase;margin-bottom:7px;display:flex;align-items:center;justify-content:space-between"><span>To-Do (${done}/${todos.length})</span><button style="background:var(--teal3);border:1px solid var(--teal2);border-radius:3px;color:var(--teal);font-size:var(--text-xs);padding:1px 7px;cursor:pointer" onclick="addSidesTodo(${p.id})">+ Add</button></div>
-        ${todos.map((t,i)=>`<div style="display:flex;align-items:center;gap:7px;padding:4px 0;border-bottom:1px solid var(--border)"><div onclick="toggleSideTodo(${p.id},${i})" style="width:13px;height:13px;border:1px solid ${t.done?'var(--teal)':'var(--border2)'};border-radius:2px;flex-shrink:0;cursor:pointer;background:${t.done?'var(--teal)':'transparent'};display:flex;align-items:center;justify-content:center;font-size:var(--text-xs);color:var(--navy)">${t.done?'✓':''}</div><span style="flex:1;font-size:var(--text-xs);color:${t.done?'var(--text3)':'var(--text1)'};text-decoration:${t.done?'line-through':'none'}">${t.text}</span><button style="background:transparent;border:none;color:var(--text3);cursor:pointer;font-size:var(--text-xs);padding:0 3px" onclick="removeSideTodo(${p.id},${i})">×</button></div>`).join('')}
-        ${!todos.length?'<div style="font-size:var(--text-xs);color:var(--text3)">No tasks yet.</div>':''}
-      </div>
-      <div style="padding:6px 13px;border-top:1px solid var(--border);display:flex;gap:5px"><button class="btn btn-g" style="flex:1;font-size:var(--text-xs)" onclick="event.stopPropagation();editSidesProduct(${p.id})"><i class="ti ti-pencil" style="font-size:var(--text-xs);line-height:1;display:inline-block"></i> Edit</button><button class="btn btn-d" style="flex:1;font-size:var(--text-xs)" onclick="event.stopPropagation();deleteSide(${p.id})"><i class="ti ti-trash" style="font-size:var(--text-xs);line-height:1;display:inline-block"></i> Delete</button></div>
-    </div>`;}).join('');
+// ── Creative Collectives (SIDES) ───────────────────────────────────────────
+if(!DB.creativeProjects)DB.creativeProjects=JSON.parse(localStorage.getItem('j-creativeProjects')||'[]');
+if(!DB.collaterals)DB.collaterals=JSON.parse(localStorage.getItem('j-collaterals')||'[]');
+if(!DB.socialPosts)DB.socialPosts=JSON.parse(localStorage.getItem('j-socialPosts')||'[]');
+let ccActiveTab='projects';
+function setCCTab(tab,el){
+  ccActiveTab=tab;
+  ['projects','collaterals','social','tasks'].forEach(t=>{
+    const d=document.getElementById('cc-'+t);if(d)d.style.display=t===tab?'block':'none';
+    const b=document.getElementById('cctab-'+t);if(b)b.classList.toggle('active',t===tab);
+  });
+  renderSides();
 }
+function renderSides(){
+  // KPIs
+  const projects=DB.creativeProjects||[];
+  const posts=DB.socialPosts||[];
+  const collaterals=DB.collaterals||[];
+  const clientSet=new Set([...projects.map(p=>p.client),...collaterals.map(c=>c.client)].filter(Boolean));
+  const update=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
+  update('ccTotalProjects',projects.length);
+  update('ccActiveProjects',projects.filter(p=>p.status==='Active').length);
+  update('ccDeliverables',collaterals.length);
+  update('ccClients',clientSet.size);
+  if(ccActiveTab==='projects'||!ccActiveTab) renderCCProjects();
+  else if(ccActiveTab==='collaterals') renderCCCollaterals();
+  else if(ccActiveTab==='social') renderCCSocial();
+  else if(ccActiveTab==='tasks') renderCCTasks();
+}
+function renderCCProjects(){
+  const grid=document.getElementById('sidesProductGrid');if(!grid)return;
+  const projects=DB.creativeProjects||[];
+  grid.innerHTML=(projects.length?projects:[]). map(p=>{
+    const color=p.color||'var(--amber)';
+    const hexColor=/^#/.test(color)?color:'var(--amber)';
+    const statusC=p.status==='Active'?'var(--green)':p.status==='Completed'?'var(--teal)':p.status==='Paused'?'var(--red)':'var(--amber)';
+    return`<div style="background:var(--navy2);border:1px solid var(--border);border-top:2px solid ${hexColor};border-radius:14px;padding:14px;cursor:pointer;transition:box-shadow .15s" onclick="openCreativeModal(${p.id})" onmouseover="this.style.boxShadow='0 4px 20px rgba(0,0,0,.3)'" onmouseout="this.style.boxShadow=''">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+        <div style="width:36px;height:36px;border-radius:10px;background:${hexColor}20;border:1px solid ${hexColor}40;display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="ti ${p.icon||'ti-palette'}" style="font-size:18px;color:${hexColor};line-height:1;display:block"></i></div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:var(--text-sm);font-weight:800;color:var(--text1);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${p.name}</div>
+          <div style="font-size:var(--text-xs);color:${statusC};font-weight:600">${p.status}</div>
+        </div>
+      </div>
+      ${p.client?`<div style="font-size:var(--text-xs);color:var(--teal);margin-bottom:5px"><i class="ti ti-user" style="font-size:10px;display:inline-block;margin-right:3px"></i>${p.client}</div>`:''}
+      ${p.desc?`<div style="font-size:var(--text-xs);color:var(--text3);margin-bottom:8px;line-height:1.5">${p.desc}</div>`:''}
+      <div style="display:flex;gap:5px;flex-wrap:wrap">
+        ${(p.deliverables||[]).map(d=>`<span style="font-size:9px;border:1px solid var(--border2);border-radius:4px;padding:1px 6px;color:var(--text3)">${d}</span>`).join('')}
+      </div>
+      ${p.deadline?`<div style="font-size:var(--text-xs);color:var(--text3);margin-top:8px"><i class="ti ti-calendar" style="font-size:10px;display:inline-block;margin-right:3px"></i>Due: ${p.deadline}</div>`:''}
+    </div>`;
+  }).join('')+`<div onclick="openCreativeModal()" style="background:var(--navy2);border:2px dashed var(--border);border-radius:14px;padding:24px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;cursor:pointer;color:var(--text3);transition:all .15s;min-height:120px" onmouseover="this.style.borderColor='var(--amber)';this.style.color='var(--amber)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text3)'"><i class="ti ti-plus" style="font-size:24px;line-height:1;display:block"></i><span style="font-size:var(--text-xs);font-weight:700;text-transform:uppercase;letter-spacing:.06em">New Project</span></div>`;
+}
+function renderCCCollaterals(){
+  const el=document.getElementById('cc-collaterals-list');if(!el)return;
+  const collaterals=DB.collaterals||[];
+  if(!collaterals.length){el.innerHTML='<div style="font-size:var(--text-xs);color:var(--text3);text-align:center;padding:20px">No collaterals yet. Click + Add to create one.</div>';return;}
+  el.innerHTML=collaterals.map((c,i)=>`<div style="background:var(--navy2);border:1px solid var(--border);border-radius:12px;padding:12px 14px;display:flex;align-items:center;gap:12px;cursor:pointer" onclick="openCollateralModal(${i})">
+    <i class="ti ${c.type==='Deck'?'ti-presentation':c.type==='Video'?'ti-video':c.type==='Graphic'?'ti-photo':c.type==='Copy'?'ti-pencil':c.type==='Email'?'ti-mail':'ti-file'}" style="font-size:20px;color:var(--amber);flex-shrink:0;line-height:1;display:block"></i>
+    <div style="flex:1;min-width:0">
+      <div style="font-size:var(--text-sm);font-weight:700;color:var(--text1);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${c.name}</div>
+      <div style="font-size:var(--text-xs);color:var(--text3)">${c.type||'—'} · ${c.client||'No client'} · ${c.status||'Draft'}</div>
+    </div>
+    ${c.link?`<a href="${c.link}" target="_blank" onclick="event.stopPropagation()" style="font-size:var(--text-xs);color:var(--teal);padding:3px 8px;border:1px solid var(--border);border-radius:5px;text-decoration:none;flex-shrink:0"><i class="ti ti-external-link" style="font-size:11px;display:inline-block;margin-right:3px"></i>Open</a>`:''}
+    <button onclick="event.stopPropagation();DB.collaterals.splice(${i},1);localStorage.setItem('j-collaterals',JSON.stringify(DB.collaterals));renderSides()" style="background:transparent;border:none;color:var(--text3);cursor:pointer;flex-shrink:0">×</button>
+  </div>`).join('');
+}
+function renderCCSocial(filterPlatform){
+  const posts=DB.socialPosts||[];
+  const platforms=['Instagram','Facebook','TikTok','LinkedIn'];
+  platforms.forEach(p=>{
+    const k={'Instagram':'ig','Facebook':'fb','TikTok':'tt','LinkedIn':'li'}[p];
+    const el=document.getElementById('cc-'+k+'-count');if(el)el.textContent=posts.filter(x=>x.platform===p).length;
+  });
+  const el=document.getElementById('cc-social-list');if(!el)return;
+  const filtered=filterPlatform?posts.filter(p=>p.platform===filterPlatform):posts;
+  if(!filtered.length){el.innerHTML='<div style="font-size:var(--text-xs);color:var(--text3);text-align:center;padding:20px;grid-column:1/-1">No posts yet. Click + Post to add one.</div>';return;}
+  el.innerHTML=filtered.map((p,i)=>{
+    const platColor={'Instagram':'#e1306c','Facebook':'#1877f2','TikTok':'var(--text1)','LinkedIn':'#0a66c2'}[p.platform]||'var(--amber)';
+    const statusBg={'Draft':'rgba(255,255,255,.06)','Scheduled':'rgba(245,158,11,.1)','Published':'rgba(34,197,94,.1)','Needs Revision':'rgba(239,68,68,.1)'}[p.status]||'rgba(255,255,255,.06)';
+    return`<div style="background:var(--navy2);border:1px solid var(--border);border-radius:12px;padding:12px;cursor:pointer" onclick="openSocialPostModal(${i})">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <span style="font-size:var(--text-xs);font-weight:700;color:${platColor}">${p.platform}</span>
+        <span style="font-size:9px;font-weight:700;padding:2px 7px;border-radius:6px;background:${statusBg};color:var(--text2)">${p.status}</span>
+      </div>
+      <div style="font-size:var(--text-sm);font-weight:600;color:var(--text1);margin-bottom:5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${p.title||'Untitled Post'}</div>
+      <div style="font-size:var(--text-xs);color:var(--text3);line-height:1.4;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;margin-bottom:6px">${p.caption||''}</div>
+      ${p.date?`<div style="font-size:var(--text-xs);color:var(--text3)"><i class="ti ti-calendar" style="font-size:10px;display:inline-block;margin-right:3px"></i>${p.date}</div>`:''}
+    </div>`;
+  }).join('');
+}
+function renderCCTasks(){
+  const el=document.getElementById('cc-tasks-list');if(!el)return;
+  const tasks=DB.tasks.filter(t=>t.world==='sides'&&t.status!=='Done');
+  el.innerHTML=tasks.length?tasks.map(t=>`<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--navy2);border:1px solid var(--border);border-radius:8px;margin-bottom:6px;cursor:pointer" onclick="editTask(${t.id})">
+    <div style="width:8px;height:8px;border-radius:50%;background:${t.priority==='High'?'var(--red)':t.priority==='Medium'?'var(--amber)':'var(--green)'};flex-shrink:0"></div>
+    <div style="flex:1;font-size:var(--text-sm);color:var(--text1)">${t.title}</div>
+    ${t.due?`<span style="font-size:var(--text-xs);color:var(--text3)">${t.due}</span>`:''}
+    <button onclick="event.stopPropagation();deleteTask(event,${t.id})" class="btn btn-d" style="padding:2px 6px"><i class="ti ti-trash" style="font-size:11px;line-height:1;display:block"></i></button>
+  </div>`).join(''):'<div style="font-size:var(--text-xs);color:var(--text3);padding:20px;text-align:center">No tasks yet for Creative Collectives.</div>';
+}
+let filterSocialPlatform=function(p){ccActiveTab='social';document.getElementById('cc-social')&&(renderCCSocial(p));};
+// Creative project modal
+let editingCreativeId=null;
+function openCreativeModal(id){
+  editingCreativeId=id||null;
+  const p=id?(DB.creativeProjects||[]).find(x=>x.id===id):{};
+  const m=document.createElement('div');m.className='mov open';m.id='creativeModal';m.onclick=e=>{if(e.target===m)closeCreativeModal();};
+  m.innerHTML=`<div class="modal" style="width:min(500px,96vw)">
+    <div class="mh"><div class="mt">${id?'Edit':'New'} Project</div><button class="mc" onclick="closeCreativeModal()">×</button></div>
+    <div class="mb">
+      <div class="fg"><label class="fl">Project Name *</label><input id="cp-name" value="${(p.name||'')}"></div>
+      <div class="fr">
+        <div class="fg"><label class="fl">Client</label><input id="cp-client" value="${(p.client||'')}"></div>
+        <div class="fg"><label class="fl">Status</label><select id="cp-status"><option${p.status==='Active'?' selected':''}>Active</option><option${p.status==='Completed'?' selected':''}>Completed</option><option${p.status==='Paused'?' selected':''}>Paused</option><option${p.status==='Concept'?' selected':''}>Concept</option></select></div>
+      </div>
+      <div class="fg"><label class="fl">Description</label><textarea id="cp-desc" rows="2">${(p.desc||'')}</textarea></div>
+      <div class="fr">
+        <div class="fg"><label class="fl">Deliverables (comma sep)</label><input id="cp-deliverables" placeholder="Logo, Brochure, Social Kit" value="${(p.deliverables||[]).join(', ')}"></div>
+        <div class="fg"><label class="fl">Deadline</label><input type="date" id="cp-deadline" value="${(p.deadline||'')}"></div>
+      </div>
+      <div class="fr">
+        <div class="fg"><label class="fl">Icon</label><input id="cp-icon" placeholder="ti-palette" value="${(p.icon||'ti-palette')}"></div>
+        <div class="fg"><label class="fl">Color</label><input type="color" id="cp-color" value="${(/^#/.test(p.color||''))?p.color:'#f59e0b'}"></div>
+      </div>
+      <div class="fg"><label class="fl">Drive / Link</label><input id="cp-link" placeholder="https://..." value="${(p.link||'')}"></div>
+    </div>
+    <div class="mf" style="justify-content:space-between">
+      ${id?`<button class="btn btn-d" onclick="deleteCreativeProject(${id});closeCreativeModal()"><i class="ti ti-trash"></i></button>`:'<div></div>'}
+      <div style="display:flex;gap:8px"><button class="btn btn-g" onclick="closeCreativeModal()">Cancel</button><button class="btn btn-t" onclick="saveCreativeProject()">Save</button></div>
+    </div>
+  </div>`;
+  document.getElementById('creativeModal')?.remove();document.body.appendChild(m);
+}
+function closeCreativeModal(){document.getElementById('creativeModal')?.remove();}
+function saveCreativeProject(){
+  const name=document.getElementById('cp-name').value.trim();if(!name){showToast('Name required');return;}
+  const p={id:editingCreativeId||Date.now(),name,client:document.getElementById('cp-client').value.trim(),status:document.getElementById('cp-status').value,desc:document.getElementById('cp-desc').value.trim(),deliverables:document.getElementById('cp-deliverables').value.split(',').map(s=>s.trim()).filter(Boolean),deadline:document.getElementById('cp-deadline').value,icon:document.getElementById('cp-icon').value||'ti-palette',color:document.getElementById('cp-color').value,link:document.getElementById('cp-link').value.trim()};
+  if(!DB.creativeProjects)DB.creativeProjects=[];
+  if(editingCreativeId){const i=DB.creativeProjects.findIndex(x=>x.id===editingCreativeId);if(i>=0)DB.creativeProjects[i]=p;}else DB.creativeProjects.unshift(p);
+  localStorage.setItem('j-creativeProjects',JSON.stringify(DB.creativeProjects));
+  closeCreativeModal();renderSides();showToast('✓ Project saved');
+}
+function deleteCreativeProject(id){DB.creativeProjects=(DB.creativeProjects||[]).filter(x=>x.id!==id);localStorage.setItem('j-creativeProjects',JSON.stringify(DB.creativeProjects));renderSides();}
+// Collateral modal
+function openCollateralModal(idx){
+  const existing=idx!=null?(DB.collaterals||[])[idx]:{};
+  const m=document.createElement('div');m.className='mov open';m.id='collateralModal';m.onclick=e=>{if(e.target===m)m.remove();};
+  m.innerHTML=`<div class="modal" style="width:min(440px,96vw)">
+    <div class="mh"><div class="mt">${idx!=null?'Edit':'New'} Collateral</div><button class="mc" onclick="document.getElementById('collateralModal').remove()">×</button></div>
+    <div class="mb">
+      <div class="fg"><label class="fl">Name *</label><input id="col-name" value="${(existing.name||'')}"></div>
+      <div class="fr">
+        <div class="fg"><label class="fl">Type</label><select id="col-type"><option${existing.type==='Deck'?' selected':''}>Deck</option><option${existing.type==='Graphic'?' selected':''}>Graphic</option><option${existing.type==='Video'?' selected':''}>Video</option><option${existing.type==='Copy'?' selected':''}>Copy</option><option${existing.type==='Email'?' selected':''}>Email</option><option${existing.type==='Social Kit'?' selected':''}>Social Kit</option><option${existing.type==='Other'?' selected':''}>Other</option></select></div>
+        <div class="fg"><label class="fl">Status</label><select id="col-status"><option${existing.status==='Draft'?' selected':''}>Draft</option><option${existing.status==='In Progress'?' selected':''}>In Progress</option><option${existing.status==='For Review'?' selected':''}>For Review</option><option${existing.status==='Approved'?' selected':''}>Approved</option><option${existing.status==='Published'?' selected':''}>Published</option></select></div>
+      </div>
+      <div class="fg"><label class="fl">Client</label><input id="col-client" value="${(existing.client||'')}"></div>
+      <div class="fg"><label class="fl">Link / Drive URL</label><input id="col-link" placeholder="https://..." value="${(existing.link||'')}"></div>
+    </div>
+    <div class="mf"><button class="btn btn-g" onclick="document.getElementById('collateralModal').remove()">Cancel</button><button class="btn btn-t" onclick="saveCollateral(${idx!=null?idx:'null'})">Save</button></div>
+  </div>`;
+  document.getElementById('collateralModal')?.remove();document.body.appendChild(m);
+}
+function saveCollateral(idx){
+  const name=document.getElementById('col-name').value.trim();if(!name){showToast('Name required');return;}
+  const c={name,type:document.getElementById('col-type').value,status:document.getElementById('col-status').value,client:document.getElementById('col-client').value.trim(),link:document.getElementById('col-link').value.trim()};
+  if(!DB.collaterals)DB.collaterals=[];
+  if(idx!=null&&idx!=='null')DB.collaterals[idx]=c;else DB.collaterals.unshift(c);
+  localStorage.setItem('j-collaterals',JSON.stringify(DB.collaterals));
+  document.getElementById('collateralModal')?.remove();renderSides();showToast('✓ Collateral saved');
+}
+// Social post modal
+function openSocialPostModal(idx){
+  const existing=idx!=null?(DB.socialPosts||[])[idx]:{};
+  const m=document.createElement('div');m.className='mov open';m.id='socialPostModal';m.onclick=e=>{if(e.target===m)m.remove();};
+  m.innerHTML=`<div class="modal" style="width:min(460px,96vw)">
+    <div class="mh"><div class="mt">${idx!=null?'Edit':'New'} Social Post</div><button class="mc" onclick="document.getElementById('socialPostModal').remove()">×</button></div>
+    <div class="mb">
+      <div class="fg"><label class="fl">Post Title</label><input id="sp2-title" value="${(existing.title||'')}"></div>
+      <div class="fr">
+        <div class="fg"><label class="fl">Platform</label><select id="sp2-platform"><option${existing.platform==='Instagram'?' selected':''}>Instagram</option><option${existing.platform==='Facebook'?' selected':''}>Facebook</option><option${existing.platform==='TikTok'?' selected':''}>TikTok</option><option${existing.platform==='LinkedIn'?' selected':''}>LinkedIn</option><option${existing.platform==='All Platforms'?' selected':''}>All Platforms</option></select></div>
+        <div class="fg"><label class="fl">Status</label><select id="sp2-status"><option${existing.status==='Draft'?' selected':''}>Draft</option><option${existing.status==='Scheduled'?' selected':''}>Scheduled</option><option${existing.status==='Published'?' selected':''}>Published</option><option${existing.status==='Needs Revision'?' selected':''}>Needs Revision</option></select></div>
+      </div>
+      <div class="fg"><label class="fl">Caption / Copy</label><textarea id="sp2-caption" rows="4" placeholder="Write your post caption...">${(existing.caption||'')}</textarea></div>
+      <div class="fr">
+        <div class="fg"><label class="fl">Publish Date</label><input type="date" id="sp2-date" value="${(existing.date||'')}"></div>
+        <div class="fg"><label class="fl">Client / Brand</label><input id="sp2-client" value="${(existing.client||'')}"></div>
+      </div>
+      <div class="fg"><label class="fl">Asset Link (Drive/Canva)</label><input id="sp2-link" placeholder="https://..." value="${(existing.link||'')}"></div>
+    </div>
+    <div class="mf"><button class="btn btn-g" onclick="document.getElementById('socialPostModal').remove()">Cancel</button><button class="btn btn-t" onclick="saveSocialPost(${idx!=null?idx:'null'})">Save</button></div>
+  </div>`;
+  document.getElementById('socialPostModal')?.remove();document.body.appendChild(m);
+}
+function saveSocialPost(idx){
+  const p={title:document.getElementById('sp2-title').value.trim(),platform:document.getElementById('sp2-platform').value,status:document.getElementById('sp2-status').value,caption:document.getElementById('sp2-caption').value.trim(),date:document.getElementById('sp2-date').value,client:document.getElementById('sp2-client').value.trim(),link:document.getElementById('sp2-link').value.trim()};
+  if(!DB.socialPosts)DB.socialPosts=[];
+  if(idx!=null&&idx!=='null')DB.socialPosts[idx]=p;else DB.socialPosts.unshift(p);
+  localStorage.setItem('j-socialPosts',JSON.stringify(DB.socialPosts));
+  document.getElementById('socialPostModal')?.remove();renderSides();showToast('✓ Post saved');
+}
+function openTaskForWorld(world){editingTaskId=null;document.getElementById('taskModalTitle').textContent='New Task';['tf-title','tf-notes','tf-platform'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});const wsel=document.getElementById('tf-world');if(wsel)wsel.value=world;document.getElementById('tf-prio').value='Medium';document.getElementById('tf-status').value='Todo';document.getElementById('tf-due').value='';openModal('taskModal');}
+
+// Legacy compatibility (old sidesModal still exists for any remaining references)
 let editingSidesId=null;
-function addSidesProduct(){editingSidesId=null;document.getElementById('sidesModalTitle').textContent='New Product';['sp-name','sp-platform','sp-price','sp-drive','sp-notes'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});document.getElementById('sp-status').value='Active';openModal('sidesModal');}
-function editSidesProduct(pid){const p=DB.sides.find(x=>x.id===pid);if(!p)return;editingSidesId=pid;document.getElementById('sidesModalTitle').textContent='Edit Product';document.getElementById('sp-name').value=p.name||'';document.getElementById('sp-platform').value=p.platform||'';document.getElementById('sp-status').value=p.status||'Active';document.getElementById('sp-price').value=p.price||'';document.getElementById('sp-drive').value=p.drive||'';document.getElementById('sp-notes').value=p.notes||'';openModal('sidesModal');}
-function saveSidesProduct(){const name=document.getElementById('sp-name').value.trim();if(!name)return showToast('Product name required.');const p={id:editingSidesId||Date.now(),name,platform:document.getElementById('sp-platform').value.trim()||'RaketPH',status:document.getElementById('sp-status').value,price:parseFloat(document.getElementById('sp-price').value)||0,drive:document.getElementById('sp-drive').value.trim(),notes:document.getElementById('sp-notes').value.trim(),todos:editingSidesId?(DB.sides.find(x=>x.id===editingSidesId)?.todos||[]):[]};if(editingSidesId){const i=DB.sides.findIndex(x=>x.id===editingSidesId);if(i>=0)DB.sides[i]=p;SB.update('sides',p.id,p,'sides');}else{DB.sides.push(p);SB.upsert('sides',p,'sides');}closeModal('sidesModal');renderSides();showToast('✓ Product saved');}
-function deleteSide(id){if(!confirm('Delete this product?'))return;DB.sides=DB.sides.filter(x=>x.id!==id);SB.remove('sides',id,'sides');renderSides();}
-function addSidesTodo(pid){const text=prompt('Task:');if(!text)return;const p=DB.sides.find(x=>x.id===pid);if(!p)return;p.todos=p.todos||[];p.todos.push({text,done:false});SB.update('sides',pid,p,'sides');renderSides();}
-function toggleSideTodo(pid,idx){const p=DB.sides.find(x=>x.id===pid);if(!p||!p.todos)return;p.todos[idx].done=!p.todos[idx].done;SB.update('sides',pid,p,'sides');renderSides();}
-function removeSideTodo(pid,idx){const p=DB.sides.find(x=>x.id===pid);if(!p||!p.todos)return;p.todos.splice(idx,1);SB.update('sides',pid,p,'sides');renderSides();}
+function addSidesProduct(){openCreativeModal();}
+function editSidesProduct(id){openCreativeModal(id);}
+function deleteSide(id){deleteCreativeProject(id);}
 
 let editingFaithId=null;
 function openFaithModal(id){editingFaithId=id||null;const a=id?DB.faith.find(x=>x.id===id):null;document.getElementById('faithModalTitle').textContent=a?'Edit Activity':'Add Activity';['activity','group','date','submitted','cfo','aevm','status','assigned','drive'].forEach(f=>{const el=document.getElementById('fa-'+f);if(el)el.value=a?(a[f]||''):'';});openModal('faithModal');}
@@ -7930,14 +8424,21 @@ function saveBudgets(b){localStorage.setItem('j-budgets',JSON.stringify(b));}
 function getAccountBalance(account){
   return (DB.cashflow||[]).reduce((sum,t)=>{
     if(t.account!==account)return sum;
-    if(t.type==='Debit')return sum+t.amount;      // income → add
-    if(t.type==='Credit')return sum-t.amount;     // expense → subtract
+    if(t.type==='Debit')  return sum+(t.amount||0);   // income → add
+    if(t.type==='Credit'||t.type==='Payment') return sum-(t.amount||0); // expense → subtract
+    // Transfers between own accounts: subtract from source, add to destination
     if(t.type==='Transfer'){
-      if(t._fromAccount===account)return sum-t.amount; // sent → subtract
-      if(t._toAccount===account)return sum+t.amount;   // received → add
+      if(t._fromAccount===account)return sum-(t.amount||0);
+      if(t._toAccount===account)  return sum+(t.amount||0);
     }
     return sum;
   },0);
+}
+
+// ── Net worth across ALL accounts (single owner — transfers are internal) ──
+function getTotalNetWorth(){
+  const accounts=[...new Set((DB.cashflow||[]).map(t=>t.account).filter(Boolean))];
+  return accounts.reduce((sum,acct)=>sum+getAccountBalance(acct),0);
 }
 
 // ── Format helpers ────────────────────────────────────────────────────────
@@ -7955,7 +8456,7 @@ function shiftOverviewMonth(dir){
 function setOverviewMonthToday(){overviewYear=new Date().getFullYear();overviewMonth=new Date().getMonth();renderLife();}
 
 function renderLife(){
-  const txns = DB.cashflow||[];
+  const txns=DB.cashflow||[];
   const monthStr=`${overviewYear}-${String(overviewMonth+1).padStart(2,'0')}`;
   const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
 
@@ -7963,53 +8464,57 @@ function renderLife(){
   const lbl=document.getElementById('cf-month-label');
   if(lbl)lbl.textContent=MONTHS[overviewMonth]+' '+overviewYear;
 
-  // This month's transactions
+  // ── This month's real income and expenses (transfers excluded — internal moves) ──
   const thisMonth=txns.filter(t=>t.date&&t.date.startsWith(monthStr));
-  const debits=thisMonth.filter(t=>t.type==='Debit'||t.type==='Payment');
-  const credits=thisMonth.filter(t=>t.type==='Credit');
-  const payments=thisMonth.filter(t=>t.type==='Payment');
-  const totalIncome=debits.filter(t=>t.type==='Debit').reduce((s,t)=>s+(t.amount||0),0);
-  const totalExpense=credits.reduce((s,t)=>s+(t.amount||0),0)+payments.reduce((s,t)=>s+(t.amount||0),0);
-  const net=totalIncome-totalExpense;
+  const totalIncome   = thisMonth.filter(t=>t.type==='Debit').reduce((s,t)=>s+(t.amount||0),0);
+  const totalExpense  = thisMonth.filter(t=>t.type==='Credit'||t.type==='Payment').reduce((s,t)=>s+(t.amount||0),0);
+  const netThisMonth  = totalIncome-totalExpense;
 
-  // Carried balance = all transactions BEFORE this month
+  // ── Carried balance = cumulative net of ALL prior months (all accounts combined) ──
+  // Transfers excluded → internal moves don't change total worth
   const prevTxns=txns.filter(t=>t.date&&t.date<monthStr+'-01');
-  const prevInc=prevTxns.filter(t=>t.type==='Debit').reduce((s,t)=>s+(t.amount||0),0);
-  const prevExp=prevTxns.filter(t=>t.type==='Credit'||t.type==='Payment').reduce((s,t)=>s+(t.amount||0),0);
-  const carried=prevInc-prevExp;
+  const prevInc =prevTxns.filter(t=>t.type==='Debit').reduce((s,t)=>s+(t.amount||0),0);
+  const prevExp =prevTxns.filter(t=>t.type==='Credit'||t.type==='Payment').reduce((s,t)=>s+(t.amount||0),0);
+  const carried =prevInc-prevExp;
 
-  // ── Summary cards ──────────────────────────────────────────────────────
-  const elIncome = document.getElementById('cf-income');
-  if(elIncome) elIncome.textContent = fmtPHP(totalIncome);
-  const elExpense = document.getElementById('cf-expense');
-  if(elExpense) elExpense.textContent = fmtPHP(totalExpense);
-  const elCarried = document.getElementById('cf-carried');
-  if(elCarried){elCarried.textContent=(carried>=0?'+':'-')+fmtPHP(carried);elCarried.style.color=carried>=0?'var(--green)':'var(--red)';}
+  // ── Total balance = carried balance + net this month (= sum of all accounts) ──
+  const totalBalance=carried+netThisMonth;
 
-  // Net: positive surplus → green, negative deficit → red
-  const elNet = document.getElementById('cf-net');
-  const elNetLabel = document.getElementById('cf-net-label');
-  if(elNet){
-    elNet.textContent = (net>0?'+':net<0?'-':'')+fmtPHP(net);
-    elNet.style.color = net>0?'var(--green)':net<0?'var(--red)':'var(--text2)';
+  // ── Summary cards ─────────────────────────────────────────────────────────
+  const setEl=(id,text,color)=>{const el=document.getElementById(id);if(el){el.textContent=text;if(color)el.style.color=color;}};
+  const setLbl=(id,text)=>{const el=document.getElementById(id);if(el)el.textContent=text;};
 
-  }
-  if(elNetLabel) elNetLabel.textContent = net>0?'Surplus':net<0?'Deficit':'Balanced';
+  setEl('cf-income',  fmtPHP(totalIncome),'var(--green)');
+  setEl('cf-expense', fmtPHP(totalExpense),'var(--red)');
+  setEl('cf-carried', (carried>=0?'+':'-')+fmtPHP(Math.abs(carried)), carried>=0?'var(--green)':'var(--red)');
 
-  const elCount = document.getElementById('cf-count');
-  if(elCount) elCount.textContent = thisMonth.length;
+  // Net this month
+  const netEl=document.getElementById('cf-net');
+  if(netEl){netEl.textContent=(netThisMonth>=0?'+':'-')+fmtPHP(Math.abs(netThisMonth));netEl.style.color=netThisMonth>=0?'var(--green)':'var(--red)';}
+  setLbl('cf-net-label',netThisMonth>0?'Surplus this month':netThisMonth<0?'Deficit this month':'Balanced');
 
-  // ── Account balance strip ──────────────────────────────────────────────
+  const elCount=document.getElementById('cf-count');
+  if(elCount)elCount.textContent=thisMonth.length;
+
+  // ── Account balance strip (all accounts, correct signs) ────────────────────
   const usedAccounts=[...new Set(txns.map(t=>t.account).filter(Boolean))];
-  const stripEl = document.getElementById('cf-account-strip');
+  const customAccounts=JSON.parse(localStorage.getItem('j-custom-accounts')||'[]');
+  const allAccounts=[...new Set([...usedAccounts,...customAccounts])];
+  const stripEl=document.getElementById('cf-account-strip');
   if(stripEl){
-    stripEl.innerHTML = usedAccounts.length ? usedAccounts.map(acct=>{
-      const bal = getAccountBalance(acct);
-      return `<div class="hc" style="padding:10px 12px;cursor:pointer" onclick="setCFTab('accounts',document.querySelector('.cfbt:nth-child(5)'))">
+    stripEl.innerHTML=allAccounts.length?allAccounts.map(acct=>{
+      const bal=getAccountBalance(acct);
+      return`<div class="hc" style="padding:10px 12px;cursor:pointer;flex-shrink:0" onclick="setCFTab('accounts',null)">
         <div class="cl">${acct}</div>
-        <div style="font-size:16px;font-weight:800;color:${bal>0?'var(--green)':bal<0?'var(--red)':'var(--text2)'};margin-top:3px">${bal>0?'-':bal<0?'+':''}${fmtPHP(bal)}</div>
+        <div style="font-size:16px;font-weight:800;color:${bal>=0?'var(--green)':'var(--red)'};margin-top:3px">${bal>=0?'+':'-'}${fmtPHP(Math.abs(bal))}</div>
       </div>`;
-    }).join('') : '';
+    }).join(''):'';
+    // Add total net worth pill at end
+    const nw=getTotalNetWorth();
+    stripEl.innerHTML+=`<div class="hc" style="padding:10px 12px;border:1px solid rgba(128,255,250,.2);background:rgba(128,255,250,.04)">
+      <div class="cl" style="color:var(--teal)">TOTAL NET WORTH</div>
+      <div style="font-size:16px;font-weight:800;color:${nw>=0?'var(--green)':'var(--red)'};margin-top:3px">${nw>=0?'+':'-'}${fmtPHP(Math.abs(nw))}</div>
+    </div>`;
   }
 
   // ── Recent panels ──────────────────────────────────────────────────────
@@ -8277,24 +8782,21 @@ function renderCashTable(){
   }
   if(em) em.style.display='none';
 
-  // Running balance per account
-  const runBal={};
-  const allSorted=[...(DB.cashflow||[])].sort((a,b)=>a.date>b.date?1:-1);
-  const runBalMap={};
-  allSorted.forEach(t=>{
-    const acct=t.account||'';
-    if(!runBalMap[acct]) runBalMap[acct]=0;
-    if(t.type==='Debit')  runBalMap[acct]+=t.amount||0;
-    if(t.type==='Credit'||t.type==='Payment') runBalMap[acct]-=t.amount||0;
-    if(t.type==='Transfer'){
-      if(t._fromAccount===acct) runBalMap[acct]-=t.amount||0;
-      if(t._toAccount===acct)   runBalMap[acct]+=t.amount||0;
-    }
-    t._runBal = runBalMap[acct];
+  // ── Running TOTAL balance (all accounts as one, transfers neutral) ──────
+  // Sort all txns chronologically to build running total
+  const allSorted=[...(DB.cashflow||[])].sort((a,b)=>{
+    if(a.date!==b.date)return a.date>b.date?1:-1;
+    return a.id>b.id?1:-1;
   });
-  // Map id→runBal
+  let runningTotal=0;
   const runBalById={};
-  allSorted.forEach(t=>{ runBalById[t.id]=t._runBal; });
+  allSorted.forEach(t=>{
+    if(t.type==='Debit')   runningTotal+=(t.amount||0);  // real income → adds to total
+    if(t.type==='Credit'||t.type==='Payment') runningTotal-=(t.amount||0); // real expense → subtracts
+    // Transfers: move money between own accounts → net zero impact on total
+    // (from-account loses, to-account gains → cancels out → no change to net worth)
+    runBalById[t.id]=runningTotal;
+  });
 
   if(tb) tb.innerHTML=txns.map(t=>{
     const isDebit=t.type==='Debit';
@@ -8303,19 +8805,20 @@ function renderCashTable(){
     const isTransfer=t.type==='Transfer';
     const typeColor=isDebit?'var(--green)':(isCredit||isPayment)?'var(--red)':isTransfer?'var(--teal)':'var(--text3)';
     const typeBg=isDebit?'rgba(34,197,94,.15)':(isCredit||isPayment)?'rgba(239,68,68,.1)':isTransfer?'rgba(128,255,250,.08)':'transparent';
-    const amtDisplay=isDebit?'+'+fmtPHP(t.amount):(isCredit||isPayment)?'-'+fmtPHP(t.amount):'⇄'+fmtPHP(t.amount);
+    const amtDisplay=isDebit?'+'+fmtPHP(t.amount||0):(isCredit||isPayment)?'-'+fmtPHP(t.amount||0):'⇄'+fmtPHP(t.amount||0);
     const amtColor=isDebit?'var(--green)':(isCredit||isPayment)?'var(--red)':'var(--teal)';
     const bal=runBalById[t.id]??0;
     const balColor=bal>=0?'var(--green)':'var(--red)';
-    const balDisplay=(bal>=0?'+':'')+fmtPHP(bal);
+    const balDisplay=(bal>=0?'+':'-')+fmtPHP(Math.abs(bal));
+    const transferNote=isTransfer?`<div style="font-size:9px;color:var(--teal);margin-top:2px">⇄ ${t._fromAccount||t.account}→${t._toAccount||'?'} (internal)</div>`:'';
     return `<tr data-id="${t.id}" draggable="true" style="cursor:grab">
       <td style="font-size:var(--text-xs);color:var(--text3);white-space:nowrap">${t.date||'—'}</td>
-      <td style="font-weight:500;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${t.desc||''}">${t.desc||'—'}${t.notes?'<div style="font-size:var(--text-xs);color:var(--text3);font-style:italic">'+t.notes+'</div>':''}</td>
+      <td style="font-weight:500;max-width:200px;overflow:hidden;text-overflow:ellipsis" title="${t.desc||''}">${t.desc||'—'}${transferNote}${t.notes?'<div style="font-size:var(--text-xs);color:var(--text3);font-style:italic">'+t.notes+'</div>':''}</td>
       <td><span style="font-size:var(--text-xs);font-weight:700;color:${typeColor};background:${typeBg};border:1px solid ${typeColor};border-radius:3px;padding:2px 6px">${t.type.toUpperCase()}</span></td>
-      <td style="font-size:var(--text-xs);color:var(--text3)">${t.category||'—'}${t.catNotes?'<div style="font-size:var(--text-xs)">'+t.catNotes+'</div>':''}</td>
+      <td style="font-size:var(--text-xs);color:var(--text3)">${t.category||'—'}</td>
       <td style="font-size:var(--text-xs);color:var(--text3)">${t.account||'—'}</td>
       <td style="font-weight:700;color:${amtColor};white-space:nowrap">${amtDisplay}</td>
-      <td style="font-size:var(--text-xs);color:${balColor};white-space:nowrap;font-weight:600">${balDisplay}</td>
+      <td style="font-size:var(--text-xs);color:${balColor};white-space:nowrap;font-weight:600" title="Running total across all accounts">${balDisplay}</td>
       <td style="white-space:nowrap">
         <button class="btn" style="padding:2px 7px;background:rgba(0,255,242,.08);border:1px solid var(--border2);color:var(--teal)" onclick="editCash(${t.id})"><i class="ti ti-pencil" style="font-size:var(--text-xs);line-height:1;display:block"></i></button>
         <button class="btn btn-d" style="padding:2px 7px;margin-left:3px" onclick="deleteCash(${t.id})"><i class="ti ti-trash" style="font-size:var(--text-xs);line-height:1;display:block"></i></button>
@@ -8537,21 +9040,23 @@ function renderBudgetTab(){
     const isWarn=pct>=alertPct&&!isOver;
     const barColor=isOver?'var(--red)':isWarn?'var(--amber)':'var(--green)';
     const remaining=limit-spent;
-    return `
-      <div style="background:var(--navy2);border:1px solid ${isOver?'rgba(239,68,68,.4)':'var(--border)'};border-radius:6px;padding:14px;margin-bottom:10px">
+    const linkedAcct=b.account||'';
+    return `<div style="background:var(--navy2);border:1px solid ${isOver?'rgba(239,68,68,.4)':'var(--border)'};border-radius:12px;padding:14px;margin-bottom:10px">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-          <div style="display:flex;align-items:center;gap:8px">
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
             <div style="font-size:var(--text-sm);font-weight:700;color:var(--text1)">${cat}</div>
-            ${isOver?'<span style="font-size:var(--text-xs);font-weight:700;color:var(--red);border:1px solid var(--red);border-radius:2px;padding:1px 5px">OVER BUDGET</span>':isWarn?'<span style="font-size:var(--text-xs);font-weight:700;color:var(--amber);border:1px solid var(--amber);border-radius:2px;padding:1px 5px">⚠ NEAR LIMIT</span>':''}
+            ${linkedAcct?`<span style="font-size:var(--text-xs);color:var(--text3);background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:4px;padding:1px 6px">from ${linkedAcct}</span>`:''}
+            ${isOver?'<span style="font-size:var(--text-xs);font-weight:700;color:var(--red);border:1px solid var(--red);border-radius:4px;padding:1px 5px">OVER</span>':isWarn?'<span style="font-size:var(--text-xs);font-weight:700;color:var(--amber);border:1px solid var(--amber);border-radius:4px;padding:1px 5px">⚠ NEAR</span>':''}
           </div>
           <div style="display:flex;gap:5px;align-items:center">
             <span style="font-size:var(--text-xs);color:var(--text3)">${fmtPHP(spent)} / ${fmtPHP(limit)}</span>
-            <button onclick="openBudgetModal('${cat}')" style="background:transparent;border:1px solid var(--border2);border-radius:3px;color:var(--text3);font-size:var(--text-xs);padding:2px 7px;cursor:pointer">Edit</button>
-            <button onclick="deleteBudget('${cat}')" style="background:transparent;border:1px solid rgba(239,68,68,.3);border-radius:3px;color:var(--red);font-size:var(--text-xs);padding:2px 7px;cursor:pointer">×</button>
+            <button onclick="openBudgetModal('${cat}')" style="background:transparent;border:1px solid var(--border2);border-radius:6px;color:var(--text3);font-size:var(--text-xs);padding:2px 7px;cursor:pointer">Edit</button>
+            <button onclick="logBudgetExpense('${cat}','${linkedAcct}')" class="btn btn-g" style="font-size:var(--text-xs);padding:2px 8px">- Spend</button>
+            <button onclick="deleteBudget('${cat}')" style="background:transparent;border:1px solid rgba(239,68,68,.3);border-radius:6px;color:var(--red);font-size:var(--text-xs);padding:2px 7px;cursor:pointer">×</button>
           </div>
         </div>
-        <div style="background:var(--navy3);border-radius:3px;height:8px;overflow:hidden;margin-bottom:6px">
-          <div style="width:${pct.toFixed(1)}%;height:100%;background:${barColor};border-radius:3px;transition:width .4s"></div>
+        <div style="background:var(--navy3);border-radius:6px;height:8px;overflow:hidden;margin-bottom:6px">
+          <div style="width:${pct.toFixed(1)}%;height:100%;background:${barColor};border-radius:6px;transition:width .4s"></div>
         </div>
         <div style="display:flex;justify-content:space-between;font-size:var(--text-xs);color:var(--text3)">
           <span>${pct.toFixed(0)}% used · Alert at ${alertPct}%</span>
@@ -8569,6 +9074,8 @@ function openBudgetModal(cat){
   else{const s=document.getElementById('bgt-cat');if(s)s.disabled=false;}
   document.getElementById('bgt-limit').value=existing?existing.limit:'';
   document.getElementById('bgt-alert').value=existing?existing.alert:80;
+  const acctSel=document.getElementById('bgt-account');
+  if(acctSel){const accounts=getAccounts();acctSel.innerHTML='<option value="">No linked account</option>'+accounts.map(a=>`<option${(existing?.account===a)?' selected':''}>${a}</option>`).join('');}
   openModal('budgetModal');
 }
 
@@ -8576,14 +9083,26 @@ function saveBudget(){
   const cat=document.getElementById('bgt-cat').value;
   const limit=parseFloat(document.getElementById('bgt-limit').value)||0;
   const alert=parseInt(document.getElementById('bgt-alert').value)||80;
-  if(!limit){showToast('⚠ Enter a budget limit, sir.');return;}
+  const account=document.getElementById('bgt-account')?.value||'';
+  if(!limit){showToast('\u26a0 Enter a budget limit, sir.');return;}
   const budgets=getBudgets();
-  budgets[cat]={limit,alert};
+  budgets[cat]={limit,alert,account};
   saveBudgets(budgets);
   closeModal('budgetModal');
   renderBudgetTab();
-  showToast('✓ Budget set: '+cat+' — '+fmtPHP(limit)+'/mo');
+  showToast('\u2713 Budget set: '+cat+' \u2014 '+fmtPHP(limit)+'/mo'+(account?' \u00b7 from '+account:''));
 }
+
+function logBudgetExpense(cat,account){
+  const amt=parseFloat(prompt('Amount spent on '+cat+(account?' (from '+account+')':'')+':\n\u20b1',''));
+  if(!amt||isNaN(amt)||amt<=0)return;
+  const desc=prompt('Description:',cat+' expense')||cat+' expense';
+  const entry={id:Date.now(),type:'Credit',desc,amount:amt,account:account||'Cash',category:cat,date:new Date().toISOString().split('T')[0],notes:'Budget: '+cat};
+  DB.cashflow.unshift(entry);save('cashflow');SB.upsert('cashflow',entry,'cashflow');
+  renderBudgetTab();renderLife();
+  showToast('\u2713 -'+fmtPHP(amt)+' from '+cat+' budget'+(account?' \u00b7 '+account:''));
+}
+
 
 function deleteBudget(cat){
   const budgets=getBudgets();
@@ -8597,41 +9116,52 @@ function deleteBudget(cat){
 function renderAccountsTab(){
   const el=document.getElementById('cf-accounts-grid');
   if(!el) return;
-  const usedAccounts=[...new Set((DB.cashflow||[]).map(t=>t.account).filter(Boolean))];
-  if(!usedAccounts.length){
-    el.innerHTML='<div style="text-align:center;padding:30px;color:var(--text3);font-size:var(--text-sm)">No account transactions yet, sir.</div>';
-    return;
-  }
-  el.innerHTML=usedAccounts.map(acct=>{
+  const txnAccounts=[...new Set((DB.cashflow||[]).map(t=>t.account).filter(Boolean))];
+  const customAccounts=JSON.parse(localStorage.getItem('j-custom-accounts')||'[]');
+  const allAccounts=[...new Set([...txnAccounts,...customAccounts])];
+  // Remove old account cards (keep the Add button as first child)
+  [...el.querySelectorAll('.acct-card')].forEach(c=>c.remove());
+  if(!allAccounts.length)return;
+  allAccounts.forEach(acct=>{
     const txns=(DB.cashflow||[]).filter(t=>t.account===acct);
     const income=txns.filter(t=>t.type==='Debit').reduce((s,t)=>s+(t.amount||0),0);
-    const expense=txns.filter(t=>t.type==='Credit').reduce((s,t)=>s+(t.amount||0),0);
+    const expense=txns.filter(t=>t.type==='Credit'||t.type==='Payment').reduce((s,t)=>s+(t.amount||0),0);
     const bal=getAccountBalance(acct);
-    const lastTxn=txns.sort((a,b)=>b.date>a.date?1:-1)[0];
-    return `
-      <div class="hc" style="padding:14px">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-          <div style="font-size:var(--text-sm);font-weight:700;color:var(--text1)">${acct}</div>
+    const lastTxn=[...txns].sort((a,b)=>b.date>a.date?1:-1)[0];
+    const card=document.createElement('div');
+    card.className='hc acct-card';card.style.padding='14px';
+    card.innerHTML=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div style="font-size:var(--text-sm);font-weight:700;color:var(--text1)">${acct}</div>
+        <div style="display:flex;align-items:center;gap:6px">
           <div style="font-size:var(--text-xs);color:var(--text3)">${txns.length} txn${txns.length!==1?'s':''}</div>
+          <button onclick="removeAccount('${acct}')" style="background:transparent;border:none;color:var(--text3);cursor:pointer;font-size:11px;padding:0 2px;opacity:.5" onmouseover="this.style.opacity=1;this.style.color='var(--red)'" onmouseout="this.style.opacity=.5;this.style.color='var(--text3)'" title="Remove">×</button>
         </div>
-        <div style="font-size:22px;font-weight:900;color:${bal>=0?'var(--green)':'var(--red)'};margin-bottom:8px">${bal>=0?'+':'-'}${fmtPHP(Math.abs(bal))}</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px">
-          <div style="background:rgba(34,197,94,.07);border:1px solid rgba(34,197,94,.2);border-radius:3px;padding:6px 8px">
-            <div style="font-size:var(--text-xs);color:var(--text3);text-transform:uppercase;letter-spacing:.06em">Income</div>
-            <div style="font-size:var(--text-sm);font-weight:700;color:var(--green)">+${fmtPHP(income)}</div>
-          </div>
-          <div style="background:rgba(239,68,68,.07);border:1px solid rgba(239,68,68,.2);border-radius:3px;padding:6px 8px">
-            <div style="font-size:var(--text-xs);color:var(--text3);text-transform:uppercase;letter-spacing:.06em">Expenses</div>
-            <div style="font-size:var(--text-sm);font-weight:700;color:var(--red)">-${fmtPHP(expense)}</div>
-          </div>
+      </div>
+      <div style="font-size:22px;font-weight:900;color:${bal>=0?'var(--green)':'var(--red)'};margin-bottom:8px">${bal>=0?'+':'-'}${fmtPHP(Math.abs(bal))}</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px">
+        <div style="background:rgba(34,197,94,.07);border:1px solid rgba(34,197,94,.2);border-radius:8px;padding:6px 8px">
+          <div style="font-size:var(--text-xs);color:var(--text3);text-transform:uppercase;letter-spacing:.06em">Income</div>
+          <div style="font-size:var(--text-sm);font-weight:700;color:var(--green)">+${fmtPHP(income)}</div>
         </div>
-        ${lastTxn?`<div style="font-size:var(--text-xs);color:var(--text3)">Last: ${lastTxn.desc} · ${lastTxn.date}</div>`:''}
-        <div style="display:flex;gap:5px;margin-top:8px">
-          <button onclick="openCashModal('Debit');setTimeout(()=>{document.getElementById('ca-account').value='${acct}'},80)" class="btn btn-g" style="flex:1;font-size:var(--text-xs);justify-content:center">+ Income</button>
-          <button onclick="openTransferModal('${acct}')" class="btn btn-g" style="flex:1;font-size:var(--text-xs);justify-content:center">⇄ Transfer</button>
+        <div style="background:rgba(239,68,68,.07);border:1px solid rgba(239,68,68,.2);border-radius:8px;padding:6px 8px">
+          <div style="font-size:var(--text-xs);color:var(--text3);text-transform:uppercase;letter-spacing:.06em">Expenses</div>
+          <div style="font-size:var(--text-sm);font-weight:700;color:var(--red)">-${fmtPHP(expense)}</div>
         </div>
+      </div>
+      ${lastTxn?`<div style="font-size:var(--text-xs);color:var(--text3);margin-bottom:8px">Last: ${lastTxn.desc} · ${lastTxn.date}</div>`:''}
+      <div style="display:flex;gap:5px;margin-top:8px">
+        <button onclick="openCashModal('Debit');setTimeout(()=>populateAccountSelect('${acct}'),80)" class="btn btn-g" style="flex:1;font-size:var(--text-xs);justify-content:center">+ In</button>
+        <button onclick="openCashModal('Credit');setTimeout(()=>populateAccountSelect('${acct}'),80)" class="btn btn-g" style="flex:1;font-size:var(--text-xs);justify-content:center">- Out</button>
+        <button onclick="openTransferModal('${acct}')" class="btn btn-g" style="flex:1;font-size:var(--text-xs);justify-content:center">⇄</button>
       </div>`;
-  }).join('');
+    el.appendChild(card);
+  });
+}
+function removeAccount(name){
+  if(!confirm(`Remove "${name}" account? Transactions remain.`))return;
+  const custom=JSON.parse(localStorage.getItem('j-custom-accounts')||'[]');
+  localStorage.setItem('j-custom-accounts',JSON.stringify(custom.filter(a=>a!==name)));
+  renderAccountsTab();showToast('Account removed');
 }
 
 // ── Transfer functions ─────────────────────────────────────────────────────
@@ -8713,45 +9243,68 @@ let calSelectedDate=new Date().toISOString().split('T')[0];
 let calContextFilter=new Set(CAL_WORLDS.map(w=>w.id)); // all on by default
 let calEditingId=null;
 
-// ── Utility: expand recurring events for a date range ─────────────
 function expandRecurring(events,fromDate,toDate){
   const from=new Date(fromDate);from.setHours(0,0,0,0);
   const to=new Date(toDate);to.setHours(23,59,59,999);
   const out=[];
   events.forEach(e=>{
-    const base=new Date(e.date);base.setHours(0,0,0,0);
+    const base=new Date(e.date+'T00:00:00');base.setHours(0,0,0,0);
     if(!e.recur||e.recur==='none'){
       if(base>=from&&base<=to)out.push(e);
       return;
     }
-    const until=e.recurEnd?new Date(e.recurEnd):new Date(to);
+    const until=e.recurEnd?new Date(e.recurEnd+'T23:59:59'):new Date(to);
     let cur=new Date(base);
     let safetyMax=0;
-    while(cur<=to&&cur<=until&&safetyMax<500){
+    while(cur<=to&&cur<=until&&safetyMax<1000){
       safetyMax++;
       if(cur>=from){
         out.push({...e,_expandedDate:cur.toISOString().split('T')[0],_recurring:true});
       }
-      // Advance by recurrence type
+      // Advance cur AFTER capturing, so base date is always included
       switch(e.recur){
-        case 'daily':     cur.setDate(cur.getDate()+1);break;
-        case 'weekly':    cur.setDate(cur.getDate()+7);break;
-        case 'biweekly':  cur.setDate(cur.getDate()+14);break;
-        case 'monthly':   cur.setMonth(cur.getMonth()+1);break;
+        case 'daily':
+          cur.setDate(cur.getDate()+1);
+          break;
+        case 'weekdays':
+          // Mon-Fri only: advance at least 1 day, skip Sat(6) and Sun(0)
+          do{cur.setDate(cur.getDate()+1);}while(cur.getDay()===0||cur.getDay()===6);
+          break;
+        case 'weekends':
+          // Sat and Sun: advance to next Sat or Sun
+          do{cur.setDate(cur.getDate()+1);}while(cur.getDay()!==0&&cur.getDay()!==6);
+          break;
+        case 'weekly':
+          cur.setDate(cur.getDate()+7);
+          break;
+        case 'biweekly':
+          cur.setDate(cur.getDate()+14);
+          break;
+        case 'monthly':
+          cur.setMonth(cur.getMonth()+1);
+          break;
         case 'monthly-nth':{
-          // Nth weekday of month
-          const dow=base.getDay(),nth=Math.ceil(base.getDate()/7);
+          const dow=base.getDay();
+          const nth=Math.ceil(base.getDate()/7);
           cur.setMonth(cur.getMonth()+1);
           cur.setDate(1);
-          let count=0;
           while(cur.getDay()!==dow)cur.setDate(cur.getDate()+1);
-          while(count<nth-1){cur.setDate(cur.getDate()+7);count++;}
+          for(let c=0;c<nth-1;c++)cur.setDate(cur.getDate()+7);
           break;
         }
-        case 'yearly':    cur.setFullYear(cur.getFullYear()+1);break;
-        case 'weekdays':  do{cur.setDate(cur.getDate()+1);}while(cur.getDay()===0||cur.getDay()===6);break;
-        case 'custom':    cur.setDate(cur.getDate()+(parseInt(e.recurN)||1));break;
-        default:cur=new Date(to.getTime()+1);
+        case 'yearly':
+          cur.setFullYear(cur.getFullYear()+1);
+          break;
+        case 'custom':{
+          const n=parseInt(e.recurN)||1;
+          const unit=e.recurUnit||'day';
+          if(unit==='day')cur.setDate(cur.getDate()+n);
+          else if(unit==='week')cur.setDate(cur.getDate()+n*7);
+          else if(unit==='month')cur.setMonth(cur.getMonth()+n);
+          break;
+        }
+        default:
+          cur=new Date(to.getTime()+1); // exit loop
       }
     }
   });
@@ -9314,36 +9867,62 @@ function renderCalAgenda(){
 function renderCalQuarter(){
   const el=document.getElementById('calMainArea');
   const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
-  // Start from calMonth, show 3 months
   const qMonths=[0,1,2].map(i=>{
     let m=calMonth+i,y=calYear;
     if(m>11){m-=12;y++;}
     return{m,y};
   });
   const today=new Date().toISOString().split('T')[0];
+  const allExpanded=expandRecurring(DB.calEvents,
+    new Date(calYear,calMonth,1).toISOString().split('T')[0],
+    new Date(calYear,calMonth+3,0).toISOString().split('T')[0]
+  );
 
-  let html='<div class="cal-quarter-grid">';
+  let html='<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0;height:100%;overflow:hidden">';
   qMonths.forEach(({m,y})=>{
     const first=new Date(y,m,1).getDay();
     const days=new Date(y,m+1,0).getDate();
-    const prev=new Date(y,m,0).getDate();
-    html+=`<div class="cal-quarter-month">
-      <div class="cal-quarter-mh">${MONTHS[m]} ${y}</div>
-      <div class="cal-quarter-mini">
-        ${'SMTWTFS'.split('').map(d=>`<div style="font-size:var(--text-xs);text-align:center;color:var(--text3);font-weight:700;padding:2px">${d}</div>`).join('')}
-        ${Array.from({length:first-1},(_,i)=>`<div class="cqd om">${prev-(first-2-i)}</div>`).join('')}
+    html+=`<div style="display:flex;flex-direction:column;border-right:1px solid var(--border);overflow:hidden">
+      <div style="font-size:var(--text-xs);font-weight:800;color:var(--teal);letter-spacing:.1em;text-transform:uppercase;padding:8px 12px;border-bottom:1px solid var(--border);background:var(--navy2)">${MONTHS[m]} ${y}</div>
+      <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:0;padding:2px 4px">
+        ${'SMTWTFS'.split('').map(d=>`<div style="font-size:9px;text-align:center;color:var(--text3);font-weight:700;padding:3px 0">${d}</div>`).join('')}
+        ${Array.from({length:first},()=>`<div></div>`).join('')}
         ${Array.from({length:days},(_,i)=>{
           const d=i+1;
           const ds=y+'-'+String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
           const isT=ds===today;
-          const hasEv=DB.calEvents.some(e=>e.date===ds);
-          return`<div class="cqd${isT?' today':''}${hasEv?' has-ev':''}" onclick="calSelectedDate='${ds}';setCalView('day')" title="${ds}">${d}</div>`;
+          const dayEvs=allExpanded.filter(e=>(e._expandedDate||e.date)===ds);
+          const dots=dayEvs.slice(0,3).map(ev=>{
+            const wColor=CAL_WORLDS.find(w=>w.id===normaliseType(ev.type))?.hex||'var(--teal)';
+            return`<span style="width:5px;height:5px;border-radius:50%;background:${wColor};display:inline-block;flex-shrink:0"></span>`;
+          }).join('');
+          return`<div onclick="calSelectedDate='${ds}';setCalView('day')" style="display:flex;flex-direction:column;align-items:center;padding:2px 1px;cursor:pointer;border-radius:4px;transition:background .1s${isT?';background:rgba(128,255,250,.15)':''}" title="${ds}${dayEvs.length?' · '+dayEvs.length+' event(s)':''}" onmouseover="this.style.background='rgba(255,255,255,.06)'" onmouseout="this.style.background='${isT?'rgba(128,255,250,.15)':'transparent'}'">
+            <span style="font-size:10px;font-weight:${isT?'800':'400'};color:${isT?'var(--teal)':'var(--text2)'};line-height:1.6">${d}</span>
+            <div style="display:flex;gap:1px;flex-wrap:wrap;justify-content:center;min-height:7px">${dots}</div>
+          </div>`;
         }).join('')}
+      </div>
+      <!-- Events list for month -->
+      <div style="flex:1;overflow-y:auto;padding:6px 8px;border-top:1px solid var(--border)">
+        <div style="font-size:9px;font-weight:700;color:var(--text3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:5px">Upcoming</div>
+        ${allExpanded.filter(ev=>{const em=new Date((ev._expandedDate||ev.date)+'T00:00:00').getMonth();return em===m;}).sort((a,b)=>(a._expandedDate||a.date)>(b._expandedDate||b.date)?1:-1).slice(0,8).map(ev=>{
+          const ds=ev._expandedDate||ev.date;
+          const wColor=CAL_WORLDS.find(w=>w.id===normaliseType(ev.type))?.hex||'var(--teal)';
+          return`<div onclick="calSelectedDate='${ds}';setCalView('day')" style="display:flex;align-items:flex-start;gap:5px;padding:4px 5px;border-radius:5px;cursor:pointer;margin-bottom:2px;transition:background .1s" onmouseover="this.style.background='rgba(255,255,255,.05)'" onmouseout="this.style.background=''">
+            <span style="width:4px;height:4px;border-radius:50%;background:${wColor};flex-shrink:0;margin-top:4px"></span>
+            <div style="flex:1;min-width:0">
+              <div style="font-size:10px;font-weight:600;color:var(--text1);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${ev.title}</div>
+              <div style="font-size:9px;color:var(--text3)">${ds}${ev.time?' · '+ev.time:''}</div>
+            </div>
+          </div>`;
+        }).join('')||`<div style="font-size:9px;color:var(--text3);font-style:italic;padding:4px">No events</div>`}
       </div>
     </div>`;
   });
   html+='</div>';
   el.innerHTML=html;
+  el.style.height='100%';
+  el.style.overflow='hidden';
 }
 
 // ── Toolbar title ────────────────────────────────────────────────
@@ -9544,6 +10123,8 @@ function saveCalEvent(){
   const recurEl=document.getElementById('ce-recur');if(recurEl)recurEl.value='none';
   ['ce-overnight','ce-also-task','ce-reminder'].forEach(id=>{const el=document.getElementById(id);if(el)el.checked=false;});
   toggleReminderInput();toggleRecurOptions();
+  // Sync event tasks to Tasks dashboard
+  syncCalEventTasksToTasksDB(e.title,rawDate);
   closeModal('calModal');
   addHistory('add','Added event: '+e.title+(alsoTask?' + task':''),{...e,_dbKey:'calEvents'});
   renderCalendar();renderBrief();
@@ -9564,9 +10145,45 @@ function openCalEventModalOnDate(date){
   ['ce-allday','ce-overnight','ce-also-task','ce-reminder'].forEach(id=>{const el=document.getElementById(id);if(el)el.checked=false;});
   const reEl=document.getElementById('ce-recur-end');if(reEl)reEl.value='';
   const rmMinEl=document.getElementById('ce-remind-min');if(rmMinEl)rmMinEl.value=30;
-  toggleReminderInput();
-  toggleRecurOptions();
+  toggleReminderInput();toggleRecurOptions();
+  // Clear event tasks list
+  window._calEventTasks=[];
+  renderCalEventTasks();
   openModal('calModal');
+}
+
+// Calendar event tasks
+if(!window._calEventTasks)window._calEventTasks=[];
+function addEventTask(title){
+  const t={id:Date.now()+Math.random(),title:title||'',done:false};
+  window._calEventTasks.push(t);
+  renderCalEventTasks();
+  setTimeout(()=>{
+    const inputs=document.querySelectorAll('#ce-tasks-list .evt-task-input');
+    const last=inputs[inputs.length-1];if(last)last.focus();
+  },20);
+}
+function renderCalEventTasks(){
+  const el=document.getElementById('ce-tasks-list');if(!el)return;
+  if(!window._calEventTasks.length){el.innerHTML='<div style="font-size:var(--text-xs);color:var(--text3);font-style:italic">No tasks yet — click Add Task above</div>';return;}
+  el.innerHTML=window._calEventTasks.map((t,i)=>`
+    <div style="display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:6px;padding:5px 8px">
+      <i class="ti ti-grip-vertical" style="font-size:12px;color:var(--text3);cursor:grab;flex-shrink:0;line-height:1;display:block"></i>
+      <input class="evt-task-input" value="${t.title}" placeholder="Task description..." oninput="window._calEventTasks[${i}].title=this.value" style="flex:1;border:none;background:transparent;font-size:var(--text-xs);color:var(--text1);outline:none;padding:0" onkeydown="if(event.key==='Enter'){event.preventDefault();addEventTask();}">
+      <button onclick="window._calEventTasks.splice(${i},1);renderCalEventTasks()" style="background:transparent;border:none;color:var(--text3);cursor:pointer;flex-shrink:0;font-size:11px;line-height:1">×</button>
+    </div>`).join('');
+}
+function syncCalEventTasksToTasksDB(eventTitle,eventDate){
+  (window._calEventTasks||[]).filter(t=>t.title.trim()).forEach(t=>{
+    const task={id:Date.now()+Math.floor(Math.random()*1000),title:t.title.trim(),world:'calendar',priority:'Medium',status:'Todo',due:eventDate,platform:'',client:eventTitle,notes:'From calendar event: '+eventTitle,subitems:[]};
+    DB.tasks.unshift(task);
+    try{SB.upsert('tasks',task,'tasks');}catch(e){}
+  });
+  if((window._calEventTasks||[]).some(t=>t.title.trim())){
+    save('tasks');
+    showToast('✓ '+window._calEventTasks.filter(t=>t.title.trim()).length+' task(s) added to Tasks dashboard');
+  }
+  window._calEventTasks=[];
 }
 // [duplicate saveCalEvent removed]
 
@@ -9615,6 +10232,22 @@ function renderBlocks(){const c=document.getElementById('blocksContainer');c.inn
     c.appendChild(row);});}
 function showBlockMenu(e){e.preventDefault();const m=document.getElementById('blockMenu');m.style.left=e.clientX+'px';m.style.top=e.clientY+'px';m.classList.add('open');document.addEventListener('click',()=>m.classList.remove('open'),{once:true});}
 function addBlock(type){noteBlocks.push({type,content:'',done:false});saveBlocks();renderBlocks();setTimeout(()=>{const els=document.querySelectorAll('.bcontent');const last=els[els.length-1];if(last)last.focus();},20);document.getElementById('blockMenu').classList.remove('open');}
+
+function pushNoteCheckboxesToTasks(){
+  const todos=noteBlocks.filter(b=>b.type==='todo'&&b.content&&b.content.trim()&&!b.done);
+  if(!todos.length){showToast('No unchecked items to push, sir.');return;}
+  const noteName=DB.notes[currentNote]?.title||'Note';
+  let added=0;
+  todos.forEach(b=>{
+    const task={id:Date.now()+Math.floor(Math.random()*9999),title:b.content.trim(),world:'notes',priority:'Medium',status:'Todo',due:'',platform:'',client:noteName,notes:'From note: '+noteName,subitems:[]};
+    DB.tasks.unshift(task);
+    try{SB.upsert('tasks',task,'tasks');}catch(e){}
+    added++;
+  });
+  save('tasks');
+  showToast('✓ '+added+' task'+(added!==1?'s':'')+' added from "'+noteName+'"');
+  speak('Added '+added+' tasks from your note, sir.');
+}
 
 // JOURNAL
 let editingJournalId=null;
