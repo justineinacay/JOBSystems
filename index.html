@@ -2479,7 +2479,7 @@ select option{background:var(--navy3)}
         </div>
         <div class="fg"><label class="fl">World</label>
           <select id="mm-world">
-            <option>WORK-IH</option><option>WORK-CS</option><option>VENTURE</option><option>BUILD</option><option>SIDES</option><option>FAITH</option><option>LIFE</option>
+            <option value="work-ih">WORK-IH</option><option value="work-cs">WORK-CS</option><option value="venture">Venture</option><option value="build">Build</option><option value="sides">Sides</option><option value="faith">FAITH</option><option value="life">LIFE</option>
           </select>
         </div>
       </div>
@@ -3328,7 +3328,7 @@ select option{background:var(--navy3)}
               <option>Done</option>
             </select>
             <div style="flex:1"></div>
-            <button class="btn btn-o" style="font-size:var(--text-xs);padding:3px 10px" onclick="openTaskFor('VENTURE')"><i class="ti ti-plus"></i> Add Task</button>
+            <button class="btn btn-o" style="font-size:var(--text-xs);padding:3px 10px" onclick="openTaskFor('venture')"><i class="ti ti-plus"></i> Add Task</button>
           </div>
           <!-- Task content -->
           <div id="vtTaskList" style="flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch"></div>
@@ -4260,7 +4260,7 @@ select option{background:var(--navy3)}
         <div class="va">
           <select id="memWorldFilter" onchange="renderMemory()" class="filter-chip-sel" style="font-size:var(--text-xs)">
             <option value="all">All Worlds</option>
-            <option>WORK-IH</option><option>WORK-CS</option><option>VENTURE</option><option>BUILD</option><option>SIDES</option><option>FAITH</option><option>LIFE</option>
+            <option value="work-ih">WORK-IH</option><option value="work-cs">WORK-CS</option><option value="venture">Venture</option><option value="build">Build</option><option value="sides">Sides</option><option value="faith">FAITH</option><option value="life">LIFE</option>
           </select>
           <button class="btn btn-t" onclick="openMemoryModal()"><i class="ti ti-plus"></i> Memory</button>
         </div>
@@ -4917,10 +4917,10 @@ function runCapture(){
   // Feed learning engine
   LearnEngine.onCapture(raw);
   const WM={'cs':'WORK-CS','chainsmoker':'WORK-CS','ih':'WORK-IH','ideahub':'WORK-IH',
-    'build':'BUILD','faith':'FAITH','buklod':'FAITH','sides':'SIDES','raket':'SIDES',
-    'venture':'VENTURE','tjc':'VENTURE','life':'LIFE'};
-  const VM={'WORK-CS':'work-cs','WORK-IH':'work-ih','BUILD':'build','FAITH':'faith',
-    'SIDES':'sides','VENTURE':'venture','LIFE':'life'};
+    'build':'build','faith':'faith','buklod':'faith','sides':'sides','raket':'sides',
+    'venture':'venture','tjc':'venture','life':'life'};
+  const VM={'WORK-CS':'work-cs','WORK-IH':'work-ih','build':'build','FAITH':'faith',
+    'sides':'sides','venture':'venture','life':'life','build':'build','faith':'faith'};
   const NM={'dashboard':'dashboard','home':'dashboard','tasks':'tasks','notes':'notes',
     'calendar':'calendar','cal':'calendar','ai':'ai','memory':'memory',
     'history':'history','settings':'settings','health':'life','morning':'jarvis-morning'};
@@ -5108,7 +5108,24 @@ async function sha256(str){
   return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
 }
 
-// ── Migrate legacy plaintext PIN to hashed on first run ───────────────────
+// ── Startup: normalize stale world IDs in localStorage ────────────────────
+(function normalizeWorldIds(){
+  const worldMap={'VENTURE':'venture','BUILD':'build','SIDES':'sides','FAITH':'faith','LIFE':'life','WORK-IH':'work-ih','WORK-CS':'work-cs'};
+  // Normalize tasks
+  try{
+    const tasks=JSON.parse(localStorage.getItem('j-tasks')||'[]');
+    let changed=false;
+    tasks.forEach(t=>{if(worldMap[t.world]){t.world=worldMap[t.world];changed=true;}});
+    if(changed)localStorage.setItem('j-tasks',JSON.stringify(tasks));
+  }catch(e){}
+  // Reset corrupted worlds to defaults (if stale uppercase IDs found)
+  try{
+    const worlds=JSON.parse(localStorage.getItem('j-worlds')||'null');
+    if(worlds&&worlds.some(w=>w.id===w.id.toUpperCase()&&w.id.length>2)){
+      localStorage.removeItem('j-worlds');
+    }
+  }catch(e){localStorage.removeItem('j-worlds');}
+})();
 (async function migratePinIfNeeded(){
   const plain=localStorage.getItem('j-sys-pin');
   const hashed=localStorage.getItem('j-sys-pin-hash');
@@ -5449,25 +5466,25 @@ function renderSettingsView(){
 // ===== DB =====
 const DB={
   tasks:JSON.parse(localStorage.getItem('j-tasks')||'null')||[
-    {id:1,title:'Reply to Right Team Provider re: Rachel meeting',world:'WORK-IH',priority:'High',status:'Todo',due:'2026-06-14',platform:'Email',client:'Right Team Provider',notes:'Reschedule CFO Rachel'},
-    {id:2,title:'Review MM01 Webinar 2 LinkedIn campaigns',world:'WORK-IH',priority:'High',status:'In Progress',due:'2026-06-14',platform:'LinkedIn',client:'Millscope Markets',notes:'5 campaigns'},
-    {id:3,title:'Weekly Instagram carousel',world:'WORK-CS',priority:'High',status:'Todo',due:'2026-06-14',platform:'Instagram',client:'Chainsmoker',notes:'BBQ content'},
-    {id:4,title:'TikTok trend post',world:'WORK-CS',priority:'Medium',status:'In Progress',due:'2026-06-15',platform:'TikTok',client:'Chainsmoker',notes:''},
-    {id:5,title:'UberEats campaign review',world:'WORK-CS',priority:'Medium',status:'No Progress',due:'2026-06-16',platform:'UberEats',client:'Chainsmoker',notes:''},
-    {id:6,title:'TJC partner recruitment outreach',world:'VENTURE',priority:'High',status:'In Progress',due:'2026-06-15',platform:'LinkedIn',client:'',notes:'Pre-revenue'},
-    {id:7,title:'NAKNAK v8 iteration plan',world:'BUILD',priority:'Low',status:'Todo',due:'2026-06-20',platform:'',client:'',notes:''},
-    {id:8,title:'DISKARTE beta testing',world:'BUILD',priority:'Medium',status:'In Progress',due:'2026-06-18',platform:'',client:'',notes:''},
+    {id:1,title:'Reply to Right Team Provider re: Rachel meeting',world:'work-ih',priority:'High',status:'Todo',due:'2026-06-14',platform:'Email',client:'Right Team Provider',notes:'Reschedule CFO Rachel'},
+    {id:2,title:'Review MM01 Webinar 2 LinkedIn campaigns',world:'work-ih',priority:'High',status:'In Progress',due:'2026-06-14',platform:'LinkedIn',client:'Millscope Markets',notes:'5 campaigns'},
+    {id:3,title:'Weekly Instagram carousel',world:'work-cs',priority:'High',status:'Todo',due:'2026-06-14',platform:'Instagram',client:'Chainsmoker',notes:'BBQ content'},
+    {id:4,title:'TikTok trend post',world:'work-cs',priority:'Medium',status:'In Progress',due:'2026-06-15',platform:'TikTok',client:'Chainsmoker',notes:''},
+    {id:5,title:'UberEats campaign review',world:'work-cs',priority:'Medium',status:'No Progress',due:'2026-06-16',platform:'UberEats',client:'Chainsmoker',notes:''},
+    {id:6,title:'TJC partner recruitment outreach',world:'venture',priority:'High',status:'In Progress',due:'2026-06-15',platform:'LinkedIn',client:'',notes:'Pre-revenue'},
+    {id:7,title:'NAKNAK v8 iteration plan',world:'build',priority:'Low',status:'Todo',due:'2026-06-20',platform:'',client:'',notes:''},
+    {id:8,title:'DISKARTE beta testing',world:'build',priority:'Medium',status:'In Progress',due:'2026-06-18',platform:'',client:'',notes:''},
   ],
   clients:JSON.parse(localStorage.getItem('j-clients')||'null')||[
-    {id:1,name:'Right Team Provider',world:'WORK-IH',status:'Urgent',revenue:'$$',next:'Schedule Rachel meeting',contact:'precious@rightteamprovider.com'},
-    {id:2,name:'Millscope Markets',world:'WORK-IH',status:'Active',revenue:'$$$',next:'Review Webinar 2 campaigns',contact:''},
-    {id:3,name:'Celtic Biotech',world:'WORK-IH',status:'Active',revenue:'$$',next:'Next campaign brief',contact:''},
-    {id:4,name:'Digital Smiles Innovations',world:'WORK-IH',status:'Active',revenue:'$',next:'B2B ad strategy review',contact:''},
-    {id:5,name:'Virgelia Productions',world:'WORK-IH',status:'Active',revenue:'$',next:'Content calendar',contact:''},
-    {id:6,name:'Elite Insurance by Nelson Rivera',world:'WORK-IH',status:'Active',revenue:'$$',next:'Website mockup revisions',contact:''},
-    {id:7,name:'Share the Moment',world:'WORK-IH',status:'Active',revenue:'$',next:'Photo website update',contact:''},
-    {id:8,name:'OptionC',world:'WORK-IH',status:'Pending',revenue:'$',next:'Awaiting brief',contact:''},
-    {id:9,name:'Marketing Media Cloud',world:'WORK-IH',status:'Active',revenue:'$$',next:'Platform management',contact:''},
+    {id:1,name:'Right Team Provider',world:'work-ih',status:'Urgent',revenue:'$$',next:'Schedule Rachel meeting',contact:'precious@rightteamprovider.com'},
+    {id:2,name:'Millscope Markets',world:'work-ih',status:'Active',revenue:'$$$',next:'Review Webinar 2 campaigns',contact:''},
+    {id:3,name:'Celtic Biotech',world:'work-ih',status:'Active',revenue:'$$',next:'Next campaign brief',contact:''},
+    {id:4,name:'Digital Smiles Innovations',world:'work-ih',status:'Active',revenue:'$',next:'B2B ad strategy review',contact:''},
+    {id:5,name:'Virgelia Productions',world:'work-ih',status:'Active',revenue:'$',next:'Content calendar',contact:''},
+    {id:6,name:'Elite Insurance by Nelson Rivera',world:'work-ih',status:'Active',revenue:'$$',next:'Website mockup revisions',contact:''},
+    {id:7,name:'Share the Moment',world:'work-ih',status:'Active',revenue:'$',next:'Photo website update',contact:''},
+    {id:8,name:'OptionC',world:'work-ih',status:'Pending',revenue:'$',next:'Awaiting brief',contact:''},
+    {id:9,name:'Marketing Media Cloud',world:'work-ih',status:'Active',revenue:'$$',next:'Platform management',contact:''},
   ],
   venture:JSON.parse(localStorage.getItem('j-venture')||'null')||[
     {id:1,name:'North American SMB #1',type:'Client',stage:'Discovery',notes:'Warm intro via LinkedIn'},
@@ -5477,9 +5494,9 @@ const DB={
   notes:JSON.parse(localStorage.getItem('j-notes')||'null')||[{id:1,title:'Operations Log — June 2026',blocks:[{type:'h2',content:'June 14 2026',done:false},{type:'todo',content:'Reply to Right Team Provider',done:false},{type:'todo',content:'TJC meeting prep',done:false}]}],
   journal:JSON.parse(localStorage.getItem('j-journal')||'null')||[],
   memories:JSON.parse(localStorage.getItem('j-memories')||'null')||[
-    {id:1,memory:'RTP prefers meetings with CFO Rachel in the afternoon PHT',category:'Client Preference',world:'WORK-IH',date:'2026-06-09'},
-    {id:2,memory:'Chainsmoker: No pork, halal certified, urban BBQ positioning',category:'Brand',world:'WORK-CS',date:'2026-05-15'},
-    {id:3,memory:'NAKNAK v8 freemium tiers: ₱0 / ₱99 / ₱199',category:'Product',world:'BUILD',date:'2026-05-20'},
+    {id:1,memory:'RTP prefers meetings with CFO Rachel in the afternoon PHT',category:'Client Preference',world:'work-ih',date:'2026-06-09'},
+    {id:2,memory:'Chainsmoker: No pork, halal certified, urban BBQ positioning',category:'Brand',world:'work-cs',date:'2026-05-15'},
+    {id:3,memory:'NAKNAK v8 freemium tiers: ₱0 / ₱99 / ₱199',category:'Product',world:'build',date:'2026-05-20'},
   ],
   sides:JSON.parse(localStorage.getItem('j-sides')||'null')||[],
   faith:JSON.parse(localStorage.getItem('j-faith')||'null')||[],
@@ -5573,7 +5590,7 @@ const LearnEngine = {
     }
     // Venture partner onboarding
     if(type === 'add' && data._dbKey === 'venture' && data.type === 'Partner/VA'){
-      if(data.specialty) this._learn(`Onboarded VA "${data.name}" — specialty: ${data.specialty}${data.rate ? ', $'+data.rate+'/hr' : ''}`, 'Organizational', 'VENTURE');
+      if(data.specialty) this._learn(`Onboarded VA "${data.name}" — specialty: ${data.specialty}${data.rate ? ', $'+data.rate+'/hr' : ''}`, 'Organizational', 'venture');
     }
     // Cash flow — spending pattern
     if((type === 'add') && data._dbKey === 'cashflow'){
@@ -5696,7 +5713,7 @@ const LearnEngine = {
 
 // ── Wire LearnEngine into navigation ──────────────────────────────────────
 function _viewToWorld(v){
-  const m={'work-ih':'WORK-IH','work-cs':'WORK-CS',venture:'VENTURE',build:'BUILD',sides:'SIDES',faith:'FAITH',life:'LIFE'};
+  const m={'work-ih':'WORK-IH','work-cs':'WORK-CS',venture:'venture',build:'build',sides:'sides',faith:'FAITH',life:'LIFE'};
   return m[v]||'WORK-IH';
 }
 function showUndoToast(label,hid){showToast('Deleted: '+label.substring(0,40),true,()=>restoreFromHistory(hid));}
@@ -6056,8 +6073,8 @@ function renderMobileTaskCards(tasks,container){
     container.innerHTML='<div style="text-align:center;padding:40px 16px;font-size:var(--text-sm);color:var(--text3)">No tasks. Tap + Task to add one.</div>';
     return;
   }
-  const worldStripe={'WORK-IH':'var(--teal)','WORK-CS':'var(--red)','VENTURE':'var(--orange)','BUILD':'var(--green)','SIDES':'var(--amber)','FAITH':'var(--purple)','LIFE':'#3b82f6'};
-  const worldLabel={'WORK-IH':'Ideahub','WORK-CS':'Chainsmoker','VENTURE':'Venture','BUILD':'Build','SIDES':'Sides','FAITH':'Faith','LIFE':'Life'};
+  const worldStripe={'WORK-IH':'var(--teal)','WORK-CS':'var(--red)','venture':'var(--orange)','build':'var(--green)','sides':'var(--amber)','FAITH':'var(--purple)','LIFE':'#3b82f6'};
+  const worldLabel={'WORK-IH':'Ideahub','WORK-CS':'Chainsmoker','venture':'Venture','build':'Build','sides':'Sides','FAITH':'Faith','LIFE':'Life'};
   const priorityDot={'High':'#ff2244','Medium':'#ffaa00','Low':'#00ff88'};
 
   const worlds=[...new Set(tasks.map(t=>t.world||'Other'))];
@@ -6226,23 +6243,27 @@ let wtFilter='all';
 function setWTFilter(f,btn){wtFilter=f;document.querySelectorAll('#worldTasksFilter button').forEach(b=>{b.style.background='transparent';b.style.borderColor='var(--border2)';b.style.color='var(--text3)';});btn.style.background='var(--teal3)';btn.style.borderColor='var(--teal2)';btn.style.color='var(--teal)';renderBriefWorldTasks();}
 function renderBriefWorldTasks(){
   const worlds=[
-    {k:'WORK-IH',l:'Ideahub',c:'var(--teal)',icon:'ti-briefcase'},
-    {k:'WORK-CS',l:'Chainsmoker',c:'var(--red)',icon:'ti-flame'},
-    {k:'VENTURE',l:'Venture',c:'var(--amber)',icon:'ti-rocket'},
-    {k:'BUILD',l:'Build',c:'var(--green)',icon:'ti-code'},
-    {k:'SIDES',l:'Sides',c:'var(--amber)',icon:'ti-coins'},
-    {k:'FAITH',l:'Faith',c:'var(--purple)',icon:'ti-heart-handshake'},
-    {k:'LIFE',l:'Life',c:'var(--teal2)',icon:'ti-leaf'}
+    {k:'work-ih', l:'Ideahub',             c:'var(--w-ideahub)',    icon:'ti-briefcase'},
+    {k:'work-cs', l:'Chainsmoker',          c:'var(--w-chainsmoker)',icon:'ti-flame'},
+    {k:'venture', l:'Job Collectives',      c:'var(--w-venture)',    icon:'ti-rocket'},
+    {k:'build',   l:'Code Collectives',     c:'var(--w-build)',      icon:'ti-code'},
+    {k:'sides',   l:'Creative Collectives', c:'var(--w-sides)',      icon:'ti-palette'},
+    {k:'faith',   l:'Faith',                c:'var(--w-faith)',      icon:'ti-heart-handshake'},
+    {k:'life',    l:'Life',                 c:'var(--w-life)',       icon:'ti-leaf'},
+    {k:'notes',   l:'Notes',               c:'var(--text3)',         icon:'ti-notes'},
+    {k:'calendar',l:'Calendar',             c:'var(--teal)',         icon:'ti-calendar'},
   ];
   const sc={'Todo':'var(--text3)','In Progress':'var(--teal)','No Progress':'var(--amber)','Done':'var(--green)'};
   const el=document.getElementById('briefWorldTasks');if(!el)return;
+  // Normalize any stale uppercase world IDs on the fly
+  const normalize=w=>{const m={'VENTURE':'venture','BUILD':'build','SIDES':'sides','FAITH':'faith','LIFE':'life','WORK-IH':'work-ih','WORK-CS':'work-cs'};return m[w]||w||'';};
   let rows='';
   worlds.forEach(w=>{
-    let tasks=DB.tasks.filter(t=>t.world===w.k);
+    let tasks=DB.tasks.filter(t=>normalize(t.world)===w.k&&t.status!=='Done');
     if(wtFilter==='Todo')tasks=tasks.filter(t=>t.status==='Todo');
     else if(wtFilter==='In Progress')tasks=tasks.filter(t=>t.status==='In Progress');
     else if(wtFilter==='No Progress')tasks=tasks.filter(t=>t.status==='No Progress');
-    else if(wtFilter==='Done')tasks=tasks.filter(t=>t.status==='Done');
+    else if(wtFilter==='Done')tasks=(DB.tasks||[]).filter(t=>normalize(t.world)===w.k&&t.status==='Done');
     tasks.forEach(t=>{
       const prioCol=t.priority==='High'?'var(--red)':t.priority==='Medium'?'var(--amber)':'var(--text3)';
       rows+=`<div style="display:grid;grid-template-columns:1fr 80px 90px 90px 70px;gap:0;padding:6px 4px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .1s" onclick="editTask(${t.id})" onmouseover="this.style.background='rgba(0,255,242,.04)'" onmouseout="this.style.background=''">
@@ -6357,7 +6378,7 @@ function renderOverheadScoreboard(){
   const debits=(DB.cashflow||[]).reduce((s,t)=>t.type==='Debit'?s+(t.amount||0):s,0);
   const balance=debits-credits;
   // Build apps
-  const buildTasks=(DB.tasks||[]).filter(t=>t.world==='BUILD'&&t.status!=='Done').length;
+  const buildTasks=(DB.tasks||[]).filter(t=>(t.world==='build'||t.world==='build')&&t.status!=='Done').length;
   // Faith / Buklod events this week
   const weekStart=new Date();weekStart.setHours(0,0,0,0);
   const weekEnd=new Date(weekStart);weekEnd.setDate(weekEnd.getDate()+7);
@@ -6616,7 +6637,7 @@ function renderBrief(){
 
   // TO DO NOW — full row list style matching screenshot
   const urgent=DB.tasks.filter(t=>t.priority==='High'&&t.status!=='Done').slice(0,6);
-  const worldColor=w=>w.startsWith('WORK-CS')?'var(--red)':w==='VENTURE'?'var(--orange)':w==='BUILD'?'var(--green)':w==='SIDES'?'var(--amber)':'var(--teal)';
+  const worldColor=w=>w.startsWith('WORK-CS')?'var(--red)':w==='venture'?'var(--orange)':w==='build'?'var(--green)':w==='sides'?'var(--amber)':'var(--teal)';
   document.getElementById('briefToDo').innerHTML=urgent.map(t=>`
     <div style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:#0a1220;border:1px solid var(--border);border-radius:4px;border-left:3px solid var(--red);cursor:pointer;transition:all .15s" onclick="editTask(${t.id})" onmouseover="this.style.background='rgba(0,255,242,.04)'" onmouseout="this.style.background='#0a1220'">
       <div style="width:18px;height:18px;border:1px solid var(--red);border-radius:3px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
@@ -6647,16 +6668,16 @@ function renderBrief(){
 // task.timelineS  → string  — start date (YYYY-MM-DD)   — maps to metadata.timeline.start
 // task.timelineE  → string  — end date                  — maps to metadata.timeline.end
 // task.numValue   → number  — numeric aggregate field    — maps to metadata.number
-// task.connBoard  → string  — 'SIDES'|'VENTURE'|null    — Operational Flywheel link
+// task.connBoard  → string  — 'sides'|'venture'|null    — Operational Flywheel link
 // task.connItemId → number  — linked item ID in connBoard
 
 // ── Workspace → Board → Group config ─────────────────────────────────────
 const BOARDS = [
   {id:'WORK-IH', name:'Ideahub',    icon:'ti-briefcase', color:'var(--teal)',   stripe:'#80fffa', tgClass:'tg-ih'},
   {id:'WORK-CS', name:'Chainsmoker',icon:'ti-flame',     color:'var(--red)',    stripe:'#ff2244', tgClass:'tg-cs'},
-  {id:'VENTURE', name:'Venture',    icon:'ti-rocket',    color:'var(--orange)', stripe:'#ff8c00', tgClass:'tg-ven'},
-  {id:'BUILD',   name:'Build',      icon:'ti-code',      color:'var(--green)',  stripe:'#00ff88', tgClass:'tg-bld'},
-  {id:'SIDES',   name:'Sides',      icon:'ti-coins',     color:'var(--amber)',  stripe:'#ffaa00', tgClass:'tg-sid'},
+  {id:'venture', name:'Job Collectives', icon:'ti-rocket', color:'var(--w-venture)', stripe:'var(--w-venture)', tgClass:'tg-ven'},
+  {id:'build',   name:'Code Collectives', icon:'ti-code', color:'var(--w-build)', stripe:'var(--w-build)', tgClass:'tg-bld'},
+  {id:'sides',   name:'Creative Collectives', icon:'ti-palette', color:'var(--w-sides)', stripe:'var(--w-sides)', tgClass:'tg-sid'},
   {id:'FAITH',   name:'Faith',      icon:'ti-heart',     color:'var(--purple)', stripe:'#bf5fff', tgClass:'tg-fth'},
   {id:'LIFE',    name:'Life',       icon:'ti-leaf',      color:'#3b82f6',       stripe:'#3b82f6', tgClass:'tg-lif'},
 ];
@@ -6829,13 +6850,13 @@ function timelineBar(t){
 // ── Connected board chip ───────────────────────────────────────────────────
 function connChip(t){
   if(!t.connBoard)return '<span style="color:var(--text3);font-size:var(--text-xs)">—</span>';
-  const isS=t.connBoard==='SIDES';
+  const isS=t.connBoard==='sides';
   return`<div class="conn-chip${isS?' sides':''}" onclick="event.stopPropagation();setView('${t.connBoard.toLowerCase()}')"><i class="ti ti-link" style="font-size:var(--text-xs);line-height:1;display:block"></i>${t.connBoard}${t.connItemId?' #'+t.connItemId:''}</div>`;
 }
 
 // ── World pill helper ──────────────────────────────────────────────────────
 function worldPill(t){
-  const cls=t.world.startsWith('WORK')?'pt':t.world==='VENTURE'?'po':t.world==='BUILD'?'pg':t.world==='FAITH'?'ppu':'pgr';
+  const cls=t.world.startsWith('WORK')?'pt':t.world==='venture'?'po':t.world==='build'?'pg':t.world==='FAITH'?'ppu':'pgr';
   const b=BOARDS.find(b=>b.id===t.world);
   return`<span class="pill ${cls}" style="font-size:var(--text-xs)">${b?b.name:t.world}</span>`;
 }
@@ -7068,8 +7089,8 @@ function linkSidesToVenture(sideTaskId,ventureTaskId){
   const s=DB.tasks.find(t=>t.id===sideTaskId);
   const v=DB.tasks.find(t=>t.id===ventureTaskId);
   if(!s||!v)return showToast('Task not found');
-  s.connBoard='VENTURE';s.connItemId=ventureTaskId;
-  v.connBoard='SIDES';v.connItemId=sideTaskId;
+  s.connBoard='venture';s.connItemId=ventureTaskId;
+  v.connBoard='sides';v.connItemId=sideTaskId;
   SB.update('tasks',s.id,s,'tasks');
   SB.update('tasks',v.id,v,'tasks');
   reRenderAll();
@@ -7077,8 +7098,8 @@ function linkSidesToVenture(sideTaskId,ventureTaskId){
 }
 // Auto-link on save: if task is SIDES with a Venture client, find or flag
 function autoFlywheelLink(t){
-  if(t.world==='SIDES'&&t.client){
-    const vLink=DB.tasks.find(v=>v.world==='VENTURE'&&v.name===t.client||v.title===t.client);
+  if(t.world==='sides'&&t.client){
+    const vLink=DB.tasks.find(v=>v.world==='venture'&&v.name===t.client||v.title===t.client);
     if(vLink&&!t.connBoard){linkSidesToVenture(t.id,vLink.id);}
   }
 }
@@ -7429,7 +7450,7 @@ function updateTaskClientDropdown(world){
     sel.innerHTML='<option value="">— Select store —</option><optgroup label="Chainsmoker"><option>Chainsmoker Ajax</option><option>Chainsmoker Etobicoke</option><option>Chainsmoker Kanata</option><option>Chainsmoker London</option><option>Chainsmoker Milton</option><option>Chainsmoker Scarborough</option><option>Chainsmoker Windsor</option><option>Chainsmoker Houston</option></optgroup><optgroup label="Sweetheart Cafe"><option>Sweetheart Cafe Ajax</option><option>Sweetheart Cafe Milton</option><option>Sweetheart Cafe Windsor</option><option>Sweetheart Cafe Houston</option></optgroup>';
     sel.style.display='';inp.style.display='none';
     sel.onchange=()=>{inp.value=sel.value;};
-  } else if(world==='BUILD'){
+  } else if(world==='build'){
     const lbl=document.querySelector('label[for="tf-client"],label.fl+#tf-client-select')?.closest('.fg')?.querySelector('.fl');
     if(lbl)lbl.textContent='App';
     sel.innerHTML='<option value="">— Select app —</option><option>NAKNAK</option><option>DISKARTE</option><option>PASAHERO</option>';
@@ -7448,7 +7469,7 @@ function saveClient(){
     id:editingClientId||Date.now(),
     name:document.getElementById('cf-name').value.trim()||'Unnamed',
     desc:document.getElementById('cf-desc')?.value?.trim()||'',
-    world:'WORK-IH',
+    world:'work-ih',
     status:document.getElementById('cf-status').value,
     contact:document.getElementById('cf-contact').value,
     drive:document.getElementById('cf-drive')?.value||'',
@@ -7557,7 +7578,7 @@ function _renderVTasks(){
   const el=document.getElementById('vtTaskList');if(!el)return;
   const pf=document.getElementById('vtPrioFilter')?.value||'all';
   const sf=document.getElementById('vtStatFilter')?.value||'all';
-  let tasks=(DB.tasks||[]).filter(t=>t.world==='VENTURE');
+  let tasks=(DB.tasks||[]).filter(t=>t.world==='venture');
   if(pf!=='all') tasks=tasks.filter(t=>t.priority===pf);
   if(sf!=='all') tasks=tasks.filter(t=>t.status===sf);
 
@@ -7623,7 +7644,7 @@ function setVentureTab(tab,el){
   if(mv) mv.style.display=tab==='meetings'?'flex':'none';
   ['vt-c','vt-p','vt-m'].forEach(id=>{const b=document.getElementById(id);if(b){b.style.background='transparent';b.style.borderColor='var(--border2)';b.style.color='var(--text2)';}});
   if(el){el.style.background='var(--orange3)';el.style.borderColor='var(--orange2)';el.style.color='var(--orange)';}
-  if(tab==='meetings') renderMeetingsPanel('meetingsPanel-VENTURE','VENTURE');
+  if(tab==='meetings') renderMeetingsPanel('meetingsPanel-VENTURE','venture');
   else renderVenture();
 }
 
@@ -7875,7 +7896,7 @@ function deleteBuildClient(i){
 function renderBuildTasks(){
   const tbody=document.getElementById('buildTbody');if(!tbody)return;
   const sf=document.getElementById('buildTaskFilter')?.value||'all';
-  let tasks=DB.tasks.filter(t=>t.world==='BUILD');
+  let tasks=DB.tasks.filter(t=>t.world==='build');
   if(sf!=='all')tasks=tasks.filter(t=>t.status===sf);
   const pDot=p=>p==='High'?'#ef4444':p==='Medium'?'#f59e0b':'#4ade80';
   const sCl=s=>s==='Done'?'pg':s==='In Progress'?'pt':s==='No Progress'?'pam':'pgr';
@@ -10265,7 +10286,7 @@ function openMemoryModal(id){
   document.getElementById('memModalTitle').textContent=id?'Edit Memory':'Add Memory';
   document.getElementById('mm-memory').value=m?m.memory:'';
   document.getElementById('mm-cat').value=m?m.category:'General';
-  document.getElementById('mm-world').value=m?m.world:'WORK-IH';
+  document.getElementById('mm-world').value=m?m.world:'work-ih';
   openModal('memoryModal');
 }
 function saveMemoryItem(){
@@ -10289,7 +10310,7 @@ function renderMeetingsPanel(containerId,world){
   const el=document.getElementById(containerId);if(!el)return;
   _meetWorld=world;
   const worldMeetings=(DB.meetings||[]).filter(m=>m.world===world).sort((a,b)=>b.date.localeCompare(a.date));
-  const wColor={'WORK-IH':'var(--w-ideahub)','WORK-CS':'var(--w-chainsmoker)','VENTURE':'var(--w-venture)','FAITH':'var(--w-faith)','BUILD':'var(--w-build)','SIDES':'var(--w-sides)','LIFE':'var(--w-life)'}[world]||'var(--teal)';
+  const wColor={'WORK-IH':'var(--w-ideahub)','WORK-CS':'var(--w-chainsmoker)','venture':'var(--w-venture)','FAITH':'var(--w-faith)','build':'var(--w-build)','sides':'var(--w-sides)','LIFE':'var(--w-life)'}[world]||'var(--teal)';
 
   el.innerHTML=`<div class="meetings-panel">
     <!-- RECORDER SECTION -->
@@ -10859,8 +10880,8 @@ function parseVoiceCommand(text){
         const title=(g.title||text.replace(intent.re,'').trim()||text).trim();
         let world='WORK-IH',priority='Medium',platform='';
         if(/chainsmoker|sweetheart/i.test(title))world='WORK-CS';
-        if(/tjc|venture|partner/i.test(title))world='VENTURE';
-        if(/naknak|diskarte|pasahero/i.test(title))world='BUILD';
+        if(/tjc|venture|partner/i.test(title))world='venture';
+        if(/naknak|diskarte|pasahero/i.test(title))world='build';
         if(/buklod|faith|church/i.test(title))world='FAITH';
         if(/cash|expense|life/i.test(title))world='LIFE';
         if(/urgent|asap|high\s+prio/i.test(title))priority='High';
@@ -10929,7 +10950,7 @@ function parseVoiceCommand(text){
     const title = tl
       .replace(/\b(add|new|create|task|todo|remind\s+me\s+to|gawin|gawain|dapat|kailangan|a|an|the)\b/ig,'')
       .trim() || text;
-    if(title.length > 2) return{action:'add_task',title,world:'WORK-IH',priority:'Medium',status:'Todo',due:'',platform:'',client:'',notes:''};
+    if(title.length > 2) return{action:'add_task',title,world:'work-ih',priority:'Medium',status:'Todo',due:'',platform:'',client:'',notes:''};
   }
 
   // Has delete keywords → try delete_task fuzzy
@@ -11019,7 +11040,7 @@ async function dispatchVoiceAction(cmd,rawText){
 
       // ── ADD CLIENT ────────────────────────────────────────────
       case 'add_client':{
-        const c={id:Date.now(),name:cmd.name||'New Client',world:'WORK-IH',status:cmd.status||'Active',revenue:cmd.revenue||'$$',next:cmd.next||'',contact:cmd.contact||''};
+        const c={id:Date.now(),name:cmd.name||'New Client',world:'work-ih',status:cmd.status||'Active',revenue:cmd.revenue||'$$',next:cmd.next||'',contact:cmd.contact||''};
         DB.clients.unshift(c);
         SB.upsert('clients',c,'clients');
         addHistory('add','Added client: '+c.name,{...c,_dbKey:'clients'});
@@ -11577,7 +11598,7 @@ async function sendAI(){
 }
 
 function _agentWorld(id){
-  const map={civic:'WORK-IH',foodie:'WORK-CS',bloo:'LIFE',rider:'LIFE',vee:'FAITH',axis:'BUILD',fin:'LIFE',rocket:'SIDES',frame:'BUILD',draft:'VENTURE',lens:'SIDES',archi:'VENTURE',pixel:'BUILD',brandy:'VENTURE'};
+  const map={civic:'WORK-IH',foodie:'WORK-CS',bloo:'LIFE',rider:'LIFE',vee:'FAITH',axis:'build',fin:'LIFE',rocket:'sides',frame:'build',draft:'venture',lens:'sides',archi:'venture',pixel:'build',brandy:'venture'};
   return map[id]||'WORK-IH';
 }
 
@@ -13792,7 +13813,7 @@ function openDecisionModal(id){
   document.getElementById('dec-choice').value=existing?existing.choice:'';
   document.getElementById('dec-rationale').value=existing?existing.rationale:'';
   document.getElementById('dec-status').value=existing?existing.status:'Open';
-  document.getElementById('dec-world').value=existing?existing.world:'WORK-IH';
+  document.getElementById('dec-world').value=existing?existing.world:'work-ih';
   document.getElementById('dec-outcome').value=existing?existing.outcome:'';
   openModal('decisionModal');
   setTimeout(()=>document.getElementById('dec-situation').focus(),80);
@@ -14023,7 +14044,7 @@ window.executeVoiceCommand=function(rawText){
         const content=(g.content||rawText.replace(/^capture[:\-\s]+/i,'').trim());
         if(content){
           const type=autoClassifyCapture(content);
-          const c={id:Date.now(),content,type,world:'WORK-IH',notes:'',status:'inbox',date:new Date().toISOString().split('T')[0],time:new Date().toISOString()};
+          const c={id:Date.now(),content,type,world:'work-ih',notes:'',status:'inbox',date:new Date().toISOString().split('T')[0],time:new Date().toISOString()};
           if(!DB.captures)DB.captures=[];
           DB.captures.unshift(c);
           save('captures');
@@ -14318,7 +14339,7 @@ window.executeVoiceCommand = function(rawText){
       }
       case 'add_task':{
         const title=(g.title||rawText).trim();
-        const task={id:Date.now(),title,world:'WORK-IH',priority:'Medium',status:'Todo',due:'',notes:''};
+        const task={id:Date.now(),title,world:'work-ih',priority:'Medium',status:'Todo',due:'',notes:''};
         DB.tasks.unshift(task); save('tasks'); SB.upsert('tasks',task,'tasks');
         const result=`Task added, sir: "${title}".`;
         setVcState('idle'); showVcResult(result); speak(result); _safeChime('chimeSuccess');
