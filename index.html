@@ -468,6 +468,18 @@ select option{background:var(--navy3)}
 .cqd-chip{font-size:9px;line-height:1.3;padding:1px 4px;border-radius:3px;background:var(--navy2);color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;border-left:2px solid var(--teal)}
 .cqd-chip.task{border-left-color:var(--orange)}
 .cqd-more{font-size:9px;color:var(--text3);padding-left:2px}
+/* Mobile/touch: HTML5 drag-and-drop doesn't fire on touchscreens — swap the drag
+   handle for tap-friendly up/down buttons on transactions, officers, activities. */
+@media(max-width:768px),(hover:none){
+  .drag-grip-desktop{display:none !important}
+  .reorder-mobile-btns{display:flex !important}
+  tr[draggable="true"]{cursor:default !important}
+}
+/* Notes block action buttons (task-link, format toggle, delete) rely on :hover to
+   reveal on desktop — touch has no hover state, so force them visible on touch. */
+@media(max-width:768px),(hover:none){
+  #blocksContainer button{opacity:1 !important}
+}
 
 /* ── Event detail popover ── */
 .cal-popover{position:fixed;background:var(--navy2);border:1px solid var(--border);border-radius:8px;box-shadow:0 8px 32px rgba(0,0,0,.6);padding:14px 16px;min-width:240px;max-width:320px;z-index:8000;display:none}
@@ -7809,7 +7821,7 @@ let editingFaithId=null;
 function openFaithModal(id){editingFaithId=id||null;const a=id?DB.faith.find(x=>x.id===id):null;document.getElementById('faithModalTitle').textContent=a?'Edit Activity':'Add Activity';['activity','group','date','submitted','cfo','aevm','status','assigned','drive'].forEach(f=>{const el=document.getElementById('fa-'+f);if(el)el.value=a?(a[f]||''):'';});openModal('faithModal');}
 function saveFaithActivity(){const a={id:editingFaithId||Date.now(),activity:document.getElementById('fa-activity').value.trim(),group:document.getElementById('fa-group').value.trim(),date:document.getElementById('fa-date').value,submitted:document.getElementById('fa-submitted').value,cfo:document.getElementById('fa-cfo').value.trim(),aevm:document.getElementById('fa-aevm').value.trim(),status:document.getElementById('fa-status').value,assigned:document.getElementById('fa-assigned').value.trim(),drive:document.getElementById('fa-drive').value.trim()};if(!a.activity){showToast('Activity name required');return;}const isEdit=!!editingFaithId;if(editingFaithId){const i=DB.faith.findIndex(x=>x.id===editingFaithId);if(i>=0)DB.faith[i]=a;SB.update('faith',a.id,a,'faith');}else{DB.faith.unshift(a);SB.upsert('faith',a,'faith');}addHistory(isEdit?'edit':'add',(isEdit?'Edited':'Added')+' faith: '+a.activity,{...a,_dbKey:'faith'});closeModal('faithModal');renderFaith();showToast('✓ Activity saved');}
 function deleteFaith(id){const a=DB.faith.find(x=>x.id===id);DB.faith=DB.faith.filter(x=>x.id!==id);SB.remove('faith',id,'faith');addHistory('delete','Deleted faith: '+a.activity,{...a,_dbKey:'faith'});renderFaith();showToast('Deleted');}
-function renderFaith(){const tb=document.getElementById('faithTbody'),em=document.getElementById('faithEmpty');if(!DB.faith.length){tb.innerHTML='';em.style.display='';return;}em.style.display='none';tb.innerHTML=DB.faith.map(f=>`<tr onclick="openFaithModal(${f.id})"><td style="font-weight:500">${f.group||'—'}</td><td>${f.activity}</td><td style="font-size:var(--text-xs);color:var(--text3)">${f.date||'—'}</td><td style="font-size:var(--text-xs);color:var(--text3)">${f.submitted||'—'}</td><td style="font-size:var(--text-xs)">${f.cfo||'—'}</td><td style="font-size:var(--text-xs)">${f.aevm||'—'}</td><td><span class="pill ${f.status==='Done'||f.status==='Approved'?'pg':f.status==='Submitted'?'pt':f.status==='Rejected'?'pr':'po'}">${f.status}</span></td><td style="font-size:var(--text-xs)">${f.assigned||'—'}</td><td>${f.drive?`<a href="${f.drive}" target="_blank" onclick="event.stopPropagation()" style="color:var(--teal);font-size:var(--text-xs);display:inline-flex;align-items:center;gap:3px"><i class="ti ti-brand-google-drive" style="font-size:var(--text-xs);line-height:1;display:block"></i>Open</a>`:'—'}</td><td><button class="btn btn-d" style="padding:2px 6px" onclick="event.stopPropagation();deleteFaith(${f.id})"><i class="ti ti-trash" style="font-size:var(--text-xs);line-height:1;display:block"></i></button></td></tr>`).join('');document.getElementById('faithTotal').textContent=DB.faith.length;document.getElementById('faithApproved').textContent=DB.faith.filter(f=>f.status==='Approved'||f.status==='Done').length;document.getElementById('faithSubmitted').textContent=DB.faith.filter(f=>f.status==='Submitted').length;document.getElementById('faithPending').textContent=DB.faith.filter(f=>f.status==='Pending').length;}
+function renderFaith(){const tb=document.getElementById('faithTbody'),em=document.getElementById('faithEmpty');if(!DB.faith.length){tb.innerHTML='';em.style.display='';return;}em.style.display='none';tb.innerHTML=DB.faith.map((f,i)=>`<tr data-id="${f.id}" draggable="true" onclick="openFaithModal(${f.id})"><td style="font-weight:500"><i class="ti ti-grip-vertical drag-grip-desktop" style="font-size:var(--text-xs);color:var(--text3);margin-right:6px;vertical-align:middle;cursor:grab" onclick="event.stopPropagation()"></i><span class="reorder-mobile-btns" style="display:none;gap:2px;margin-right:6px"><button onclick="event.stopPropagation();moveArrayItem('faith',${f.id},-1,renderFaith)" ${i===0?'disabled':''} style="background:transparent;border:none;color:var(--text3);cursor:pointer;padding:0"><i class="ti ti-chevron-up" style="font-size:11px;line-height:1;display:block"></i></button><button onclick="event.stopPropagation();moveArrayItem('faith',${f.id},1,renderFaith)" ${i===DB.faith.length-1?'disabled':''} style="background:transparent;border:none;color:var(--text3);cursor:pointer;padding:0"><i class="ti ti-chevron-down" style="font-size:11px;line-height:1;display:block"></i></button></span>${f.group||'—'}</td><td>${f.activity}</td><td style="font-size:var(--text-xs);color:var(--text3)">${f.date||'—'}</td><td style="font-size:var(--text-xs);color:var(--text3)">${f.submitted||'—'}</td><td style="font-size:var(--text-xs)">${f.cfo||'—'}</td><td style="font-size:var(--text-xs)">${f.aevm||'—'}</td><td><span class="pill ${f.status==='Done'||f.status==='Approved'?'pg':f.status==='Submitted'?'pt':f.status==='Rejected'?'pr':'po'}">${f.status}</span></td><td style="font-size:var(--text-xs)">${f.assigned||'—'}</td><td>${f.drive?`<a href="${f.drive}" target="_blank" onclick="event.stopPropagation()" style="color:var(--teal);font-size:var(--text-xs);display:inline-flex;align-items:center;gap:3px"><i class="ti ti-brand-google-drive" style="font-size:var(--text-xs);line-height:1;display:block"></i>Open</a>`:'—'}</td><td><button class="btn btn-d" style="padding:2px 6px" onclick="event.stopPropagation();deleteFaith(${f.id})"><i class="ti ti-trash" style="font-size:var(--text-xs);line-height:1;display:block"></i></button></td></tr>`).join('');document.getElementById('faithTotal').textContent=DB.faith.length;document.getElementById('faithApproved').textContent=DB.faith.filter(f=>f.status==='Approved'||f.status==='Done').length;document.getElementById('faithSubmitted').textContent=DB.faith.filter(f=>f.status==='Submitted').length;document.getElementById('faithPending').textContent=DB.faith.filter(f=>f.status==='Pending').length;initArrayDragSort('faithTbody','faith',renderFaith);}
 
 // ── Faith tab navigation ──────────────────────────────────────────────────
 function setFaithTab(tab,btn){
@@ -7830,6 +7842,50 @@ function setFaithTab(tab,btn){
   if(tab==='meetings') renderMeetingsPanel('meetingsPanel-FAITH','FAITH');
 }
 function exportFaithData(){const rows=DB.faith.map(f=>[f.group,f.activity,f.date,f.submitted,f.cfo,f.aevm,f.status,f.assigned].join(','));const csv='Group,Activity,Date,Submitted,CFO,AEVM,Status,Assigned\n'+rows.join('\n');const b=new Blob([csv],{type:'text/csv'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download='faith-activities.csv';a.click();URL.revokeObjectURL(u);}
+
+// ── Touch-friendly reorder (drag-and-drop doesn't fire on touchscreens) ──
+function moveArrayItem(dbKey,id,dir,renderFn){
+  const arr=DB[dbKey];
+  const idx=arr.findIndex(x=>String(x.id)===String(id));
+  if(idx<0)return;
+  const newIdx=idx+dir;
+  if(newIdx<0||newIdx>=arr.length)return;
+  [arr[idx],arr[newIdx]]=[arr[newIdx],arr[idx]];
+  save(dbKey);
+  if(typeof renderFn==='function')renderFn();
+}
+
+// ── Generic array drag-and-drop reorder (used by Faith Activities/Officers) ──
+function initArrayDragSort(tbodyId,dbKey,renderFn){
+  const tbody=document.getElementById(tbodyId);
+  if(!tbody)return;
+  let dragSrcId=null;
+  tbody.querySelectorAll('tr[data-id]').forEach(row=>{
+    row.addEventListener('dragstart',function(e){
+      dragSrcId=this.dataset.id;
+      this.style.opacity='.4';
+      e.dataTransfer.effectAllowed='move';
+    });
+    row.addEventListener('dragend',function(){this.style.opacity='1';dragSrcId=null;});
+    row.addEventListener('dragover',function(e){e.preventDefault();e.dataTransfer.dropEffect='move';this.style.background='rgba(128,255,250,.06)';});
+    row.addEventListener('dragleave',function(){this.style.background='';});
+    row.addEventListener('drop',function(e){
+      e.preventDefault();this.style.background='';
+      const targetId=this.dataset.id;
+      if(dragSrcId===null||dragSrcId===targetId)return;
+      const arr=DB[dbKey];
+      const srcIdx=arr.findIndex(x=>String(x.id)===String(dragSrcId));
+      const targetIdx=arr.findIndex(x=>String(x.id)===String(targetId));
+      if(srcIdx<0||targetIdx<0)return;
+      const [moved]=arr.splice(srcIdx,1);
+      const newTargetIdx=arr.findIndex(x=>String(x.id)===String(targetId));
+      arr.splice(newTargetIdx,0,moved);
+      save(dbKey);
+      if(typeof renderFn==='function')renderFn();
+      showToast('✓ Reordered');
+    });
+  });
+}
 
 // ── Officers ──────────────────────────────────────────────────────────────
 if(!DB.officers)DB.officers=[];
@@ -7865,8 +7921,8 @@ function deleteOfficer(id){if(!confirm('Delete this officer?'))return;DB.officer
 function renderOfficers(){
   const tb=document.getElementById('officerTbody');if(!tb)return;
   if(!DB.officers.length){tb.innerHTML='<tr><td colspan="9" style="text-align:center;color:var(--text3);font-size:var(--text-sm);padding:20px">No officers yet. Click "+ Add Officer" to begin.</td></tr>';return;}
-  tb.innerHTML=DB.officers.map(o=>`<tr onclick="openOfficerModal(${o.id})" style="cursor:pointer">
-    <td style="font-weight:600;color:var(--text1)">${o.name}</td>
+  tb.innerHTML=DB.officers.map((o,i)=>`<tr data-id="${o.id}" draggable="true" onclick="openOfficerModal(${o.id})" style="cursor:pointer">
+    <td style="font-weight:600;color:var(--text1)"><i class="ti ti-grip-vertical drag-grip-desktop" style="font-size:var(--text-xs);color:var(--text3);margin-right:6px;vertical-align:middle;cursor:grab" onclick="event.stopPropagation()"></i><span class="reorder-mobile-btns" style="display:none;gap:2px;margin-right:6px"><button onclick="event.stopPropagation();moveArrayItem('officers',${o.id},-1,renderOfficers)" ${i===0?'disabled':''} style="background:transparent;border:none;color:var(--text3);cursor:pointer;padding:0"><i class="ti ti-chevron-up" style="font-size:11px;line-height:1;display:block"></i></button><button onclick="event.stopPropagation();moveArrayItem('officers',${o.id},1,renderOfficers)" ${i===DB.officers.length-1?'disabled':''} style="background:transparent;border:none;color:var(--text3);cursor:pointer;padding:0"><i class="ti ti-chevron-down" style="font-size:11px;line-height:1;display:block"></i></button></span>${o.name}</td>
     <td><span class="pill pt" style="font-size:var(--text-xs)">${o.duty||'—'}</span></td>
     <td style="font-size:var(--text-xs)">${o.contact||'—'}</td>
     <td style="font-size:var(--text-xs)">${o.facebook?`<a href="${o.facebook.startsWith('http')?o.facebook:'https://'+o.facebook}" target="_blank" onclick="event.stopPropagation()" style="color:var(--teal)">View</a>`:'—'}</td>
@@ -7876,6 +7932,7 @@ function renderOfficers(){
     <td style="font-size:var(--text-xs)">${o.oath||'—'}</td>
     <td><button class="btn btn-d" style="padding:2px 6px" onclick="event.stopPropagation();deleteOfficer(${o.id})"><i class="ti ti-trash" style="font-size:var(--text-xs);line-height:1;display:block"></i></button></td>
   </tr>`).join('');
+  initArrayDragSort('officerTbody','officers',renderOfficers);
 }
 
 // ── Topics ────────────────────────────────────────────────────────────────
@@ -8475,7 +8532,7 @@ function renderCashTable(){
   const runBalById={};
   allSorted.forEach(t=>{ runBalById[t.id]=t._runBal; });
 
-  if(tb) tb.innerHTML=txns.map(t=>{
+  if(tb) tb.innerHTML=txns.map((t,i)=>{
     const isDebit=t.type==='Debit';
     const isCredit=t.type==='Credit';
     const isTransfer=t.type==='Transfer';
@@ -8486,8 +8543,10 @@ function renderCashTable(){
     const bal=runBalById[t.id]??0;
     const balColor=bal>=0?'var(--green)':'var(--red)';
     const balDisplay=(bal>=0?'+':'')+fmtPHP(bal);
+    const prevNeighbor=txns[i-1];
+    const nextNeighbor=txns[i+1];
     return `<tr data-id="${t.id}" draggable="true" style="cursor:grab">
-      <td style="font-size:var(--text-xs);color:var(--text3);white-space:nowrap"><i class="ti ti-grip-vertical" style="font-size:var(--text-xs);color:var(--text3);margin-right:4px;vertical-align:middle"></i>${t.date||'—'}</td>
+      <td style="font-size:var(--text-xs);color:var(--text3);white-space:nowrap"><i class="ti ti-grip-vertical drag-grip-desktop" style="font-size:var(--text-xs);color:var(--text3);margin-right:4px;vertical-align:middle"></i><span class="reorder-mobile-btns" style="display:none;gap:2px;margin-right:4px"><button onclick="event.stopPropagation();moveCashTxn(${t.id},${prevNeighbor?prevNeighbor.id:'null'})" ${!prevNeighbor?'disabled':''} style="background:transparent;border:none;color:var(--text3);cursor:pointer;padding:0"><i class="ti ti-chevron-up" style="font-size:11px;line-height:1;display:block"></i></button><button onclick="event.stopPropagation();moveCashTxn(${t.id},${nextNeighbor?nextNeighbor.id:'null'})" ${!nextNeighbor?'disabled':''} style="background:transparent;border:none;color:var(--text3);cursor:pointer;padding:0"><i class="ti ti-chevron-down" style="font-size:11px;line-height:1;display:block"></i></button></span>${t.date||'—'}</td>
       <td style="font-weight:500;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${t.desc||''}">${t.desc||'—'}${t.notes?'<div style="font-size:var(--text-xs);color:var(--text3);font-style:italic">'+t.notes+'</div>':''}</td>
       <td><span style="font-size:var(--text-xs);font-weight:700;color:${typeColor};background:${typeBg};border:1px solid ${typeColor};border-radius:3px;padding:2px 6px">${t.type.toUpperCase()}</span></td>
       <td style="font-size:var(--text-xs);color:var(--text3)">${t.category||'—'}${t.catNotes?'<div style="font-size:var(--text-xs)">'+t.catNotes+'</div>':''}</td>
@@ -8501,6 +8560,24 @@ function renderCashTable(){
     </tr>`;
   }).join('');
   initCashDragSort();
+}
+
+// Mobile fallback for transaction reordering (mirrors the drag-and-drop date-swap logic)
+function moveCashTxn(srcId,neighborId){
+  if(neighborId===null||neighborId===undefined)return;
+  const srcIdx=DB.cashflow.findIndex(t=>t.id===srcId);
+  const targetIdx=DB.cashflow.findIndex(t=>t.id===neighborId);
+  if(srcIdx<0||targetIdx<0)return;
+  const srcTxn=DB.cashflow[srcIdx];
+  const targetTxn=DB.cashflow[targetIdx];
+  srcTxn.date=targetTxn.date;
+  DB.cashflow.splice(srcIdx,1);
+  const newTargetIdx=DB.cashflow.findIndex(t=>t.id===neighborId);
+  DB.cashflow.splice(newTargetIdx,0,srcTxn);
+  save('cashflow');
+  SB.update('cashflow',srcTxn.id,srcTxn,'cashflow');
+  renderCashTable();renderLife();
+  showToast('✓ Reordered — date set to '+srcTxn.date);
 }
 
 // ── Drag-and-drop transaction reordering — recalculates date + running balance ──
