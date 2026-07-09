@@ -2306,8 +2306,8 @@ select option{background:var(--navy3)}
 .kcard .kc-conn{margin-top:5px;display:flex;gap:4px;flex-wrap:wrap}
 
 /* ── Board list view (Workspace > Board list) ──────────────── */
-.board-list-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px;padding:14px}
-.board-card{background:var(--navy2);border:1px solid var(--border);border-radius:6px;padding:14px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden}
+.board-list-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px;padding:16px;align-content:start}
+.board-card{background:var(--navy2);border:1px solid var(--border);border-radius:10px;padding:20px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden;min-height:190px;display:flex;flex-direction:column}
 .board-card:hover{border-color:var(--teal2);box-shadow:var(--cyan-glow)}
 .board-card-name{font-size:var(--text-sm);font-weight:700;color:var(--text1);margin-bottom:4px}
 .board-card-meta{font-size:var(--text-xs);color:var(--text3)}
@@ -2462,6 +2462,33 @@ select option{background:var(--navy3)}
       <div style="display:flex;gap:8px;margin-left:auto">
         <button class="btn btn-g" onclick="closeModal('appModal')">Cancel</button>
         <button class="btn btn-t" onclick="saveApp()"><i class="ti ti-check"></i> Save App</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CLIENT PIPELINE MODAL (Code Collectives — external dev projects) -->
+<div class="mov" id="pipelineModal">
+  <div class="modal" style="width:min(520px,96vw)">
+    <div class="mh"><div class="mt" id="pipelineModalTitle">New Project</div><button class="mc" onclick="closeModal('pipelineModal')">×</button></div>
+    <div class="mb">
+      <div class="fg"><label class="fl">Project Name *</label><input id="pl-name" placeholder="e.g. Restaurant booking app"></div>
+      <div class="fr">
+        <div class="fg"><label class="fl">Client</label><input id="pl-client" placeholder="Client / company name"></div>
+        <div class="fg"><label class="fl">Stage</label><select id="pl-stage"><option>Lead</option><option>Active</option><option>Delivered</option></select></div>
+      </div>
+      <div class="fr">
+        <div class="fg"><label class="fl">Budget (₱)</label><input type="number" id="pl-budget" placeholder="0.00"></div>
+        <div class="fg"><label class="fl">Deadline</label><input type="date" id="pl-deadline"></div>
+      </div>
+      <div class="fg"><label class="fl">Tech Stack</label><input id="pl-tech" placeholder="e.g. Next.js, Supabase"></div>
+      <div class="fg"><label class="fl">Notes</label><textarea id="pl-notes" rows="2" placeholder="Scope, requirements, current blockers..."></textarea></div>
+    </div>
+    <div class="mf" style="justify-content:space-between">
+      <button id="pl-delete-btn" class="btn btn-d" style="display:none" onclick="deletePipelineProject()"><i class="ti ti-trash"></i> Delete</button>
+      <div style="display:flex;gap:8px;margin-left:auto">
+        <button class="btn btn-g" onclick="closeModal('pipelineModal')">Cancel</button>
+        <button class="btn btn-t" onclick="savePipelineProject()"><i class="ti ti-check"></i> Save Project</button>
       </div>
     </div>
   </div>
@@ -2820,6 +2847,63 @@ select option{background:var(--navy3)}
       <button class="btn btn-d" id="col-delete-btn" style="display:none;margin-right:auto" onclick="deleteCollateral()">Delete</button>
       <button class="btn btn-g" onclick="closeModal('collateralModal')">Cancel</button>
       <button class="btn btn-o" onclick="saveCollateral()">Save Collateral</button>
+    </div>
+  </div>
+</div>
+
+<!-- CREATIVE CLIENT PROJECT MODAL -->
+<div class="mov" id="creativeProjectModal">
+  <div class="modal" style="width:min(540px,96vw)">
+    <div class="mh"><div class="mt" id="creativeProjectModalTitle">New Project</div><button class="mc" onclick="closeModal('creativeProjectModal')">×</button></div>
+    <div class="mb">
+      <div class="fg"><label class="fl">Project Name *</label><input id="cp-name" placeholder="e.g. Q3 Brand Refresh"></div>
+      <div class="fr">
+        <div class="fg"><label class="fl">Client</label><input id="cp-client" placeholder="e.g. Chainsmoker"></div>
+        <div class="fg"><label class="fl">Status</label><select id="cp-status"><option>Planning</option><option>In Progress</option><option>Review</option><option>Delivered</option></select></div>
+      </div>
+      <div class="fr">
+        <div class="fg"><label class="fl">Budget (₱)</label><input type="number" id="cp-budget" placeholder="0.00"></div>
+        <div class="fg"><label class="fl">Deadline</label><input type="date" id="cp-deadline"></div>
+      </div>
+      <div class="fg">
+        <label class="fl">Deliverables</label>
+        <div id="cp-deliverables-list" style="display:flex;flex-direction:column;gap:4px;margin-bottom:6px"></div>
+        <div style="display:flex;gap:6px">
+          <input id="cp-new-deliverable" placeholder="Add a deliverable…" style="flex:1" onkeydown="if(event.key==='Enter'){event.preventDefault();addCreativeDeliverable();}">
+          <button class="btn btn-g" style="font-size:var(--text-xs)" onclick="addCreativeDeliverable()">+ Add</button>
+        </div>
+      </div>
+      <div class="fg"><label class="fl">Notes</label><textarea id="cp-notes" rows="2" placeholder="Scope, brand guidelines, client contact..."></textarea></div>
+    </div>
+    <div class="mf">
+      <button class="btn btn-d" id="cp-delete-btn" style="display:none;margin-right:auto" onclick="deleteCreativeProject()">Delete</button>
+      <button class="btn btn-g" onclick="closeModal('creativeProjectModal')">Cancel</button>
+      <button class="btn btn-o" onclick="saveCreativeProject()">Save Project</button>
+    </div>
+  </div>
+</div>
+
+<!-- SOCIAL WORKFLOW POST MODAL -->
+<div class="mov" id="socialModal">
+  <div class="modal" style="width:min(520px,96vw)">
+    <div class="mh"><div class="mt" id="socialModalTitle">New Post</div><button class="mc" onclick="closeModal('socialModal')">×</button></div>
+    <div class="mb">
+      <div class="fr">
+        <div class="fg"><label class="fl">Platform</label><select id="soc-platform"><option>Instagram</option><option>Facebook</option><option>TikTok</option><option>LinkedIn</option><option>X / Twitter</option><option>YouTube</option></select></div>
+        <div class="fg"><label class="fl">Client</label><input id="soc-client" placeholder="e.g. Chainsmoker"></div>
+      </div>
+      <div class="fg"><label class="fl">Caption / Copy</label><textarea id="soc-caption" rows="3" placeholder="Post caption..."></textarea></div>
+      <div class="fr">
+        <div class="fg"><label class="fl">Post Date</label><input type="date" id="soc-date"></div>
+        <div class="fg"><label class="fl">Status</label><select id="soc-status"><option>Draft</option><option>Needs Approval</option><option>Scheduled</option><option>Posted</option></select></div>
+      </div>
+      <div class="fg"><label class="fl">Asset Link</label><input id="soc-link" placeholder="Canva / Drive link to the visual"></div>
+      <div class="fg"><label class="fl">Notes</label><textarea id="soc-notes" rows="2" placeholder="Hashtags, tagging notes, approval feedback..."></textarea></div>
+    </div>
+    <div class="mf">
+      <button class="btn btn-d" id="soc-delete-btn" style="display:none;margin-right:auto" onclick="deleteSocialPost()">Delete</button>
+      <button class="btn btn-g" onclick="closeModal('socialModal')">Cancel</button>
+      <button class="btn btn-o" onclick="saveSocialPost()">Save Post</button>
     </div>
   </div>
 </div>
@@ -3357,24 +3441,44 @@ select option{background:var(--navy3)}
 
     <!-- ===== BUILD ===== -->
     <div class="view" id="view-build">
-      <div class="vh"><div><div class="vt" style="color:var(--green)"><i class="ti ti-code"></i>Code Collectives</div><div class="vs">NAKNAK · DISKARTE · PASAHERO</div></div><div class="va"><button class="btn btn-g" onclick="openTaskFor('BUILD')"><i class="ti ti-plus"></i> Task</button></div></div>
+      <div class="vh"><div><div class="vt" style="color:var(--green)"><i class="ti ti-code"></i>Code Collectives</div><div class="vs">NAKNAK · DISKARTE · PASAHERO · Client dev work</div></div><div class="va" id="buildHeaderBtns"><button class="btn btn-g" onclick="openTaskFor('BUILD')"><i class="ti ti-plus"></i> Task</button></div></div>
       <div class="vb" style="padding:0;display:flex;flex-direction:column;overflow:hidden">
-        <div id="buildAppsWrap" style="padding:14px 18px;flex-shrink:0"><div id="buildApps" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px"></div></div>
-        <!-- BUILD tasks -->
-        <div style="flex:1;min-height:0;border-top:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden">
-          <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 18px;border-bottom:1px solid var(--border);flex-shrink:0">
-            <div style="font-size:var(--text-xs);font-weight:700;color:var(--green);letter-spacing:.1em;text-transform:uppercase;display:flex;align-items:center;gap:5px"><i class="ti ti-checklist" style="font-size:var(--text-sm);line-height:1;display:block"></i>BUILD TASKS</div>
-            <select id="buildTaskFilter" onchange="renderBuildTasks()" class="filter-chip-sel" style="font-size:var(--text-xs)">
-              <option value="all">All Status</option>
-              <option>Todo</option><option>In Progress</option><option>Done</option>
-            </select>
+        <!-- DASHBOARD STATS -->
+        <div style="padding:14px 18px 0" id="buildStatsWrap"><div class="mr" id="buildStats"></div></div>
+
+        <div class="cftab" style="flex-shrink:0;padding:0 18px;margin-top:10px">
+          <div class="cfbt active" id="bctab-tracker" onclick="setBCTab('tracker',this)"><i class="ti ti-apps" style="font-size:var(--text-xs);display:inline-block;margin-right:4px"></i>Build Tracker</div>
+          <div class="cfbt" id="bctab-pipeline" onclick="setBCTab('pipeline',this)"><i class="ti ti-git-branch" style="font-size:var(--text-xs);display:inline-block;margin-right:4px"></i>Client Pipeline</div>
+        </div>
+
+        <!-- BUILD TRACKER TAB -->
+        <div id="bc-tracker" style="flex:1;min-height:0;display:flex;flex-direction:column;overflow:hidden">
+          <div id="buildAppsWrap" style="padding:14px 18px;flex-shrink:0"><div id="buildApps" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px"></div></div>
+          <!-- BUILD tasks -->
+          <div style="flex:1;min-height:0;border-top:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden">
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 18px;border-bottom:1px solid var(--border);flex-shrink:0">
+              <div style="font-size:var(--text-xs);font-weight:700;color:var(--green);letter-spacing:.1em;text-transform:uppercase;display:flex;align-items:center;gap:5px"><i class="ti ti-checklist" style="font-size:var(--text-sm);line-height:1;display:block"></i>BUILD TASKS</div>
+              <select id="buildTaskFilter" onchange="renderBuildTasks()" class="filter-chip-sel" style="font-size:var(--text-xs)">
+                <option value="all">All Status</option>
+                <option>Todo</option><option>In Progress</option><option>Done</option>
+              </select>
+            </div>
+            <div id="buildTaskBody" style="flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch">
+              <table class="ht"><thead><tr><th>Task</th><th>App</th><th>Priority</th><th>Status</th><th>Due</th><th></th></tr></thead><tbody id="buildTbody"></tbody></table>
+            </div>
           </div>
-          <div id="buildTaskBody" style="flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch">
-            <table class="ht"><thead><tr><th>Task</th><th>App</th><th>Priority</th><th>Status</th><th>Due</th><th></th></tr></thead><tbody id="buildTbody"></tbody></table>
+        </div>
+
+        <!-- CLIENT PIPELINE TAB (external dev projects — leads → active → delivered) -->
+        <div id="bc-pipeline" style="display:none;flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px 18px">
+          <div style="display:flex;justify-content:flex-end;margin-bottom:10px">
+            <button class="btn btn-g" onclick="openPipelineModal()"><i class="ti ti-plus"></i> Project</button>
           </div>
+          <div id="pipelineBoard" style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;min-height:0"></div>
         </div>
       </div>
     </div>
+
 
     <!-- ===== SIDES / CREATIVE COLLECTIVES ===== -->
     <div class="view" id="view-sides">
@@ -3382,6 +3486,8 @@ select option{background:var(--navy3)}
       <div class="vb" style="padding:0;overflow:hidden;display:flex;flex-direction:column">
         <div class="cftab" style="flex-shrink:0;padding:0 18px">
           <div class="cfbt active" id="cctab-collateral" onclick="setCCTab('collateral',this)"><i class="ti ti-layout-collage" style="font-size:var(--text-xs);display:inline-block;margin-right:4px"></i>Collateral Library</div>
+          <div class="cfbt" id="cctab-projects" onclick="setCCTab('projects',this)"><i class="ti ti-briefcase" style="font-size:var(--text-xs);display:inline-block;margin-right:4px"></i>Client Projects</div>
+          <div class="cfbt" id="cctab-social" onclick="setCCTab('social',this)"><i class="ti ti-calendar-event" style="font-size:var(--text-xs);display:inline-block;margin-right:4px"></i>Social Workflow</div>
           <div class="cfbt" id="cctab-products" onclick="setCCTab('products',this)"><i class="ti ti-package" style="font-size:var(--text-xs);display:inline-block;margin-right:4px"></i>Digital Products</div>
         </div>
         <div style="flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px 18px">
@@ -3403,6 +3509,29 @@ select option{background:var(--navy3)}
               <button class="btn btn-o" onclick="openCollateralModal()" style="font-size:var(--text-xs);flex-shrink:0"><i class="ti ti-plus"></i> Collateral</button>
             </div>
             <div id="collateralGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px"></div>
+          </div>
+
+          <!-- CLIENT PROJECTS TAB -->
+          <div id="cc-projects" style="display:none">
+            <div class="mr" style="margin-bottom:12px" id="creativeProjectStats"></div>
+            <div style="display:flex;justify-content:flex-end;margin-bottom:10px">
+              <button class="btn btn-o" onclick="openCreativeProjectModal()"><i class="ti ti-plus"></i> Project</button>
+            </div>
+            <div id="creativeProjectGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px"></div>
+          </div>
+
+          <!-- SOCIAL WORKFLOW TAB -->
+          <div id="cc-social" style="display:none">
+            <div class="mr" style="margin-bottom:12px" id="socialStats"></div>
+            <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center">
+              <select id="socialFilterPlatform" onchange="renderSocialWorkflow()" class="filter-chip-sel" style="font-size:var(--text-xs)">
+                <option value="all">All Platforms</option>
+                <option>Instagram</option><option>Facebook</option><option>TikTok</option><option>LinkedIn</option><option>X / Twitter</option><option>YouTube</option>
+              </select>
+              <input type="text" id="socialFilterClient" placeholder="🔍 Filter by client…" oninput="renderSocialWorkflow()" style="font-size:var(--text-xs);padding:5px 8px;flex:1;min-width:120px">
+              <button class="btn btn-o" onclick="openSocialModal()" style="font-size:var(--text-xs);flex-shrink:0"><i class="ti ti-plus"></i> Post</button>
+            </div>
+            <div id="socialBoard" style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px"></div>
           </div>
 
           <!-- DIGITAL PRODUCTS TAB (existing — RaketPH / Etsy shop) -->
@@ -3837,7 +3966,7 @@ select option{background:var(--navy3)}
                   <div style="font-size:var(--text-xs);color:var(--text3);margin-bottom:5px">Notes</div>
                   <textarea class="mi" id="wellnessNotes" rows="2" placeholder="How are you feeling today, sir?" style="resize:none"></textarea>
                 </div>
-                <button class="btn btn-t" style="width:100%;font-size:var(--text-xs);justify-content:center" onclick="saveWellnessCheckin()"><i class="ti ti-check" style="font-size:var(--text-xs);line-height:1;display:inline-block;margin-right:4px"></i>Save Today's Check-in</button>
+                <button class="btn btn-t" style="width:100%;font-size:var(--text-xs);justify-content:center" onclick="saveWellness()"><i class="ti ti-check" style="font-size:var(--text-xs);line-height:1;display:inline-block;margin-right:4px"></i>Save Today's Check-in</button>
               </div>
             </div>
             <div class="bd-block" style="margin-top:12px">
@@ -4595,8 +4724,8 @@ const SB={
   },
   async upsert(table,row,key){
     const r={...row};
-    if(table==='cashflow'){r.description=row.desc;delete r.desc;delete r._fromAccount;delete r._toAccount;}
-    if(table==='cal_events'){delete r.allDay;delete r.overnight;delete r.remindMin;delete r.recurN;delete r.recurEnd;delete r.endDate;delete r.recurUnit;delete r.recurCount;delete r.recur;delete r.reminder;}
+    if(table==='cashflow'){r.description=row.desc;delete r.desc;delete r._fromAccount;delete r._toAccount;delete r._runBal;}
+    if(table==='cal_events'){delete r.allDay;delete r.overnight;delete r.remindMin;delete r.recurN;delete r.recurEnd;delete r.endDate;delete r.recurUnit;delete r.recurCount;delete r.recur;delete r.reminder;delete r.recurDays;delete r._expandedDate;delete r._recurring;}
     if(table==='memories'){delete r.source;}
     delete r._dbKey;
     try{
@@ -4609,8 +4738,8 @@ const SB={
   },
   async update(table,id,changes,key){
     const c={...changes};
-    if(table==='cashflow'&&c.desc){c.description=c.desc;delete c.desc;delete c._fromAccount;delete c._toAccount;}
-    if(table==='cal_events'){delete c.allDay;delete c.overnight;delete c.remindMin;delete c.recurN;delete c.recurEnd;delete c.endDate;delete c.recurUnit;delete c.recurCount;delete c.recur;delete c.reminder;}
+    if(table==='cashflow'){if(c.desc){c.description=c.desc;delete c.desc;}delete c._fromAccount;delete c._toAccount;delete c._runBal;}
+    if(table==='cal_events'){delete c.allDay;delete c.overnight;delete c.remindMin;delete c.recurN;delete c.recurEnd;delete c.endDate;delete c.recurUnit;delete c.recurCount;delete c.recur;delete c.reminder;delete c.recurDays;delete c._expandedDate;delete c._recurring;}
     if(table==='memories'){delete c.source;}
     try{
       await sbFetch(table,'PATCH',c,`id=eq.${id}`);
@@ -4651,7 +4780,9 @@ const REALTIME_TABLES=[
   {name:'sides',      key:'sides'},
   {name:'memories',   key:'memories'},
   {name:'history',    key:'history'},
-  {name:'loans',      key:'loans'}
+  {name:'loans',      key:'loans'},
+  {name:'accounts',   key:'accounts'},
+  {name:'collateral', key:'collateral'}
 ];
 
 function initRealtime(){
@@ -4714,7 +4845,7 @@ function initRealtime(){
 
 async function loadAllFromSupabase(){
   showToast('↻ Syncing with Supabase...');
-  await Promise.all([SB.load('tasks','tasks'),SB.load('clients','clients'),SB.load('venture','venture'),SB.load('faith','faith'),SB.load('cashflow','cashflow'),SB.load('cal_events','calEvents'),SB.load('journal','journal'),SB.load('notes','notes'),SB.load('memories','memories'),SB.load('sides','sides'),SB.load('history','history'),SB.load('loans','loans')]);
+  await Promise.all([SB.load('tasks','tasks'),SB.load('clients','clients'),SB.load('venture','venture'),SB.load('faith','faith'),SB.load('cashflow','cashflow'),SB.load('cal_events','calEvents'),SB.load('journal','journal'),SB.load('notes','notes'),SB.load('memories','memories'),SB.load('sides','sides'),SB.load('history','history'),SB.load('loans','loans'),SB.load('accounts','accounts'),SB.load('collateral','collateral')]);
   reRenderAll();showToast('✓ Supabase synced');speak('All systems synced, sir.');
 }
 // ═══════════════════════════════════════════════════════════════════════════
@@ -4727,8 +4858,8 @@ const Store={
     'work-ih':()=>{try{renderWorkIH();}catch(e){}},
     'work-cs':()=>{try{renderWorkCS();}catch(e){}},
     venture:()=>{try{renderVenture();}catch(e){}},
-    build:()=>{try{renderBuild();renderBuildTasks();}catch(e){}},
-    sides:()=>{try{renderSides();renderCollateral();}catch(e){}},
+    build:()=>{try{renderBuild();renderBuildTasks();renderPipeline();}catch(e){}},
+    sides:()=>{try{renderSides();renderCollateral();renderCreativeProjects();renderSocialWorkflow();}catch(e){}},
     faith:()=>{try{renderFaith();}catch(e){}},
     life:()=>{try{renderLife();}catch(e){}},
     calendar:()=>{try{renderCalendar();}catch(e){}},
@@ -5332,6 +5463,9 @@ const DB={
   ],
   sides:JSON.parse(localStorage.getItem('j-sides')||'null')||[],
   collateral:JSON.parse(localStorage.getItem('j-collateral')||'null')||[],
+  pipeline:JSON.parse(localStorage.getItem('j-pipeline')||'null')||[],
+  creativeProjects:JSON.parse(localStorage.getItem('j-creativeProjects')||'null')||[],
+  socialPosts:JSON.parse(localStorage.getItem('j-socialPosts')||'null')||[],
   faith:JSON.parse(localStorage.getItem('j-faith')||'null')||[],
   cashflow:JSON.parse(localStorage.getItem('j-cashflow')||'null')||[],
   accounts:JSON.parse(localStorage.getItem('j-accounts')||'null')||[
@@ -6569,7 +6703,7 @@ function setBoardView(v){
   });
   const bb=document.getElementById('boardBody');
   if(bb){
-    bb.style.cssText='flex:1;min-height:0;height:100%;overflow:'+(v==='table'?'auto':'hidden')+';display:flex;flex-direction:column';
+    bb.style.cssText='flex:1;min-height:0;height:100%;overflow:'+(v==='kanban'?'hidden':'auto')+';display:flex;flex-direction:column';
   }
   renderTasks();
 }
@@ -6867,18 +7001,45 @@ function renderBoardsListView(){
   let html='<div class="board-list-grid">';
   BOARDS.forEach(b=>{
     const items=DB.tasks.filter(t=>t.world===b.id);
-    const open=items.filter(t=>t.status!=='Done').length;
+    const todo=items.filter(t=>t.status==='Todo'||!t.status).length;
+    const inProg=items.filter(t=>t.status==='In Progress').length;
+    const noProg=items.filter(t=>t.status==='No Progress').length;
     const done=items.filter(t=>t.status==='Done').length;
+    const open=items.length-done;
     const pct=items.length?Math.round((done/items.length)*100):0;
+    const highPriority=items.filter(t=>t.status!=='Done'&&t.priority==='High');
+    const nextUp=items.filter(t=>t.status!=='Done').sort((a,c)=>(a.due||'9999')<(c.due||'9999')?-1:1)[0];
     html+=`<div class="board-card" onclick="document.getElementById('taskFilter').value='${b.id}';setBoardView('table')">
       <div class="board-card-stripe" style="background:${b.stripe}"></div>
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
-        <i class="ti ${b.icon}" style="color:${b.color};font-size:18px;line-height:1;display:block"></i>
-        <div class="board-card-name">${b.name}</div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+        <div style="width:36px;height:36px;border-radius:9px;background:${b.color}18;border:1px solid ${b.color}35;display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="ti ${b.icon}" style="color:${b.color};font-size:17px;line-height:1;display:block"></i></div>
+        <div style="flex:1;min-width:0">
+          <div class="board-card-name" style="font-size:var(--text-md);margin-bottom:1px">${b.name}</div>
+          <div class="board-card-meta">${items.length} total · ${open} open</div>
+        </div>
+        <div style="font-size:20px;font-weight:900;color:${b.color}">${pct}%</div>
       </div>
-      <div class="board-card-meta">${items.length} items · ${open} open · ${pct}% complete</div>
-      <div style="margin-top:10px;background:var(--navy3);border-radius:4px;height:4px;overflow:hidden">
+      <div style="background:var(--navy3);border-radius:4px;height:6px;overflow:hidden;margin-bottom:14px">
         <div style="height:100%;width:${pct}%;background:${b.stripe};border-radius:4px;transition:width .3s"></div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:12px">
+        <div style="text-align:center;padding:6px 4px;background:rgba(255,255,255,.03);border-radius:6px">
+          <div style="font-size:15px;font-weight:800;color:var(--text1)">${todo+noProg}</div>
+          <div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.04em">To Do</div>
+        </div>
+        <div style="text-align:center;padding:6px 4px;background:rgba(0,255,242,.05);border-radius:6px">
+          <div style="font-size:15px;font-weight:800;color:var(--teal)">${inProg}</div>
+          <div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.04em">Active</div>
+        </div>
+        <div style="text-align:center;padding:6px 4px;background:rgba(34,197,94,.06);border-radius:6px">
+          <div style="font-size:15px;font-weight:800;color:var(--green)">${done}</div>
+          <div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.04em">Done</div>
+        </div>
+      </div>
+      <div style="flex:1;min-height:0;display:flex;flex-direction:column;justify-content:flex-end;gap:6px">
+        ${highPriority.length?`<div style="font-size:var(--text-xs);color:var(--red);display:flex;align-items:center;gap:5px"><i class="ti ti-alert-triangle" style="font-size:11px"></i>${highPriority.length} high priority open</div>`:''}
+        ${nextUp?`<div style="font-size:var(--text-xs);color:var(--text2);background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:6px;padding:7px 10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">→ ${nextUp.title}${nextUp.due?' · '+nextUp.due:''}</div>`:'<div style="font-size:var(--text-xs);color:var(--text3)">All caught up, sir.</div>'}
+        <button class="btn btn-g" style="font-size:var(--text-xs);justify-content:center;margin-top:2px" onclick="event.stopPropagation();openTaskFor('${b.id}')"><i class="ti ti-plus" style="font-size:11px;line-height:1;display:inline-block;margin-right:4px"></i>Add Task</button>
       </div>
     </div>`;
   });
@@ -7652,6 +7813,132 @@ function renderBuild(){
     }).join('')+(apps.length<8?`<div onclick="openAppModal()" style="background:var(--navy2);border:2px dashed var(--border);border-radius:14px;padding:24px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;cursor:pointer;color:var(--text3);transition:all .15s" onmouseover="this.style.borderColor='var(--teal)';this.style.color='var(--teal)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text3)'"><i class="ti ti-plus" style="font-size:24px;line-height:1;display:block"></i><span style="font-size:var(--text-xs);font-weight:700;letter-spacing:.06em;text-transform:uppercase">Add App</span></div>`:'');
   }
   renderBuildTasks();
+  renderBuildStats();
+}
+
+// ── Code Collectives — dashboard stats bar (was "monitoring only") ────────
+function renderBuildStats(){
+  const el=document.getElementById('buildStats');if(!el)return;
+  const apps=DB.buildApps||[];
+  const buildTasks=DB.tasks.filter(t=>t.world==='BUILD'||t.world==='build');
+  const openTasks=buildTasks.filter(t=>t.status!=='Done').length;
+  const inDev=apps.filter(a=>a.status==='In Dev'||a.status==='Beta').length;
+  const launched=apps.filter(a=>a.status==='Active'||a.status==='Launched').length;
+  const activeProjects=(DB.pipeline||[]).filter(p=>p.stage==='Active').length;
+  const pipelineValue=(DB.pipeline||[]).filter(p=>p.stage!=='Delivered').reduce((s,p)=>s+(parseFloat(p.budget)||0),0);
+  el.innerHTML=`
+    <div class="hc"><div class="cl">Total Apps</div><div class="cv">${apps.length}</div></div>
+    <div class="hc"><div class="cl">In Dev / Beta</div><div class="cv" style="color:var(--amber)">${inDev}</div></div>
+    <div class="hc"><div class="cl">Active / Launched</div><div class="cv" style="color:var(--green)">${launched}</div></div>
+    <div class="hc"><div class="cl">Open Build Tasks</div><div class="cv" style="color:var(--teal)">${openTasks}</div></div>
+    <div class="hc"><div class="cl">Active Client Projects</div><div class="cv" style="color:var(--teal)">${activeProjects}</div></div>
+    <div class="hc oc"><div class="cl">Pipeline Value</div><div class="cv oc">₱${pipelineValue.toLocaleString('en-PH')}</div></div>
+  `;
+}
+
+// ── Code Collectives — tab navigation ──────────────────────────────────
+function setBCTab(tab,btn){
+  ['tracker','pipeline'].forEach(t=>{
+    const panel=document.getElementById('bc-'+t);if(panel)panel.style.display=t===tab?'flex':'none';
+    const tabBtn=document.getElementById('bctab-'+t);if(tabBtn)tabBtn.classList.toggle('active',t===tab);
+  });
+  const headerBtns=document.getElementById('buildHeaderBtns');
+  if(headerBtns){
+    headerBtns.innerHTML=tab==='pipeline'
+      ? '<button class="btn btn-g" onclick="openPipelineModal()"><i class="ti ti-plus"></i> Project</button>'
+      : '<button class="btn btn-g" onclick="openTaskFor(\'BUILD\')"><i class="ti ti-plus"></i> Task</button>';
+  }
+  if(tab==='pipeline')renderPipeline();else renderBuild();
+}
+
+// ── Client Pipeline (Code Collectives — external dev projects) ─────────
+let editingPipelineId=null;
+function openPipelineModal(id){
+  editingPipelineId=id||null;
+  const p=id?(DB.pipeline||[]).find(x=>x.id===id):null;
+  document.getElementById('pipelineModalTitle').textContent=p?'Edit Project':'New Project';
+  document.getElementById('pl-name').value=p?p.name||'':'';
+  document.getElementById('pl-client').value=p?p.client||'':'';
+  document.getElementById('pl-stage').value=p?p.stage||'Lead':'Lead';
+  document.getElementById('pl-budget').value=p?p.budget||'':'';
+  document.getElementById('pl-deadline').value=p?p.deadline||'':'';
+  document.getElementById('pl-tech').value=p?p.tech||'':'';
+  document.getElementById('pl-notes').value=p?p.notes||'':'';
+  const delBtn=document.getElementById('pl-delete-btn');if(delBtn)delBtn.style.display=p?'block':'none';
+  openModal('pipelineModal');
+}
+function savePipelineProject(){
+  const name=document.getElementById('pl-name').value.trim();
+  if(!name){showToast('⚠ Project name required, sir.');return;}
+  const p={
+    id:editingPipelineId||Date.now(),
+    name,
+    client:document.getElementById('pl-client').value.trim(),
+    stage:document.getElementById('pl-stage').value,
+    budget:parseFloat(document.getElementById('pl-budget').value)||0,
+    deadline:document.getElementById('pl-deadline').value,
+    tech:document.getElementById('pl-tech').value.trim(),
+    notes:document.getElementById('pl-notes').value.trim(),
+  };
+  DB.pipeline=DB.pipeline||[];
+  const isEdit=!!editingPipelineId;
+  if(isEdit){const i=DB.pipeline.findIndex(x=>x.id===editingPipelineId);if(i>=0)DB.pipeline[i]=p;}
+  else DB.pipeline.unshift(p);
+  save('pipeline');
+  addHistory(isEdit?'edit':'add',(isEdit?'Edited':'Added')+' pipeline project: '+p.name,{...p,_dbKey:'pipeline'});
+  editingPipelineId=null;
+  closeModal('pipelineModal');
+  renderPipeline();renderBuildStats();
+  showToast('✓ Project saved');
+}
+function deletePipelineProject(id){
+  const targetId=id||editingPipelineId;
+  const p=(DB.pipeline||[]).find(x=>x.id===targetId);if(!p)return;
+  if(!id&&!confirm('Delete "'+p.name+'"?'))return;
+  DB.pipeline=DB.pipeline.filter(x=>x.id!==targetId);
+  save('pipeline');
+  addHistory('delete','Deleted pipeline project: '+p.name,{...p,_dbKey:'pipeline'});
+  editingPipelineId=null;
+  closeModal('pipelineModal');
+  renderPipeline();renderBuildStats();
+  showToast('Project deleted');
+}
+function movePipelineStage(id,stage){
+  const p=(DB.pipeline||[]).find(x=>x.id===id);if(!p)return;
+  p.stage=stage;save('pipeline');renderPipeline();renderBuildStats();
+}
+function renderPipeline(){
+  const board=document.getElementById('pipelineBoard');if(!board)return;
+  const stages=[
+    {id:'Lead',label:'Lead',color:'var(--text3)'},
+    {id:'Active',label:'Active',color:'var(--teal)'},
+    {id:'Delivered',label:'Delivered',color:'var(--green)'},
+  ];
+  const items=DB.pipeline||[];
+  board.innerHTML=stages.map(s=>{
+    const stageItems=items.filter(p=>p.stage===s.id);
+    return `<div style="display:flex;flex-direction:column;background:var(--navy2);border:1px solid var(--border);border-top:2px solid ${s.color};border-radius:10px;overflow:hidden;min-height:200px">
+      <div style="padding:10px 12px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:var(--text-xs);font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:${s.color}">${s.label}</span>
+        <span style="font-size:var(--text-xs);color:var(--text3)">${stageItems.length}</span>
+      </div>
+      <div style="flex:1;padding:8px;display:flex;flex-direction:column;gap:8px">
+        ${stageItems.length?stageItems.map(p=>`
+          <div onclick="openPipelineModal(${p.id})" style="background:var(--navy3);border:1px solid var(--border);border-radius:8px;padding:10px 12px;cursor:pointer">
+            <div style="font-size:var(--text-sm);font-weight:700;color:var(--text1);margin-bottom:3px">${p.name}</div>
+            ${p.client?`<div style="font-size:var(--text-xs);color:var(--teal);margin-bottom:4px">${p.client}</div>`:''}
+            ${p.tech?`<div style="font-size:var(--text-xs);color:var(--text3);margin-bottom:4px"><i class="ti ti-code" style="font-size:9px;margin-right:3px"></i>${p.tech}</div>`:''}
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px">
+              <span style="font-size:var(--text-xs);color:var(--text3)">${p.deadline||'No deadline'}</span>
+              ${p.budget?`<span style="font-size:var(--text-xs);font-weight:700;color:var(--amber)">₱${p.budget.toLocaleString()}</span>`:''}
+            </div>
+            <div style="display:flex;gap:4px;margin-top:8px" onclick="event.stopPropagation()">
+              ${stages.filter(x=>x.id!==s.id).map(x=>`<button onclick="movePipelineStage(${p.id},'${x.id}')" style="flex:1;font-size:9px;padding:3px 4px;background:transparent;border:1px solid var(--border);border-radius:4px;color:var(--text3);cursor:pointer">→ ${x.label}</button>`).join('')}
+            </div>
+          </div>`).join(''):'<div style="font-size:var(--text-xs);color:var(--text3);text-align:center;padding:16px">Empty</div>'}
+      </div>
+    </div>`;
+  }).join('');
 }
 function renderBuildTasks(){
   const tbody=document.getElementById('buildTbody');if(!tbody)return;
@@ -7703,17 +7990,24 @@ function removeSideTodo(pid,idx){const p=DB.sides.find(x=>x.id===pid);if(!p||!p.
 
 // ── Creative Collectives — tab navigation ───────────────────────────────
 function setCCTab(tab,btn){
-  ['collateral','products'].forEach(t=>{
+  ['collateral','projects','social','products'].forEach(t=>{
     const panel=document.getElementById('cc-'+t);if(panel)panel.style.display=t===tab?'':'none';
     const tabBtn=document.getElementById('cctab-'+t);if(tabBtn)tabBtn.classList.toggle('active',t===tab);
   });
   const headerBtns=document.getElementById('sidesHeaderBtns');
   if(headerBtns){
-    headerBtns.innerHTML=tab==='collateral'
-      ? '<button class="btn btn-o" onclick="openCollateralModal()"><i class="ti ti-plus"></i> Collateral</button>'
-      : '<button class="btn btn-o" onclick="addSidesProduct()"><i class="ti ti-plus"></i> Product</button>';
+    const btnMap={
+      collateral:'<button class="btn btn-o" onclick="openCollateralModal()"><i class="ti ti-plus"></i> Collateral</button>',
+      projects:'<button class="btn btn-o" onclick="openCreativeProjectModal()"><i class="ti ti-plus"></i> Project</button>',
+      social:'<button class="btn btn-o" onclick="openSocialModal()"><i class="ti ti-plus"></i> Post</button>',
+      products:'<button class="btn btn-o" onclick="addSidesProduct()"><i class="ti ti-plus"></i> Product</button>',
+    };
+    headerBtns.innerHTML=btnMap[tab]||btnMap.collateral;
   }
-  if(tab==='collateral')renderCollateral();else renderSides();
+  if(tab==='collateral')renderCollateral();
+  else if(tab==='projects')renderCreativeProjects();
+  else if(tab==='social')renderSocialWorkflow();
+  else renderSides();
 }
 
 // ── Marketing Collateral Library ────────────────────────────────────────
@@ -7817,7 +8111,212 @@ function renderCollateral(){
   }).join('');
 }
 
-let editingFaithId=null;
+// ── Creative Collectives — Client Projects ──────────────────────────────
+let editingCreativeProjectId=null;
+let creativeProjectDeliverables=[];
+function addCreativeDeliverable(){
+  const input=document.getElementById('cp-new-deliverable');
+  const text=input.value.trim();if(!text)return;
+  creativeProjectDeliverables.push({text,done:false});
+  input.value='';
+  renderCreativeDeliverablesList();
+}
+function toggleCreativeDeliverable(i){creativeProjectDeliverables[i].done=!creativeProjectDeliverables[i].done;renderCreativeDeliverablesList();}
+function removeCreativeDeliverable(i){creativeProjectDeliverables.splice(i,1);renderCreativeDeliverablesList();}
+function renderCreativeDeliverablesList(){
+  const el=document.getElementById('cp-deliverables-list');if(!el)return;
+  el.innerHTML=creativeProjectDeliverables.map((d,i)=>`<div style="display:flex;align-items:center;gap:7px;padding:4px 0;border-bottom:1px solid var(--border)">
+    <div onclick="toggleCreativeDeliverable(${i})" style="width:13px;height:13px;border:1px solid ${d.done?'var(--teal)':'var(--border2)'};border-radius:2px;flex-shrink:0;cursor:pointer;background:${d.done?'var(--teal)':'transparent'};display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--navy)">${d.done?'✓':''}</div>
+    <span style="flex:1;font-size:var(--text-xs);color:${d.done?'var(--text3)':'var(--text1)'};text-decoration:${d.done?'line-through':'none'}">${d.text}</span>
+    <button onclick="removeCreativeDeliverable(${i})" style="background:transparent;border:none;color:var(--text3);cursor:pointer;font-size:var(--text-xs);padding:0 3px">×</button>
+  </div>`).join('');
+}
+function openCreativeProjectModal(id){
+  editingCreativeProjectId=id||null;
+  const p=id?(DB.creativeProjects||[]).find(x=>x.id===id):null;
+  document.getElementById('creativeProjectModalTitle').textContent=p?'Edit Project':'New Project';
+  document.getElementById('cp-name').value=p?p.name||'':'';
+  document.getElementById('cp-client').value=p?p.client||'':'';
+  document.getElementById('cp-status').value=p?p.status||'Planning':'Planning';
+  document.getElementById('cp-budget').value=p?p.budget||'':'';
+  document.getElementById('cp-deadline').value=p?p.deadline||'':'';
+  document.getElementById('cp-notes').value=p?p.notes||'':'';
+  creativeProjectDeliverables=p?JSON.parse(JSON.stringify(p.deliverables||[])):[];
+  renderCreativeDeliverablesList();
+  const delBtn=document.getElementById('cp-delete-btn');if(delBtn)delBtn.style.display=p?'block':'none';
+  openModal('creativeProjectModal');
+}
+function saveCreativeProject(){
+  const name=document.getElementById('cp-name').value.trim();
+  if(!name){showToast('⚠ Project name required, sir.');return;}
+  const p={
+    id:editingCreativeProjectId||Date.now(),
+    name,
+    client:document.getElementById('cp-client').value.trim(),
+    status:document.getElementById('cp-status').value,
+    budget:parseFloat(document.getElementById('cp-budget').value)||0,
+    deadline:document.getElementById('cp-deadline').value,
+    notes:document.getElementById('cp-notes').value.trim(),
+    deliverables:creativeProjectDeliverables,
+  };
+  DB.creativeProjects=DB.creativeProjects||[];
+  const isEdit=!!editingCreativeProjectId;
+  if(isEdit){const i=DB.creativeProjects.findIndex(x=>x.id===editingCreativeProjectId);if(i>=0)DB.creativeProjects[i]=p;}
+  else DB.creativeProjects.unshift(p);
+  save('creativeProjects');
+  addHistory(isEdit?'edit':'add',(isEdit?'Edited':'Added')+' creative project: '+p.name,{...p,_dbKey:'creativeProjects'});
+  editingCreativeProjectId=null;
+  closeModal('creativeProjectModal');
+  renderCreativeProjects();
+  showToast('✓ Project saved');
+}
+function deleteCreativeProject(id){
+  const targetId=id||editingCreativeProjectId;
+  const p=(DB.creativeProjects||[]).find(x=>x.id===targetId);if(!p)return;
+  if(!id&&!confirm('Delete "'+p.name+'"?'))return;
+  DB.creativeProjects=DB.creativeProjects.filter(x=>x.id!==targetId);
+  save('creativeProjects');
+  addHistory('delete','Deleted creative project: '+p.name,{...p,_dbKey:'creativeProjects'});
+  editingCreativeProjectId=null;
+  closeModal('creativeProjectModal');
+  renderCreativeProjects();
+  showToast('Project deleted');
+}
+function renderCreativeProjects(){
+  const grid=document.getElementById('creativeProjectGrid');if(!grid)return;
+  const items=DB.creativeProjects||[];
+  const statsEl=document.getElementById('creativeProjectStats');
+  if(statsEl){
+    const active=items.filter(p=>p.status==='In Progress'||p.status==='Review').length;
+    const delivered=items.filter(p=>p.status==='Delivered').length;
+    const totalBudget=items.filter(p=>p.status!=='Delivered').reduce((s,p)=>s+(p.budget||0),0);
+    statsEl.innerHTML=`<div class="hc"><div class="cl">Total Projects</div><div class="cv">${items.length}</div></div><div class="hc"><div class="cl">Active</div><div class="cv" style="color:var(--teal)">${active}</div></div><div class="hc oc"><div class="cl">Open Budget</div><div class="cv oc">₱${totalBudget.toLocaleString('en-PH')}</div></div>`;
+  }
+  if(!items.length){grid.innerHTML='<div style="font-size:var(--text-xs);color:var(--text3);grid-column:1/-1;padding:20px;text-align:center">No client projects yet. Click "+ Project" to start tracking one.</div>';return;}
+  const statusColor={Planning:'var(--text3)','In Progress':'var(--teal)',Review:'var(--amber)',Delivered:'var(--green)'};
+  grid.innerHTML=items.map(p=>{
+    const sc=statusColor[p.status]||'var(--text3)';
+    const deliverables=p.deliverables||[];
+    const doneCount=deliverables.filter(d=>d.done).length;
+    return `<div style="background:var(--navy2);border:1px solid var(--border);border-top:2px solid ${sc};border-radius:10px;padding:14px;cursor:pointer" onclick="openCreativeProjectModal(${p.id})">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px">
+        <div style="font-size:var(--text-sm);font-weight:700;color:var(--text1)">${p.name}</div>
+        <span style="font-size:9px;font-weight:700;padding:2px 6px;border-radius:3px;background:${sc}22;color:${sc};text-transform:uppercase;letter-spacing:.04em;flex-shrink:0">${p.status}</span>
+      </div>
+      ${p.client?`<div style="font-size:var(--text-xs);color:var(--teal);margin-bottom:6px">${p.client}</div>`:''}
+      ${deliverables.length?`<div style="font-size:var(--text-xs);color:var(--text3);margin-bottom:4px">${doneCount}/${deliverables.length} deliverables</div><div style="height:3px;background:var(--navy3);border-radius:2px;margin-bottom:8px"><div style="height:100%;width:${Math.round(doneCount/deliverables.length*100)}%;background:${sc};border-radius:2px"></div></div>`:''}
+      <div style="display:flex;justify-content:space-between;align-items:center;font-size:var(--text-xs);color:var(--text3)">
+        <span>${p.deadline||'No deadline'}</span>
+        ${p.budget?`<span style="font-weight:700;color:var(--amber)">₱${p.budget.toLocaleString()}</span>`:''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── Creative Collectives — Social Media Workflow ────────────────────────
+let editingSocialId=null;
+function openSocialModal(id){
+  editingSocialId=id||null;
+  const s=id?(DB.socialPosts||[]).find(x=>x.id===id):null;
+  document.getElementById('socialModalTitle').textContent=s?'Edit Post':'New Post';
+  document.getElementById('soc-platform').value=s?s.platform||'Instagram':'Instagram';
+  document.getElementById('soc-client').value=s?s.client||'':'';
+  document.getElementById('soc-caption').value=s?s.caption||'':'';
+  document.getElementById('soc-date').value=s?s.date||'':'';
+  document.getElementById('soc-status').value=s?s.status||'Draft':'Draft';
+  document.getElementById('soc-link').value=s?s.link||'':'';
+  document.getElementById('soc-notes').value=s?s.notes||'':'';
+  const delBtn=document.getElementById('soc-delete-btn');if(delBtn)delBtn.style.display=s?'block':'none';
+  openModal('socialModal');
+}
+function saveSocialPost(){
+  const caption=document.getElementById('soc-caption').value.trim();
+  const client=document.getElementById('soc-client').value.trim();
+  if(!caption&&!client){showToast('⚠ Add at least a client or caption, sir.');return;}
+  const s={
+    id:editingSocialId||Date.now(),
+    platform:document.getElementById('soc-platform').value,
+    client,
+    caption,
+    date:document.getElementById('soc-date').value,
+    status:document.getElementById('soc-status').value,
+    link:document.getElementById('soc-link').value.trim(),
+    notes:document.getElementById('soc-notes').value.trim(),
+  };
+  DB.socialPosts=DB.socialPosts||[];
+  const isEdit=!!editingSocialId;
+  if(isEdit){const i=DB.socialPosts.findIndex(x=>x.id===editingSocialId);if(i>=0)DB.socialPosts[i]=s;}
+  else DB.socialPosts.unshift(s);
+  save('socialPosts');
+  addHistory(isEdit?'edit':'add',(isEdit?'Edited':'Added')+' social post: '+(s.caption.substring(0,40)||s.client),{...s,_dbKey:'socialPosts'});
+  editingSocialId=null;
+  closeModal('socialModal');
+  renderSocialWorkflow();
+  showToast('✓ Post saved');
+}
+function deleteSocialPost(id){
+  const targetId=id||editingSocialId;
+  const s=(DB.socialPosts||[]).find(x=>x.id===targetId);if(!s)return;
+  if(!id&&!confirm('Delete this post?'))return;
+  DB.socialPosts=DB.socialPosts.filter(x=>x.id!==targetId);
+  save('socialPosts');
+  addHistory('delete','Deleted social post',{...s,_dbKey:'socialPosts'});
+  editingSocialId=null;
+  closeModal('socialModal');
+  renderSocialWorkflow();
+  showToast('Post deleted');
+}
+function moveSocialStage(id,status){
+  const s=(DB.socialPosts||[]).find(x=>x.id===id);if(!s)return;
+  s.status=status;save('socialPosts');renderSocialWorkflow();
+}
+function renderSocialWorkflow(){
+  const board=document.getElementById('socialBoard');if(!board)return;
+  const items=DB.socialPosts||[];
+  const statsEl=document.getElementById('socialStats');
+  if(statsEl){
+    const needsApproval=items.filter(s=>s.status==='Needs Approval').length;
+    const scheduled=items.filter(s=>s.status==='Scheduled').length;
+    const posted=items.filter(s=>s.status==='Posted').length;
+    statsEl.innerHTML=`<div class="hc"><div class="cl">Total Posts</div><div class="cv">${items.length}</div></div><div class="hc"><div class="cl">Needs Approval</div><div class="cv" style="color:var(--amber)">${needsApproval}</div></div><div class="hc"><div class="cl">Scheduled</div><div class="cv" style="color:var(--teal)">${scheduled}</div></div><div class="hc oc"><div class="cl">Posted</div><div class="cv oc">${posted}</div></div>`;
+  }
+  const platformF=document.getElementById('socialFilterPlatform')?.value||'all';
+  const clientF=(document.getElementById('socialFilterClient')?.value||'').toLowerCase().trim();
+  let filtered=items;
+  if(platformF!=='all')filtered=filtered.filter(s=>s.platform===platformF);
+  if(clientF)filtered=filtered.filter(s=>(s.client||'').toLowerCase().includes(clientF));
+
+  const stages=[
+    {id:'Draft',label:'Draft',color:'var(--text3)'},
+    {id:'Needs Approval',label:'Needs Approval',color:'var(--amber)'},
+    {id:'Scheduled',label:'Scheduled',color:'var(--teal)'},
+    {id:'Posted',label:'Posted',color:'var(--green)'},
+  ];
+  const platformIcon={Instagram:'ti-brand-instagram',Facebook:'ti-brand-facebook',TikTok:'ti-brand-tiktok',LinkedIn:'ti-brand-linkedin','X / Twitter':'ti-brand-x',YouTube:'ti-brand-youtube'};
+  board.innerHTML=stages.map(stage=>{
+    const stageItems=filtered.filter(s=>s.status===stage.id);
+    return `<div style="display:flex;flex-direction:column;background:var(--navy2);border:1px solid var(--border);border-top:2px solid ${stage.color};border-radius:10px;overflow:hidden;min-height:220px">
+      <div style="padding:10px 12px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:var(--text-xs);font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:${stage.color}">${stage.label}</span>
+        <span style="font-size:var(--text-xs);color:var(--text3)">${stageItems.length}</span>
+      </div>
+      <div style="flex:1;padding:8px;display:flex;flex-direction:column;gap:8px;overflow-y:auto">
+        ${stageItems.length?stageItems.map(s=>`
+          <div onclick="openSocialModal(${s.id})" style="background:var(--navy3);border:1px solid var(--border);border-radius:8px;padding:10px 12px;cursor:pointer">
+            <div style="display:flex;align-items:center;gap:5px;margin-bottom:4px">
+              <i class="ti ${platformIcon[s.platform]||'ti-share'}" style="font-size:12px;color:var(--amber)"></i>
+              <span style="font-size:var(--text-xs);font-weight:700;color:var(--text1)">${s.client||s.platform}</span>
+            </div>
+            ${s.caption?`<div style="font-size:var(--text-xs);color:var(--text3);overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;margin-bottom:6px">${s.caption}</div>`:''}
+            <div style="font-size:9px;color:var(--text3);margin-bottom:6px">${s.date||'No date set'}</div>
+            <div style="display:flex;gap:4px" onclick="event.stopPropagation()">
+              ${stages.filter(x=>x.id!==stage.id).map(x=>`<button onclick="moveSocialStage(${s.id},'${x.id}')" title="Move to ${x.label}" style="flex:1;font-size:9px;padding:3px 2px;background:transparent;border:1px solid var(--border);border-radius:4px;color:var(--text3);cursor:pointer">→</button>`).join('')}
+            </div>
+          </div>`).join(''):'<div style="font-size:var(--text-xs);color:var(--text3);text-align:center;padding:16px">Empty</div>'}
+      </div>
+    </div>`;
+  }).join('');
+}
 function openFaithModal(id){editingFaithId=id||null;const a=id?DB.faith.find(x=>x.id===id):null;document.getElementById('faithModalTitle').textContent=a?'Edit Activity':'Add Activity';['activity','group','date','submitted','cfo','aevm','status','assigned','drive'].forEach(f=>{const el=document.getElementById('fa-'+f);if(el)el.value=a?(a[f]||''):'';});openModal('faithModal');}
 function saveFaithActivity(){const a={id:editingFaithId||Date.now(),activity:document.getElementById('fa-activity').value.trim(),group:document.getElementById('fa-group').value.trim(),date:document.getElementById('fa-date').value,submitted:document.getElementById('fa-submitted').value,cfo:document.getElementById('fa-cfo').value.trim(),aevm:document.getElementById('fa-aevm').value.trim(),status:document.getElementById('fa-status').value,assigned:document.getElementById('fa-assigned').value.trim(),drive:document.getElementById('fa-drive').value.trim()};if(!a.activity){showToast('Activity name required');return;}const isEdit=!!editingFaithId;if(editingFaithId){const i=DB.faith.findIndex(x=>x.id===editingFaithId);if(i>=0)DB.faith[i]=a;SB.update('faith',a.id,a,'faith');}else{DB.faith.unshift(a);SB.upsert('faith',a,'faith');}addHistory(isEdit?'edit':'add',(isEdit?'Edited':'Added')+' faith: '+a.activity,{...a,_dbKey:'faith'});closeModal('faithModal');renderFaith();showToast('✓ Activity saved');}
 function deleteFaith(id){const a=DB.faith.find(x=>x.id===id);DB.faith=DB.faith.filter(x=>x.id!==id);SB.remove('faith',id,'faith');addHistory('delete','Deleted faith: '+a.activity,{...a,_dbKey:'faith'});renderFaith();showToast('Deleted');}
@@ -8009,7 +8508,7 @@ function setCFTab(t,btn){
   else if(t==='budget')  renderBudgetTab();
   else if(t==='accounts')renderAccountsTab();
   else if(t==='loans')   renderLoansTab();
-  else if(t==='biomonitor'){renderHealth();renderHealthTrend();}
+  else if(t==='biomonitor'){renderHealth();renderHealthTrend();restoreTodayWellness();}
 }
 
 
@@ -11842,6 +12341,63 @@ function logWater(n){
   d[today].water=n;
   saveWellnessData(d);
 }
+// ── Restore today's check-in when Bio Monitor tab opens (was previously always blank) ──
+function restoreTodayWellness(){
+  const today=new Date().toISOString().split('T')[0];
+  const saved=getWellness()[today];
+  todayWellness=saved?{...saved}:{mood:0,energy:0,stress:'',water:0,notes:''};
+  // Re-select mood/energy/stress buttons to reflect the saved state
+  [['moodBtns','mood'],['energyBtns','energy']].forEach(([wrapId,key])=>{
+    const wrap=document.getElementById(wrapId);if(!wrap)return;
+    wrap.querySelectorAll('.mood-btn').forEach((b,i)=>{
+      const val=String(i+1);
+      const accent=key==='mood'?'var(--w-sides)':'var(--teal)';
+      const active=String(todayWellness[key])===val;
+      b.style.background=active?'rgba(128,255,250,.1)':'';
+      b.style.borderColor=active?accent:'';
+      b.style.color=active?accent:'';
+    });
+  });
+  const stressWrap=document.querySelector('#cf-biomonitor [onclick*="setWellness(\'stress\'"]')?.parentElement;
+  if(stressWrap){
+    stressWrap.querySelectorAll('.btn-g').forEach(b=>{
+      const match=b.getAttribute('onclick')?.match(/setWellness\('stress','([^']+)'/);
+      const val=match?match[1]:null;
+      const active=val&&todayWellness.stress===val;
+      b.style.background=active?'rgba(128,255,250,.1)':'';
+      b.style.borderColor=active?'var(--amber)':'';
+      b.style.color=active?'var(--amber)':'';
+    });
+  }
+  logWater(todayWellness.water||0);
+  const notesEl=document.getElementById('wellnessNotes');
+  if(notesEl)notesEl.value=todayWellness.notes||'';
+}
+
+async function syncWellnessToSupabase(entry,dateStr){
+  try{
+    const res=await fetch(`${SB_URL}/rest/v1/wellness_checkins?on_conflict=date`,{
+      method:'POST',
+      headers:{
+        'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json',
+        'Prefer':'resolution=merge-duplicates,return=minimal'
+      },
+      body:JSON.stringify({
+        date:dateStr,
+        mood:parseInt(entry.mood)||null,
+        energy:parseInt(entry.energy)||null,
+        stress:entry.stress||null,
+        water:parseInt(entry.water)||0,
+        notes:entry.notes||''
+      })
+    });
+    if(!res.ok){const b=await res.text();throw new Error(b);}
+  }catch(err){
+    console.error('Wellness Supabase sync error',err);
+    showToast('⚠ Wellness saved locally, but cloud sync failed: '+err.message);
+  }
+}
+
 function saveWellness(){
   const notes=document.getElementById('wellnessNotes');
   if(notes)todayWellness.notes=notes.value;
@@ -11849,6 +12405,7 @@ function saveWellness(){
   const today=new Date().toISOString().split('T')[0];
   d[today]=todayWellness;
   saveWellnessData(d);
+  syncWellnessToSupabase(todayWellness,today);
   showToast('✓ Wellness check-in saved, sir.');
 }
 
