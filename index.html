@@ -457,15 +457,15 @@ select option{background:var(--navy3)}
 
 /* ── Quarter view ── */
 .cal-quarter-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;padding:14px;overflow-y:auto;flex:1;min-height:0}
-.cal-quarter-month{border:1px solid var(--border);border-radius:6px;overflow:hidden;background:var(--navy3);display:flex;flex-direction:column}
+.cal-quarter-month{border:1px solid var(--border);border-radius:6px;overflow:hidden;background:var(--navy3);display:flex;flex-direction:column;min-height:0}
 .cal-quarter-mh{padding:8px 10px;background:var(--navy2);border-bottom:1px solid var(--border);font-size:var(--text-xs);font-weight:700;color:var(--teal);letter-spacing:.06em;text-transform:uppercase;flex-shrink:0}
-.cal-quarter-mini{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;padding:6px;grid-auto-rows:minmax(52px,auto)}
-.cqd{font-size:var(--text-xs);text-align:left;padding:3px;border-radius:3px;cursor:pointer;color:var(--text3);position:relative;display:flex;flex-direction:column;gap:1px;min-height:50px;overflow:hidden}
+.cal-quarter-mini{display:grid;grid-template-columns:repeat(7,1fr);grid-auto-rows:1fr;gap:2px;padding:6px;flex:1;min-height:0}
+.cqd{font-size:var(--text-xs);text-align:left;padding:4px;border-radius:3px;cursor:pointer;color:var(--text3);position:relative;display:flex;flex-direction:column;gap:2px;min-height:64px;overflow:hidden}
 .cqd:hover{background:var(--teal3);color:var(--teal)}
-.cqd.today .cqd-num{background:var(--teal);color:var(--navy);border-radius:50%;width:16px;height:16px;display:inline-flex;align-items:center;justify-content:center}
+.cqd.today .cqd-num{background:var(--teal);color:var(--navy);border-radius:50%;width:18px;height:18px;display:inline-flex;align-items:center;justify-content:center}
 .cqd.om{opacity:.2;pointer-events:none}
-.cqd-num{font-weight:700;flex-shrink:0}
-.cqd-chip{font-size:9px;line-height:1.3;padding:1px 4px;border-radius:3px;background:var(--navy2);color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;border-left:2px solid var(--teal)}
+.cqd-num{font-weight:700;flex-shrink:0;font-size:12px}
+.cqd-chip{font-size:10px;line-height:1.35;padding:2px 5px;border-radius:3px;background:var(--navy2);color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;border-left:2px solid var(--teal)}
 .cqd-chip.task{border-left-color:var(--orange)}
 .cqd-more{font-size:9px;color:var(--text3);padding-left:2px}
 /* Mobile/touch: HTML5 drag-and-drop doesn't fire on touchscreens — swap the drag
@@ -2306,7 +2306,7 @@ select option{background:var(--navy3)}
 .kcard .kc-conn{margin-top:5px;display:flex;gap:4px;flex-wrap:wrap}
 
 /* ── Board list view (Workspace > Board list) ──────────────── */
-.board-list-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px;padding:16px;align-content:start}
+.board-list-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:14px;padding:16px;align-content:start}
 .board-card{background:var(--navy2);border:1px solid var(--border);border-radius:10px;padding:20px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden;min-height:190px;display:flex;flex-direction:column}
 .board-card:hover{border-color:var(--teal2);box-shadow:var(--cyan-glow)}
 .board-card-name{font-size:var(--text-sm);font-weight:700;color:var(--text1);margin-bottom:4px}
@@ -2482,6 +2482,14 @@ select option{background:var(--navy3)}
         <div class="fg"><label class="fl">Deadline</label><input type="date" id="pl-deadline"></div>
       </div>
       <div class="fg"><label class="fl">Tech Stack</label><input id="pl-tech" placeholder="e.g. Next.js, Supabase"></div>
+      <div class="fr">
+        <div class="fg"><label class="fl">GitHub / Repo URL</label><input id="pl-repo" placeholder="https://github.com/..."></div>
+        <div class="fg"><label class="fl">Supabase Project URL</label><input id="pl-supabase" placeholder="https://app.supabase.com/project/..."></div>
+      </div>
+      <div class="fr">
+        <div class="fg"><label class="fl">Live Website URL</label><input id="pl-website" placeholder="https://..."></div>
+        <div class="fg"><label class="fl">Social Media Link</label><input id="pl-social" placeholder="https://instagram.com/..."></div>
+      </div>
       <div class="fg"><label class="fl">Notes</label><textarea id="pl-notes" rows="2" placeholder="Scope, requirements, current blockers..."></textarea></div>
     </div>
     <div class="mf" style="justify-content:space-between">
@@ -2908,6 +2916,107 @@ select option{background:var(--navy3)}
   </div>
 </div>
 
+<!-- CAMPAIGN MODAL -->
+<div class="mov" id="campaignModal">
+  <div class="modal" style="width:min(540px,96vw)">
+    <div class="mh"><div class="mt" id="campaignModalTitle">New Campaign</div><button class="mc" onclick="closeModal('campaignModal')">×</button></div>
+    <div class="mb">
+      <div class="fg"><label class="fl">Campaign Name *</label><input id="cam-name" placeholder="e.g. Ramadan Special Push"></div>
+      <div class="fr">
+        <div class="fg"><label class="fl">Client</label><input id="cam-client" placeholder="e.g. Chainsmoker"></div>
+        <div class="fg"><label class="fl">Platform</label><input id="cam-platform" placeholder="e.g. Meta Ads, Instagram"></div>
+      </div>
+      <div class="fr">
+        <div class="fg"><label class="fl">Status</label><select id="cam-status"><option>Planning</option><option>Active</option><option>Paused</option><option>Completed</option></select></div>
+        <div class="fg"><label class="fl">Goal</label><input id="cam-goal" placeholder="e.g. 500 new followers"></div>
+      </div>
+      <div class="fr">
+        <div class="fg"><label class="fl">Start Date</label><input type="date" id="cam-start"></div>
+        <div class="fg"><label class="fl">End Date</label><input type="date" id="cam-end"></div>
+      </div>
+      <div class="fr">
+        <div class="fg"><label class="fl">Budget (₱)</label><input type="number" id="cam-budget" placeholder="0.00"></div>
+        <div class="fg"><label class="fl">Spent (₱)</label><input type="number" id="cam-spent" placeholder="0.00"></div>
+      </div>
+      <div class="fg"><label class="fl">Results</label><input id="cam-results" placeholder="e.g. 12,400 reach, 340 clicks"></div>
+      <div class="fg"><label class="fl">Notes</label><textarea id="cam-notes" rows="2" placeholder="Creative angle, learnings, next steps..."></textarea></div>
+    </div>
+    <div class="mf">
+      <button class="btn btn-d" id="cam-delete-btn" style="display:none;margin-right:auto" onclick="deleteCampaign()">Delete</button>
+      <button class="btn btn-g" onclick="closeModal('campaignModal')">Cancel</button>
+      <button class="btn btn-o" onclick="saveCampaign()">Save Campaign</button>
+    </div>
+  </div>
+</div>
+
+<!-- INFLUENCER MODAL -->
+<div class="mov" id="influencerModal">
+  <div class="modal" style="width:min(480px,96vw)">
+    <div class="mh"><div class="mt" id="influencerModalTitle">New Influencer</div><button class="mc" onclick="closeModal('influencerModal')">×</button></div>
+    <div class="mb">
+      <div class="fr">
+        <div class="fg"><label class="fl">Name *</label><input id="inf-name" placeholder="Influencer / creator name"></div>
+        <div class="fg"><label class="fl">Platform</label><input id="inf-platform" placeholder="Instagram, TikTok..."></div>
+      </div>
+      <div class="fr">
+        <div class="fg"><label class="fl">Handle</label><input id="inf-handle" placeholder="@username"></div>
+        <div class="fg"><label class="fl">Followers</label><input id="inf-followers" placeholder="e.g. 45K"></div>
+      </div>
+      <div class="fr">
+        <div class="fg"><label class="fl">Rate (₱)</label><input type="number" id="inf-rate" placeholder="0.00"></div>
+        <div class="fg"><label class="fl">Status</label><select id="inf-status"><option>Contacted</option><option>Negotiating</option><option>Confirmed</option><option>Posted</option><option>Paid</option></select></div>
+      </div>
+      <div class="fg"><label class="fl">Contact Info</label><input id="inf-contact" placeholder="Email or number"></div>
+      <div class="fg"><label class="fl">Notes</label><textarea id="inf-notes" rows="2" placeholder="Content type, past collabs, terms..."></textarea></div>
+    </div>
+    <div class="mf">
+      <button class="btn btn-d" id="inf-delete-btn" style="display:none;margin-right:auto" onclick="deleteInfluencer()">Delete</button>
+      <button class="btn btn-g" onclick="closeModal('influencerModal')">Cancel</button>
+      <button class="btn btn-o" onclick="saveInfluencer()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- PRICING MODAL -->
+<div class="mov" id="pricingModal">
+  <div class="modal" style="width:min(440px,96vw)">
+    <div class="mh"><div class="mt" id="pricingModalTitle">New Pricing Item</div><button class="mc" onclick="closeModal('pricingModal')">×</button></div>
+    <div class="mb">
+      <div class="fg"><label class="fl">Item / Service *</label><input id="prc-item" placeholder="e.g. Beef Shawarma Wrap"></div>
+      <div class="fr">
+        <div class="fg"><label class="fl">Cost (₱)</label><input type="number" id="prc-cost" placeholder="0.00" onchange="updateMarginPreview()"></div>
+        <div class="fg"><label class="fl">Price (₱)</label><input type="number" id="prc-price" placeholder="0.00" onchange="updateMarginPreview()"></div>
+      </div>
+      <div id="prc-margin-preview" style="font-size:var(--text-xs);color:var(--text3);margin-bottom:8px"></div>
+      <div class="fg"><label class="fl">Notes</label><textarea id="prc-notes" rows="2" placeholder="Competitor pricing, promo notes..."></textarea></div>
+    </div>
+    <div class="mf">
+      <button class="btn btn-d" id="prc-delete-btn" style="display:none;margin-right:auto" onclick="deletePricing()">Delete</button>
+      <button class="btn btn-g" onclick="closeModal('pricingModal')">Cancel</button>
+      <button class="btn btn-o" onclick="savePricing()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- CREDENTIALS VAULT MODAL — usernames/links only, no passwords -->
+<div class="mov" id="credentialModal">
+  <div class="modal" style="width:min(440px,96vw)">
+    <div class="mh"><div class="mt" id="credentialModalTitle">New Credential</div><button class="mc" onclick="closeModal('credentialModal')">×</button></div>
+    <div class="mb">
+      <div style="background:rgba(255,170,0,.08);border:1px solid rgba(255,170,0,.3);border-radius:6px;padding:8px 12px;margin-bottom:10px;font-size:var(--text-xs);color:var(--amber)">No password field, by design — keep those in your password manager.</div>
+      <div class="fg"><label class="fl">Platform *</label><input id="cred-platform" placeholder="e.g. Meta Business Suite, Canva"></div>
+      <div class="fg"><label class="fl">Username / Email</label><input id="cred-username" placeholder="Login identifier"></div>
+      <div class="fg"><label class="fl">Login Link</label><input id="cred-link" placeholder="https://..."></div>
+      <div class="fg"><label class="fl">Notes</label><textarea id="cred-notes" rows="2" placeholder="Access level, who else has it, 2FA notes..."></textarea></div>
+    </div>
+    <div class="mf">
+      <button class="btn btn-d" id="cred-delete-btn" style="display:none;margin-right:auto" onclick="deleteCredential()">Delete</button>
+      <button class="btn btn-g" onclick="closeModal('credentialModal')">Cancel</button>
+      <button class="btn btn-o" onclick="saveCredential()">Save</button>
+    </div>
+  </div>
+</div>
+
 <!-- HEALTH LOG MODAL -->
 <div class="mov" id="healthLogModal">
   <div class="modal" style="width:min(520px,96vw)">
@@ -3319,7 +3428,7 @@ select option{background:var(--navy3)}
         </div>
       </div>
       <div class="vb" style="padding:0;display:flex;flex-direction:column;overflow:hidden">
-        <div id="ih-table" style="padding:14px 18px;flex:1;overflow-y:auto"><div id="ihClientCards" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px"></div></div>
+        <div id="ih-table" style="padding:14px 18px;flex:1;overflow-y:auto"><div id="ihClientCards" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:10px"></div></div>
         <div id="ih-kanban" style="display:none;flex:1;overflow:hidden"><div class="kanban-wrap" style="height:100%"><div class="kb-cols" id="ihKanbanCols"></div><div style="margin-top:10px;display:flex;justify-content:flex-end"><button class="btn btn-t" onclick="openTaskFor('WORK-IH')"><i class="ti ti-plus"></i> Add Task</button></div></div></div>
         <div id="ih-ctasks" style="display:none;padding:14px 18px;flex:1;overflow-y:auto">
           <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px"><label style="font-size:var(--text-xs);font-weight:700;color:var(--text3);letter-spacing:.08em;text-transform:uppercase">Filter by Client</label><select id="ihCF" onchange="renderIHClientTasks()" style="width:clamp(100px,30vw,200px)"></select></div>
@@ -3340,6 +3449,7 @@ select option{background:var(--navy3)}
           <button class="btn" id="csv-k" onclick="setCSView('kanban',this)" style="background:transparent;border:1px solid var(--border2);color:var(--text2);font-size:var(--text-xs)">Kanban</button>
           <button class="btn btn-g" id="csv-l" onclick="setCSView('list',this)">List</button>
           <button class="btn btn-g" id="csv-m" onclick="setCSView('meetings',this)"><i class="ti ti-microphone" style="font-size:var(--text-xs);line-height:1;display:inline-block;margin-right:3px"></i>Meetings</button>
+          <button class="btn btn-g" id="csv-mktg" onclick="setCSView('marketing',this)"><i class="ti ti-speakerphone" style="font-size:var(--text-xs);line-height:1;display:inline-block;margin-right:3px"></i>Marketing</button>
           <button class="btn btn-o" onclick="openTaskFor('WORK-CS')"><i class="ti ti-plus"></i> Task</button>
         </div>
       </div>
@@ -3361,6 +3471,53 @@ select option{background:var(--navy3)}
         <div id="cs-kanban" style="flex:1;min-height:0;overflow:hidden"><div class="kanban-wrap" style="height:100%"><div class="kb-cols" id="csKanbanCols"></div></div></div>
         <div id="cs-list" style="display:none"><table class="ht"><thead><tr><th>Task</th><th>Client</th><th>Platform</th><th>Priority</th><th>Status</th><th>Deadline</th><th></th></tr></thead><tbody id="csTbody"></tbody></table></div>
         <div id="cs-meetings" style="display:none;flex:1;overflow:hidden"><div id="meetingsPanel-WORK-CS" class="meetings-panel" data-world="WORK-CS"></div></div>
+
+        <!-- MARKETING SUITE (scoped to active client: Chainsmoker / Sweetheart Cafe) -->
+        <div id="cs-marketing" style="display:none;flex:1;min-height:0;flex-direction:column;overflow:hidden">
+          <div class="cftab" style="flex-shrink:0">
+            <div class="cfbt active" id="mktgtab-campaigns" onclick="setMktgTab('campaigns',this)"><i class="ti ti-target-arrow" style="font-size:var(--text-xs);display:inline-block;margin-right:4px"></i>Campaigns</div>
+            <div class="cfbt" id="mktgtab-social" onclick="setMktgTab('social',this)"><i class="ti ti-calendar-event" style="font-size:var(--text-xs);display:inline-block;margin-right:4px"></i>Social Calendar</div>
+            <div class="cfbt" id="mktgtab-influencers" onclick="setMktgTab('influencers',this)"><i class="ti ti-star" style="font-size:var(--text-xs);display:inline-block;margin-right:4px"></i>Influencers</div>
+            <div class="cfbt" id="mktgtab-pricing" onclick="setMktgTab('pricing',this)"><i class="ti ti-currency-peso" style="font-size:var(--text-xs);display:inline-block;margin-right:4px"></i>Pricing</div>
+            <div class="cfbt" id="mktgtab-vault" onclick="setMktgTab('vault',this)" style="color:var(--amber)"><i class="ti ti-lock" style="font-size:var(--text-xs);display:inline-block;margin-right:4px"></i>Vault</div>
+          </div>
+          <div style="flex:1;overflow-y:auto;padding:14px 0">
+
+            <!-- CAMPAIGNS -->
+            <div id="mktg-campaigns">
+              <div style="display:flex;justify-content:flex-end;margin-bottom:10px"><button class="btn btn-o" style="font-size:var(--text-xs)" onclick="openCampaignModal()"><i class="ti ti-plus"></i> Campaign</button></div>
+              <div id="campaignGrid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px"></div>
+            </div>
+
+            <!-- SOCIAL CALENDAR (reuses DB.socialPosts, filtered to this client) -->
+            <div id="mktg-social" style="display:none">
+              <div style="display:flex;justify-content:flex-end;margin-bottom:10px"><button class="btn btn-o" style="font-size:var(--text-xs)" onclick="openSocialModal();setTimeout(()=>{document.getElementById('soc-client').value=CS_CLIENTS[csActiveClient].label},50)"><i class="ti ti-plus"></i> Post</button></div>
+              <div id="csSocialBoard" style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px"></div>
+            </div>
+
+            <!-- INFLUENCER LOGBOOK -->
+            <div id="mktg-influencers" style="display:none">
+              <div style="display:flex;justify-content:flex-end;margin-bottom:10px"><button class="btn btn-o" style="font-size:var(--text-xs)" onclick="openInfluencerModal()"><i class="ti ti-plus"></i> Influencer</button></div>
+              <table class="ht"><thead><tr><th>Name</th><th>Platform</th><th>Handle</th><th>Followers</th><th>Rate</th><th>Status</th><th></th></tr></thead><tbody id="influencerTbody"></tbody></table>
+              <div id="influencerEmpty" style="display:none;text-align:center;padding:20px;color:var(--text3);font-size:var(--text-xs)">No influencers logged yet.</div>
+            </div>
+
+            <!-- PRICING MONITOR -->
+            <div id="mktg-pricing" style="display:none">
+              <div style="display:flex;justify-content:flex-end;margin-bottom:10px"><button class="btn btn-o" style="font-size:var(--text-xs)" onclick="openPricingModal()"><i class="ti ti-plus"></i> Item</button></div>
+              <table class="ht"><thead><tr><th>Item</th><th>Cost</th><th>Price</th><th>Margin</th><th>Last Updated</th><th></th></tr></thead><tbody id="pricingTbody"></tbody></table>
+              <div id="pricingEmpty" style="display:none;text-align:center;padding:20px;color:var(--text3);font-size:var(--text-xs)">No pricing items tracked yet.</div>
+            </div>
+
+            <!-- CREDENTIALS VAULT (usernames/links only — no passwords, per policy) -->
+            <div id="mktg-vault" style="display:none">
+              <div style="background:rgba(255,170,0,.08);border:1px solid rgba(255,170,0,.3);border-radius:6px;padding:10px 14px;margin-bottom:12px;font-size:var(--text-xs);color:var(--amber);display:flex;align-items:center;gap:8px"><i class="ti ti-shield-lock" style="font-size:var(--text-sm)"></i>Usernames and login links only, sir — passwords stay in your password manager, never stored here.</div>
+              <div style="display:flex;justify-content:flex-end;margin-bottom:10px"><button class="btn btn-o" style="font-size:var(--text-xs)" onclick="openCredentialModal()"><i class="ti ti-plus"></i> Credential</button></div>
+              <div id="credentialGrid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px"></div>
+            </div>
+
+          </div>
+        </div>
       </div>
     </div>
 
@@ -3470,11 +3627,11 @@ select option{background:var(--navy3)}
         </div>
 
         <!-- CLIENT PIPELINE TAB (external dev projects — leads → active → delivered) -->
-        <div id="bc-pipeline" style="display:none;flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px 18px">
+        <div id="bc-pipeline" style="display:none;flex-direction:column;flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px 18px">
           <div style="display:flex;justify-content:flex-end;margin-bottom:10px">
             <button class="btn btn-g" onclick="openPipelineModal()"><i class="ti ti-plus"></i> Project</button>
           </div>
-          <div id="pipelineBoard" style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;min-height:0"></div>
+          <div id="pipelineBoard" style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;flex:1;min-height:0"></div>
         </div>
       </div>
     </div>
@@ -3488,6 +3645,7 @@ select option{background:var(--navy3)}
           <div class="cfbt active" id="cctab-collateral" onclick="setCCTab('collateral',this)"><i class="ti ti-layout-collage" style="font-size:var(--text-xs);display:inline-block;margin-right:4px"></i>Collateral Library</div>
           <div class="cfbt" id="cctab-projects" onclick="setCCTab('projects',this)"><i class="ti ti-briefcase" style="font-size:var(--text-xs);display:inline-block;margin-right:4px"></i>Client Projects</div>
           <div class="cfbt" id="cctab-social" onclick="setCCTab('social',this)"><i class="ti ti-calendar-event" style="font-size:var(--text-xs);display:inline-block;margin-right:4px"></i>Social Workflow</div>
+          <div class="cfbt" id="cctab-campaigns" onclick="setCCTab('campaigns',this)"><i class="ti ti-target-arrow" style="font-size:var(--text-xs);display:inline-block;margin-right:4px"></i>Campaigns</div>
           <div class="cfbt" id="cctab-products" onclick="setCCTab('products',this)"><i class="ti ti-package" style="font-size:var(--text-xs);display:inline-block;margin-right:4px"></i>Digital Products</div>
         </div>
         <div style="flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px 18px">
@@ -3508,7 +3666,7 @@ select option{background:var(--navy3)}
               <input type="text" id="collateralFilterClient" placeholder="🔍 Filter by client…" oninput="renderCollateral()" style="font-size:var(--text-xs);padding:5px 8px;flex:1;min-width:120px">
               <button class="btn btn-o" onclick="openCollateralModal()" style="font-size:var(--text-xs);flex-shrink:0"><i class="ti ti-plus"></i> Collateral</button>
             </div>
-            <div id="collateralGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px"></div>
+            <div id="collateralGrid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px"></div>
           </div>
 
           <!-- CLIENT PROJECTS TAB -->
@@ -3517,7 +3675,7 @@ select option{background:var(--navy3)}
             <div style="display:flex;justify-content:flex-end;margin-bottom:10px">
               <button class="btn btn-o" onclick="openCreativeProjectModal()"><i class="ti ti-plus"></i> Project</button>
             </div>
-            <div id="creativeProjectGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px"></div>
+            <div id="creativeProjectGrid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px"></div>
           </div>
 
           <!-- SOCIAL WORKFLOW TAB -->
@@ -3534,10 +3692,19 @@ select option{background:var(--navy3)}
             <div id="socialBoard" style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px"></div>
           </div>
 
+          <!-- CAMPAIGN MONITORING TAB (agency-wide, all clients — same DB.campaigns as WORK-CS) -->
+          <div id="cc-campaigns" style="display:none">
+            <div class="mr" style="margin-bottom:12px" id="ccCampaignStats"></div>
+            <div style="display:flex;justify-content:flex-end;margin-bottom:10px">
+              <button class="btn btn-o" style="font-size:var(--text-xs)" onclick="openCampaignModal()"><i class="ti ti-plus"></i> Campaign</button>
+            </div>
+            <div id="ccCampaignGrid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px"></div>
+          </div>
+
           <!-- DIGITAL PRODUCTS TAB (existing — RaketPH / Etsy shop) -->
           <div id="cc-products" style="display:none">
             <div class="mr" style="margin-bottom:12px"><div class="hc"><div class="cl">Total Products</div><div class="cv" id="sidesCount">0</div></div><div class="hc"><div class="cl">Active Listings</div><div class="cv" id="sidesActive" style="color:var(--green)">0</div></div><div class="hc oc"><div class="cl">Total Revenue</div><div class="cv oc" id="sidesRevenue">₱0</div></div></div>
-            <div id="sidesProductGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px"></div>
+            <div id="sidesProductGrid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px"></div>
           </div>
 
         </div>
@@ -3560,6 +3727,7 @@ select option{background:var(--navy3)}
           <div class="cfbt" id="ftab-officers" onclick="setFaithTab('officers',this)"><i class="ti ti-users" style="font-size:var(--text-xs);display:inline-block;margin-right:4px"></i>Officers</div>
           <div class="cfbt" id="ftab-topics" onclick="setFaithTab('topics',this)"><i class="ti ti-book" style="font-size:var(--text-xs);display:inline-block;margin-right:4px"></i>Topics</div>
           <div class="cfbt" id="ftab-meetings" onclick="setFaithTab('meetings',this)"><i class="ti ti-microphone" style="font-size:var(--text-xs);display:inline-block;margin-right:4px"></i>Meetings</div>
+          <div class="cfbt" id="ftab-calendar" onclick="setFaithTab('calendar',this)"><i class="ti ti-calendar" style="font-size:var(--text-xs);display:inline-block;margin-right:4px"></i>Calendar</div>
         </div>
 
         <div style="flex:1;overflow-y:auto;padding:14px 18px">
@@ -3609,7 +3777,7 @@ select option{background:var(--navy3)}
               </div>
             </div>
             <!-- Topics grid -->
-            <div id="faithTopicsGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px">
+            <div id="faithTopicsGrid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px">
               <div style="grid-column:1/-1;text-align:center;color:var(--text3);font-size:var(--text-sm);padding:30px">No topics yet. Upload a document or click "+ New Topic".</div>
             </div>
           </div>
@@ -3617,6 +3785,23 @@ select option{background:var(--navy3)}
           <!-- FAITH MEETINGS TAB -->
           <div id="faith-meetings" style="display:none">
             <div id="meetingsPanel-FAITH" class="meetings-panel" data-world="FAITH"></div>
+          </div>
+
+          <!-- CALENDAR TAB — live reflection of the main Calendar, filtered to Faith -->
+          <div id="faith-calendar" style="display:none">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+              <div>
+                <div style="font-size:var(--text-sm);font-weight:700;color:var(--purple)">Faith Calendar</div>
+                <div style="font-size:var(--text-xs);color:var(--text3);margin-top:2px">Connected live to your main Calendar — activities, tasks, and events tagged Faith</div>
+              </div>
+              <div style="display:flex;align-items:center;gap:8px">
+                <button class="btn btn-g" style="font-size:var(--text-xs)" onclick="faithCalOffset--;renderFaithCalendar()"><i class="ti ti-chevron-left"></i></button>
+                <div id="faithCalLabel" style="font-size:var(--text-sm);font-weight:700;min-width:130px;text-align:center"></div>
+                <button class="btn btn-g" style="font-size:var(--text-xs)" onclick="faithCalOffset++;renderFaithCalendar()"><i class="ti ti-chevron-right"></i></button>
+                <button class="btn btn-o" style="font-size:var(--text-xs)" onclick="setView('calendar')"><i class="ti ti-external-link"></i> Open Full Calendar</button>
+              </div>
+            </div>
+            <div id="faithCalGrid" style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px"></div>
           </div>
 
         </div>
@@ -3775,7 +3960,7 @@ select option{background:var(--navy3)}
               <div class="hc"><div class="cl">Carried Balance</div><div class="cv" id="cf-carried" style="font-size:24px;font-weight:800;margin-top:4px;color:var(--teal);line-height:1.1">₱0.00</div><div class="csub">From previous months</div></div>
             </div>
             <!-- Account balances strip -->
-            <div id="cf-account-strip" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px;margin-bottom:14px"></div>
+            <div id="cf-account-strip" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin-bottom:14px"></div>
             <!-- Recent panels -->
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
               <div class="bd-block">
@@ -3853,7 +4038,7 @@ select option{background:var(--navy3)}
 
           <!-- ACCOUNTS TAB -->
           <div id="cf-accounts" style="display:none">
-            <div id="cf-accounts-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px"></div>
+            <div id="cf-accounts-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px"></div>
           </div>
 
           <!-- PROPERTY TAB -->
@@ -4240,9 +4425,12 @@ select option{background:var(--navy3)}
 
     <!-- ===== NOTES ===== -->
     <div class="view" id="view-notes">
-      <div class="vh"><div><div class="vt"><i class="ti ti-notes"></i>Notes</div><div class="vs">Callout cards · auto-saved</div></div><div class="va"><button class="btn btn-t" onclick="newNote()"><i class="ti ti-plus"></i> New Note</button></div></div>
-      <div class="vb">
-        <div id="notesCalloutGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px"></div>
+      <div class="vh"><div><div class="vt"><i class="ti ti-notes"></i>Notes</div><div class="vs">Callout cards · auto-saved · organized by World</div></div><div class="va"><button class="btn btn-t" onclick="newNote()"><i class="ti ti-plus"></i> New Note</button></div></div>
+      <div class="vb" style="padding:0;display:flex;overflow:hidden">
+        <div id="notesFolderRail" style="width:190px;flex-shrink:0;border-right:1px solid var(--border);overflow-y:auto;padding:12px 8px"></div>
+        <div style="flex:1;overflow-y:auto;padding:14px 18px">
+          <div id="notesCalloutGrid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px"></div>
+        </div>
       </div>
     </div>
     <!-- NOTE EDITOR OVERLAY -->
@@ -4250,6 +4438,7 @@ select option{background:var(--navy3)}
       <div class="modal" style="width:min(680px,96vw);max-height:85vh">
         <div class="mh">
           <div id="noteTitle" contenteditable="true" style="font-size:var(--text-sm);font-weight:700;outline:none;color:var(--teal);flex:1;padding:0 4px;min-width:200px" onblur="saveNoteTitle()">Untitled Note</div>
+          <select id="noteFolderSelect" onchange="setNoteFolder(this.value)" style="font-size:var(--text-xs);width:auto;margin-right:8px" title="Folder"></select>
           <button class="mc" onclick="closeModal('noteEditorModal')">×</button>
         </div>
         <div class="mb" style="padding:14px">
@@ -4606,6 +4795,55 @@ select option{background:var(--navy3)}
           </div>
         </div>
 
+        <!-- WORLDS MANAGEMENT -->
+        <div class="hc" style="margin-bottom:16px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+            <div style="font-size:var(--text-xs);font-weight:700;color:var(--teal);letter-spacing:.1em;text-transform:uppercase;display:flex;align-items:center;gap:6px"><i class="ti ti-planet" style="font-size:var(--text-sm);line-height:1;display:block"></i>Worlds Management</div>
+            <button class="btn btn-t" style="font-size:var(--text-xs)" onclick="openWorldModal()"><i class="ti ti-plus"></i> Add World</button>
+          </div>
+          <div id="settingsWorldsList" style="display:flex;flex-direction:column;gap:6px"></div>
+          <div style="font-size:var(--text-xs);color:var(--text3);margin-top:10px">Worlds power your sidebar navigation, Notes folders, and Task boards — deleting one unfiles its notes rather than deleting them.</div>
+        </div>
+
+        <!-- PREFERENCES -->
+        <div class="hc" style="margin-bottom:16px">
+          <div style="font-size:var(--text-xs);font-weight:700;color:var(--teal);letter-spacing:.1em;text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:6px"><i class="ti ti-adjustments" style="font-size:var(--text-sm);line-height:1;display:block"></i>Preferences</div>
+          <div class="fr" style="margin-bottom:10px">
+            <div class="fg"><label class="fl">Default Calendar View</label>
+              <select id="pref-cal-view" onchange="savePref('pref-cal-view')">
+                <option value="day">Day</option><option value="week">Week</option><option value="month">Month</option><option value="quarter">Quarter</option><option value="agenda">Agenda</option>
+              </select>
+            </div>
+            <div class="fg"><label class="fl">Default Task Board View</label>
+              <select id="pref-board-view" onchange="savePref('pref-board-view')">
+                <option value="table">Table</option><option value="kanban">Kanban</option><option value="boards">Boards</option>
+              </select>
+            </div>
+          </div>
+          <div class="fr">
+            <div class="fg"><label class="fl">Landing View on Unlock</label>
+              <select id="pref-landing-view" onchange="savePref('pref-landing-view')">
+                <option value="dashboard">Dashboard</option><option value="tasks">Tasks</option><option value="calendar">Calendar</option><option value="life">Life</option>
+              </select>
+            </div>
+            <div class="fg"><label class="fl">Voice Confirmations</label>
+              <select id="pref-voice-confirm" onchange="savePref('pref-voice-confirm')">
+                <option value="on">On — JARVIS speaks confirmations</option><option value="off">Off — silent, toasts only</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- SYSTEM HEALTH -->
+        <div class="hc" style="margin-bottom:16px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+            <div style="font-size:var(--text-xs);font-weight:700;color:var(--teal);letter-spacing:.1em;text-transform:uppercase;display:flex;align-items:center;gap:6px"><i class="ti ti-activity-heartbeat" style="font-size:var(--text-sm);line-height:1;display:block"></i>System Health</div>
+            <button class="btn btn-g" style="font-size:var(--text-xs)" onclick="renderSystemHealth()"><i class="ti ti-refresh"></i> Refresh</button>
+          </div>
+          <div id="systemHealthGrid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px"></div>
+          <div style="font-size:var(--text-xs);color:var(--text3);margin-top:10px" id="systemHealthFooter"></div>
+        </div>
+
         <!-- DATA VAULT -->
         <div class="hc" style="border-color:rgba(239,68,68,.3)">
           <div style="font-size:var(--text-xs);font-weight:700;color:var(--red);letter-spacing:.1em;text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:6px"><i class="ti ti-database" style="font-size:var(--text-sm);line-height:1;display:block"></i>Data Vault</div>
@@ -4782,7 +5020,14 @@ const REALTIME_TABLES=[
   {name:'history',    key:'history'},
   {name:'loans',      key:'loans'},
   {name:'accounts',   key:'accounts'},
-  {name:'collateral', key:'collateral'}
+  {name:'collateral', key:'collateral'},
+  {name:'social_posts',      key:'socialPosts'},
+  {name:'creative_projects', key:'creativeProjects'},
+  {name:'pipeline',          key:'pipeline'},
+  {name:'campaigns',         key:'campaigns'},
+  {name:'influencers',       key:'influencers'},
+  {name:'pricing',           key:'pricing'},
+  {name:'credentials',       key:'credentials'}
 ];
 
 function initRealtime(){
@@ -4845,7 +5090,7 @@ function initRealtime(){
 
 async function loadAllFromSupabase(){
   showToast('↻ Syncing with Supabase...');
-  await Promise.all([SB.load('tasks','tasks'),SB.load('clients','clients'),SB.load('venture','venture'),SB.load('faith','faith'),SB.load('cashflow','cashflow'),SB.load('cal_events','calEvents'),SB.load('journal','journal'),SB.load('notes','notes'),SB.load('memories','memories'),SB.load('sides','sides'),SB.load('history','history'),SB.load('loans','loans'),SB.load('accounts','accounts'),SB.load('collateral','collateral')]);
+  await Promise.all([SB.load('tasks','tasks'),SB.load('clients','clients'),SB.load('venture','venture'),SB.load('faith','faith'),SB.load('cashflow','cashflow'),SB.load('cal_events','calEvents'),SB.load('journal','journal'),SB.load('notes','notes'),SB.load('memories','memories'),SB.load('sides','sides'),SB.load('history','history'),SB.load('loans','loans'),SB.load('accounts','accounts'),SB.load('collateral','collateral'),SB.load('social_posts','socialPosts'),SB.load('creative_projects','creativeProjects'),SB.load('pipeline','pipeline'),SB.load('campaigns','campaigns'),SB.load('influencers','influencers'),SB.load('pricing','pricing'),SB.load('credentials','credentials')]);
   reRenderAll();showToast('✓ Supabase synced');speak('All systems synced, sir.');
 }
 // ═══════════════════════════════════════════════════════════════════════════
@@ -4856,7 +5101,7 @@ const Store={
   _renderMap:{
     dashboard:()=>{try{renderBrief();}catch(e){}},
     'work-ih':()=>{try{renderWorkIH();}catch(e){}},
-    'work-cs':()=>{try{renderWorkCS();}catch(e){}},
+    'work-cs':()=>{try{renderWorkCS();if(csActiveView==='marketing')renderMktgActive();}catch(e){}},
     venture:()=>{try{renderVenture();}catch(e){}},
     build:()=>{try{renderBuild();renderBuildTasks();renderPipeline();}catch(e){}},
     sides:()=>{try{renderSides();renderCollateral();renderCreativeProjects();renderSocialWorkflow();}catch(e){}},
@@ -4954,6 +5199,7 @@ function saveWorld(){
   save('worlds');
   closeModal('worldModal');
   renderSideNav();
+  if(typeof renderNotesFolderRail==='function')renderNotesFolderRail();
   showToast(`✓ World "${label}" ${editingWorldId?'updated':'created'}`);
 }
 function deleteWorld(id){
@@ -4963,7 +5209,13 @@ function deleteWorld(id){
   if(!confirm(`Delete world "${w.label}"?`))return;
   DB.worlds=DB.worlds.filter(x=>x.id!==id);
   save('worlds');
+  // Unfile any notes that were in this folder rather than orphaning them
+  (DB.notes||[]).forEach(n=>{if(n.worldId===id)n.worldId=null;});
+  save('notes');
+  if(notesActiveFolder===id)notesActiveFolder='all';
   renderSideNav();
+  if(typeof renderNotesFolderRail==='function')renderNotesFolderRail();
+  if(typeof renderNotesList==='function')renderNotesList();
   closeModal('worldModal');
   showToast('World deleted');
 }
@@ -5424,6 +5676,71 @@ function renderSettingsView(){
   const hasPin=localStorage.getItem('j-sys-pin');
   const pinHint=document.getElementById('pinSetHint');
   if(pinHint)pinHint.textContent=hasPin?'PIN configured ✓':'PIN not set — using system default';
+  renderSettingsWorldsList();
+  loadPrefs();
+  renderSystemHealth();
+}
+
+// ── Worlds Management (Settings) ──────────────────────────────────────────
+function renderSettingsWorldsList(){
+  const el=document.getElementById('settingsWorldsList');if(!el)return;
+  const worlds=DB.worlds||[];
+  el.innerHTML=worlds.map((w,i)=>{
+    const color=(w.color&&/^#/.test(w.color))?w.color:'var(--teal)';
+    return `<div style="display:flex;align-items:center;gap:10px;padding:9px 12px;background:var(--navy3);border:1px solid var(--border);border-left:3px solid ${color};border-radius:6px">
+      <i class="ti ${w.icon||'ti-star'}" style="color:${color};font-size:15px;flex-shrink:0"></i>
+      <div style="flex:1;font-size:var(--text-sm);font-weight:600;color:var(--text1)">${w.label}</div>
+      <span style="font-size:9px;color:var(--text3)">${(DB.notes||[]).filter(n=>n.worldId===w.id).length} notes</span>
+      <button onclick="moveArrayItem('worlds','${w.id}',-1,renderSettingsWorldsList)" ${i===0?'disabled':''} style="background:transparent;border:none;color:var(--text3);cursor:pointer;padding:2px"><i class="ti ti-chevron-up" style="font-size:12px;line-height:1;display:block"></i></button>
+      <button onclick="moveArrayItem('worlds','${w.id}',1,renderSettingsWorldsList)" ${i===worlds.length-1?'disabled':''} style="background:transparent;border:none;color:var(--text3);cursor:pointer;padding:2px"><i class="ti ti-chevron-down" style="font-size:12px;line-height:1;display:block"></i></button>
+      <button onclick="openWorldModal('${w.id}')" style="background:transparent;border:none;color:var(--text3);cursor:pointer;padding:2px" title="Edit"><i class="ti ti-pencil" style="font-size:12px;line-height:1;display:block"></i></button>
+      <button onclick="deleteWorld('${w.id}')" style="background:transparent;border:none;color:var(--red);cursor:pointer;padding:2px" title="Delete"><i class="ti ti-trash" style="font-size:12px;line-height:1;display:block"></i></button>
+    </div>`;
+  }).join('');
+}
+
+// ── Preferences (persisted, applied at boot) ────────────────────────────
+const PREF_DEFAULTS={'pref-cal-view':'agenda','pref-board-view':'table','pref-landing-view':'dashboard','pref-voice-confirm':'on'};
+function savePref(id){
+  const el=document.getElementById(id);if(!el)return;
+  localStorage.setItem('j-'+id,el.value);
+  showToast('✓ Preference saved');
+}
+function loadPrefs(){
+  Object.keys(PREF_DEFAULTS).forEach(id=>{
+    const el=document.getElementById(id);if(!el)return;
+    el.value=localStorage.getItem('j-'+id)||PREF_DEFAULTS[id];
+  });
+}
+function getPref(id){return localStorage.getItem('j-'+id)||PREF_DEFAULTS[id];}
+
+// ── System Health (Settings diagnostic panel) ───────────────────────────
+function renderSystemHealth(){
+  const grid=document.getElementById('systemHealthGrid');if(!grid)return;
+  const counts=[
+    ['Tasks',DB.tasks?.length||0],
+    ['Notes',DB.notes?.length||0],
+    ['Cal Events',DB.calEvents?.length||0],
+    ['Cashflow Txns',DB.cashflow?.length||0],
+    ['Accounts',DB.accounts?.length||0],
+    ['Clients',DB.clients?.length||0],
+    ['Worlds',DB.worlds?.length||0],
+    ['Build Apps',DB.buildApps?.length||0],
+    ['Faith Activities',DB.faith?.length||0],
+    ['Officers',DB.officers?.length||0],
+    ['Collateral',DB.collateral?.length||0],
+    ['Campaigns',DB.campaigns?.length||0],
+  ];
+  grid.innerHTML=counts.map(([label,count])=>`<div style="background:var(--navy3);border:1px solid var(--border);border-radius:6px;padding:10px 12px;text-align:center">
+    <div style="font-size:18px;font-weight:800;color:var(--teal)">${count}</div>
+    <div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.04em;margin-top:2px">${label}</div>
+  </div>`).join('');
+  // Estimate localStorage usage
+  let bytes=0;
+  try{for(const k in localStorage){if(localStorage.hasOwnProperty(k))bytes+=(localStorage[k]||'').length+k.length;}}catch(e){}
+  const kb=(bytes/1024).toFixed(1);
+  const footer=document.getElementById('systemHealthFooter');
+  if(footer)footer.textContent=`Local storage: ~${kb} KB used · Supabase project: ${typeof SB_URL!=='undefined'?SB_URL.replace('https://','').split('.')[0]:'—'} · Last boot: ${new Date().toLocaleString('en-PH',{hour:'2-digit',minute:'2-digit',day:'numeric',month:'short'})}`;
 }
 
 // ===== DB =====
@@ -5466,6 +5783,10 @@ const DB={
   pipeline:JSON.parse(localStorage.getItem('j-pipeline')||'null')||[],
   creativeProjects:JSON.parse(localStorage.getItem('j-creativeProjects')||'null')||[],
   socialPosts:JSON.parse(localStorage.getItem('j-socialPosts')||'null')||[],
+  campaigns:JSON.parse(localStorage.getItem('j-campaigns')||'null')||[],
+  influencers:JSON.parse(localStorage.getItem('j-influencers')||'null')||[],
+  pricing:JSON.parse(localStorage.getItem('j-pricing')||'null')||[],
+  credentials:JSON.parse(localStorage.getItem('j-credentials')||'null')||[],
   faith:JSON.parse(localStorage.getItem('j-faith')||'null')||[],
   cashflow:JSON.parse(localStorage.getItem('j-cashflow')||'null')||[],
   accounts:JSON.parse(localStorage.getItem('j-accounts')||'null')||[
@@ -6689,7 +7010,7 @@ SB.load=function(table,key,...args){
 };
 
 // ── View state ────────────────────────────────────────────────────────────
-let boardView='table';
+let boardView=(typeof getPref==='function'&&getPref('pref-board-view'))||'table';
 let boardSortCol='due',boardSortDir='asc';
 let subitemExpanded=new Set();
 let selectedTaskIds=new Set();
@@ -7321,21 +7642,43 @@ function setCSClient(client,el){
   });
   const cfg=CS_CLIENTS[client];
   el.style.background=cfg.bg;el.style.borderColor=cfg.border;el.style.color=cfg.accent;
-  renderCSActive();
+  if(csActiveView==='marketing'){updateCSBanner();renderMktgActive();}else{renderCSActive();}
 }
 function setCSView(v,el){
   csActiveView=v;
   document.getElementById('cs-kanban').style.display=v==='kanban'?'':'none';
   document.getElementById('cs-list').style.display=v==='list'?'':'none';
   const cm=document.getElementById('cs-meetings');if(cm)cm.style.display=v==='meetings'?'':'none';
-  ['csv-k','csv-l','csv-m'].forEach(id=>{const b=document.getElementById(id);if(b){b.style.background='transparent';b.style.borderColor='var(--border2)';b.style.color='var(--text2)';}});
+  const mk=document.getElementById('cs-marketing');if(mk)mk.style.display=v==='marketing'?'flex':'none';
+  ['csv-k','csv-l','csv-m','csv-mktg'].forEach(id=>{const b=document.getElementById(id);if(b){b.style.background='transparent';b.style.borderColor='var(--border2)';b.style.color='var(--text2)';}});
   if(el){el.style.background='var(--navy3)';el.style.borderColor='var(--border)';el.style.color='var(--text1)';}
   if(v==='meetings') renderMeetingsPanel('meetingsPanel-WORK-CS','WORK-CS');
+  else if(v==='marketing'){updateCSBanner();renderMktgActive();}
   else renderCSActive();
 }
-function renderCSActive(){
+let mktgActiveTab='campaigns';
+function setMktgTab(tab,btn){
+  mktgActiveTab=tab;
+  ['campaigns','social','influencers','pricing','vault'].forEach(t=>{
+    const el=document.getElementById('mktg-'+t);if(el)el.style.display=t===tab?'':'none';
+  });
+  document.querySelectorAll('.cfbt[id^="mktgtab-"]').forEach(b=>b.classList.remove('active'));
+  if(btn)btn.classList.add('active');
+  renderMktgActive();
+}
+function csClientMatch(clientField){
+  const cf=(clientField||'').toLowerCase();
+  return csActiveClient==='chainsmoker' ? (!cf||cf.includes('chainsmoker')) : cf.includes('sweetheart');
+}
+function renderMktgActive(){
+  if(mktgActiveTab==='campaigns')renderCampaigns();
+  else if(mktgActiveTab==='social')renderCSSocialCalendar();
+  else if(mktgActiveTab==='influencers')renderInfluencers();
+  else if(mktgActiveTab==='pricing')renderPricing();
+  else if(mktgActiveTab==='vault')renderCredentials();
+}
+function updateCSBanner(){
   const cfg=CS_CLIENTS[csActiveClient];
-  // Banner
   const banner=document.getElementById('cs-client-banner');
   if(banner){banner.style.background=cfg.bg;banner.style.border='1px solid '+cfg.border;}
   const nm=document.getElementById('cs-banner-name');
@@ -7343,6 +7686,10 @@ function renderCSActive(){
   const sub=document.getElementById('cs-banner-sub');
   if(sub){sub.textContent=cfg.sub;sub.style.color=cfg.accent;sub.style.opacity='.7';}
   const ico=document.getElementById('cs-banner-icon');if(ico)ico.textContent=cfg.icon;
+  return cfg;
+}
+function renderCSActive(){
+  const cfg=updateCSBanner();
   // Filter tasks
   const allCS=DB.tasks.filter(t=>t.world==='WORK-CS');
   const tasks=csActiveClient==='chainsmoker'
@@ -7863,6 +8210,10 @@ function openPipelineModal(id){
   document.getElementById('pl-budget').value=p?p.budget||'':'';
   document.getElementById('pl-deadline').value=p?p.deadline||'':'';
   document.getElementById('pl-tech').value=p?p.tech||'':'';
+  document.getElementById('pl-repo').value=p?p.repo||'':'';
+  document.getElementById('pl-supabase').value=p?p.supabase||'':'';
+  document.getElementById('pl-website').value=p?p.website||'':'';
+  document.getElementById('pl-social').value=p?p.social||'':'';
   document.getElementById('pl-notes').value=p?p.notes||'':'';
   const delBtn=document.getElementById('pl-delete-btn');if(delBtn)delBtn.style.display=p?'block':'none';
   openModal('pipelineModal');
@@ -7878,13 +8229,16 @@ function savePipelineProject(){
     budget:parseFloat(document.getElementById('pl-budget').value)||0,
     deadline:document.getElementById('pl-deadline').value,
     tech:document.getElementById('pl-tech').value.trim(),
+    repo:document.getElementById('pl-repo').value.trim(),
+    supabase:document.getElementById('pl-supabase').value.trim(),
+    website:document.getElementById('pl-website').value.trim(),
+    social:document.getElementById('pl-social').value.trim(),
     notes:document.getElementById('pl-notes').value.trim(),
   };
   DB.pipeline=DB.pipeline||[];
   const isEdit=!!editingPipelineId;
-  if(isEdit){const i=DB.pipeline.findIndex(x=>x.id===editingPipelineId);if(i>=0)DB.pipeline[i]=p;}
-  else DB.pipeline.unshift(p);
-  save('pipeline');
+  if(isEdit){const i=DB.pipeline.findIndex(x=>x.id===editingPipelineId);if(i>=0)DB.pipeline[i]=p;SB.update('pipeline',p.id,p,'pipeline');}
+  else{DB.pipeline.unshift(p);SB.upsert('pipeline',p,'pipeline');}
   addHistory(isEdit?'edit':'add',(isEdit?'Edited':'Added')+' pipeline project: '+p.name,{...p,_dbKey:'pipeline'});
   editingPipelineId=null;
   closeModal('pipelineModal');
@@ -7897,6 +8251,7 @@ function deletePipelineProject(id){
   if(!id&&!confirm('Delete "'+p.name+'"?'))return;
   DB.pipeline=DB.pipeline.filter(x=>x.id!==targetId);
   save('pipeline');
+  SB.remove('pipeline',targetId,'pipeline');
   addHistory('delete','Deleted pipeline project: '+p.name,{...p,_dbKey:'pipeline'});
   editingPipelineId=null;
   closeModal('pipelineModal');
@@ -7905,7 +8260,7 @@ function deletePipelineProject(id){
 }
 function movePipelineStage(id,stage){
   const p=(DB.pipeline||[]).find(x=>x.id===id);if(!p)return;
-  p.stage=stage;save('pipeline');renderPipeline();renderBuildStats();
+  p.stage=stage;save('pipeline');SB.update('pipeline',p.id,p,'pipeline');renderPipeline();renderBuildStats();
 }
 function renderPipeline(){
   const board=document.getElementById('pipelineBoard');if(!board)return;
@@ -7917,23 +8272,29 @@ function renderPipeline(){
   const items=DB.pipeline||[];
   board.innerHTML=stages.map(s=>{
     const stageItems=items.filter(p=>p.stage===s.id);
-    return `<div style="display:flex;flex-direction:column;background:var(--navy2);border:1px solid var(--border);border-top:2px solid ${s.color};border-radius:10px;overflow:hidden;min-height:200px">
-      <div style="padding:10px 12px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
+    return `<div style="display:flex;flex-direction:column;background:var(--navy2);border:1px solid var(--border);border-top:2px solid ${s.color};border-radius:10px;overflow:hidden;min-height:0">
+      <div style="padding:12px 14px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-shrink:0">
         <span style="font-size:var(--text-xs);font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:${s.color}">${s.label}</span>
         <span style="font-size:var(--text-xs);color:var(--text3)">${stageItems.length}</span>
       </div>
-      <div style="flex:1;padding:8px;display:flex;flex-direction:column;gap:8px">
+      <div style="flex:1;padding:10px;display:flex;flex-direction:column;gap:10px;overflow-y:auto">
         ${stageItems.length?stageItems.map(p=>`
-          <div onclick="openPipelineModal(${p.id})" style="background:var(--navy3);border:1px solid var(--border);border-radius:8px;padding:10px 12px;cursor:pointer">
-            <div style="font-size:var(--text-sm);font-weight:700;color:var(--text1);margin-bottom:3px">${p.name}</div>
-            ${p.client?`<div style="font-size:var(--text-xs);color:var(--teal);margin-bottom:4px">${p.client}</div>`:''}
-            ${p.tech?`<div style="font-size:var(--text-xs);color:var(--text3);margin-bottom:4px"><i class="ti ti-code" style="font-size:9px;margin-right:3px"></i>${p.tech}</div>`:''}
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px">
+          <div onclick="openPipelineModal(${p.id})" style="background:var(--navy3);border:1px solid var(--border);border-radius:8px;padding:14px;cursor:pointer">
+            <div style="font-size:var(--text-md);font-weight:700;color:var(--text1);margin-bottom:4px">${p.name}</div>
+            ${p.client?`<div style="font-size:var(--text-xs);color:var(--teal);margin-bottom:6px">${p.client}</div>`:''}
+            ${p.tech?`<div style="font-size:var(--text-xs);color:var(--text3);margin-bottom:8px"><i class="ti ti-code" style="font-size:10px;margin-right:4px"></i>${p.tech}</div>`:''}
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
               <span style="font-size:var(--text-xs);color:var(--text3)">${p.deadline||'No deadline'}</span>
-              ${p.budget?`<span style="font-size:var(--text-xs);font-weight:700;color:var(--amber)">₱${p.budget.toLocaleString()}</span>`:''}
+              ${p.budget?`<span style="font-size:var(--text-sm);font-weight:800;color:var(--amber)">₱${p.budget.toLocaleString()}</span>`:''}
             </div>
-            <div style="display:flex;gap:4px;margin-top:8px" onclick="event.stopPropagation()">
-              ${stages.filter(x=>x.id!==s.id).map(x=>`<button onclick="movePipelineStage(${p.id},'${x.id}')" style="flex:1;font-size:9px;padding:3px 4px;background:transparent;border:1px solid var(--border);border-radius:4px;color:var(--text3);cursor:pointer">→ ${x.label}</button>`).join('')}
+            ${(p.repo||p.supabase||p.website||p.social)?`<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px" onclick="event.stopPropagation()">
+              ${p.repo?`<a href="${p.repo}" target="_blank" title="Repo" style="color:var(--text3);display:inline-flex;padding:4px 6px;border:1px solid var(--border);border-radius:5px;text-decoration:none" onmouseover="this.style.color='var(--teal)';this.style.borderColor='var(--teal)'" onmouseout="this.style.color='var(--text3)';this.style.borderColor='var(--border)'"><i class="ti ti-brand-github" style="font-size:13px;line-height:1;display:block"></i></a>`:''}
+              ${p.supabase?`<a href="${p.supabase}" target="_blank" title="Supabase" style="color:var(--text3);display:inline-flex;padding:4px 6px;border:1px solid var(--border);border-radius:5px;text-decoration:none" onmouseover="this.style.color='var(--green)';this.style.borderColor='var(--green)'" onmouseout="this.style.color='var(--text3)';this.style.borderColor='var(--border)'"><i class="ti ti-database" style="font-size:13px;line-height:1;display:block"></i></a>`:''}
+              ${p.website?`<a href="${p.website}" target="_blank" title="Website" style="color:var(--text3);display:inline-flex;padding:4px 6px;border:1px solid var(--border);border-radius:5px;text-decoration:none" onmouseover="this.style.color='var(--teal)';this.style.borderColor='var(--teal)'" onmouseout="this.style.color='var(--text3)';this.style.borderColor='var(--border)'"><i class="ti ti-world" style="font-size:13px;line-height:1;display:block"></i></a>`:''}
+              ${p.social?`<a href="${p.social}" target="_blank" title="Social" style="color:var(--text3);display:inline-flex;padding:4px 6px;border:1px solid var(--border);border-radius:5px;text-decoration:none" onmouseover="this.style.color='var(--amber)';this.style.borderColor='var(--amber)'" onmouseout="this.style.color='var(--text3)';this.style.borderColor='var(--border)'"><i class="ti ti-share" style="font-size:13px;line-height:1;display:block"></i></a>`:''}
+            </div>`:''}
+            <div style="display:flex;gap:4px" onclick="event.stopPropagation()">
+              ${stages.filter(x=>x.id!==s.id).map(x=>`<button onclick="movePipelineStage(${p.id},'${x.id}')" style="flex:1;font-size:9px;padding:4px 4px;background:transparent;border:1px solid var(--border);border-radius:4px;color:var(--text3);cursor:pointer">→ ${x.label}</button>`).join('')}
             </div>
           </div>`).join(''):'<div style="font-size:var(--text-xs);color:var(--text3);text-align:center;padding:16px">Empty</div>'}
       </div>
@@ -7990,7 +8351,7 @@ function removeSideTodo(pid,idx){const p=DB.sides.find(x=>x.id===pid);if(!p||!p.
 
 // ── Creative Collectives — tab navigation ───────────────────────────────
 function setCCTab(tab,btn){
-  ['collateral','projects','social','products'].forEach(t=>{
+  ['collateral','projects','social','campaigns','products'].forEach(t=>{
     const panel=document.getElementById('cc-'+t);if(panel)panel.style.display=t===tab?'':'none';
     const tabBtn=document.getElementById('cctab-'+t);if(tabBtn)tabBtn.classList.toggle('active',t===tab);
   });
@@ -8000,6 +8361,7 @@ function setCCTab(tab,btn){
       collateral:'<button class="btn btn-o" onclick="openCollateralModal()"><i class="ti ti-plus"></i> Collateral</button>',
       projects:'<button class="btn btn-o" onclick="openCreativeProjectModal()"><i class="ti ti-plus"></i> Project</button>',
       social:'<button class="btn btn-o" onclick="openSocialModal()"><i class="ti ti-plus"></i> Post</button>',
+      campaigns:'<button class="btn btn-o" onclick="openCampaignModal()"><i class="ti ti-plus"></i> Campaign</button>',
       products:'<button class="btn btn-o" onclick="addSidesProduct()"><i class="ti ti-plus"></i> Product</button>',
     };
     headerBtns.innerHTML=btnMap[tab]||btnMap.collateral;
@@ -8007,6 +8369,7 @@ function setCCTab(tab,btn){
   if(tab==='collateral')renderCollateral();
   else if(tab==='projects')renderCreativeProjects();
   else if(tab==='social')renderSocialWorkflow();
+  else if(tab==='campaigns')renderCampaigns();
   else renderSides();
 }
 
@@ -8161,9 +8524,8 @@ function saveCreativeProject(){
   };
   DB.creativeProjects=DB.creativeProjects||[];
   const isEdit=!!editingCreativeProjectId;
-  if(isEdit){const i=DB.creativeProjects.findIndex(x=>x.id===editingCreativeProjectId);if(i>=0)DB.creativeProjects[i]=p;}
-  else DB.creativeProjects.unshift(p);
-  save('creativeProjects');
+  if(isEdit){const i=DB.creativeProjects.findIndex(x=>x.id===editingCreativeProjectId);if(i>=0)DB.creativeProjects[i]=p;SB.update('creative_projects',p.id,p,'creativeProjects');}
+  else{DB.creativeProjects.unshift(p);SB.upsert('creative_projects',p,'creativeProjects');}
   addHistory(isEdit?'edit':'add',(isEdit?'Edited':'Added')+' creative project: '+p.name,{...p,_dbKey:'creativeProjects'});
   editingCreativeProjectId=null;
   closeModal('creativeProjectModal');
@@ -8176,6 +8538,7 @@ function deleteCreativeProject(id){
   if(!id&&!confirm('Delete "'+p.name+'"?'))return;
   DB.creativeProjects=DB.creativeProjects.filter(x=>x.id!==targetId);
   save('creativeProjects');
+  SB.remove('creative_projects',targetId,'creativeProjects');
   addHistory('delete','Deleted creative project: '+p.name,{...p,_dbKey:'creativeProjects'});
   editingCreativeProjectId=null;
   closeModal('creativeProjectModal');
@@ -8245,9 +8608,8 @@ function saveSocialPost(){
   };
   DB.socialPosts=DB.socialPosts||[];
   const isEdit=!!editingSocialId;
-  if(isEdit){const i=DB.socialPosts.findIndex(x=>x.id===editingSocialId);if(i>=0)DB.socialPosts[i]=s;}
-  else DB.socialPosts.unshift(s);
-  save('socialPosts');
+  if(isEdit){const i=DB.socialPosts.findIndex(x=>x.id===editingSocialId);if(i>=0)DB.socialPosts[i]=s;SB.update('social_posts',s.id,s,'socialPosts');}
+  else{DB.socialPosts.unshift(s);SB.upsert('social_posts',s,'socialPosts');}
   addHistory(isEdit?'edit':'add',(isEdit?'Edited':'Added')+' social post: '+(s.caption.substring(0,40)||s.client),{...s,_dbKey:'socialPosts'});
   editingSocialId=null;
   closeModal('socialModal');
@@ -8260,6 +8622,7 @@ function deleteSocialPost(id){
   if(!id&&!confirm('Delete this post?'))return;
   DB.socialPosts=DB.socialPosts.filter(x=>x.id!==targetId);
   save('socialPosts');
+  SB.remove('social_posts',targetId,'socialPosts');
   addHistory('delete','Deleted social post',{...s,_dbKey:'socialPosts'});
   editingSocialId=null;
   closeModal('socialModal');
@@ -8268,10 +8631,9 @@ function deleteSocialPost(id){
 }
 function moveSocialStage(id,status){
   const s=(DB.socialPosts||[]).find(x=>x.id===id);if(!s)return;
-  s.status=status;save('socialPosts');renderSocialWorkflow();
+  s.status=status;save('socialPosts');SB.update('social_posts',s.id,s,'socialPosts');renderSocialWorkflow();
 }
 function renderSocialWorkflow(){
-  const board=document.getElementById('socialBoard');if(!board)return;
   const items=DB.socialPosts||[];
   const statsEl=document.getElementById('socialStats');
   if(statsEl){
@@ -8285,7 +8647,15 @@ function renderSocialWorkflow(){
   let filtered=items;
   if(platformF!=='all')filtered=filtered.filter(s=>s.platform===platformF);
   if(clientF)filtered=filtered.filter(s=>(s.client||'').toLowerCase().includes(clientF));
-
+  renderSocialBoardInto('socialBoard',filtered);
+}
+// WORK-CS Social Calendar tab — same board, scoped to the active client (Chainsmoker/Sweetheart Cafe)
+function renderCSSocialCalendar(){
+  const items=(DB.socialPosts||[]).filter(s=>csClientMatch(s.client));
+  renderSocialBoardInto('csSocialBoard',items);
+}
+function renderSocialBoardInto(elId,filtered){
+  const board=document.getElementById(elId);if(!board)return;
   const stages=[
     {id:'Draft',label:'Draft',color:'var(--text3)'},
     {id:'Needs Approval',label:'Needs Approval',color:'var(--amber)'},
@@ -8317,28 +8687,392 @@ function renderSocialWorkflow(){
     </div>`;
   }).join('');
 }
+
+// ── Campaigns (shared model — used by WORK-CS Marketing suite AND Creative Collectives) ──
+let editingCampaignId=null;
+function openCampaignModal(id){
+  editingCampaignId=id||null;
+  const c=id?(DB.campaigns||[]).find(x=>x.id===id):null;
+  document.getElementById('campaignModalTitle').textContent=c?'Edit Campaign':'New Campaign';
+  document.getElementById('cam-name').value=c?c.name||'':'';
+  const inCSMktg=document.getElementById('cs-marketing')&&document.getElementById('cs-marketing').style.display!=='none';
+  document.getElementById('cam-client').value=c?(c.client||''):(inCSMktg?CS_CLIENTS[csActiveClient].label:'');
+  document.getElementById('cam-platform').value=c?c.platform||'':'';
+  document.getElementById('cam-status').value=c?c.status||'Planning':'Planning';
+  document.getElementById('cam-goal').value=c?c.goal||'':'';
+  document.getElementById('cam-start').value=c?c.startDate||'':'';
+  document.getElementById('cam-end').value=c?c.endDate||'':'';
+  document.getElementById('cam-budget').value=c?c.budget||'':'';
+  document.getElementById('cam-spent').value=c?c.spent||'':'';
+  document.getElementById('cam-results').value=c?c.results||'':'';
+  document.getElementById('cam-notes').value=c?c.notes||'':'';
+  const delBtn=document.getElementById('cam-delete-btn');if(delBtn)delBtn.style.display=c?'block':'none';
+  openModal('campaignModal');
+}
+function saveCampaign(){
+  const name=document.getElementById('cam-name').value.trim();
+  if(!name){showToast('⚠ Campaign name required, sir.');return;}
+  const c={
+    id:editingCampaignId||Date.now(),
+    name,
+    client:document.getElementById('cam-client').value.trim(),
+    platform:document.getElementById('cam-platform').value.trim(),
+    status:document.getElementById('cam-status').value,
+    goal:document.getElementById('cam-goal').value.trim(),
+    startDate:document.getElementById('cam-start').value,
+    endDate:document.getElementById('cam-end').value,
+    budget:parseFloat(document.getElementById('cam-budget').value)||0,
+    spent:parseFloat(document.getElementById('cam-spent').value)||0,
+    results:document.getElementById('cam-results').value.trim(),
+    notes:document.getElementById('cam-notes').value.trim(),
+  };
+  DB.campaigns=DB.campaigns||[];
+  const isEdit=!!editingCampaignId;
+  if(isEdit){const i=DB.campaigns.findIndex(x=>x.id===editingCampaignId);if(i>=0)DB.campaigns[i]=c;SB.update('campaigns',c.id,c,'campaigns');}
+  else{DB.campaigns.unshift(c);SB.upsert('campaigns',c,'campaigns');}
+  addHistory(isEdit?'edit':'add',(isEdit?'Edited':'Added')+' campaign: '+c.name,{...c,_dbKey:'campaigns'});
+  editingCampaignId=null;
+  closeModal('campaignModal');
+  renderCampaigns();
+  showToast('✓ Campaign saved');
+}
+function deleteCampaign(id){
+  const targetId=id||editingCampaignId;
+  const c=(DB.campaigns||[]).find(x=>x.id===targetId);if(!c)return;
+  if(!id&&!confirm('Delete "'+c.name+'"?'))return;
+  DB.campaigns=DB.campaigns.filter(x=>x.id!==targetId);
+  save('campaigns');SB.remove('campaigns',targetId,'campaigns');
+  addHistory('delete','Deleted campaign: '+c.name,{...c,_dbKey:'campaigns'});
+  editingCampaignId=null;
+  closeModal('campaignModal');
+  renderCampaigns();
+  showToast('Campaign deleted');
+}
+function renderCampaigns(){
+  // Scope to active client when rendered inside WORK-CS Marketing suite; show all when rendered in Creative Collectives
+  const inCS=document.getElementById('cs-marketing')&&document.getElementById('cs-marketing').style.display!=='none';
+  const grid=document.getElementById(inCS?'campaignGrid':'ccCampaignGrid');if(!grid)return;
+  const items=inCS?(DB.campaigns||[]).filter(c=>csClientMatch(c.client)):(DB.campaigns||[]);
+  const statsElId=inCS?null:'ccCampaignStats';
+  if(statsElId){
+    const statsEl=document.getElementById(statsElId);
+    if(statsEl){
+      const active=items.filter(c=>c.status==='Active').length;
+      const totalBudget=items.reduce((s,c)=>s+(c.budget||0),0);
+      const totalSpent=items.reduce((s,c)=>s+(c.spent||0),0);
+      statsEl.innerHTML=`<div class="hc"><div class="cl">Total Campaigns</div><div class="cv">${items.length}</div></div><div class="hc"><div class="cl">Active</div><div class="cv" style="color:var(--teal)">${active}</div></div><div class="hc"><div class="cl">Total Budget</div><div class="cv">₱${totalBudget.toLocaleString('en-PH')}</div></div><div class="hc oc"><div class="cl">Spent</div><div class="cv oc">₱${totalSpent.toLocaleString('en-PH')}</div></div>`;
+    }
+  }
+  if(!items.length){grid.innerHTML='<div style="font-size:var(--text-xs);color:var(--text3);grid-column:1/-1;padding:20px;text-align:center">No campaigns yet.</div>';return;}
+  const statusColor={Planning:'var(--text3)',Active:'var(--teal)',Paused:'var(--amber)',Completed:'var(--green)'};
+  grid.innerHTML=items.map(c=>{
+    const sc=statusColor[c.status]||'var(--text3)';
+    const spendPct=c.budget?Math.min(100,Math.round((c.spent/c.budget)*100)):0;
+    return `<div style="background:var(--navy2);border:1px solid var(--border);border-top:2px solid ${sc};border-radius:10px;padding:14px;cursor:pointer" onclick="openCampaignModal(${c.id})">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px">
+        <div style="font-size:var(--text-sm);font-weight:700;color:var(--text1)">${c.name}</div>
+        <span style="font-size:9px;font-weight:700;padding:2px 6px;border-radius:3px;background:${sc}22;color:${sc};text-transform:uppercase;flex-shrink:0">${c.status}</span>
+      </div>
+      <div style="font-size:var(--text-xs);color:var(--teal);margin-bottom:6px">${c.client||''}${c.platform?' · '+c.platform:''}</div>
+      ${c.goal?`<div style="font-size:var(--text-xs);color:var(--text3);margin-bottom:8px"><i class="ti ti-target-arrow" style="font-size:10px;margin-right:3px"></i>${c.goal}</div>`:''}
+      ${c.budget?`<div style="margin-bottom:6px"><div style="display:flex;justify-content:space-between;font-size:9px;color:var(--text3);margin-bottom:2px"><span>₱${c.spent.toLocaleString()} spent</span><span>₱${c.budget.toLocaleString()} budget</span></div><div style="height:4px;background:var(--navy3);border-radius:2px"><div style="height:100%;width:${spendPct}%;background:${spendPct>90?'var(--red)':sc};border-radius:2px"></div></div></div>`:''}
+      ${c.results?`<div style="font-size:var(--text-xs);color:var(--text2);background:rgba(255,255,255,.03);border-radius:5px;padding:5px 8px;margin-top:6px">${c.results}</div>`:''}
+      <div style="font-size:9px;color:var(--text3);margin-top:8px">${c.startDate||'?'} → ${c.endDate||'ongoing'}</div>
+    </div>`;
+  }).join('');
+}
+
+// ── Influencer Logbook (scoped to active WORK-CS client) ────────────────
+let editingInfluencerId=null;
+function openInfluencerModal(id){
+  editingInfluencerId=id||null;
+  const inf=id?(DB.influencers||[]).find(x=>x.id===id):null;
+  document.getElementById('influencerModalTitle').textContent=inf?'Edit Influencer':'New Influencer';
+  document.getElementById('inf-name').value=inf?inf.name||'':'';
+  document.getElementById('inf-platform').value=inf?inf.platform||'':'';
+  document.getElementById('inf-handle').value=inf?inf.handle||'':'';
+  document.getElementById('inf-followers').value=inf?inf.followers||'':'';
+  document.getElementById('inf-rate').value=inf?inf.rate||'':'';
+  document.getElementById('inf-status').value=inf?inf.status||'Contacted':'Contacted';
+  document.getElementById('inf-contact').value=inf?inf.contact||'':'';
+  document.getElementById('inf-notes').value=inf?inf.notes||'':'';
+  const delBtn=document.getElementById('inf-delete-btn');if(delBtn)delBtn.style.display=inf?'block':'none';
+  openModal('influencerModal');
+}
+function saveInfluencer(){
+  const name=document.getElementById('inf-name').value.trim();
+  if(!name){showToast('⚠ Influencer name required, sir.');return;}
+  const inf={
+    id:editingInfluencerId||Date.now(),
+    client:CS_CLIENTS[csActiveClient].label,
+    name,
+    platform:document.getElementById('inf-platform').value.trim(),
+    handle:document.getElementById('inf-handle').value.trim(),
+    followers:document.getElementById('inf-followers').value.trim(),
+    rate:parseFloat(document.getElementById('inf-rate').value)||0,
+    status:document.getElementById('inf-status').value,
+    contact:document.getElementById('inf-contact').value.trim(),
+    notes:document.getElementById('inf-notes').value.trim(),
+  };
+  DB.influencers=DB.influencers||[];
+  const isEdit=!!editingInfluencerId;
+  if(isEdit){const i=DB.influencers.findIndex(x=>x.id===editingInfluencerId);if(i>=0)DB.influencers[i]=inf;SB.update('influencers',inf.id,inf,'influencers');}
+  else{DB.influencers.unshift(inf);SB.upsert('influencers',inf,'influencers');}
+  addHistory(isEdit?'edit':'add',(isEdit?'Edited':'Added')+' influencer: '+inf.name,{...inf,_dbKey:'influencers'});
+  editingInfluencerId=null;
+  closeModal('influencerModal');
+  renderInfluencers();
+  showToast('✓ Influencer saved');
+}
+function deleteInfluencer(id){
+  const targetId=id||editingInfluencerId;
+  const inf=(DB.influencers||[]).find(x=>x.id===targetId);if(!inf)return;
+  if(!id&&!confirm('Delete "'+inf.name+'"?'))return;
+  DB.influencers=DB.influencers.filter(x=>x.id!==targetId);
+  save('influencers');SB.remove('influencers',targetId,'influencers');
+  addHistory('delete','Deleted influencer: '+inf.name,{...inf,_dbKey:'influencers'});
+  editingInfluencerId=null;
+  closeModal('influencerModal');
+  renderInfluencers();
+  showToast('Influencer deleted');
+}
+function renderInfluencers(){
+  const tbody=document.getElementById('influencerTbody');if(!tbody)return;
+  const items=(DB.influencers||[]).filter(inf=>csClientMatch(inf.client));
+  const emptyEl=document.getElementById('influencerEmpty');
+  if(!items.length){tbody.innerHTML='';if(emptyEl)emptyEl.style.display='';return;}
+  if(emptyEl)emptyEl.style.display='none';
+  const statusColor={Contacted:'var(--text3)',Negotiating:'var(--amber)',Confirmed:'var(--teal)',Posted:'var(--green)',Paid:'var(--green)'};
+  tbody.innerHTML=items.map(inf=>`<tr onclick="openInfluencerModal(${inf.id})" style="cursor:pointer">
+    <td style="font-weight:600">${inf.name}</td>
+    <td style="font-size:var(--text-xs)">${inf.platform||'—'}</td>
+    <td style="font-size:var(--text-xs);color:var(--teal)">${inf.handle||'—'}</td>
+    <td style="font-size:var(--text-xs)">${inf.followers||'—'}</td>
+    <td style="font-size:var(--text-xs)">${inf.rate?'₱'+inf.rate.toLocaleString():'—'}</td>
+    <td><span class="pill" style="font-size:var(--text-xs);background:${statusColor[inf.status]}22;color:${statusColor[inf.status]}">${inf.status}</span></td>
+    <td><button class="btn btn-d" style="padding:2px 6px" onclick="event.stopPropagation();deleteInfluencer(${inf.id})"><i class="ti ti-trash" style="font-size:var(--text-xs);line-height:1;display:block"></i></button></td>
+  </tr>`).join('');
+}
+
+// ── Pricing Monitor (scoped to active WORK-CS client) ────────────────────
+let editingPricingId=null;
+function updateMarginPreview(){
+  const cost=parseFloat(document.getElementById('prc-cost').value)||0;
+  const price=parseFloat(document.getElementById('prc-price').value)||0;
+  const el=document.getElementById('prc-margin-preview');if(!el)return;
+  if(!price){el.textContent='';return;}
+  const margin=((price-cost)/price*100).toFixed(1);
+  el.textContent=`Margin: ${margin}% (₱${(price-cost).toFixed(2)} per unit)`;
+}
+function openPricingModal(id){
+  editingPricingId=id||null;
+  const p=id?(DB.pricing||[]).find(x=>x.id===id):null;
+  document.getElementById('pricingModalTitle').textContent=p?'Edit Pricing Item':'New Pricing Item';
+  document.getElementById('prc-item').value=p?p.item||'':'';
+  document.getElementById('prc-cost').value=p?p.cost||'':'';
+  document.getElementById('prc-price').value=p?p.price||'':'';
+  document.getElementById('prc-notes').value=p?p.notes||'':'';
+  updateMarginPreview();
+  const delBtn=document.getElementById('prc-delete-btn');if(delBtn)delBtn.style.display=p?'block':'none';
+  openModal('pricingModal');
+}
+function savePricing(){
+  const item=document.getElementById('prc-item').value.trim();
+  if(!item){showToast('⚠ Item name required, sir.');return;}
+  const p={
+    id:editingPricingId||Date.now(),
+    client:CS_CLIENTS[csActiveClient].label,
+    item,
+    cost:parseFloat(document.getElementById('prc-cost').value)||0,
+    price:parseFloat(document.getElementById('prc-price').value)||0,
+    notes:document.getElementById('prc-notes').value.trim(),
+    updated:new Date().toISOString().split('T')[0],
+  };
+  DB.pricing=DB.pricing||[];
+  const isEdit=!!editingPricingId;
+  if(isEdit){const i=DB.pricing.findIndex(x=>x.id===editingPricingId);if(i>=0)DB.pricing[i]=p;SB.update('pricing',p.id,p,'pricing');}
+  else{DB.pricing.unshift(p);SB.upsert('pricing',p,'pricing');}
+  addHistory(isEdit?'edit':'add',(isEdit?'Edited':'Added')+' pricing item: '+p.item,{...p,_dbKey:'pricing'});
+  editingPricingId=null;
+  closeModal('pricingModal');
+  renderPricing();
+  showToast('✓ Pricing saved');
+}
+function deletePricing(id){
+  const targetId=id||editingPricingId;
+  const p=(DB.pricing||[]).find(x=>x.id===targetId);if(!p)return;
+  if(!id&&!confirm('Delete "'+p.item+'"?'))return;
+  DB.pricing=DB.pricing.filter(x=>x.id!==targetId);
+  save('pricing');SB.remove('pricing',targetId,'pricing');
+  addHistory('delete','Deleted pricing item: '+p.item,{...p,_dbKey:'pricing'});
+  editingPricingId=null;
+  closeModal('pricingModal');
+  renderPricing();
+  showToast('Pricing item deleted');
+}
+function renderPricing(){
+  const tbody=document.getElementById('pricingTbody');if(!tbody)return;
+  const items=(DB.pricing||[]).filter(p=>csClientMatch(p.client));
+  const emptyEl=document.getElementById('pricingEmpty');
+  if(!items.length){tbody.innerHTML='';if(emptyEl)emptyEl.style.display='';return;}
+  if(emptyEl)emptyEl.style.display='none';
+  tbody.innerHTML=items.map(p=>{
+    const margin=p.price?(((p.price-p.cost)/p.price)*100):0;
+    const marginColor=margin>=50?'var(--green)':margin>=25?'var(--amber)':'var(--red)';
+    return `<tr onclick="openPricingModal(${p.id})" style="cursor:pointer">
+      <td style="font-weight:600">${p.item}</td>
+      <td style="font-size:var(--text-xs)">₱${p.cost.toLocaleString()}</td>
+      <td style="font-size:var(--text-xs)">₱${p.price.toLocaleString()}</td>
+      <td style="font-size:var(--text-xs);font-weight:700;color:${marginColor}">${margin.toFixed(1)}%</td>
+      <td style="font-size:var(--text-xs);color:var(--text3)">${p.updated||'—'}</td>
+      <td><button class="btn btn-d" style="padding:2px 6px" onclick="event.stopPropagation();deletePricing(${p.id})"><i class="ti ti-trash" style="font-size:var(--text-xs);line-height:1;display:block"></i></button></td>
+    </tr>`;
+  }).join('');
+}
+
+// ── Credentials Vault — usernames/links only, no passwords (policy decision) ──
+let editingCredentialId=null;
+function openCredentialModal(id){
+  editingCredentialId=id||null;
+  const c=id?(DB.credentials||[]).find(x=>x.id===id):null;
+  document.getElementById('credentialModalTitle').textContent=c?'Edit Credential':'New Credential';
+  document.getElementById('cred-platform').value=c?c.platform||'':'';
+  document.getElementById('cred-username').value=c?c.username||'':'';
+  document.getElementById('cred-link').value=c?c.link||'':'';
+  document.getElementById('cred-notes').value=c?c.notes||'':'';
+  const delBtn=document.getElementById('cred-delete-btn');if(delBtn)delBtn.style.display=c?'block':'none';
+  openModal('credentialModal');
+}
+function saveCredential(){
+  const platform=document.getElementById('cred-platform').value.trim();
+  if(!platform){showToast('⚠ Platform name required, sir.');return;}
+  const c={
+    id:editingCredentialId||Date.now(),
+    client:CS_CLIENTS[csActiveClient].label,
+    platform,
+    username:document.getElementById('cred-username').value.trim(),
+    link:document.getElementById('cred-link').value.trim(),
+    notes:document.getElementById('cred-notes').value.trim(),
+  };
+  DB.credentials=DB.credentials||[];
+  const isEdit=!!editingCredentialId;
+  if(isEdit){const i=DB.credentials.findIndex(x=>x.id===editingCredentialId);if(i>=0)DB.credentials[i]=c;SB.update('credentials',c.id,c,'credentials');}
+  else{DB.credentials.unshift(c);SB.upsert('credentials',c,'credentials');}
+  addHistory(isEdit?'edit':'add',(isEdit?'Edited':'Added')+' credential: '+c.platform,{...c,_dbKey:'credentials'});
+  editingCredentialId=null;
+  closeModal('credentialModal');
+  renderCredentials();
+  showToast('✓ Credential saved');
+}
+function deleteCredential(id){
+  const targetId=id||editingCredentialId;
+  const c=(DB.credentials||[]).find(x=>x.id===targetId);if(!c)return;
+  if(!id&&!confirm('Delete "'+c.platform+'"?'))return;
+  DB.credentials=DB.credentials.filter(x=>x.id!==targetId);
+  save('credentials');SB.remove('credentials',targetId,'credentials');
+  addHistory('delete','Deleted credential: '+c.platform,{...c,_dbKey:'credentials'});
+  editingCredentialId=null;
+  closeModal('credentialModal');
+  renderCredentials();
+  showToast('Credential deleted');
+}
+function renderCredentials(){
+  const grid=document.getElementById('credentialGrid');if(!grid)return;
+  const items=(DB.credentials||[]).filter(c=>csClientMatch(c.client));
+  if(!items.length){grid.innerHTML='<div style="font-size:var(--text-xs);color:var(--text3);grid-column:1/-1;padding:20px;text-align:center">No credentials logged yet.</div>';return;}
+  grid.innerHTML=items.map(c=>`<div style="background:var(--navy2);border:1px solid var(--border);border-radius:8px;padding:12px;cursor:pointer" onclick="openCredentialModal(${c.id})">
+    <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px"><i class="ti ti-key" style="color:var(--amber);font-size:13px"></i><span style="font-size:var(--text-sm);font-weight:700;color:var(--text1)">${c.platform}</span></div>
+    ${c.username?`<div style="font-size:var(--text-xs);color:var(--text2);margin-bottom:3px">${c.username}</div>`:''}
+    ${c.link?`<a href="${c.link}" target="_blank" onclick="event.stopPropagation()" style="font-size:var(--text-xs);color:var(--teal);display:inline-flex;align-items:center;gap:3px;text-decoration:none"><i class="ti ti-external-link" style="font-size:10px"></i>Open login</a>`:''}
+  </div>`).join('');
+}
+
 function openFaithModal(id){editingFaithId=id||null;const a=id?DB.faith.find(x=>x.id===id):null;document.getElementById('faithModalTitle').textContent=a?'Edit Activity':'Add Activity';['activity','group','date','submitted','cfo','aevm','status','assigned','drive'].forEach(f=>{const el=document.getElementById('fa-'+f);if(el)el.value=a?(a[f]||''):'';});openModal('faithModal');}
-function saveFaithActivity(){const a={id:editingFaithId||Date.now(),activity:document.getElementById('fa-activity').value.trim(),group:document.getElementById('fa-group').value.trim(),date:document.getElementById('fa-date').value,submitted:document.getElementById('fa-submitted').value,cfo:document.getElementById('fa-cfo').value.trim(),aevm:document.getElementById('fa-aevm').value.trim(),status:document.getElementById('fa-status').value,assigned:document.getElementById('fa-assigned').value.trim(),drive:document.getElementById('fa-drive').value.trim()};if(!a.activity){showToast('Activity name required');return;}const isEdit=!!editingFaithId;if(editingFaithId){const i=DB.faith.findIndex(x=>x.id===editingFaithId);if(i>=0)DB.faith[i]=a;SB.update('faith',a.id,a,'faith');}else{DB.faith.unshift(a);SB.upsert('faith',a,'faith');}addHistory(isEdit?'edit':'add',(isEdit?'Edited':'Added')+' faith: '+a.activity,{...a,_dbKey:'faith'});closeModal('faithModal');renderFaith();showToast('✓ Activity saved');}
-function deleteFaith(id){const a=DB.faith.find(x=>x.id===id);DB.faith=DB.faith.filter(x=>x.id!==id);SB.remove('faith',id,'faith');addHistory('delete','Deleted faith: '+a.activity,{...a,_dbKey:'faith'});renderFaith();showToast('Deleted');}
+function saveFaithActivity(){const a={id:editingFaithId||Date.now(),activity:document.getElementById('fa-activity').value.trim(),group:document.getElementById('fa-group').value.trim(),date:document.getElementById('fa-date').value,submitted:document.getElementById('fa-submitted').value,cfo:document.getElementById('fa-cfo').value.trim(),aevm:document.getElementById('fa-aevm').value.trim(),status:document.getElementById('fa-status').value,assigned:document.getElementById('fa-assigned').value.trim(),drive:document.getElementById('fa-drive').value.trim()};if(!a.activity){showToast('Activity name required');return;}const isEdit=!!editingFaithId;const existing=isEdit?DB.faith.find(x=>x.id===editingFaithId):null;a.calEventId=existing?existing.calEventId:null;if(editingFaithId){const i=DB.faith.findIndex(x=>x.id===editingFaithId);if(i>=0)DB.faith[i]=a;SB.update('faith',a.id,a,'faith');}else{DB.faith.unshift(a);SB.upsert('faith',a,'faith');}syncFaithToCalendar(a);addHistory(isEdit?'edit':'add',(isEdit?'Edited':'Added')+' faith: '+a.activity,{...a,_dbKey:'faith'});closeModal('faithModal');renderFaith();showToast('✓ Activity saved');}
+// Faith → Calendar sync: activities with a date get a linked, editable calendar event.
+// Title/date stay representative on Faith edits; everything else (time, location, notes)
+// is independently editable on the calendar side once created — no ongoing two-way lock.
+function syncFaithToCalendar(a){
+  if(!a.date){
+    // No date (or date removed) — if there was a linked event, remove it so it doesn't dangle
+    if(a.calEventId){
+      DB.calEvents=DB.calEvents.filter(e=>e.id!==a.calEventId);
+      SB.remove('cal_events',a.calEventId,'calEvents');
+      a.calEventId=null;
+    }
+    return;
+  }
+  const linked=a.calEventId?DB.calEvents.find(e=>e.id===a.calEventId):null;
+  if(linked){
+    linked.title='Faith: '+a.activity;
+    linked.date=a.date;
+    SB.update('cal_events',linked.id,linked,'calEvents');
+    save('calEvents');
+  }else{
+    const ev={id:Date.now()+Math.floor(Math.random()*1000),title:'Faith: '+a.activity,date:a.date,time:'',endTime:'',type:'fth',loc:'',notes:a.group?('Group: '+a.group):'',_sourceFaithId:a.id};
+    DB.calEvents.push(ev);
+    save('calEvents');
+    SB.upsert('cal_events',ev,'calEvents');
+    a.calEventId=ev.id;
+    save('faith');
+    SB.update('faith',a.id,a,'faith');
+  }
+  if(typeof renderCalendar==='function')renderCalendar();
+}
+function deleteFaith(id){const a=DB.faith.find(x=>x.id===id);DB.faith=DB.faith.filter(x=>x.id!==id);SB.remove('faith',id,'faith');if(a&&a.calEventId){DB.calEvents=DB.calEvents.filter(e=>e.id!==a.calEventId);SB.remove('cal_events',a.calEventId,'calEvents');save('calEvents');}addHistory('delete','Deleted faith: '+a.activity,{...a,_dbKey:'faith'});renderFaith();if(typeof renderCalendar==='function')renderCalendar();showToast('Deleted');}
 function renderFaith(){const tb=document.getElementById('faithTbody'),em=document.getElementById('faithEmpty');if(!DB.faith.length){tb.innerHTML='';em.style.display='';return;}em.style.display='none';tb.innerHTML=DB.faith.map((f,i)=>`<tr data-id="${f.id}" draggable="true" onclick="openFaithModal(${f.id})"><td style="font-weight:500"><i class="ti ti-grip-vertical drag-grip-desktop" style="font-size:var(--text-xs);color:var(--text3);margin-right:6px;vertical-align:middle;cursor:grab" onclick="event.stopPropagation()"></i><span class="reorder-mobile-btns" style="display:none;gap:2px;margin-right:6px"><button onclick="event.stopPropagation();moveArrayItem('faith',${f.id},-1,renderFaith)" ${i===0?'disabled':''} style="background:transparent;border:none;color:var(--text3);cursor:pointer;padding:0"><i class="ti ti-chevron-up" style="font-size:11px;line-height:1;display:block"></i></button><button onclick="event.stopPropagation();moveArrayItem('faith',${f.id},1,renderFaith)" ${i===DB.faith.length-1?'disabled':''} style="background:transparent;border:none;color:var(--text3);cursor:pointer;padding:0"><i class="ti ti-chevron-down" style="font-size:11px;line-height:1;display:block"></i></button></span>${f.group||'—'}</td><td>${f.activity}</td><td style="font-size:var(--text-xs);color:var(--text3)">${f.date||'—'}</td><td style="font-size:var(--text-xs);color:var(--text3)">${f.submitted||'—'}</td><td style="font-size:var(--text-xs)">${f.cfo||'—'}</td><td style="font-size:var(--text-xs)">${f.aevm||'—'}</td><td><span class="pill ${f.status==='Done'||f.status==='Approved'?'pg':f.status==='Submitted'?'pt':f.status==='Rejected'?'pr':'po'}">${f.status}</span></td><td style="font-size:var(--text-xs)">${f.assigned||'—'}</td><td>${f.drive?`<a href="${f.drive}" target="_blank" onclick="event.stopPropagation()" style="color:var(--teal);font-size:var(--text-xs);display:inline-flex;align-items:center;gap:3px"><i class="ti ti-brand-google-drive" style="font-size:var(--text-xs);line-height:1;display:block"></i>Open</a>`:'—'}</td><td><button class="btn btn-d" style="padding:2px 6px" onclick="event.stopPropagation();deleteFaith(${f.id})"><i class="ti ti-trash" style="font-size:var(--text-xs);line-height:1;display:block"></i></button></td></tr>`).join('');document.getElementById('faithTotal').textContent=DB.faith.length;document.getElementById('faithApproved').textContent=DB.faith.filter(f=>f.status==='Approved'||f.status==='Done').length;document.getElementById('faithSubmitted').textContent=DB.faith.filter(f=>f.status==='Submitted').length;document.getElementById('faithPending').textContent=DB.faith.filter(f=>f.status==='Pending').length;initArrayDragSort('faithTbody','faith',renderFaith);}
 
 // ── Faith tab navigation ──────────────────────────────────────────────────
 function setFaithTab(tab,btn){
-  ['activities','officers','topics','meetings'].forEach(t=>{
+  ['activities','officers','topics','meetings','calendar'].forEach(t=>{
     const el=document.getElementById('faith-'+t);if(el)el.style.display=t===tab?'':'none';
   });
   document.querySelectorAll('.cfbt[id^="ftab-"]').forEach(b=>b.classList.remove('active'));
   if(btn)btn.classList.add('active');
   const addBtn=document.getElementById('faithAddBtn');
   if(addBtn){
-    if(tab==='officers'){addBtn.innerHTML='<i class="ti ti-plus"></i> Officer';addBtn.onclick=openOfficerModal;}
-    else if(tab==='topics'){addBtn.innerHTML='<i class="ti ti-plus"></i> Topic';addBtn.onclick=openTopicModal;}
-    else if(tab==='meetings'){addBtn.innerHTML='<i class="ti ti-microphone"></i> Record';addBtn.onclick=()=>document.querySelector('#meetingsPanel-FAITH [id^="meetRecBtn-"]')?.click();}
-    else{addBtn.innerHTML='<i class="ti ti-plus"></i> Activity';addBtn.onclick=openFaithModal;}
+    if(tab==='officers'){addBtn.innerHTML='<i class="ti ti-plus"></i> Officer';addBtn.onclick=openOfficerModal;addBtn.style.display='';}
+    else if(tab==='topics'){addBtn.innerHTML='<i class="ti ti-plus"></i> Topic';addBtn.onclick=openTopicModal;addBtn.style.display='';}
+    else if(tab==='meetings'){addBtn.innerHTML='<i class="ti ti-microphone"></i> Record';addBtn.onclick=()=>document.querySelector('#meetingsPanel-FAITH [id^="meetRecBtn-"]')?.click();addBtn.style.display='';}
+    else if(tab==='calendar'){addBtn.style.display='none';}
+    else{addBtn.innerHTML='<i class="ti ti-plus"></i> Activity';addBtn.onclick=openFaithModal;addBtn.style.display='';}
   }
   if(tab==='officers') renderOfficers();
   if(tab==='topics') renderFaithTopics();
   if(tab==='meetings') renderMeetingsPanel('meetingsPanel-FAITH','FAITH');
+  if(tab==='calendar'){faithCalOffset=0;renderFaithCalendar();}
+}
+let faithCalOffset=0;
+function renderFaithCalendar(){
+  const grid=document.getElementById('faithCalGrid');const label=document.getElementById('faithCalLabel');
+  if(!grid||!label)return;
+  const now=new Date();
+  const viewDate=new Date(now.getFullYear(),now.getMonth()+faithCalOffset,1);
+  const y=viewDate.getFullYear(),m=viewDate.getMonth();
+  const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  label.textContent=MONTHS[m]+' '+y;
+  const first=new Date(y,m,1).getDay();
+  const days=new Date(y,m+1,0).getDate();
+  const prev=new Date(y,m,0).getDate();
+  const today=new Date().toISOString().split('T')[0];
+  const from=new Date(y,m,1).toISOString().split('T')[0];
+  const to=new Date(y,m+1,0).toISOString().split('T')[0];
+  // Faith calendar events (type='fth'), plus faith activities that don't yet have a linked event
+  const faithEvents=expandRecurring((DB.calEvents||[]).filter(e=>e.type==='fth'),from,to);
+  let html='';
+  'SMTWTFS'.split('').forEach(d=>html+=`<div style="font-size:var(--text-xs);text-align:center;color:var(--text3);font-weight:700;padding:4px">${d}</div>`);
+  for(let i=0;i<first;i++)html+=`<div style="opacity:.2;padding:8px;font-size:var(--text-xs)">${prev-(first-1-i)}</div>`;
+  for(let d=1;d<=days;d++){
+    const ds=y+'-'+String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+    const isT=ds===today;
+    const dayEvents=faithEvents.filter(e=>(e._expandedDate||e.date)===ds);
+    html+=`<div onclick="setView('calendar');calSelectedDate='${ds}';setCalView('day')" style="min-height:74px;padding:6px;border:1px solid var(--border);border-radius:6px;cursor:pointer;background:${isT?'rgba(168,85,247,.08)':'var(--navy2)'};display:flex;flex-direction:column;gap:3px">
+      <div style="font-size:var(--text-xs);font-weight:${isT?800:600};color:${isT?'var(--purple)':'var(--text2)'}">${d}</div>
+      ${dayEvents.slice(0,2).map(e=>`<div style="font-size:9px;padding:1px 4px;background:rgba(168,85,247,.12);border-left:2px solid var(--purple);border-radius:2px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${e.title.replace(/^Faith:\s*/,'')}</div>`).join('')}
+      ${dayEvents.length>2?`<div style="font-size:9px;color:var(--text3)">+${dayEvents.length-2} more</div>`:''}
+    </div>`;
+  }
+  grid.innerHTML=html;
 }
 function exportFaithData(){const rows=DB.faith.map(f=>[f.group,f.activity,f.date,f.submitted,f.cfo,f.aevm,f.status,f.assigned].join(','));const csv='Group,Activity,Date,Submitted,CFO,AEVM,Status,Assigned\n'+rows.join('\n');const b=new Blob([csv],{type:'text/csv'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download='faith-activities.csv';a.click();URL.revokeObjectURL(u);}
 
@@ -9490,7 +10224,7 @@ function evClass(e){
 }
 
 // ── State ──────────────────────────────────────────────────────────
-let calView='agenda';
+let calView=(typeof getPref==='function'&&getPref('pref-cal-view'))||'agenda';
 let calYear=new Date().getFullYear(),calMonth=new Date().getMonth();
 let calSelectedDate=new Date().toISOString().split('T')[0];
 let calContextFilter=new Set(CAL_WORLDS.map(w=>w.id)); // all on by default
@@ -9910,7 +10644,7 @@ function renderCalWeek(){
   // Time labels
   html+=`<div class="cal-time-col">`;
   hours.forEach(h=>{
-    const label=h===0?'':h<12?h+'am':h===12?'12pm':(h-12)+'pm';
+    const label=h===0?'12am':h<12?h+'am':h===12?'12pm':(h-12)+'pm';
     html+=`<div class="cal-time-label" style="height:48px">${label}</div>`;
   });
   html+='</div>';
@@ -9999,7 +10733,7 @@ function renderCalDay(){
   // Time labels
   html+=`<div style="width:56px;flex-shrink:0;position:relative;height:${24*60}px">`;
   hours.forEach(h=>{
-    const label=h===0?'':h<12?h+':00 am':h===12?'12:00 pm':(h-12)+':00 pm';
+    const label=h===0?'12:00 am':h<12?h+':00 am':h===12?'12:00 pm':(h-12)+':00 pm';
     html+=`<div style="position:absolute;top:${h*60}px;right:6px;font-size:var(--text-xs);color:var(--text3);transform:translateY(-50%)">${label}</div>`;
   });
   html+='</div>';
@@ -10422,15 +11156,45 @@ function openCalEventModalOnDate(date){
 
 // NOTES — callout grid
 let noteBlocks=[],currentNote=0;
+let notesActiveFolder='all';
+function renderNotesFolderRail(){
+  const rail=document.getElementById('notesFolderRail');if(!rail)return;
+  const worlds=DB.worlds||[];
+  const countFor=(wid)=>wid==='all'?DB.notes.length:wid==='unfiled'?DB.notes.filter(n=>!n.worldId).length:DB.notes.filter(n=>n.worldId===wid).length;
+  const item=(id,label,icon,color)=>`<div onclick="setNotesFolder('${id}')" style="display:flex;align-items:center;gap:7px;padding:7px 8px;border-radius:6px;cursor:pointer;font-size:var(--text-xs);color:${notesActiveFolder===id?'var(--teal)':'var(--text2)'};background:${notesActiveFolder===id?'rgba(128,255,250,.08)':'transparent'};margin-bottom:2px" onmouseover="if('${notesActiveFolder}'!=='${id}')this.style.background='rgba(255,255,255,.03)'" onmouseout="if('${notesActiveFolder}'!=='${id}')this.style.background='transparent'">
+    <i class="ti ${icon}" style="font-size:13px;color:${color||'inherit'};flex-shrink:0"></i>
+    <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${label}</span>
+    <span style="font-size:9px;color:var(--text3)">${countFor(id)}</span>
+  </div>`;
+  let html=item('all','All Notes','ti-notes');
+  html+=item('unfiled','Unfiled','ti-file-off');
+  html+='<div style="height:1px;background:var(--border);margin:8px 4px"></div>';
+  html+='<div style="font-size:9px;font-weight:700;color:var(--text3);letter-spacing:.08em;text-transform:uppercase;padding:4px 8px">Worlds</div>';
+  html+=worlds.map(w=>{
+    const color=(w.color&&/^#/.test(w.color))?w.color:'var(--teal)';
+    return `<div style="position:relative;display:flex;align-items:center;group" class="notes-folder-row">${item(w.id,w.label,w.icon||'ti-folder',color)}<button onclick="event.stopPropagation();openWorldModal('${w.id}')" title="Edit folder" style="position:absolute;right:24px;top:6px;background:transparent;border:none;color:var(--text3);cursor:pointer;padding:2px;opacity:0" class="notes-folder-edit"><i class="ti ti-pencil" style="font-size:10px;line-height:1;display:block"></i></button></div>`;
+  }).join('');
+  html+=`<div onclick="openWorldModal()" style="display:flex;align-items:center;gap:7px;padding:7px 8px;border-radius:6px;cursor:pointer;font-size:var(--text-xs);color:var(--text3);margin-top:6px" onmouseover="this.style.color='var(--teal)'" onmouseout="this.style.color='var(--text3)'"><i class="ti ti-plus" style="font-size:13px"></i>Add Folder</div>`;
+  rail.innerHTML=html;
+  rail.querySelectorAll('.notes-folder-row').forEach(row=>{
+    row.addEventListener('mouseenter',()=>{const b=row.querySelector('.notes-folder-edit');if(b)b.style.opacity='1';});
+    row.addEventListener('mouseleave',()=>{const b=row.querySelector('.notes-folder-edit');if(b)b.style.opacity='0';});
+  });
+}
+function setNotesFolder(id){notesActiveFolder=id;renderNotesFolderRail();renderNotesList();}
 function renderNotesList(){
   const grid=document.getElementById('notesCalloutGrid');if(!grid)return;
-  if(!DB.notes.length){grid.innerHTML='<div style="font-size:var(--text-xs);color:var(--text3)">No notes yet. Click "New Note" to start.</div>';return;}
-  grid.innerHTML=DB.notes.map((n,i)=>{
+  renderNotesFolderRail();
+  const filtered=notesActiveFolder==='all'?DB.notes:notesActiveFolder==='unfiled'?DB.notes.filter(n=>!n.worldId):DB.notes.filter(n=>n.worldId===notesActiveFolder);
+  if(!filtered.length){grid.innerHTML='<div style="font-size:var(--text-xs);color:var(--text3)">No notes here yet. Click "New Note" to start.</div>';return;}
+  grid.innerHTML=filtered.map((n)=>{
+    const i=DB.notes.findIndex(x=>x.id===n.id);
     const h1=n.blocks.find(b=>b.type==='h1');
     const h2=n.blocks.find(b=>b.type==='h2');
     const preview=n.blocks.filter(b=>b.type==='p'||b.type==='bullet').map(b=>b.content).filter(Boolean).join(' ').substring(0,80);
     const todos=n.blocks.filter(b=>b.type==='todo');
     const done=todos.filter(b=>b.done).length;
+    const world=(DB.worlds||[]).find(w=>w.id===n.worldId);
     return`<div style="background:var(--navy2);border:1px solid var(--border);border-radius:6px;overflow:hidden;cursor:pointer;transition:border-color .15s" onclick="openNoteEditor(${i})" onmouseover="this.style.borderColor='var(--teal2)'" onmouseout="this.style.borderColor='var(--border)'">
       <div style="background:linear-gradient(135deg,var(--teal3),var(--teal4));padding:12px 14px;border-bottom:1px solid var(--teal2)">
         <div style="font-size:var(--text-xs);font-weight:700;color:var(--teal);line-height:1.3">${n.title}</div>
@@ -10439,18 +11203,32 @@ function renderNotesList(){
       </div>
       <div style="padding:10px 14px">
         ${preview?`<div style="font-size:var(--text-xs);color:var(--text2);line-height:1.5;margin-bottom:8px">${preview}${preview.length>=80?'…':''}</div>`:''}
-        ${todos.length?`<div style="display:flex;align-items:center;gap:6px;font-size:var(--text-xs);color:var(--text3)"><i class="ti ti-checklist" style="font-size:var(--text-xs);line-height:1;display:block;color:var(--teal)"></i>${done}/${todos.length} tasks done</div>`:''}
+        ${todos.length?`<div style="display:flex;align-items:center;gap:6px;font-size:var(--text-xs);color:var(--text3);margin-bottom:6px"><i class="ti ti-checklist" style="font-size:var(--text-xs);line-height:1;display:block;color:var(--teal)"></i>${done}/${todos.length} tasks done</div>`:''}
         <div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px">
-          <span style="font-size:var(--text-xs);color:var(--text3)">${n.blocks.length} block${n.blocks.length!==1?'s':''}</span>
+          <span style="font-size:9px;color:var(--text3);display:flex;align-items:center;gap:4px">${world?`<i class="ti ${world.icon||'ti-folder'}" style="font-size:10px;color:${(world.color&&/^#/.test(world.color))?world.color:'var(--teal)'}"></i>${world.label}`:'Unfiled'}</span>
           <button class="btn btn-d" style="padding:2px 7px;font-size:var(--text-xs)" onclick="event.stopPropagation();deleteNote(${i})"><i class="ti ti-trash" style="font-size:var(--text-xs);line-height:1;display:block"></i></button>
         </div>
       </div>
     </div>`;
   }).join('');
 }
-function openNoteEditor(i){currentNote=i;noteBlocks=[...DB.notes[currentNote].blocks];const t=document.getElementById('noteTitle');if(t)t.textContent=DB.notes[currentNote].title;renderBlocks();openModal('noteEditorModal');}
+function setNoteFolder(worldId){
+  const n=DB.notes[currentNote];if(!n)return;
+  n.worldId=worldId||null;
+  save('notes');
+  renderNotesList();
+  showToast(worldId?'✓ Moved to folder':'✓ Marked unfiled');
+}
+function openNoteEditor(i){currentNote=i;noteBlocks=[...DB.notes[currentNote].blocks];const t=document.getElementById('noteTitle');if(t)t.textContent=DB.notes[currentNote].title;renderBlocks();populateNoteFolderSelect();openModal('noteEditorModal');}
+function populateNoteFolderSelect(){
+  const sel=document.getElementById('noteFolderSelect');if(!sel)return;
+  const n=DB.notes[currentNote];
+  sel.innerHTML='<option value="">Unfiled</option>'+(DB.worlds||[]).map(w=>`<option value="${w.id}">${w.label}</option>`).join('');
+  sel.value=n?.worldId||'';
+}
+function newNote(){const assignWorld=notesActiveFolder!=='all'&&notesActiveFolder!=='unfiled'?notesActiveFolder:null;const n={id:Date.now(),title:'New Note',worldId:assignWorld,blocks:[{id:Date.now()+'.1',type:'h1',content:'',done:false},{id:Date.now()+'.2',type:'p',content:'',done:false}]};DB.notes.push(n);save('notes');currentNote=DB.notes.length-1;renderNotesList();openNoteEditor(currentNote);}
 function switchNote(){openNoteEditor(currentNote);}
-function newNote(){const n={id:Date.now(),title:'New Note',blocks:[{id:Date.now()+'.1',type:'h1',content:'',done:false},{id:Date.now()+'.2',type:'p',content:'',done:false}]};DB.notes.push(n);save('notes');currentNote=DB.notes.length-1;renderNotesList();openNoteEditor(currentNote);}
+
 function deleteNote(i){if(!confirm('Delete this note?'))return;DB.notes.splice(i,1);save('notes');currentNote=Math.max(0,currentNote-1);renderNotesList();}
 function deleteCurrentNote(){closeModal('noteEditorModal');deleteNote(currentNote);}
 function saveNoteTitle(){if(DB.notes[currentNote]){DB.notes[currentNote].title=document.getElementById('noteTitle').textContent;save('notes');renderNotesList();}}
@@ -12259,6 +13037,10 @@ function loadOS(){
   // Restore wake word UI state (mic stays closed until user re-enables)
   setTimeout(()=>{ if(typeof window._restoreWakeState==='function') window._restoreWakeState(); }, 800);
   try{reRenderAll();}catch(e){console.warn('reRenderAll:',e);}
+  try{
+    const landingView=typeof getPref==='function'?getPref('pref-landing-view'):'dashboard';
+    if(landingView&&landingView!=='dashboard')setView(landingView);
+  }catch(e){console.warn('landing view pref:',e);}
   loadAllFromSupabase();
   // Wake word listener is OFF by default — user must enable via topbar toggle
   // Triggered only by: spacebar, voice button, or user-enabled wake word
@@ -14105,7 +14887,7 @@ function renderPatternView(){
   const latest=DB.patterns[0];
   if(patternResult)patternResult.innerHTML=`
     <div style="font-size:var(--text-xs);font-weight:700;color:var(--orange);letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px">◈ LATEST SCAN — ${latest.date}</div>
-    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px">
     ${latest.patterns.map((p,i)=>`
       <div style="background:var(--navy2);border:1px solid var(--border);border-radius:6px;padding:12px 14px;border-left:3px solid ${i<3?'var(--orange)':'var(--border)'}">
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
@@ -14131,7 +14913,7 @@ function renderPatternDetail(i){
   const el=document.getElementById('patternResult');
   if(el)el.innerHTML=`
     <div style="font-size:var(--text-xs);font-weight:700;color:var(--orange);letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px">◈ SCAN — ${p.date}</div>
-    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px">
     ${p.patterns.map((pt,j)=>`
       <div style="background:var(--navy2);border:1px solid var(--border);border-radius:6px;padding:12px 14px;border-left:3px solid ${j<3?'var(--orange)':'var(--border)'}">
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
