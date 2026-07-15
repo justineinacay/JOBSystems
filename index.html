@@ -131,7 +131,7 @@ img,svg,video,canvas{max-width:100%;height:auto}
 /* Light theme removed — JARVIS dark locked */
 
 /* ── Lock Screen ─────────────────────────────────────────────── */
-#lockScreen{position:fixed;inset:0;background:var(--lock-backdrop);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);z-index:99998;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0}
+#lockScreen{position:fixed;inset:0;background:var(--lock-backdrop);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);z-index:99998;display:none;flex-direction:column;align-items:center;justify-content:center;gap:0}
 .pin-display{display:flex;gap:clamp(8px,3vw,12px);margin-bottom:clamp(12px,3vh,30px)}
 .pin-dot{width:16px;height:16px;border-radius:50%;border:2px solid var(--teal2);transition:all .2s}
 .pin-dot.filled{background:var(--teal);box-shadow:0 0 8px var(--teal3)}
@@ -3238,6 +3238,31 @@ select option{background:var(--navy3)}
 
 <!-- APP -->
 <!-- ═══ J.O.B Systems LOCK SCREEN ═══ -->
+<div id="authScreen" style="display:none;position:fixed;inset:0;background:var(--lock-backdrop);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);z-index:99999;flex-direction:column;align-items:center;justify-content:center;padding:20px">
+  <div style="width:60px;height:60px;border-radius:50%;background:var(--teal3);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;margin-bottom:18px;box-shadow:var(--card-shadow)">
+    <i class="ti ti-shield-lock" style="font-size:24px;color:var(--teal);line-height:1;display:block"></i>
+  </div>
+  <div style="font-size:var(--text-lg);font-weight:700;color:var(--text1);letter-spacing:.01em;margin-bottom:4px">J.O.B Systems</div>
+  <div style="font-size:var(--text-xs);color:var(--text3);margin-bottom:24px" id="authScreenSubtitle">Sign in to unlock your data</div>
+
+  <div style="width:min(340px,90vw);background:var(--navy2);border:1px solid var(--border);border-radius:16px;padding:24px;box-shadow:var(--card-shadow)">
+    <div class="fg" style="margin-bottom:12px">
+      <label class="fl">Email</label>
+      <input type="email" id="auth-email" placeholder="you@example.com" autocomplete="email">
+    </div>
+    <div class="fg" style="margin-bottom:16px">
+      <label class="fl">Password</label>
+      <input type="password" id="auth-password" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')submitAuthForm()">
+    </div>
+    <div id="authScreenError" style="display:none;font-size:var(--text-xs);color:var(--red);margin-bottom:12px;text-align:center"></div>
+    <button class="btn btn-t" style="width:100%;justify-content:center;padding:10px" id="authSubmitBtn" onclick="submitAuthForm()">Sign In</button>
+    <div style="text-align:center;margin-top:14px;font-size:var(--text-xs);color:var(--text3)">
+      <span id="authToggleText">First time here?</span>
+      <span onclick="toggleAuthMode()" style="color:var(--teal);cursor:pointer;font-weight:600" id="authToggleLink">Create your account</span>
+    </div>
+  </div>
+</div>
+
 <div id="lockScreen">
   <div style="display:flex;flex-direction:column;align-items:center;margin-bottom:clamp(12px,4vh,32px)">
     <div style="width:60px;height:60px;border-radius:50%;background:var(--teal3);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;margin-bottom:18px;box-shadow:var(--card-shadow)">
@@ -3322,6 +3347,8 @@ select option{background:var(--navy3)}
             <div class="acct-menu-item" onclick="setJelixAPIKey()" id="apiKeyBtn"><i class="ti ti-key"></i><span>JOB AI Key (Claude)</span></div>
             <div class="acct-menu-item" onclick="setGeminiAPIKey()" id="geminiKeyBtn"><i class="ti ti-brand-google" style="color:#4285F4"></i><span>Gemini Key</span></div>
             <div class="acct-menu-item" onclick="setView('history')"><i class="ti ti-history"></i><span>Activity History</span></div>
+            <div style="height:1px;background:var(--border);margin:6px 0"></div>
+            <div class="acct-menu-item" onclick="if(confirm('Sign out completely, sir? You\'ll need your email and password to sign back in.'))authSignOut()"><i class="ti ti-logout" style="color:var(--red)"></i><span style="color:var(--red)">Sign Out</span></div>
             <div style="height:1px;background:var(--border);margin:6px 0"></div>
             <div class="acct-menu-item"><i class="ti ti-cloud"></i><span id="weatherText">-- °C</span><span style="margin-left:auto;font-size:var(--text-xs);color:var(--text3)" id="topDate"></span></div>
           </div>
@@ -5040,7 +5067,13 @@ async function sbFetch(table,method='GET',body=null,match=null){
   let url=`${SB_URL}/rest/v1/${table}`;
   const qs=[];if(match)qs.push(match);if(method==='GET')qs.push('order=created_at.desc');
   if(qs.length)url+='?'+qs.join('&');
-  const opts={method,headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json','Prefer':method==='POST'?'return=representation':''}};
+  // Use the authenticated user's own token when signed in — this is what makes auth.uid()
+  // resolve correctly in RLS policies. Falls back to the anon key only if no session exists
+  // (keeps the app from hard-breaking before auth is set up, though real tables will reject
+  // writes once RLS is rewritten to require a matching user_id).
+  const session=await getAuthSession();
+  const authToken=session?session.access_token:SB_KEY;
+  const opts={method,headers:{'apikey':SB_KEY,'Authorization':'Bearer '+authToken,'Content-Type':'application/json','Prefer':method==='POST'?'return=representation':''}};
   if(body)opts.body=JSON.stringify(body);
   const res=await fetch(url,opts);
   if(!res.ok){
@@ -5051,6 +5084,137 @@ async function sbFetch(table,method='GET',body=null,match=null){
   if(res.status===204)return method==='GET'?[]:true;
   return res.json();
 }
+
+// ── Supabase Auth — real per-user authentication behind the PIN lock ────────
+// The PIN screen stays as the quick app-level lock (unchanged). This layer is
+// the actual DATA-level authentication: without a valid session here, RLS
+// policies (once rewritten to auth.uid() = user_id) refuse all access, even
+// with the anon key in hand.
+async function authSignUp(email,password){
+  try{
+    const res=await fetch(`${SB_URL}/auth/v1/signup`,{
+      method:'POST',
+      headers:{'apikey':SB_KEY,'Content-Type':'application/json'},
+      body:JSON.stringify({email,password})
+    });
+    const data=await res.json();
+    if(!res.ok)return{ok:false,error:data.msg||data.error_description||data.error||'Sign-up failed'};
+    if(data.access_token)_storeAuthSession(data);
+    return{ok:true,data};
+  }catch(e){return{ok:false,error:e.message};}
+}
+async function authSignIn(email,password){
+  try{
+    const res=await fetch(`${SB_URL}/auth/v1/token?grant_type=password`,{
+      method:'POST',
+      headers:{'apikey':SB_KEY,'Content-Type':'application/json'},
+      body:JSON.stringify({email,password})
+    });
+    const data=await res.json();
+    if(!res.ok)return{ok:false,error:data.msg||data.error_description||data.error||'Sign-in failed'};
+    _storeAuthSession(data);
+    return{ok:true,data};
+  }catch(e){return{ok:false,error:e.message};}
+}
+function _storeAuthSession(data){
+  const session={
+    access_token:data.access_token,
+    refresh_token:data.refresh_token,
+    expires_at:Date.now()+((data.expires_in||3600)*1000),
+    user_id:data.user?.id||null,
+    email:data.user?.email||null,
+  };
+  localStorage.setItem('j-auth-session',JSON.stringify(session));
+  return session;
+}
+async function _refreshAuthSession(refreshToken){
+  try{
+    const res=await fetch(`${SB_URL}/auth/v1/token?grant_type=refresh_token`,{
+      method:'POST',
+      headers:{'apikey':SB_KEY,'Content-Type':'application/json'},
+      body:JSON.stringify({refresh_token:refreshToken})
+    });
+    const data=await res.json();
+    if(!res.ok)return null;
+    return _storeAuthSession(data);
+  }catch(e){return null;}
+}
+async function getAuthSession(){
+  const raw=localStorage.getItem('j-auth-session');
+  if(!raw)return null;
+  let session;
+  try{session=JSON.parse(raw);}catch(e){return null;}
+  // Refresh proactively if within 60s of expiry
+  if(Date.now()>session.expires_at-60000){
+    const refreshed=await _refreshAuthSession(session.refresh_token);
+    return refreshed;
+  }
+  return session;
+}
+function isSignedIn(){
+  const raw=localStorage.getItem('j-auth-session');
+  if(!raw)return false;
+  try{return !!JSON.parse(raw).access_token;}catch(e){return false;}
+}
+function getAuthUserId(){
+  const raw=localStorage.getItem('j-auth-session');
+  if(!raw)return null;
+  try{return JSON.parse(raw).user_id;}catch(e){return null;}
+}
+function authSignOut(){
+  localStorage.removeItem('j-auth-session');
+  window.location.reload();
+}
+let _authMode='signin';
+function toggleAuthMode(){
+  _authMode=_authMode==='signin'?'signup':'signin';
+  document.getElementById('authSubmitBtn').textContent=_authMode==='signin'?'Sign In':'Create Account';
+  document.getElementById('authToggleText').textContent=_authMode==='signin'?'First time here?':'Already have an account?';
+  document.getElementById('authToggleLink').textContent=_authMode==='signin'?'Create your account':'Sign in instead';
+  document.getElementById('authScreenError').style.display='none';
+}
+async function submitAuthForm(){
+  const email=document.getElementById('auth-email').value.trim();
+  const password=document.getElementById('auth-password').value;
+  const errEl=document.getElementById('authScreenError');
+  const btn=document.getElementById('authSubmitBtn');
+  errEl.style.display='none';
+  if(!email||!password){errEl.textContent='Enter both email and password, sir.';errEl.style.display='block';return;}
+  if(password.length<6){errEl.textContent='Password must be at least 6 characters.';errEl.style.display='block';return;}
+  btn.disabled=true;btn.textContent='Please wait...';
+  const result=_authMode==='signin'?await authSignIn(email,password):await authSignUp(email,password);
+  btn.disabled=false;
+  if(!result.ok){
+    errEl.textContent=result.error;
+    errEl.style.display='block';
+    btn.textContent=_authMode==='signin'?'Sign In':'Create Account';
+    return;
+  }
+  if(_authMode==='signup'&&!result.data.access_token){
+    // Email confirmation required before session is issued
+    errEl.style.display='none';
+    document.getElementById('authScreenSubtitle').textContent='Check your email to confirm, then sign in.';
+    toggleAuthMode();
+    btn.textContent='Sign In';
+    return;
+  }
+  document.getElementById('authScreen').style.display='none';
+  proceedToLockScreen();
+}
+function proceedToLockScreen(){
+  const ls=document.getElementById('lockScreen');
+  if(ls)ls.style.display='flex';
+}
+async function checkAuthGate(){
+  const authEl=document.getElementById('authScreen');
+  if(isSignedIn()){
+    const session=await getAuthSession();
+    if(session){proceedToLockScreen();return;}
+  }
+  // No valid session — show the auth screen instead of the PIN lock
+  if(authEl)authEl.style.display='flex';
+}
+
 const SB={
   // Known date/timestamp-typed field names across all tables — Postgres rejects "" for
   // date columns (needs a real date or NULL), so any empty string here must become null
@@ -5081,6 +5245,7 @@ const SB={
     if(table==='cal_events'){delete r.allDay;delete r.overnight;delete r.remindMin;delete r.recurN;delete r.recurEnd;delete r.endDate;delete r.recurUnit;delete r.recurCount;delete r.recur;delete r.reminder;delete r.recurDays;delete r._expandedDate;delete r._recurring;}
     if(table==='memories'){delete r.source;}
     delete r._dbKey;
+    const uid=getAuthUserId();if(uid)r.user_id=uid;
     try{
       await sbFetch(table,'POST',r);
       save(key);
@@ -5473,6 +5638,8 @@ function toggleNav(){
   if(btn)btn.style.display='none';
   localStorage.removeItem('j-nav-collapsed');
 })();
+// Auth gate — decides whether to show sign-in or go straight to the PIN lock
+checkAuthGate();
 
 // ── Quick Capture NLP Router ─────────────────────────────────────────────────
 async function processCapture(){runCapture();}
