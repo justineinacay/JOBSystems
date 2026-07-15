@@ -2780,8 +2780,8 @@ select option{background:var(--navy3)}
           <span style="color:var(--text2)">Every</span>
           <input type="number" id="ce-custom-n" min="1" max="365" value="1" style="width:64px;text-align:center">
           <select id="ce-custom-unit" style="width:auto;flex:1">
+            <option value="week" selected>weeks</option>
             <option value="day">days</option>
-            <option value="week">weeks</option>
             <option value="month">months</option>
           </select>
         </div>
@@ -3993,7 +3993,7 @@ select option{background:var(--navy3)}
                 <option>Other</option>
               </select>
             </div>
-            <div><label class="ml">Date</label><input class="mi" id="tp-date" type="date" value="${new Date().toISOString().split('T')[0]}"></div>
+            <div><label class="ml">Date</label><input class="mi" id="tp-date" type="date" value="${localDateStr(new Date())}"></div>
           </div>
           <div><label class="ml">Notes / Summary</label><textarea class="mi" id="tp-notes" rows="3" placeholder="Key points, scripture references, session notes..."></textarea></div>
           <div><label class="ml">Drive Link (optional)</label><input class="mi" id="tp-drive" placeholder="https://drive.google.com/..."></div>
@@ -5262,7 +5262,7 @@ function renderSideNav(){
 // ── Urgent notifications strip (bottom of desktop nav) ──────────────────
 let urgentPopoverOpen=false;
 function getUrgentItems(){
-  const today=new Date().toISOString().split('T')[0];
+  const today=localDateStr(new Date());
   const priorityRank={High:0,Medium:1,Low:2};
   return (DB.tasks||[])
     .filter(t=>t.status!=='Done')
@@ -5294,7 +5294,7 @@ function renderUrgentPanel(){
     else{summary.textContent=items.length+' Urgent'+(overdueCount?' · '+overdueCount+' overdue':'');summary.style.color=overdueCount?'var(--red)':'var(--amber)';}
   }
   if(!el)return;
-  const today=new Date().toISOString().split('T')[0];
+  const today=localDateStr(new Date());
   if(!items.length){
     el.innerHTML='<div class="urgent-strip none"><i class="ti ti-circle-check" style="font-size:var(--text-xs)"></i><span>All clear, sir</span></div>';
     return;
@@ -5466,7 +5466,7 @@ function runCapture(){
       const amount=parseFloat(nm[1].replace(/,/g,''));const desc=(nm[2]||body).trim()||'Quick entry';
       if(!isNaN(amount)&&amount>0){
         const type=prefix==='debit'?'Debit':'Credit';
-        const cf={id:Date.now(),type,amount,desc,date:new Date().toISOString().split('T')[0],account:'Cash',cat:'Business',notes:'Quick Capture'};
+        const cf={id:Date.now(),type,amount,desc,date:localDateStr(new Date()),account:'Cash',cat:'Business',notes:'Quick Capture'};
         DB.cashflow.unshift(cf);save('cashflow');
         try{SB.upsert('cashflow',cf,'cashflow');}catch(e){}
         try{addHistory('add',type+' \u20b1'+amount+': '+desc,{...cf,_dbKey:'cashflow'});}catch(e){}
@@ -5687,7 +5687,7 @@ function closeTopDropdowns(){
 function renderTopNotifPanel(){
   const panel=document.getElementById('topNotifPanel');if(!panel)return;
   const items=typeof getUrgentItems==='function'?getUrgentItems():[];
-  const today=new Date().toISOString().split('T')[0];
+  const today=localDateStr(new Date());
   // Today's calendar events — a second notification category alongside urgent tasks
   let todayEvents=[];
   try{
@@ -5916,7 +5916,7 @@ function exportLocalDB(){
   const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
   const a=document.createElement('a');
   a.href=URL.createObjectURL(blob);
-  a.download='JELIX_Backup_'+new Date().toISOString().split('T')[0]+'.json';
+  a.download='JELIX_Backup_'+localDateStr(new Date())+'.json';
   a.click();
   showToast('✓ Backup downloaded, sir.');
 }
@@ -6288,7 +6288,7 @@ const LearnEngine = {
       memory: memory.substring(0, 200),
       category: category || 'General',
       world: world || 'WORK-IH',
-      date: new Date().toISOString().split('T')[0],
+      date: localDateStr(new Date()),
       source: 'auto' // distinguishes auto-learned from manually added
     };
     if(!DB.memories) DB.memories = [];
@@ -6514,7 +6514,7 @@ function _populateMmmStatus(){
       dateEl.textContent=now.toLocaleDateString('en-PH',{weekday:'long',month:'long',day:'numeric'}).toUpperCase();
     }
     // Tasks due today or overdue
-    const today=new Date().toISOString().split('T')[0];
+    const today=localDateStr(new Date());
     const dueTasks=(DB.tasks||[]).filter(t=>t.due&&t.due<=today&&t.status!=='Done'&&t.status!=='Approved');
     const taskEl=document.getElementById('mmmTaskCount');
     if(taskEl)taskEl.textContent=dueTasks.length>0?dueTasks.length+' task'+(dueTasks.length>1?'s':'')+' due':'No tasks due';
@@ -6764,7 +6764,7 @@ function renderMobileTaskCards(tasks,container){
               '<span style="width:6px;height:6px;border-radius:50%;background:'+pd+';flex-shrink:0;display:inline-block"></span>'+
               t.priority+'</span>':'')+
             (t.client?'<span style="font-size:10px;color:var(--text3)">· '+t.client+'</span>':'')+
-            (t.due?'<span style="font-size:10px;color:'+(t.due<new Date().toISOString().split('T')[0]?'var(--red)':'var(--text3)')+';margin-left:auto">'+t.due+'</span>':'')+
+            (t.due?'<span style="font-size:10px;color:'+(t.due<localDateStr(new Date())?'var(--red)':'var(--text3)')+';margin-left:auto">'+t.due+'</span>':'')+
           '</div>'+
 
           // Swipe actions — Edit · Done · Delete
@@ -6784,7 +6784,7 @@ function renderMobileTaskCards(tasks,container){
 }
 
 // ── Mobile Calendar Week Strip ────────────────────────────────────────────
-let _mobileCalSelectedDate=new Date().toISOString().split('T')[0];
+let _mobileCalSelectedDate=localDateStr(new Date());
 function renderMobileCalStrip(){
   if(window.innerWidth>430)return;
   const strip=document.getElementById('mobileCalWeekStrip');
@@ -7032,7 +7032,7 @@ function quickLogFaith(){
 function renderOverheadScoreboard(){
   const el=document.getElementById('overheadScoreboard');
   if(!el)return;
-  const today=new Date().toISOString().split('T')[0];
+  const today=localDateStr(new Date());
   // Active clients
   const activeClients=(DB.clients||[]).filter(c=>c.status==='Active'||c.status==='Urgent').length;
   // Open tasks by world
@@ -7145,7 +7145,7 @@ function renderTimeGrid(dateStr){
   // Build 24-hour grid from tasks with start/end times + cal events
   const container=document.getElementById('briefWeekStrip');
   if(!container)return;
-  const d=dateStr||new Date().toISOString().split('T')[0];
+  const d=dateStr||localDateStr(new Date());
   const events=(DB.calEvents||[]).filter(e=>e.date===d);
   // Tasks with due date matching and time fields
   const taskBlocks=(DB.tasks||[]).filter(t=>t.due===d&&(t.startTime||t.endTime));
@@ -7200,7 +7200,7 @@ let timeGridActive=false;
 function toggleTimeGrid(){
   timeGridActive=!timeGridActive;
   if(timeGridActive){
-    renderTimeGrid(new Date().toISOString().split('T')[0]);
+    renderTimeGrid(localDateStr(new Date()));
     document.getElementById('tgToggleBtn').textContent='Week View';
   } else {
     renderBriefWeekStrip();
@@ -7471,7 +7471,7 @@ function getFilteredTasks(){
   const plf = document.getElementById('filterPlatform')?.value|| 'all';
   const q   = (document.getElementById('boardSearch')?.value  || '').toLowerCase().trim();
 
-  const today     = new Date().toISOString().split('T')[0];
+  const today     = localDateStr(new Date());
   const weekEnd   = new Date(); weekEnd.setDate(weekEnd.getDate()+7);
   const weekEndStr= weekEnd.toISOString().split('T')[0];
   const monthEnd  = new Date(); monthEnd.setMonth(monthEnd.getMonth()+1);
@@ -7560,7 +7560,7 @@ function sortTasks(tasks){
 function timelineBar(t){
   const s=t.timelineS||t.due||'';const e=t.timelineE||t.due||'';
   if(!s)return '<span style="color:var(--text3);font-size:var(--text-xs)">—</span>';
-  const today=new Date().toISOString().split('T')[0];
+  const today=localDateStr(new Date());
   const sd=new Date(s),ed=new Date(e||s),nd=new Date(today);
   const total=Math.max((ed-sd)/86400000,1);
   const elapsed=Math.max(Math.min((nd-sd)/86400000,total),0);
@@ -8060,7 +8060,7 @@ function askClientTasks(e,id){
     const axisEl=document.querySelector('.ai-agent[onclick*="axis"]');
     setAgent('axis',axisEl);
     // Send a focused WORK-IH task generation prompt
-    const today=new Date().toISOString().split('T')[0];
+    const today=localDateStr(new Date());
     const existingTasks=DB.tasks.filter(t=>t.world==='WORK-IH'&&t.client===c.name&&t.status!=='Done').map(t=>`• ${t.title} (${t.status})`).join('\n')||'None';
     const prompt=`Generate 3–5 specific, actionable marketing tasks for **${c.name}** (WORK-IH · World: Ideahub).\n\nClient status: ${c.status}\nNext action on file: ${c.next||'None'}\nExisting open tasks:\n${existingTasks}\n\nFormat each task clearly: TITLE · Priority (High/Medium/Low) · Brief description.\nAll tasks must be for WORK-IH world only. Focus on what's most impactful right now, sir.`;
     const input=document.getElementById('aiInput');
@@ -8424,7 +8424,7 @@ function _renderVTasks(){
         <td style="font-weight:600;color:var(--text1)">${t.title}</td>
         <td><span style="display:flex;align-items:center;gap:5px"><div style="width:7px;height:7px;border-radius:50%;background:${pDot(t.priority)};flex-shrink:0"></div><span class="pill ${pCl(t.priority)}" style="font-size:var(--text-xs)">${t.priority}</span></span></td>
         <td><span class="pill ${sCl(t.status)}" style="font-size:var(--text-xs)">${t.status||'Todo'}</span></td>
-        <td style="font-size:var(--text-xs);color:${t.due&&t.due<new Date().toISOString().split('T')[0]?'var(--red)':'var(--text3)'}">${t.due||'—'}</td>
+        <td style="font-size:var(--text-xs);color:${t.due&&t.due<localDateStr(new Date())?'var(--red)':'var(--text3)'}">${t.due||'—'}</td>
         <td style="font-size:var(--text-xs);color:var(--text3);max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${t.notes||'—'}</td>
         <td><button class="btn btn-d" style="padding:2px 7px" onclick="event.stopPropagation();deleteTask(event,${t.id})"><i class="ti ti-trash" style="font-size:var(--text-xs);line-height:1;display:block"></i></button></td>
       </tr>`).join('')}</tbody>
@@ -8856,7 +8856,7 @@ function saveCollateral(){
     link:document.getElementById('col-link').value.trim(),
     tags:document.getElementById('col-tags').value.split(',').map(t=>t.trim()).filter(Boolean),
     notes:document.getElementById('col-notes').value.trim(),
-    updated:new Date().toISOString().split('T')[0],
+    updated:localDateStr(new Date()),
   };
   DB.collateral=DB.collateral||[];
   const isEdit=!!editingCollateralId;
@@ -9339,7 +9339,7 @@ function savePricing(){
     cost:parseFloat(document.getElementById('prc-cost').value)||0,
     price:parseFloat(document.getElementById('prc-price').value)||0,
     notes:document.getElementById('prc-notes').value.trim(),
-    updated:new Date().toISOString().split('T')[0],
+    updated:localDateStr(new Date()),
   };
   DB.pricing=DB.pricing||[];
   const isEdit=!!editingPricingId;
@@ -9535,7 +9535,7 @@ function renderFaithCalendar(){
   const first=new Date(y,m,1).getDay();
   const days=new Date(y,m+1,0).getDate();
   const prev=new Date(y,m,0).getDate();
-  const today=new Date().toISOString().split('T')[0];
+  const today=localDateStr(new Date());
   const from=new Date(y,m,1).toISOString().split('T')[0];
   const to=new Date(y,m+1,0).toISOString().split('T')[0];
   // Faith calendar events (type='fth'), plus faith activities that don't yet have a linked event
@@ -9625,7 +9625,7 @@ function saveOfficer(){
     purok:document.getElementById('of-purok').value.trim(),
     committee:document.getElementById('of-committee').value.trim(),
     oath:document.getElementById('of-oath').value,
-    date:new Date().toISOString().split('T')[0]
+    date:localDateStr(new Date())
   };
   if(editingOfficerId){const i=DB.officers.findIndex(x=>x.id===editingOfficerId);if(i>=0)DB.officers[i]=o;}
   else DB.officers.unshift(o);
@@ -9675,7 +9675,7 @@ function openTopicModal(id){
   document.getElementById('topicModalTitle').textContent=id?'Edit Topic':'New Topic';
   ['title','notes','drive'].forEach(f=>{const el=document.getElementById('tp-'+f);if(el)el.value=t?t[f]||'':'';});
   const catEl=document.getElementById('tp-cat');if(catEl)catEl.value=t?t.category||'Leadership':'Leadership';
-  const dateEl=document.getElementById('tp-date');if(dateEl)dateEl.value=t?t.date||new Date().toISOString().split('T')[0]:new Date().toISOString().split('T')[0];
+  const dateEl=document.getElementById('tp-date');if(dateEl)dateEl.value=t?t.date||localDateStr(new Date()):localDateStr(new Date());
   openModal('topicModal');
 }
 function saveFaithTopic(){
@@ -9697,7 +9697,7 @@ function saveFaithTopic(){
 function uploadFaithTopic(event){
   const files=event.target.files;if(!files||!files.length)return;
   Array.from(files).forEach(file=>{
-    const t={id:Date.now()+Math.random(),title:file.name.replace(/\.[^.]+$/,''),category:'PNK Session',date:new Date().toISOString().split('T')[0],notes:'Uploaded document: '+file.name,drive:'',type:'upload',fileName:file.name,fileSize:Math.round(file.size/1024)+'KB'};
+    const t={id:Date.now()+Math.random(),title:file.name.replace(/\.[^.]+$/,''),category:'PNK Session',date:localDateStr(new Date()),notes:'Uploaded document: '+file.name,drive:'',type:'upload',fileName:file.name,fileSize:Math.round(file.size/1024)+'KB'};
     DB.faithTopics.unshift(t);
   });
   save('faithTopics');renderFaithTopics();event.target.value='';showToast('✓ '+files.length+' file(s) uploaded');
@@ -9765,7 +9765,7 @@ function openCashModal(type,id){
   const existing=id?DB.cashflow.find(x=>x.id===id):null;
   document.getElementById('cashModalTitle').textContent=existing?'Edit Transaction':'Add '+(type==='Debit'?'Debit':'Credit');
   document.getElementById('ca-type').value=existing?existing.type:(type||'Debit');
-  document.getElementById('ca-date').value=existing?existing.date:new Date().toISOString().split('T')[0];
+  document.getElementById('ca-date').value=existing?existing.date:localDateStr(new Date());
   syncDateDisplay('ca-date','ca-date-display');
   document.getElementById('ca-desc').value=existing?existing.desc:'';
   document.getElementById('ca-amount').value=existing?existing.amount:'';
@@ -9803,7 +9803,7 @@ function logWaterGlass(){logWater(Math.min(8,(todayWellness.water||0)+1));}
 
 function renderContextEngine(){
   const el=document.getElementById('contextEngineBody');if(!el)return;
-  const today=new Date().toISOString().split('T')[0];
+  const today=localDateStr(new Date());
   const openTasks=(DB.tasks||[]).filter(t=>t.status!=='Done');
   const highPri=openTasks.filter(t=>t.priority==='High');
   const overdue=openTasks.filter(t=>t.due&&t.due<today);
@@ -10268,7 +10268,7 @@ function recordLoanPayment(id){
     amount:amt,
     account:acct.trim()||'GCash',
     category:'Loan',
-    date:new Date().toISOString().split('T')[0],
+    date:localDateStr(new Date()),
     notes:'Auto-logged from loan tracker'
   };
   DB.cashflow.unshift(entry);save('cashflow');SB.upsert('cashflow',entry,'cashflow');
@@ -10764,7 +10764,7 @@ function renderAccountsTab(){
 
 // ── Transfer functions ─────────────────────────────────────────────────────
 function openTransferModal(fromAcct){
-  document.getElementById('tr-date').value=new Date().toISOString().split('T')[0];
+  document.getElementById('tr-date').value=localDateStr(new Date());
   document.getElementById('tr-amount').value='';
   document.getElementById('tr-notes').value='';
   populateAccountSelect('tr-from',fromAcct||undefined);
@@ -10847,11 +10847,21 @@ function evClass(e){
 // ── State ──────────────────────────────────────────────────────────
 let calView=(typeof getPref==='function'&&getPref('pref-cal-view'))||'agenda';
 let calYear=new Date().getFullYear(),calMonth=new Date().getMonth();
-let calSelectedDate=new Date().toISOString().split('T')[0];
+let calSelectedDate=localDateStr(new Date());
 let calContextFilter=new Set(CAL_WORLDS.map(w=>w.id)); // all on by default
 let calEditingId=null;
 
 // ── Utility: expand recurring events for a date range ─────────────
+// ── Local date string helper ─────────────────────────────────────────────
+// CRITICAL: .toISOString() always converts to UTC. Manila is UTC+8, so any
+// local-midnight Date, when run through .toISOString().split('T')[0], shifts
+// backward by a full day (e.g. Saturday becomes Friday). This app is built
+// entirely around Asia/Manila local time, so date strings must always be
+// derived from LOCAL date components, never toISOString().
+function localDateStr(d){
+  const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),day=String(d.getDate()).padStart(2,'0');
+  return y+'-'+m+'-'+day;
+}
 const RECUR_DOW_MAP={SU:0,MO:1,TU:2,WE:3,TH:4,FR:5,SA:6};
 function expandRecurring(events,fromDate,toDate){
   const from=new Date(fromDate);from.setHours(0,0,0,0);
@@ -10892,7 +10902,7 @@ function expandRecurring(events,fromDate,toDate){
           if(weeksDiff>=0&&weeksDiff%intervalWeeks===0){
             occCount++;
             if(cur>=from&&cur<=to){
-              out.push({...e,_expandedDate:cur.toISOString().split('T')[0],_recurring:true});
+              out.push({...e,_expandedDate:localDateStr(cur),_recurring:true});
             }
           }
         }
@@ -10908,7 +10918,7 @@ function expandRecurring(events,fromDate,toDate){
       safetyMax++;
       occCount++;
       if(cur>=from&&cur<=to){
-        out.push({...e,_expandedDate:cur.toISOString().split('T')[0],_recurring:true});
+        out.push({...e,_expandedDate:localDateStr(cur),_recurring:true});
       }
       switch(e.recur){
         case 'daily':     cur.setDate(cur.getDate()+1);break;
@@ -10943,8 +10953,8 @@ function expandRecurring(events,fromDate,toDate){
 function eventsForDate(dateStr){
   const mon=new Date(dateStr);mon.setDate(1);
   const expanded=expandRecurring(DB.calEvents,
-    new Date(mon.getFullYear(),mon.getMonth()-1,1).toISOString().split('T')[0],
-    new Date(mon.getFullYear(),mon.getMonth()+2,0).toISOString().split('T')[0]
+    localDateStr(new Date(mon.getFullYear(),mon.getMonth()-1,1)),
+    localDateStr(new Date(mon.getFullYear(),mon.getMonth()+2,0))
   );
   return expanded
     .filter(e=>(e._expandedDate||e.date)===dateStr)
@@ -11027,7 +11037,7 @@ function renderCalTwoWeek(){
     const d=new Date(weekStart);d.setDate(weekStart.getDate()+i);
     return d.toISOString().split('T')[0];
   });
-  const today=new Date().toISOString().split('T')[0];
+  const today=localDateStr(new Date());
   const fromDate=dates[0],toDate=dates[13];
   const allExpanded=expandRecurring(DB.calEvents,fromDate,toDate);
   const MAX_CHIPS=4;
@@ -11098,7 +11108,7 @@ function renderCalSidebar(){
   const first=new Date(calYear,calMonth,1).getDay();
   const days=new Date(calYear,calMonth+1,0).getDate();
   const prev=new Date(calYear,calMonth,0).getDate();
-  const today=new Date().toISOString().split('T')[0];
+  const today=localDateStr(new Date());
   let html='';
   for(let i=first-1;i>=0;i--){
     html+=`<div class="cal-mini-day om">${prev-i}</div>`;
@@ -11202,7 +11212,7 @@ function renderCalMonth(){
   const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
   const DAYS=['SUN','MON','TUE','WED','THU','FRI','SAT'];
   const el=document.getElementById('calMainArea');
-  const today=new Date().toISOString().split('T')[0];
+  const today=localDateStr(new Date());
   const first=new Date(calYear,calMonth,1).getDay();
   const daysInMonth=new Date(calYear,calMonth+1,0).getDate();
   const prevDays=new Date(calYear,calMonth,0).getDate();
@@ -11276,7 +11286,7 @@ function renderCalWeek(){
     const d=new Date(weekStart);d.setDate(weekStart.getDate()+i);
     return d.toISOString().split('T')[0];
   });
-  const today=new Date().toISOString().split('T')[0];
+  const today=localDateStr(new Date());
 
   const fromDate=dates[0],toDate=dates[6];
   const allExpanded=expandRecurring(DB.calEvents,fromDate,toDate);
@@ -11372,7 +11382,7 @@ function renderCalWeek(){
 // ── DAY view ─────────────────────────────────────────────────────
 function renderCalDay(){
   const el=document.getElementById('calMainArea');
-  const today=new Date().toISOString().split('T')[0];
+  const today=localDateStr(new Date());
   const d=new Date(calSelectedDate);
   const DAYNAMES=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
   const MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
@@ -11545,7 +11555,7 @@ function renderCalQuarter(){
     if(m>11){m-=12;y++;}
     return{m,y};
   });
-  const today=new Date().toISOString().split('T')[0];
+  const today=localDateStr(new Date());
   const qFrom=new Date(qMonths[0].y,qMonths[0].m,1).toISOString().split('T')[0];
   const qTo=new Date(qMonths[2].y,qMonths[2].m+1,0).toISOString().split('T')[0];
   const qEvents=expandRecurring(DB.calEvents,qFrom,qTo);
@@ -11750,7 +11760,7 @@ function toggleReminderInput(){
 }
 function toggleCalEntryType(){}
 function saveCalEvent(){
-  const rawDate=document.getElementById('ce-date').value||selectedCalDate||new Date().toISOString().split('T')[0];
+  const rawDate=document.getElementById('ce-date').value||selectedCalDate||localDateStr(new Date());
   const allDay=document.getElementById('ce-allday')?.checked||false;
   // Read times FIRST before using them
   const startTimeVal=allDay?'':document.getElementById('ce-time')?.value||'';
@@ -11813,7 +11823,7 @@ function saveCalEvent(){
   ['ce-title','ce-loc','ce-notes'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   const recurEl=document.getElementById('ce-recur');if(recurEl)recurEl.value='none';
   document.querySelectorAll('#ce-custom-days-wrap input[type="checkbox"]').forEach(c=>c.checked=false);
-  const custUnitEl=document.getElementById('ce-custom-unit');if(custUnitEl)custUnitEl.value='day';
+  const custUnitEl=document.getElementById('ce-custom-unit');if(custUnitEl)custUnitEl.value='week';
   const custNEl=document.getElementById('ce-custom-n');if(custNEl)custNEl.value='1';
   ['ce-overnight','ce-also-task','ce-reminder'].forEach(id=>{const el=document.getElementById(id);if(el)el.checked=false;});
   toggleReminderInput();toggleRecurOptions();
@@ -11823,7 +11833,7 @@ function saveCalEvent(){
   showToast('✓ Event saved'+(alsoTask?' + Task created':'')+(conflicts.length?' (check conflicts)':''));
 }
 
-function openCalEventModal(){openCalEventModalOnDate(calSelectedDate||new Date().toISOString().split('T')[0]);}
+function openCalEventModal(){openCalEventModalOnDate(calSelectedDate||localDateStr(new Date()));}
 function openCalEventModalOnDate(date){
   calEditingId=null;
   selectedCalDate=date;
@@ -11835,7 +11845,7 @@ function openCalEventModalOnDate(date){
   ['ce-title','ce-loc','ce-notes'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   const rEl=document.getElementById('ce-recur');if(rEl)rEl.value='none';
   document.querySelectorAll('#ce-custom-days-wrap input[type="checkbox"]').forEach(c=>c.checked=false);
-  const cuResetEl=document.getElementById('ce-custom-unit');if(cuResetEl)cuResetEl.value='day';
+  const cuResetEl=document.getElementById('ce-custom-unit');if(cuResetEl)cuResetEl.value='week';
   const cnResetEl=document.getElementById('ce-custom-n');if(cnResetEl)cnResetEl.value='1';
   ['ce-allday','ce-overnight','ce-also-task','ce-reminder'].forEach(id=>{const el=document.getElementById(id);if(el)el.checked=false;});
   const reEl=document.getElementById('ce-recur-end');if(reEl)reEl.value='';
@@ -12048,7 +12058,7 @@ function openMemoryModal(id){
 function saveMemoryItem(){
   const mem=document.getElementById('mm-memory').value.trim();
   if(!mem){showToast('Memory text required');return;}
-  const m={id:editingMemoryId||Date.now(),memory:mem,category:document.getElementById('mm-cat').value,world:document.getElementById('mm-world').value,date:new Date().toISOString().split('T')[0]};
+  const m={id:editingMemoryId||Date.now(),memory:mem,category:document.getElementById('mm-cat').value,world:document.getElementById('mm-world').value,date:localDateStr(new Date())};
   if(editingMemoryId){const i=DB.memories.findIndex(x=>x.id===editingMemoryId);if(i>=0)DB.memories[i]=m;SB.update('memories',m.id,m,'memories');}
   else{DB.memories.unshift(m);SB.upsert('memories',m,'memories');}
   closeModal('memoryModal');renderMemory();showToast('✓ Memory saved');
@@ -12329,7 +12339,7 @@ function saveMeetingApproved(){
   const world=document.getElementById('mr-world').value;
   const summary=document.getElementById('mr-summary').value.trim();
   const transcript=document.getElementById('mr-transcript').value.trim();
-  const today=new Date().toISOString().split('T')[0];
+  const today=localDateStr(new Date());
 
   // Collect checked action items from new checklist structure
   const actionItems=[];
@@ -12657,7 +12667,7 @@ function parseVoiceCommand(text){
 
       case 'add_faith':{
         const activity=(g.activity||text.replace(intent.re,'').trim());
-        return{action:'add_faith',activity,group:'',date:new Date().toISOString().split('T')[0],status:'Pending',assigned:'',cfo:'',aevm:'',submitted:'',drive:''};
+        return{action:'add_faith',activity,group:'',date:localDateStr(new Date()),status:'Pending',assigned:'',cfo:'',aevm:'',submitted:'',drive:''};
       }
 
       case 'add_credit':
@@ -12870,7 +12880,7 @@ async function dispatchVoiceAction(cmd,rawText){
 
       // ── ADD FAITH ACTIVITY ────────────────────────────────────
       case 'add_faith':{
-        const a={id:Date.now(),activity:cmd.activity||rawText,group:cmd.group||'',date:cmd.date||new Date().toISOString().split('T')[0],submitted:cmd.submitted||'',cfo:cmd.cfo||'',aevm:cmd.aevm||'',status:cmd.status||'Pending',assigned:cmd.assigned||'',drive:cmd.drive||''};
+        const a={id:Date.now(),activity:cmd.activity||rawText,group:cmd.group||'',date:cmd.date||localDateStr(new Date()),submitted:cmd.submitted||'',cfo:cmd.cfo||'',aevm:cmd.aevm||'',status:cmd.status||'Pending',assigned:cmd.assigned||'',drive:cmd.drive||''};
         DB.faith.unshift(a);
         SB.upsert('faith',a,'faith');
         addHistory('add','Added faith: '+a.activity,{...a,_dbKey:'faith'});
@@ -12893,7 +12903,7 @@ async function dispatchVoiceAction(cmd,rawText){
 
       // ── ADD CASHFLOW ──────────────────────────────────────────
       case 'add_cashflow':{
-        const t={id:Date.now(),type:cmd.type||'Debit',date:new Date().toISOString().split('T')[0],desc:cmd.desc||rawText,amount:cmd.amount||0,account:cmd.account||'Cash',category:cmd.category||'Other'};
+        const t={id:Date.now(),type:cmd.type||'Debit',date:localDateStr(new Date()),desc:cmd.desc||rawText,amount:cmd.amount||0,account:cmd.account||'Cash',category:cmd.category||'Other'};
         DB.cashflow.unshift(t);
         SB.upsert('cashflow',t,'cashflow');
         addHistory('add','Added '+t.type+': ₱'+t.amount,{...t,_dbKey:'cashflow'});
@@ -13287,7 +13297,7 @@ async function sendAI(){
   const memCtx=memories.length?`\n\nMEMORY BANK (${memories.length} stored entries — use these to personalize responses):\n`+memories.slice(0,20).map(m=>`[${m.world}|${m.category}|${m.date}] ${m.memory}`).join('\n'):'';
 
   // Build live OS context
-  const today=new Date().toISOString().split('T')[0];
+  const today=localDateStr(new Date());
   const openTasks=(DB.tasks||[]).filter(t=>t.status!=='Done').slice(0,10);
   const highTasks=openTasks.filter(t=>t.priority==='High').slice(0,5);
   const todayEvs=(DB.calEvents||[]).filter(e=>e.date===today).slice(0,5);
@@ -13393,7 +13403,7 @@ function _localAgentReply(q,agent,raw){
 
   // Schedule / calendar
   if(/schedule|calendar|event|meeting|bukas|mamaya|later|time|oras/.test(q)){
-    const today=new Date().toISOString().split('T')[0];
+    const today=localDateStr(new Date());
     const todayEvs=(DB.calEvents||[]).filter(e=>e.date===today);
     if(!todayEvs.length) return `No events on the calendar today, sir. Want to add one? Use the Calendar view or I can help you draft the details.`;
     const list=todayEvs.slice(0,4).map(e=>`• **${e.title}**${e.time?` · ${e.time}`:' · All day'}${e.loc?` · ${e.loc}`:''}`).join('\n');
@@ -13810,14 +13820,14 @@ function logWater(n){
   if(s)s.textContent=n+' / 8 glasses today';
   // Auto-save to today's wellness so it persists on reload
   const d=getWellness();
-  const today=new Date().toISOString().split('T')[0];
+  const today=localDateStr(new Date());
   if(!d[today])d[today]={};
   d[today].water=n;
   saveWellnessData(d);
 }
 // ── Restore today's check-in when Bio Monitor tab opens (was previously always blank) ──
 function restoreTodayWellness(){
-  const today=new Date().toISOString().split('T')[0];
+  const today=localDateStr(new Date());
   const saved=getWellness()[today];
   todayWellness=saved?{...saved}:{mood:0,energy:0,stress:'',water:0,notes:''};
   // Re-select mood/energy/stress buttons to reflect the saved state
@@ -13876,7 +13886,7 @@ function saveWellness(){
   const notes=document.getElementById('wellnessNotes');
   if(notes)todayWellness.notes=notes.value;
   const d=getWellness();
-  const today=new Date().toISOString().split('T')[0];
+  const today=localDateStr(new Date());
   d[today]=todayWellness;
   saveWellnessData(d);
   syncWellnessToSupabase(todayWellness,today);
@@ -13884,7 +13894,7 @@ function saveWellness(){
 }
 
 // ── Health Log Entry ──
-function openHealthLogModal(){const d=document.getElementById('hl-date');if(d)d.value=new Date().toISOString().split('T')[0];const t=document.getElementById('healthLogModalTitle');if(t)t.textContent='Log Health Entry';openModal('healthLogModal');}
+function openHealthLogModal(){const d=document.getElementById('hl-date');if(d)d.value=localDateStr(new Date());const t=document.getElementById('healthLogModalTitle');if(t)t.textContent='Log Health Entry';openModal('healthLogModal');}
 function syncAppleHealth(){
   showToast('Open Health Export app on iPhone → export CSV → use Import CSV button, sir.');
 }
@@ -13904,7 +13914,7 @@ function importHealthCSV(ev){
       // Map common Apple Health CSV fields
       const entry={
         id:Date.now()+Math.random(),
-        date:row.date||row.startdate||new Date().toISOString().split('T')[0],
+        date:row.date||row.startdate||localDateStr(new Date()),
         category:mapHealthCategory(row.type||row.name||''),
         metric:row.type||row.name||'Unknown',
         value:parseFloat(row.value||row.qty||0)||0,
@@ -13931,7 +13941,7 @@ function mapHealthCategory(type){
   return'Vitals';
 }
 function saveHealthEntry(){
-  const d=document.getElementById('hl-date').value||new Date().toISOString().split('T')[0];
+  const d=document.getElementById('hl-date').value||localDateStr(new Date());
   const cat=document.getElementById('hl-cat').value;
   const metric=document.getElementById('hl-metric').value;
   const value=parseFloat(document.getElementById('hl-value').value)||0;
@@ -13961,7 +13971,7 @@ function quickLog(type){
   const p=presets[type];
   if(!p)return;
   // Pre-fill modal fields
-  const d=document.getElementById('hl-date');if(d)d.value=new Date().toISOString().split('T')[0];
+  const d=document.getElementById('hl-date');if(d)d.value=localDateStr(new Date());
   const cat=document.getElementById('hl-cat');if(cat)cat.value=p.cat;
   const metric=document.getElementById('hl-metric');if(metric)metric.value=p.metric;
   const unit=document.getElementById('hl-unit');if(unit)unit.value=p.unit;
@@ -14032,7 +14042,7 @@ function renderHealth(){
 
   // Restore water from today's wellness — must run AFTER wellnessPanel is in DOM
   const wellness=getWellness();
-  const todayKey=new Date().toISOString().split('T')[0];
+  const todayKey=localDateStr(new Date());
   const todayData=wellness[todayKey]||{};
   // Sync todayWellness from stored data
   if(todayData.mood)todayWellness.mood=todayData.mood;
@@ -14945,7 +14955,7 @@ window.reRenderAll = function(){
 let _lastMorningIntelligence='';
 
 function runMorningIntelligence(){
-  const today=new Date().toISOString().split('T')[0];
+  const today=localDateStr(new Date());
   const todayPH=new Date().toLocaleDateString('en-PH',{weekday:'long',year:'numeric',month:'long',day:'numeric',timeZone:'Asia/Manila'});
   const now=new Date().toLocaleTimeString('en-PH',{hour:'2-digit',minute:'2-digit',hour12:true,timeZone:'Asia/Manila'});
 
@@ -15188,7 +15198,7 @@ function saveCapture(){
     world,
     notes,
     status:'inbox',
-    date:new Date().toISOString().split('T')[0],
+    date:localDateStr(new Date()),
     time:new Date().toISOString()
   };
   DB.captures.unshift(c);
@@ -15330,7 +15340,7 @@ function runConnectionFinder(){
           nodeB:{label:corpus[j].label,type:corpus[j].type,world:corpus[j].world||''},
           sharedTerms:shared.slice(0,5),
           surpriseLevel,
-          date:new Date().toISOString().split('T')[0],
+          date:localDateStr(new Date()),
           implication:'These items share context around: '+shared.slice(0,3).join(', ')+'. Worth reviewing together.'
         });
       }
@@ -15539,11 +15549,11 @@ function runPatternDetector(){
     .slice(0,12)
     .map(([word,count])=>{
       const meaning=interpretPattern(word,count);
-      return{id:Date.now()+Math.random(),word,count,meaning,action:meaning.action,date:new Date().toISOString().split('T')[0]};
+      return{id:Date.now()+Math.random(),word,count,meaning,action:meaning.action,date:localDateStr(new Date())};
     });
 
   if(!DB.patterns)DB.patterns=[];
-  const archive={id:Date.now(),date:new Date().toISOString().split('T')[0],patterns,summary:'Pattern scan: top theme is "'+((patterns[0]||{}).word||'N/A')+'" ('+((patterns[0]||{}).count||0)+' occurrences)'};
+  const archive={id:Date.now(),date:localDateStr(new Date()),patterns,summary:'Pattern scan: top theme is "'+((patterns[0]||{}).word||'N/A')+'" ('+((patterns[0]||{}).count||0)+' occurrences)'};
   DB.patterns.unshift(archive);
   if(DB.patterns.length>6)DB.patterns=DB.patterns.slice(0,6);
   save('patterns');
@@ -15651,7 +15661,7 @@ function saveDecision(){
     status:document.getElementById('dec-status').value,
     world:document.getElementById('dec-world').value,
     outcome:document.getElementById('dec-outcome').value.trim(),
-    date:new Date().toISOString().split('T')[0],
+    date:localDateStr(new Date()),
     updatedAt:new Date().toISOString()
   };
   if(_editingDecisionId){const i=DB.decisions.findIndex(x=>x.id===_editingDecisionId);if(i>=0)DB.decisions[i]=d;else DB.decisions.unshift(d);}
@@ -15864,7 +15874,7 @@ window.executeVoiceCommand=function(rawText){
         const content=(g.content||rawText.replace(/^capture[:\-\s]+/i,'').trim());
         if(content){
           const type=autoClassifyCapture(content);
-          const c={id:Date.now(),content,type,world:'WORK-IH',notes:'',status:'inbox',date:new Date().toISOString().split('T')[0],time:new Date().toISOString()};
+          const c={id:Date.now(),content,type,world:'WORK-IH',notes:'',status:'inbox',date:localDateStr(new Date()),time:new Date().toISOString()};
           if(!DB.captures)DB.captures=[];
           DB.captures.unshift(c);
           save('captures');
@@ -15886,7 +15896,7 @@ window.executeVoiceCommand=function(rawText){
 // ═══════════════════════════════════════════════════════════════════════════
 (function scheduleBootBrief(){
   const lastBrief=localStorage.getItem('j-last-brief-date');
-  const today=new Date().toISOString().split('T')[0];
+  const today=localDateStr(new Date());
   if(lastBrief!==today){
     localStorage.setItem('j-last-brief-date',today);
     // Pre-generate brief data silently for the topbar indicator
@@ -16110,7 +16120,7 @@ window.executeVoiceCommand = function(rawText){
         setVcState('idle'); showVcResult(result); speak(result); _safeChime('chimeSuccess'); return;
       }
       case 'query_calendar':{
-        const today=new Date().toISOString().split('T')[0];
+        const today=localDateStr(new Date());
         const evs=(DB.calEvents||[]).filter(e=>e.date===today);
         const result = evs.length===0
           ? 'Walang events today, sir.'
@@ -16180,7 +16190,7 @@ const _origExecVC2 = window.executeVoiceCommand;
 // scheduleAutoBrief is called inside loadOS() post-unlock
 function scheduleAutoBrief(){
   const lastKey='j-auto-brief-shown';
-  const today=new Date().toISOString().split('T')[0];
+  const today=localDateStr(new Date());
   if(localStorage.getItem(lastKey)===today) return;
   localStorage.setItem(lastKey,today);
   setTimeout(()=>{
