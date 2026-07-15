@@ -1,0 +1,34 @@
+# ── Secrets — never commit these ─────────────────────────────────────────
+# Google OAuth client secret JSON (downloaded from Google Cloud Console).
+# This app uses PKCE for the OAuth flow specifically so the client SECRET
+# (as opposed to the client ID, which is meant to be public) is never
+# needed in the shipped code — but the downloaded JSON itself must never
+# land in this repo, public or private.
+client_secret_*.json
+*.client_secret.json
+google-credentials.json
+google-oauth-secret.json
+
+# Any local environment / secrets files
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+secrets.json
+
+# Supabase service_role key if ever exported to a file (anon key is the
+# only key that belongs in the client-side app — service_role must never
+# appear in this repo under any filename)
+service_role*.json
+supabase-service-key*
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+.vscode/
+*.swp
+
+# Local backups you don't want tracked
+*.backup.html
+*.bak
