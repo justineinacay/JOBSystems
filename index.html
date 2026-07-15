@@ -164,12 +164,13 @@ select option{background:var(--navy3)}
 .app.nav-collapsed .side-panel{width:76px !important;min-width:76px !important;max-width:76px !important;position:relative;transform:none;pointer-events:all;z-index:auto;transition:width .2s ease}
 .app.nav-collapsed .side-panel:hover{transform:none;box-shadow:none}
 .app.nav-collapsed .main{grid-column:2;}
-.app.nav-collapsed .ni{font-size:0;justify-content:center;padding:13px 0;gap:0;margin:2px 10px;border-radius:12px}
+.app.nav-collapsed .ni{font-size:0;justify-content:center;padding:13px 0 !important;gap:0;margin:2px 10px;border-radius:12px}
 .app.nav-collapsed .ni i{font-size:21px}
 .app.nav-collapsed .ngl{font-size:0;padding:18px 0 6px;justify-content:center}
 .app.nav-collapsed .ngl i{font-size:14px}
 .app.nav-collapsed .world-edit-btn{display:none !important}
 .app.nav-collapsed .nbadge{position:absolute;top:6px;right:16px;transform:scale(.9)}
+.app.nav-collapsed .ni span:not(.nbadge){display:none}
 .app.nav-collapsed .ni.world-ni.active::after{display:none}
 .app.nav-collapsed #navProfileCard .np-text{display:none}
 .app.nav-collapsed #navProfileCard{justify-content:center;padding:10px 4px}
@@ -197,7 +198,7 @@ select option{background:var(--navy3)}
 .ni.cs:hover,.ni.cs.active{background:rgba(128,255,250,.06);color:var(--w-chainsmoker)}
 .ni.cs.active::after{background:var(--w-chainsmoker)}
 .nbadge{margin-left:auto;font-size:var(--text-xs);background:var(--red);color:white;border-radius:12px;padding:1px 5px;font-weight:700}
-.side-bottom{padding:8px 12px;border-top:1px solid var(--border);flex-shrink:0}
+.side-bottom{padding:10px 12px calc(14px + env(safe-area-inset-bottom,0px));border-top:1px solid var(--border);flex-shrink:0}
 .urgent-strip{display:flex;align-items:center;gap:7px;width:100%;padding:7px 10px;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.25);border-radius:10px;color:var(--red);font-size:var(--text-xs);cursor:pointer;transition:background .15s}
 .urgent-strip:hover{background:rgba(239,68,68,.14)}
 .urgent-strip.none{background:rgba(34,197,94,.06);border-color:rgba(34,197,94,.2);color:var(--green);cursor:default}
@@ -2630,6 +2631,7 @@ select option{background:var(--navy3)}
         <div class="fg"><label class="fl">Assigned To</label><input id="fa-assigned" placeholder="Name..."></div>
       </div>
       <div class="fg"><label class="fl">Google Drive Link</label><input id="fa-drive" placeholder="https://drive.google.com/..."></div>
+      <div id="fa-task-link-row" style="margin-top:4px"></div>
     </div>
     <div class="mf"><button class="btn btn-g" onclick="closeModal('faithModal')">Cancel</button><button class="btn btn-o" onclick="saveFaithActivity()">Save Activity</button></div>
   </div>
@@ -3317,7 +3319,8 @@ select option{background:var(--navy3)}
             <div class="acct-menu-item" onclick="toggleWakeWord()" id="wakeToggleBtn"><i class="ti ti-ear-off"></i><span id="acctWakeLabel">Wake Word: Off</span></div>
             <div class="acct-menu-item" onclick="toggleMute()" id="muteBtn"><i class="ti ti-volume" id="muteIcon"></i><span id="acctMuteLabel">Voice Output: On</span></div>
             <div class="acct-menu-item" onclick="setOpenAIKey()" id="onyxBtn"><i class="ti ti-sparkles"></i><span>ONYX Voice Key</span></div>
-            <div class="acct-menu-item" onclick="setJelixAPIKey()" id="apiKeyBtn"><i class="ti ti-key"></i><span>JOB AI Key</span></div>
+            <div class="acct-menu-item" onclick="setJelixAPIKey()" id="apiKeyBtn"><i class="ti ti-key"></i><span>JOB AI Key (Claude)</span></div>
+            <div class="acct-menu-item" onclick="setGeminiAPIKey()" id="geminiKeyBtn"><i class="ti ti-brand-google" style="color:#4285F4"></i><span>Gemini Key</span></div>
             <div class="acct-menu-item" onclick="setView('history')"><i class="ti ti-history"></i><span>Activity History</span></div>
             <div style="height:1px;background:var(--border);margin:6px 0"></div>
             <div class="acct-menu-item"><i class="ti ti-cloud"></i><span id="weatherText">-- °C</span><span style="margin-left:auto;font-size:var(--text-xs);color:var(--text3)" id="topDate"></span></div>
@@ -3398,7 +3401,7 @@ select option{background:var(--navy3)}
       <div class="vb" style="padding:10px 14px;display:flex;flex-direction:column;gap:10px;overflow-y:auto;-webkit-overflow-scrolling:touch">
 
         <!-- OVERHEAD SCOREBOARD -->
-        <div id="overheadScoreboard" style="display:grid;grid-template-columns:repeat(6,1fr);gap:7px;flex-shrink:0"></div>
+        <div id="overheadScoreboard" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:7px;flex-shrink:0"></div>
 
         <!-- ROW 2: SMART QUICK-ADD BAR -->
         <div id="briefCaptureBar" style="background:var(--navy3);border:1px solid var(--teal2);border-radius:10px;padding:6px 10px;display:flex;gap:7px;align-items:center;flex-shrink:0">
@@ -3695,7 +3698,7 @@ select option{background:var(--navy3)}
 
         <!-- BUILD TRACKER TAB -->
         <div id="bc-tracker" style="flex:1;min-height:0;display:flex;flex-direction:column;overflow:hidden">
-          <div id="buildAppsWrap" style="padding:14px 18px;flex-shrink:0"><div id="buildApps" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px"></div></div>
+          <div id="buildAppsWrap" style="padding:14px 18px;flex-shrink:0;max-height:38vh;overflow-y:auto"><div id="buildApps" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px"></div></div>
           <!-- BUILD tasks -->
           <div style="flex:1;min-height:0;border-top:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden">
             <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 18px;border-bottom:1px solid var(--border);flex-shrink:0">
@@ -4859,21 +4862,20 @@ select option{background:var(--navy3)}
         <!-- AI INTEGRATIONS -->
         <div class="hc" style="margin-bottom:16px">
           <div style="font-size:var(--text-xs);font-weight:700;color:var(--teal);letter-spacing:.1em;text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:6px"><i class="ti ti-api" style="font-size:var(--text-sm);line-height:1;display:block"></i>AI Integrations</div>
-          <!-- ElevenLabs — TIER 1 JARVIS VOICE -->
-          <div class="fg" style="margin-bottom:12px">
-            <label class="fl" style="display:flex;align-items:center;gap:6px">ElevenLabs API Key <span style="font-size:9px;background:rgba(128,255,250,.12);color:var(--teal);padding:1px 7px;border-radius:10px;font-weight:800;letter-spacing:.06em">PREMIUM VOICE · TIER 1</span></label>
-            <div style="display:flex;gap:8px">
-              <input type="password" id="set-elevenlabs-key" placeholder="Enter ElevenLabs API key..." style="flex:1">
-              <button class="btn btn-t" onclick="saveKey('jelix-elevenlabs-key','set-elevenlabs-key');speak('Premium voice online, sir.')">Save</button>
-            </div>
-            <div style="font-size:9px;color:var(--text3);margin-top:4px">elevenlabs.io → Profile → API Keys · Voice: <code style="color:var(--text2)">NOpBlnGInO9m6vDvFkFC</code> · Model: eleven_v3</div>
-          </div>
           <div class="fg" style="margin-bottom:12px">
             <label class="fl">Anthropic API Key <span style="font-size:9px;background:rgba(128,255,250,.06);color:var(--text3);padding:1px 7px;border-radius:10px;font-weight:700;letter-spacing:.06em">CLAUDE AGENTS</span></label>
             <div style="display:flex;gap:8px">
               <input type="password" id="set-anthropic-key" placeholder="sk-ant-..." style="flex:1">
               <button class="btn btn-t" onclick="saveKey('job-api-key','set-anthropic-key')">Save</button>
             </div>
+          </div>
+          <div class="fg" style="margin-bottom:12px">
+            <label class="fl">Google Gemini API Key <span style="font-size:9px;background:rgba(66,133,244,.1);color:#4285F4;padding:1px 7px;border-radius:10px;font-weight:700;letter-spacing:.06em">GEMINI AGENTS</span></label>
+            <div style="display:flex;gap:8px">
+              <input type="password" id="set-gemini-key" placeholder="AIza..." style="flex:1">
+              <button class="btn btn-t" onclick="saveKey('j-gemini-key','set-gemini-key')">Save</button>
+            </div>
+            <div style="font-size:9px;color:var(--text3);margin-top:4px">Free key: aistudio.google.com/apikey</div>
           </div>
           <div class="fg">
             <label class="fl">OpenAI API Key <span style="font-size:9px;background:rgba(128,255,250,.06);color:var(--text3);padding:1px 7px;border-radius:10px;font-weight:700;letter-spacing:.06em">ONYX TTS · TIER 2</span></label>
@@ -4882,6 +4884,12 @@ select option{background:var(--navy3)}
               <button class="btn btn-t" onclick="saveKey('jelix-openai-key','set-openai-key')">Save</button>
             </div>
           </div>
+        </div>
+
+        <!-- GOOGLE WORKSPACE -->
+        <div class="hc" style="margin-bottom:16px">
+          <div style="font-size:var(--text-xs);font-weight:700;color:var(--teal);letter-spacing:.1em;text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:6px"><i class="ti ti-brand-google" style="font-size:var(--text-sm);line-height:1;display:block;color:#4285F4"></i>Google Workspace</div>
+          <div id="googleWorkspaceStatus"></div>
         </div>
 
         <!-- WORLDS MANAGEMENT -->
@@ -4920,6 +4928,11 @@ select option{background:var(--navy3)}
             <div class="fg"><label class="fl">Voice Confirmations</label>
               <select id="pref-voice-confirm" onchange="savePref('pref-voice-confirm')">
                 <option value="on">On — J.O.B Systems speaks confirmations</option><option value="off">Off — silent, toasts only</option>
+              </select>
+            </div>
+            <div class="fg"><label class="fl">AI Provider</label>
+              <select id="pref-ai-provider" onchange="savePref('pref-ai-provider')">
+                <option value="claude">Claude (Anthropic)</option><option value="gemini">Gemini (Google)</option>
               </select>
             </div>
           </div>
@@ -5039,6 +5052,17 @@ async function sbFetch(table,method='GET',body=null,match=null){
   return res.json();
 }
 const SB={
+  // Known date/timestamp-typed field names across all tables — Postgres rejects "" for
+  // date columns (needs a real date or NULL), so any empty string here must become null
+  // before it's sent, regardless of which table it's going to.
+  _DATE_FIELDS:new Set(['due','date','startDate','endDate','submitted','recurEnd','oath','dueDate','deadline','updated','birthDate','startTime','endTime','time']),
+  _sanitizeDates(obj){
+    const out={...obj};
+    for(const k in out){
+      if(this._DATE_FIELDS.has(k)&&out[k]==='')out[k]=null;
+    }
+    return out;
+  },
   async load(table,key){
     try{
       const rows=await sbFetch(table);
@@ -5052,7 +5076,7 @@ const SB={
     }
   },
   async upsert(table,row,key){
-    const r={...row};
+    let r=this._sanitizeDates(row);
     if(table==='cashflow'){r.description=row.desc;delete r.desc;delete r._fromAccount;delete r._toAccount;delete r._runBal;}
     if(table==='cal_events'){delete r.allDay;delete r.overnight;delete r.remindMin;delete r.recurN;delete r.recurEnd;delete r.endDate;delete r.recurUnit;delete r.recurCount;delete r.recur;delete r.reminder;delete r.recurDays;delete r._expandedDate;delete r._recurring;}
     if(table==='memories'){delete r.source;}
@@ -5066,7 +5090,7 @@ const SB={
     }
   },
   async update(table,id,changes,key){
-    const c={...changes};
+    let c=this._sanitizeDates(changes);
     if(table==='cashflow'){if(c.desc){c.description=c.desc;delete c.desc;}delete c._fromAccount;delete c._toAccount;delete c._runBal;}
     if(table==='cal_events'){delete c.allDay;delete c.overnight;delete c.remindMin;delete c.recurN;delete c.recurEnd;delete c.endDate;delete c.recurUnit;delete c.recurCount;delete c.recur;delete c.reminder;delete c.recurDays;delete c._expandedDate;delete c._recurring;}
     if(table==='memories'){delete c.source;}
@@ -5257,6 +5281,22 @@ function renderSideNav(){
     el.classList.toggle('active',el.dataset.view===currentView);
   });
   renderUrgentPanel();
+  applyCollapsedNavStyling();
+}
+// Reapplies collapsed-rail spacing to every nav row — called after any nav rebuild
+// (renderSideNav runs on every view change and rebuilds this HTML from scratch, which
+// would otherwise silently drop collapsed-state styling applied only at toggle time).
+function applyCollapsedNavStyling(){
+  const collapsed=document.querySelector('.app')?.classList.contains('nav-collapsed');
+  document.querySelectorAll('.side-panel .ni').forEach(el=>{
+    if(collapsed){
+      el.style.setProperty('padding','13px 0','important');
+      el.style.setProperty('justify-content','center','important');
+    }else{
+      el.style.removeProperty('padding');
+      el.style.removeProperty('justify-content');
+    }
+  });
 }
 
 // ── Urgent notifications strip (bottom of desktop nav) ──────────────────
@@ -5422,6 +5462,8 @@ function toggleNav(){
   const btn=document.getElementById('navPeekBtn');
   if(btn)btn.style.display=collapsed?'flex':'none';
   localStorage.setItem('j-nav-collapsed',collapsed?'1':'0');
+  applyCollapsedNavStyling();
+  setTimeout(applyCollapsedNavStyling,400); // safety net for any late async re-render
 }
 // Nav always starts expanded — no auto-collapse on load
 (function(){
@@ -5484,9 +5526,7 @@ function runCapture(){
 let isMuted=false,ttsVoice=null;
 function loadVoices(){const v=speechSynthesis.getVoices();ttsVoice=v.find(x=>x.name.includes('Daniel')||x.name.includes('Google UK English Male')||x.name.includes('Microsoft George')||(x.lang==='en-GB'&&x.localService))||v.find(x=>x.lang.startsWith('en'))||null;}
 speechSynthesis.onvoiceschanged=loadVoices;loadVoices();
-// ── TTS Priority: ElevenLabs (JARVIS) → OpenAI (Onyx) → Browser ─────────
-const ELEVENLABS_VOICE_ID='NOpBlnGInO9m6vDvFkFC'; // JARVIS voice
-const ELEVENLABS_MODEL='eleven_v3';
+// ── TTS Priority: OpenAI (Onyx) → Browser ────────────────────────────────
 let currentAudio=null; // track playing audio to allow cancel
 
 function cleanForSpeech(text){
@@ -5502,50 +5542,15 @@ function cleanForSpeech(text){
     .substring(0,800);
 }
 
-async function speakElevenLabs(text, stability=0.45, speed=0.9){
-  const key=localStorage.getItem('jelix-elevenlabs-key');
-  if(!key) return false;
-  try{
-    const res=await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${ELEVENLABS_VOICE_ID}`,{
-      method:'POST',
-      headers:{
-        'xi-api-key':key,
-        'Content-Type':'application/json',
-        'Accept':'audio/mpeg'
-      },
-      body:JSON.stringify({
-        text,
-        model_id:ELEVENLABS_MODEL,
-        language_code:'en',
-        voice_settings:{
-          stability,
-          similarity_boost:0.82,
-          style:0.3,
-          use_speaker_boost:true,
-          speed
-        }
-      })
-    });
-    if(!res.ok) return false;
-    const blob=await res.blob();
-    if(currentAudio){currentAudio.pause();currentAudio=null;}
-    currentAudio=new Audio(URL.createObjectURL(blob));
-    currentAudio.play();
-    return true;
-  }catch(e){return false;}
-}
-
 async function speak(text){
   if(isMuted||!text)return;
   speechSynthesis.cancel();
   if(currentAudio){currentAudio.pause();currentAudio=null;}
   const clean=cleanForSpeech(text);
-  // Tier 1: ElevenLabs JARVIS
-  if(await speakElevenLabs(clean, 0.45, 0.88)) return;
-  // Tier 2: OpenAI Onyx
+  // Tier 1: OpenAI Onyx
   const oaiKey=localStorage.getItem('jelix-openai-key');
   if(oaiKey){try{const res=await fetch('https://api.openai.com/v1/audio/speech',{method:'POST',headers:{'Authorization':'Bearer '+oaiKey,'Content-Type':'application/json'},body:JSON.stringify({model:'tts-1',voice:'onyx',input:clean,speed:0.82})});if(res.ok){const blob=await res.blob();currentAudio=new Audio(URL.createObjectURL(blob));currentAudio.play();return;}}catch(e){}}
-  // Tier 3: Browser TTS
+  // Tier 2: Browser TTS
   const utt=new SpeechSynthesisUtterance(clean);utt.lang='en-GB';utt.rate=0.85;utt.pitch=0.80;utt.volume=1;if(ttsVoice)utt.voice=ttsVoice;speechSynthesis.speak(utt);
 }
 
@@ -5555,29 +5560,13 @@ async function speakSlow(text){
   speechSynthesis.cancel();
   if(currentAudio){currentAudio.pause();currentAudio=null;}
   const clean=cleanForSpeech(text);
-  // Tier 1: ElevenLabs — slower, steadier
-  if(await speakElevenLabs(clean, 0.52, 0.74)) return;
-  // Tier 2: OpenAI
+  // Tier 1: OpenAI
   const oaiKey=localStorage.getItem('jelix-openai-key');
   if(oaiKey){try{const res=await fetch('https://api.openai.com/v1/audio/speech',{method:'POST',headers:{'Authorization':'Bearer '+oaiKey,'Content-Type':'application/json'},body:JSON.stringify({model:'tts-1',voice:'onyx',input:clean,speed:0.72})});if(res.ok){const blob=await res.blob();currentAudio=new Audio(URL.createObjectURL(blob));currentAudio.play();return;}}catch(e){}}
-  // Tier 3: Browser
+  // Tier 2: Browser
   const utt=new SpeechSynthesisUtterance(clean);utt.lang='en-GB';utt.rate=0.72;utt.pitch=0.78;utt.volume=1;if(ttsVoice)utt.voice=ttsVoice;speechSynthesis.speak(utt);
 }
 
-function setElevenLabsKey(){
-  const existing=localStorage.getItem('jelix-elevenlabs-key')||'';
-  const masked=existing?existing.substring(0,8)+'...'+existing.slice(-4):'(not set)';
-  const k=prompt('ElevenLabs API Key — Premium Voice\n\nCurrent: '+masked+'\n\nPaste your ElevenLabs API key:\n(Get it at elevenlabs.io → Profile → API Keys)\nLeave blank to remove.','');
-  if(k===null)return;
-  if(k.trim()){
-    localStorage.setItem('jelix-elevenlabs-key',k.trim());
-    showToast('✓ Premium voice activated.');
-    speak('Premium voice online. ElevenLabs ready, sir.');
-  }else{
-    localStorage.removeItem('jelix-elevenlabs-key');
-    showToast('ElevenLabs key removed. Falling back to Onyx or browser voice.');
-  }
-}
 function lockOS(){
   speechSynthesis.cancel();
   if(currentAudio){currentAudio.pause();currentAudio=null;}
@@ -5721,6 +5710,192 @@ function renderTopNotifPanel(){
   if(badge)badge.style.display=totalCount?'block':'none';
 }
 function setOpenAIKey(){const e=localStorage.getItem('jelix-openai-key')||'';const k=prompt('Enter your OpenAI API key for ONYX voice:\n\nLeave blank to remove.',e);if(k===null)return;if(k.trim()){localStorage.setItem('jelix-openai-key',k.trim());showToast('ONYX key saved. Premium voice enabled.');speak('Premium voice activated. Good evening, sir.');}else{localStorage.removeItem('jelix-openai-key');showToast('Key removed. Using browser voice.');}}
+// ── Unified AI provider call — routes to Claude or Gemini based on preference ──
+async function callAIProvider(system,msgs,opts){
+  opts=opts||{};
+  const provider=getPref('pref-ai-provider')||'claude';
+  const maxTokens=opts.maxTokens||1024;
+
+  if(provider==='gemini'){
+    const geminiKey=localStorage.getItem('j-gemini-key');
+    if(!geminiKey)return{ok:false,error:'No Gemini API key configured, sir. Add one in Settings.'};
+    try{
+      const contents=msgs.map(m=>({role:m.role==='assistant'?'model':'user',parts:[{text:m.content}]}));
+      const res=await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key='+geminiKey,{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({
+          system_instruction:{parts:[{text:system}]},
+          contents,
+          generationConfig:{maxOutputTokens:maxTokens}
+        })
+      });
+      if(!res.ok){const errBody=await res.text().catch(()=>'');return{ok:false,error:'Gemini API error '+res.status+(errBody?': '+errBody.substring(0,200):'')};}
+      const data=await res.json();
+      const text=(data.candidates?.[0]?.content?.parts||[]).map(p=>p.text||'').join('\n').trim();
+      return{ok:true,text:text||'No response, sir.'};
+    }catch(e){
+      return{ok:false,error:e.message};
+    }
+  }
+
+  // Default: Claude
+  const antKey=localStorage.getItem('job-api-key')||localStorage.getItem('j-jelix-api-key')||localStorage.getItem('j-anthropic-key');
+  if(!antKey)return{ok:false,error:'No Anthropic API key configured, sir. Add one in Settings.'};
+  try{
+    const body={model:'claude-sonnet-4-6',max_tokens:maxTokens,system,messages:msgs};
+    if(opts.tools)body.tools=opts.tools;
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':antKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify(body)
+    });
+    if(!res.ok)return{ok:false,error:'Claude API error '+res.status};
+    const data=await res.json();
+    const text=(data.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('\n').trim()
+      ||(data.content||[]).map(b=>b.text||'').join('\n').trim();
+    return{ok:true,text:text||'No response, sir.'};
+  }catch(e){
+    return{ok:false,error:e.message};
+  }
+}
+function hasAnyAIKey(){
+  return !!(localStorage.getItem('job-api-key')||localStorage.getItem('j-jelix-api-key')||localStorage.getItem('j-anthropic-key')||localStorage.getItem('j-gemini-key'));
+}
+// ── Google Workspace OAuth (PKCE — no client secret shipped in this public file) ──
+const GOOGLE_OAUTH_CLIENT_ID='253506334952-5rrceaqgokqhcrknf4o1pkqto8rliucu.apps.googleusercontent.com';
+const GOOGLE_OAUTH_REDIRECT_URI='https://justineinacay.github.io/JOBSystems/';
+const GOOGLE_OAUTH_SCOPES=[
+  'https://www.googleapis.com/auth/calendar',
+  'https://www.googleapis.com/auth/gmail.readonly',
+  'https://www.googleapis.com/auth/drive.readonly',
+  'https://www.googleapis.com/auth/tasks',
+].join(' ');
+
+function _base64UrlEncode(buf){
+  return btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+}
+async function _pkceChallenge(verifier){
+  const data=new TextEncoder().encode(verifier);
+  const digest=await crypto.subtle.digest('SHA-256',data);
+  return _base64UrlEncode(digest);
+}
+function _randomVerifier(){
+  const arr=new Uint8Array(64);crypto.getRandomValues(arr);
+  return _base64UrlEncode(arr.buffer);
+}
+
+async function connectGoogleWorkspace(){
+  const verifier=_randomVerifier();
+  sessionStorage.setItem('j-google-pkce-verifier',verifier);
+  const challenge=await _pkceChallenge(verifier);
+  const params=new URLSearchParams({
+    client_id:GOOGLE_OAUTH_CLIENT_ID,
+    redirect_uri:GOOGLE_OAUTH_REDIRECT_URI,
+    response_type:'code',
+    scope:GOOGLE_OAUTH_SCOPES,
+    access_type:'offline',
+    prompt:'consent',
+    code_challenge:challenge,
+    code_challenge_method:'S256',
+  });
+  window.location.href='https://accounts.google.com/o/oauth2/v2/auth?'+params.toString();
+}
+
+async function _handleGoogleOAuthCallback(){
+  const params=new URLSearchParams(window.location.search);
+  const code=params.get('code');
+  if(!code)return;
+  const verifier=sessionStorage.getItem('j-google-pkce-verifier');
+  if(!verifier)return;
+  try{
+    const res=await fetch('https://oauth2.googleapis.com/token',{
+      method:'POST',
+      headers:{'Content-Type':'application/x-www-form-urlencoded'},
+      body:new URLSearchParams({
+        client_id:GOOGLE_OAUTH_CLIENT_ID,
+        code,
+        code_verifier:verifier,
+        grant_type:'authorization_code',
+        redirect_uri:GOOGLE_OAUTH_REDIRECT_URI,
+      })
+    });
+    const data=await res.json();
+    if(data.access_token){
+      const expiry=Date.now()+((data.expires_in||3600)*1000);
+      localStorage.setItem('j-google-access-token',data.access_token);
+      localStorage.setItem('j-google-token-expiry',String(expiry));
+      if(data.refresh_token)localStorage.setItem('j-google-refresh-token',data.refresh_token);
+      showToast('✓ Google Workspace connected, sir.');
+    }else{
+      showToast('⚠ Google connection failed: '+(data.error_description||data.error||'unknown error'));
+      console.error('Google OAuth token exchange failed',data);
+    }
+  }catch(e){
+    showToast('⚠ Google connection failed: '+e.message);
+  }
+  // Clean the ?code=... off the URL so a refresh doesn't retry the exchange
+  sessionStorage.removeItem('j-google-pkce-verifier');
+  window.history.replaceState({},document.title,window.location.pathname);
+}
+// Run on boot — harmless no-op if there's no ?code= in the URL
+if(window.location.search.includes('code=')){
+  document.addEventListener('DOMContentLoaded',_handleGoogleOAuthCallback);
+}
+
+function isGoogleWorkspaceConnected(){
+  const token=localStorage.getItem('j-google-access-token');
+  const expiry=parseInt(localStorage.getItem('j-google-token-expiry')||'0');
+  return !!token&&Date.now()<expiry;
+}
+function disconnectGoogleWorkspace(){
+  if(!confirm('Disconnect your Google Workspace account, sir?'))return;
+  localStorage.removeItem('j-google-access-token');
+  localStorage.removeItem('j-google-token-expiry');
+  localStorage.removeItem('j-google-refresh-token');
+  showToast('Google Workspace disconnected.');
+  renderSettingsView();
+}
+// NOTE: refreshing an expired access token normally requires the client_secret for
+// "Web application"-type OAuth clients — that secret is intentionally NOT embedded in
+// this public file. When the token expires, connectGoogleWorkspace() must be called
+// again (one click, same consent screen, usually instant since already authorized).
+async function ensureGoogleToken(){
+  if(isGoogleWorkspaceConnected())return localStorage.getItem('j-google-access-token');
+  return null;
+}
+async function fetchGoogleCalendarEvents(maxResults){
+  const token=await ensureGoogleToken();
+  if(!token)return{ok:false,error:'Not connected'};
+  try{
+    const now=new Date().toISOString();
+    const params=new URLSearchParams({timeMin:now,maxResults:String(maxResults||10),singleEvents:'true',orderBy:'startTime'});
+    const res=await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events?'+params.toString(),{
+      headers:{'Authorization':'Bearer '+token}
+    });
+    if(!res.ok)return{ok:false,error:'Google Calendar API error '+res.status};
+    const data=await res.json();
+    return{ok:true,events:data.items||[]};
+  }catch(e){
+    return{ok:false,error:e.message};
+  }
+}
+
+function setGeminiAPIKey(){
+  const existing=localStorage.getItem('j-gemini-key')||'';
+  const masked=existing?'AIza...'+existing.slice(-6):'(not set)';
+  const k=prompt('J.O.B Systems — Google Gemini API Key\n\nCurrent: '+masked+'\n\nGet a free key at aistudio.google.com/apikey\nPaste it below (starts with AIza):\nLeave blank to remove.','');
+  if(k===null)return;
+  if(k.trim().startsWith('AIza')){
+    localStorage.setItem('j-gemini-key',k.trim());
+    showToast('✓ Gemini key saved, sir.');
+  }else if(k.trim()===''){
+    localStorage.removeItem('j-gemini-key');
+    showToast('Gemini key removed.');
+  }else{
+    showToast('⚠ Invalid key. Must start with AIza');
+  }
+}
 function setJelixAPIKey(){
   const existing=localStorage.getItem('job-api-key')||'';
   const masked=existing?'sk-ant-...'+existing.slice(-6):'(not set)';
@@ -5962,14 +6137,27 @@ function renderWorldsSettings(){
 }
 function renderSettingsView(){
   const antKey=localStorage.getItem('job-api-key');
+  const gemKey=localStorage.getItem('j-gemini-key');
   const oaiKey=localStorage.getItem('jelix-openai-key');
-  const elKey=localStorage.getItem('jelix-elevenlabs-key');
   const antEl=document.getElementById('set-anthropic-key');
+  const gemEl=document.getElementById('set-gemini-key');
   const oaiEl=document.getElementById('set-openai-key');
-  const elEl=document.getElementById('set-elevenlabs-key');
   if(antEl&&antKey)antEl.placeholder='sk-ant-...'+antKey.slice(-6)+' (set)';
+  if(gemEl&&gemKey)gemEl.placeholder='AIza...'+gemKey.slice(-6)+' (set)';
   if(oaiEl&&oaiKey)oaiEl.placeholder='sk-proj-...'+oaiKey.slice(-6)+' (set)';
-  if(elEl&&elKey)elEl.placeholder=elKey.substring(0,8)+'...'+elKey.slice(-4)+' (set)';
+  const gwsStatusEl=document.getElementById('googleWorkspaceStatus');
+  if(gwsStatusEl){
+    if(isGoogleWorkspaceConnected()){
+      gwsStatusEl.innerHTML=`<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(0,255,136,.06);border:1px solid rgba(0,255,136,.25);border-radius:10px;margin-bottom:10px">
+        <i class="ti ti-circle-check" style="color:var(--green);font-size:16px"></i>
+        <span style="flex:1;font-size:var(--text-sm);color:var(--text1)">Connected — Calendar, Gmail, Drive, Tasks</span>
+        <button class="btn btn-d" style="font-size:var(--text-xs)" onclick="disconnectGoogleWorkspace()">Disconnect</button>
+      </div>`;
+    }else{
+      gwsStatusEl.innerHTML=`<div style="font-size:var(--text-xs);color:var(--text3);margin-bottom:10px">Connects Calendar, Gmail, Drive, and Tasks directly into J.O.B Systems.</div>
+      <button class="btn btn-t" onclick="connectGoogleWorkspace()"><i class="ti ti-brand-google"></i> Connect Google Account</button>`;
+    }
+  }
   // Bio toggle button
   const bioBtn=document.getElementById('bioToggleBtn');
   if(bioBtn){
@@ -6004,7 +6192,7 @@ function renderSettingsWorldsList(){
 }
 
 // ── Preferences (persisted, applied at boot) ────────────────────────────
-const PREF_DEFAULTS={'pref-cal-view':'agenda','pref-board-view':'table','pref-landing-view':'dashboard','pref-voice-confirm':'on'};
+const PREF_DEFAULTS={'pref-cal-view':'agenda','pref-board-view':'table','pref-landing-view':'dashboard','pref-voice-confirm':'on','pref-ai-provider':'claude'};
 function savePref(id){
   const el=document.getElementById(id);if(!el)return;
   localStorage.setItem('j-'+id,el.value);
@@ -6363,11 +6551,20 @@ function updateClock(){
   document.getElementById('topClock').textContent=n.toLocaleTimeString('en-PH',{hour:'2-digit',minute:'2-digit',hour12:true,timeZone:'Asia/Manila'});
   document.getElementById('topDate').textContent=n.toLocaleDateString('en-PH',{weekday:'short',month:'short',day:'numeric',timeZone:'Asia/Manila'}).toUpperCase();
   const hr=parseInt(n.toLocaleTimeString('en-PH',{hour:'2-digit',hour12:false,timeZone:'Asia/Manila'}));
-  const timeGreeting=hr<5?'Still up, Justine':hr<12?'Good morning, Justine':hr<18?'Good afternoon, Justine':'Good evening, Justine';
+  const GREETINGS={
+    night:['Still up, Justine','Burning the midnight oil, Justine','2AM focus mode, Justine','The quiet hours are yours, Justine','Night shift, Justine — let\'s build'],
+    morning:['Good morning, Justine','Rise and build, Justine','Fresh start, Justine','Morning, Justine — let\'s ship something','Coffee\'s calling, Justine'],
+    afternoon:['Good afternoon, Justine','Midday check-in, Justine','Keep the momentum, Justine','Afternoon, Justine — how\'s it looking'],
+    evening:['Good evening, Justine','Winding down, Justine','Evening, Justine — one more push?','Golden hour, Justine'],
+  };
+  const daydSeed=parseInt(localDateStr(new Date()).replace(/-/g,''));
+  const pick=arr=>arr[daydSeed%arr.length];
+  const period=hr<5?'night':hr<12?'morning':hr<18?'afternoon':'evening';
+  const timeGreeting=pick(GREETINGS[period]);
   const greetEl=document.getElementById('briefGreeting');
   if(greetEl)greetEl.textContent=timeGreeting+(hr<5?' 🌙':hr<12?' ☀️':hr<18?' ⛅':' 🌆');
   const subEl=document.getElementById('briefSub');
-  if(subEl)subEl.textContent="Here's what's on your plate today · "+n.toLocaleDateString('en-PH',{weekday:'long',month:'long',day:'numeric',timeZone:'Asia/Manila'})+' · Taguig, Metro Manila';
+  if(subEl)subEl.textContent="Here's what's on your plate today · "+n.toLocaleDateString('en-PH',{weekday:'long',month:'long',day:'numeric',timeZone:'Asia/Manila'})+' · Las Piñas, Metro Manila';
   const it=document.getElementById('initTime');if(it&&!it.textContent)it.textContent=n.toLocaleTimeString('en-PH',{hour:'2-digit',minute:'2-digit',hour12:true,timeZone:'Asia/Manila'});
   // Topbar ticker — time + date
   const tt=document.getElementById('tickerTime');if(tt)tt.textContent=n.toLocaleTimeString('en-PH',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:true,timeZone:'Asia/Manila'});
@@ -6379,11 +6576,11 @@ function updateClock(){
 setInterval(updateClock,1000);updateClock();
 async function fetchWeather(){
   try{
-    const r=await fetch('https://api.open-meteo.com/v1/forecast?latitude=14.5243&longitude=121.0507&current_weather=true&temperature_unit=celsius');
+    const r=await fetch('https://api.open-meteo.com/v1/forecast?latitude=14.4500&longitude=120.9830&current_weather=true&temperature_unit=celsius');
     const d=await r.json();
     const temp=Math.round(d.current_weather.temperature);
-    document.getElementById('weatherText').textContent=temp+'°C · Taguig';
-    const tw=document.getElementById('tickerWeather');if(tw)tw.innerHTML='<i class="ti ti-cloud" style="font-size:10px;vertical-align:middle"></i> '+temp+'°C Taguig';
+    document.getElementById('weatherText').textContent=temp+'°C · Las Piñas';
+    const tw=document.getElementById('tickerWeather');if(tw)tw.innerHTML='<i class="ti ti-cloud" style="font-size:10px;vertical-align:middle"></i> '+temp+'°C Las Piñas';
     const mw=document.getElementById('mobileWeather');if(mw)mw.innerHTML='<i class="ti ti-cloud" style="font-size:11px"></i>'+temp+'°C';
   }catch(e){
     document.getElementById('weatherText').textContent='-- °C';
@@ -6804,8 +7001,8 @@ function renderMobileCalStrip(){
   for(let i=-3;i<=3;i++){const d=new Date(today);d.setDate(today.getDate()+i);days.push(d);}
   const DOW=['SUN','MON','TUE','WED','THU','FRI','SAT'];
   strip.innerHTML=days.map(d=>{
-    const ds=d.toISOString().split('T')[0];
-    const isToday=ds===today.toISOString().split('T')[0];
+    const ds=localDateStr(d);
+    const isToday=ds===localDateStr(today);
     const isSel=ds===_mobileCalSelectedDate;
     const hasEv=(DB.calEvents||[]).some(e=>e.date===ds);
     return '<div class="mcws-day'+(isToday?' today':'')+(isSel?' selected':'')+(hasEv?' has-ev':'')+'" onclick="selectMobileCalDay(\''+ds+'\')" data-date="'+ds+'">'+
@@ -6953,7 +7150,7 @@ function briefWeekNav(dir){
 }
 function renderBriefWeekStrip(){
   const today=new Date();
-  const todayStr=today.toISOString().split('T')[0];
+  const todayStr=localDateStr(today);
   const mon=new Date(today);
   mon.setDate(today.getDate()-((today.getDay()+6)%7)+briefWeekOffset*7);
   const days=Array.from({length:7},(_,i)=>{const d=new Date(mon);d.setDate(mon.getDate()+i);return d;});
@@ -6963,7 +7160,7 @@ function renderBriefWeekStrip(){
   const strip=document.getElementById('briefWeekStrip');
   if(!strip)return;
   strip.innerHTML=days.map(d=>{
-    const ds=d.toISOString().split('T')[0];
+    const ds=localDateStr(d);
     const isToday=ds===todayStr;
     const evs=DB.calEvents.filter(e=>e.date===ds);
     const tasks=DB.tasks.filter(t=>t.due===ds&&t.status!=='Done');
@@ -7050,13 +7247,21 @@ function renderOverheadScoreboard(){
   const faithEvents=(DB.calEvents||[]).filter(e=>{const d=new Date(e.date);return e.type==='pu'&&d>=weekStart&&d<weekEnd;}).length;
   // Today's events
   const todayEvents=(DB.calEvents||[]).filter(e=>e.date===today).length;
+  const activeTasks=openTasks.filter(t=>t.status==='In Progress').length;
+  const codeOpenTasks=(DB.tasks||[]).filter(t=>t.world==='BUILD'&&t.status!=='Done').length;
+  const jobOpenTasks=(DB.tasks||[]).filter(t=>t.world==='VENTURE'&&t.status!=='Done').length;
+  const creativeOpenTasks=(DB.tasks||[]).filter(t=>t.world==='SIDES'&&t.status!=='Done').length;
+  const faithOpenTasks=(DB.tasks||[]).filter(t=>t.world==='FAITH'&&t.status!=='Done').length;
 
   const tiles=[
     {icon:'ti-users',label:'Active Clients',val:activeClients,color:'var(--teal)',bg:'rgba(128,255,250,.07)',onclick:"setView('work-ih')"},
+    {icon:'ti-player-play',label:'Active Tasks',val:activeTasks,color:'var(--info-text)','bg':'var(--info-bg)',onclick:"setView('tasks')"},
     {icon:'ti-alert-triangle',label:'High Priority',val:highPrio,color:'var(--red)',bg:'rgba(255,34,68,.08)',onclick:"setView('tasks')"},
     {icon:'ti-list-check',label:'Open Tasks',val:openTasks.length,color:'var(--amber)',bg:'rgba(255,170,0,.07)',onclick:"setView('tasks')"},
-    {icon:'ti-device-mobile',label:'Build Queue',val:buildTasks,color:'var(--purple)',bg:'rgba(168,85,247,.08)',onclick:"setView('build')"},
-    {icon:'ti-heart',label:'Faith This Week',val:faithEvents,color:'var(--pink)',bg:'rgba(255,40,160,.07)',onclick:"setView('faith')"},
+    {icon:'ti-code',label:'Code Collective',val:codeOpenTasks,color:'var(--green)',bg:'rgba(0,255,136,.07)',onclick:"setView('build')"},
+    {icon:'ti-rocket',label:'Job Collective',val:jobOpenTasks,color:'var(--orange)',bg:'rgba(255,140,0,.07)',onclick:"setView('venture')"},
+    {icon:'ti-palette',label:'Creative Collective',val:creativeOpenTasks,color:'var(--amber)',bg:'rgba(255,170,0,.07)',onclick:"setView('sides')"},
+    {icon:'ti-heart',label:'Faith Open Tasks',val:faithOpenTasks,color:'var(--pink)',bg:'rgba(255,40,160,.07)',onclick:"setView('faith')"},
     {icon:'ti-coin',label:'Balance',val:(balance>0?'+':balance<0?'-':'')+'₱'+Math.abs(balance).toLocaleString('en-PH',{maximumFractionDigits:0}),color:balance>0?'var(--green)':balance<0?'var(--red)':'var(--text2)',bg:balance>0?'rgba(0,255,136,.07)':balance<0?'rgba(255,34,68,.08)':'rgba(0,0,0,.04)',onclick:"setView('life')"},
   ];
 
@@ -7215,7 +7420,7 @@ function buildDailyBriefSummary(){
   const greeting=hour<12?'Good morning':hour<18?'Good afternoon':'Good evening';
   const days=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
   const day=days[now.getDay()];
-  const todayStr=now.toISOString().split('T')[0];
+  const todayStr=localDateStr(now);
   const weekEnd=new Date(now);weekEnd.setDate(weekEnd.getDate()+7);
 
   // Work deadlines — tasks due today or overdue
@@ -7473,9 +7678,9 @@ function getFilteredTasks(){
 
   const today     = localDateStr(new Date());
   const weekEnd   = new Date(); weekEnd.setDate(weekEnd.getDate()+7);
-  const weekEndStr= weekEnd.toISOString().split('T')[0];
+  const weekEndStr= localDateStr(weekEnd);
   const monthEnd  = new Date(); monthEnd.setMonth(monthEnd.getMonth()+1);
-  const monthEndStr=monthEnd.toISOString().split('T')[0];
+  const monthEndStr=localDateStr(monthEnd);
 
   const tasks = DB.tasks.map(t=>normaliseSBTask(t)).filter(t=>{
     // Hide Done tasks unless specifically filtered for Done
@@ -8370,16 +8575,16 @@ function renderVenture(){
     el.innerHTML=stages.map(s=>{
       const si=items.filter(v=>v.stage===s);
       const accent=pColor(s);
-      return`<div style="background:var(--navy3);border:1px solid var(--border);border-top:2px solid ${accent};border-radius:10px;display:flex;flex-direction:column;min-height:120px">
+      return`<div data-stage="${s}" data-pipeline="${containerId}" ondragover="event.preventDefault();this.style.background='var(--hover-tint)'" ondragleave="this.style.background=''" ondrop="handlePipelineDrop(event,'${s}')" style="background:var(--navy3);border:1px solid var(--border);border-top:2px solid ${accent};border-radius:10px;display:flex;flex-direction:column;min-height:120px;transition:background .15s">
         <div style="display:flex;align-items:center;justify-content:space-between;padding:7px 10px;border-bottom:1px solid var(--border)">
           <span style="font-size:var(--text-xs);font-weight:800;color:${accent};letter-spacing:.08em;text-transform:uppercase">${s}</span>
           <span style="font-size:var(--text-xs);font-weight:700;color:${accent};background:${accent}18;border:1px solid ${accent}40;border-radius:10px;padding:0 7px;line-height:18px">${si.length}</span>
         </div>
         <div style="flex:1;padding:6px;display:flex;flex-direction:column;gap:5px">
-          ${si.map(v=>`<div style="background:var(--navy3);border:1px solid var(--border);border-radius:8px;padding:7px 9px;cursor:pointer;transition:all .15s" onclick="openVentureModal(${v.id})" onmouseover="this.style.borderColor='${accent}';this.style.background='${accent}0d'" onmouseout="this.style.borderColor='var(--border)';this.style.background='var(--navy3)'">
+          ${si.map(v=>`<div draggable="true" ondragstart="handlePipelineDragStart(event,${v.id})" ondragend="this.style.opacity='1'" style="background:var(--navy3);border:1px solid var(--border);border-radius:8px;padding:7px 9px;cursor:grab;transition:all .15s" onclick="openVentureModal(${v.id})" onmouseover="this.style.borderColor='${accent}';this.style.background='${accent}0d'" onmouseout="this.style.borderColor='var(--border)';this.style.background='var(--navy3)'">
             <div style="font-size:var(--text-xs);font-weight:700;color:var(--text1);line-height:1.3;margin-bottom:3px">${v.name}</div>
             ${v.type==='Partner/VA'&&v.specialty?`<div style="font-size:var(--text-xs);color:var(--text3)">${v.specialty}${v.rate?' · $'+v.rate+'/hr':''}</div>`:v.notes?`<div style="font-size:var(--text-xs);color:var(--text3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${v.notes}</div>`:''}
-          </div>`).join('')||`<div style="font-size:var(--text-xs);color:var(--text3);padding:6px;text-align:center;font-style:italic">Empty</div>`}
+          </div>`).join('')||`<div style="font-size:var(--text-xs);color:var(--text3);padding:6px;text-align:center;font-style:italic">Drop here</div>`}
           <div onclick="openVentureModal()" style="margin-top:auto;padding:5px;text-align:center;font-size:var(--text-xs);color:${accent};opacity:.5;cursor:pointer;border:1px dashed ${accent}40;border-radius:8px;transition:opacity .15s" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='.5'">+ Add</div>
         </div>
       </div>`;
@@ -8390,7 +8595,49 @@ function renderVenture(){
   _renderVTasks();
 }
 
+let _pipelineDragItemId=null;
+function handlePipelineDragStart(e,itemId){
+  _pipelineDragItemId=itemId;
+  e.dataTransfer.effectAllowed='move';
+  e.target.style.opacity='.4';
+}
+function handlePipelineDrop(e,newStage){
+  e.preventDefault();
+  e.currentTarget.style.background='';
+  if(_pipelineDragItemId==null)return;
+  const v=DB.venture.find(x=>x.id===_pipelineDragItemId);
+  if(v&&v.stage!==newStage){
+    v.stage=newStage;
+    save('venture');
+    SB.update('venture',v.id,v,'venture');
+    addHistory('edit','Moved "'+v.name+'" to '+newStage,{...v,_dbKey:'venture'});
+    renderVenture();
+    showToast('✓ Moved to '+newStage);
+  }
+  _pipelineDragItemId=null;
+}
 let _vtView='list';
+let _ventureDragTaskId=null;
+function handleVentureKanbanDragStart(e,taskId){
+  _ventureDragTaskId=taskId;
+  e.dataTransfer.effectAllowed='move';
+  e.target.style.opacity='.4';
+}
+function handleVentureKanbanDrop(e,newStatus){
+  e.preventDefault();
+  e.currentTarget.style.background='';
+  if(_ventureDragTaskId==null)return;
+  const t=DB.tasks.find(x=>x.id===_ventureDragTaskId);
+  if(t&&t.status!==newStatus){
+    t.status=newStatus;
+    save('tasks');
+    SB.update('tasks',t.id,t,'tasks');
+    addHistory('edit','Moved "'+t.title+'" to '+newStatus,{...t,_dbKey:'tasks'});
+    _renderVTasks();
+    showToast('✓ Moved to '+newStatus);
+  }
+  _ventureDragTaskId=null;
+}
 function setVTView(v,btn){
   _vtView=v;
   document.querySelectorAll('#vtt-list,#vtt-kanban').forEach(b=>{b.classList.remove('active');});
@@ -8437,19 +8684,19 @@ function _renderVTasks(){
       ${statuses.map(s=>{
         const col=tasks.filter(t=>(t.status||'Todo')===s);
         const ac=stColor(s);
-        return`<div style="display:flex;flex-direction:column;gap:6px">
+        return`<div data-status="${s}" ondragover="event.preventDefault();this.style.background='var(--hover-tint)'" ondragleave="this.style.background=''" ondrop="handleVentureKanbanDrop(event,'${s}')" style="display:flex;flex-direction:column;gap:6px;border-radius:10px;transition:background .15s;padding:4px">
           <div style="display:flex;align-items:center;justify-content:space-between;padding:5px 0">
             <span style="font-size:var(--text-xs);font-weight:700;color:${ac};text-transform:uppercase;letter-spacing:.07em">${s}</span>
             <span style="font-size:var(--text-xs);color:${ac};background:${ac}18;border:1px solid ${ac}35;border-radius:10px;padding:0 7px;line-height:17px;font-weight:700">${col.length}</span>
           </div>
-          ${col.map(t=>`<div style="background:var(--navy3);border:1px solid var(--border);border-left:3px solid ${pDot(t.priority)};border-radius:8px;padding:8px 10px;cursor:pointer;transition:all .15s" onclick="editTask(${t.id})" onmouseover="this.style.borderColor='${ac}'" onmouseout="this.style.borderColor='var(--border)'">
+          ${col.map(t=>`<div draggable="true" ondragstart="handleVentureKanbanDragStart(event,${t.id})" ondragend="this.style.opacity='1'" style="background:var(--navy3);border:1px solid var(--border);border-left:3px solid ${pDot(t.priority)};border-radius:8px;padding:8px 10px;cursor:grab;transition:all .15s" onclick="editTask(${t.id})" onmouseover="this.style.borderColor='${ac}'" onmouseout="this.style.borderColor='var(--border)'">
             <div style="font-size:var(--text-xs);font-weight:700;color:var(--text1);line-height:1.4;margin-bottom:4px">${t.title}</div>
             <div style="display:flex;gap:5px;align-items:center">
               <span class="pill ${pCl(t.priority)}" style="font-size:var(--text-xs)">${t.priority}</span>
               ${t.due?`<span style="font-size:var(--text-xs);color:var(--text3)">${t.due}</span>`:''}
             </div>
           </div>`).join('')}
-          ${!col.length?`<div style="font-size:var(--text-xs);color:var(--text3);padding:8px;text-align:center;font-style:italic;border:1px dashed var(--border);border-radius:8px">Empty</div>`:''}
+          ${!col.length?`<div style="font-size:var(--text-xs);color:var(--text3);padding:8px;text-align:center;font-style:italic;border:1px dashed var(--border);border-radius:8px">Drop here</div>`:''}
         </div>`;
       }).join('')}
     </div>`;
@@ -8715,6 +8962,20 @@ function movePipelineStage(id,stage){
   const p=(DB.pipeline||[]).find(x=>x.id===id);if(!p)return;
   p.stage=stage;save('pipeline');SB.update('pipeline',p.id,p,'pipeline');renderPipeline();renderBuildStats();
 }
+let _codePipelineDragId=null;
+function handleCodePipelineDragStart(e,id){
+  _codePipelineDragId=id;
+  e.dataTransfer.effectAllowed='move';
+  e.target.style.opacity='.4';
+}
+function handleCodePipelineDrop(e,newStage){
+  e.preventDefault();
+  e.currentTarget.style.background='';
+  if(_codePipelineDragId==null)return;
+  movePipelineStage(_codePipelineDragId,newStage);
+  showToast('✓ Moved to '+newStage);
+  _codePipelineDragId=null;
+}
 function renderPipeline(){
   const board=document.getElementById('pipelineBoard');if(!board)return;
   const stages=[
@@ -8725,14 +8986,14 @@ function renderPipeline(){
   const items=DB.pipeline||[];
   board.innerHTML=stages.map(s=>{
     const stageItems=items.filter(p=>p.stage===s.id);
-    return `<div style="display:flex;flex-direction:column;background:var(--navy2);border:1px solid var(--border);border-top:2px solid ${s.color};border-radius:10px;overflow:hidden;min-height:0">
+    return `<div data-stage="${s.id}" ondragover="event.preventDefault();this.style.background='var(--hover-tint)'" ondragleave="this.style.background=''" ondrop="handleCodePipelineDrop(event,'${s.id}')" style="display:flex;flex-direction:column;background:var(--navy2);border:1px solid var(--border);border-top:2px solid ${s.color};border-radius:10px;overflow:hidden;min-height:0;transition:background .15s">
       <div style="padding:12px 14px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-shrink:0">
         <span style="font-size:var(--text-xs);font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:${s.color}">${s.label}</span>
         <span style="font-size:var(--text-xs);color:var(--text3)">${stageItems.length}</span>
       </div>
       <div style="flex:1;padding:10px;display:flex;flex-direction:column;gap:10px;overflow-y:auto">
         ${stageItems.length?stageItems.map(p=>`
-          <div onclick="openPipelineModal(${p.id})" style="background:var(--navy3);border:1px solid var(--border);border-radius:8px;padding:14px;cursor:pointer">
+          <div draggable="true" ondragstart="handleCodePipelineDragStart(event,${p.id})" ondragend="this.style.opacity='1'" onclick="openPipelineModal(${p.id})" style="background:var(--navy3);border:1px solid var(--border);border-radius:8px;padding:14px;cursor:grab">
             <div style="font-size:var(--text-md);font-weight:700;color:var(--text1);margin-bottom:4px">${p.name}</div>
             ${p.client?`<div style="font-size:var(--text-xs);color:var(--teal);margin-bottom:6px">${p.client}</div>`:''}
             ${p.tech?`<div style="font-size:var(--text-xs);color:var(--text3);margin-bottom:8px"><i class="ti ti-code" style="font-size:10px;margin-right:4px"></i>${p.tech}</div>`:''}
@@ -8763,11 +9024,11 @@ function renderBuildTasks(){
   const sCl=s=>s==='Done'?'pg':s==='In Progress'?'pt':s==='No Progress'?'pam':'pgr';
   const pCl=p=>p==='High'?'pr':p==='Medium'?'pam':'pgr';
   tbody.innerHTML=tasks.length?tasks.map(t=>`<tr onclick="editTask(${t.id})" style="cursor:pointer">
-    <td style="font-size:var(--text-xs);font-weight:600;color:var(--text1)">${t.title}</td>
-    <td style="font-size:var(--text-xs);color:var(--text3)">${t.client||t.platform||'—'}</td>
-    <td><span style="display:inline-flex;align-items:center;gap:4px"><span style="width:6px;height:6px;border-radius:50%;background:${pDot(t.priority)};display:inline-block"></span><span class="pill ${pCl(t.priority)}" style="font-size:var(--text-xs)">${t.priority}</span></span></td>
-    <td><span class="pill ${sCl(t.status)}" style="font-size:var(--text-xs)">${t.status||'Todo'}</span></td>
-    <td style="font-size:var(--text-xs);color:var(--text3)">${t.due||'—'}</td>
+    <td style="font-size:var(--text-sm);font-weight:600;color:var(--text1)">${t.title}</td>
+    <td style="font-size:var(--text-sm);color:var(--text3)">${t.client||t.platform||'—'}</td>
+    <td><span style="display:inline-flex;align-items:center;gap:4px"><span style="width:6px;height:6px;border-radius:50%;background:${pDot(t.priority)};display:inline-block"></span><span class="pill ${pCl(t.priority)}" style="font-size:var(--text-sm)">${t.priority}</span></span></td>
+    <td><span class="pill ${sCl(t.status)}" style="font-size:var(--text-sm)">${t.status||'Todo'}</span></td>
+    <td style="font-size:var(--text-sm);color:var(--text3)">${t.due||'—'}</td>
     <td><button class="btn btn-d" style="padding:2px 6px" onclick="event.stopPropagation();deleteTask(event,${t.id})"><i class="ti ti-trash" style="font-size:var(--text-xs);line-height:1;display:block"></i></button></td>
   </tr>`).join(''):`<tr><td colspan="6" style="text-align:center;color:var(--text3);font-size:var(--text-sm);padding:20px">No BUILD tasks yet. Use + Task to add one.</td></tr>`;
 }
@@ -9086,6 +9347,20 @@ function moveSocialStage(id,status){
   const s=(DB.socialPosts||[]).find(x=>x.id===id);if(!s)return;
   s.status=status;save('socialPosts');SB.update('social_posts',s.id,s,'socialPosts');renderSocialWorkflow();
 }
+let _socialDragId=null;
+function handleSocialDragStart(e,id){
+  _socialDragId=id;
+  e.dataTransfer.effectAllowed='move';
+  e.target.style.opacity='.4';
+}
+function handleSocialDrop(e,newStatus){
+  e.preventDefault();
+  e.currentTarget.style.background='';
+  if(_socialDragId==null)return;
+  moveSocialStage(_socialDragId,newStatus);
+  showToast('✓ Moved to '+newStatus);
+  _socialDragId=null;
+}
 function renderSocialWorkflow(){
   const items=DB.socialPosts||[];
   const statsEl=document.getElementById('socialStats');
@@ -9118,14 +9393,14 @@ function renderSocialBoardInto(elId,filtered){
   const platformIcon={Instagram:'ti-brand-instagram',Facebook:'ti-brand-facebook',TikTok:'ti-brand-tiktok',LinkedIn:'ti-brand-linkedin','X / Twitter':'ti-brand-x',YouTube:'ti-brand-youtube'};
   board.innerHTML=stages.map(stage=>{
     const stageItems=filtered.filter(s=>s.status===stage.id);
-    return `<div style="display:flex;flex-direction:column;background:var(--navy2);border:1px solid var(--border);border-top:2px solid ${stage.color};border-radius:10px;overflow:hidden;min-height:220px">
+    return `<div data-stage="${stage.id}" ondragover="event.preventDefault();this.style.background='var(--hover-tint)'" ondragleave="this.style.background=''" ondrop="handleSocialDrop(event,'${stage.id}')" style="display:flex;flex-direction:column;background:var(--navy2);border:1px solid var(--border);border-top:2px solid ${stage.color};border-radius:10px;overflow:hidden;min-height:220px;transition:background .15s">
       <div style="padding:10px 12px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
         <span style="font-size:var(--text-xs);font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:${stage.color}">${stage.label}</span>
         <span style="font-size:var(--text-xs);color:var(--text3)">${stageItems.length}</span>
       </div>
       <div style="flex:1;padding:8px;display:flex;flex-direction:column;gap:8px;overflow-y:auto">
         ${stageItems.length?stageItems.map(s=>`
-          <div onclick="openSocialModal(${s.id})" style="background:var(--navy3);border:1px solid var(--border);border-radius:8px;padding:10px 12px;cursor:pointer">
+          <div draggable="true" ondragstart="handleSocialDragStart(event,${s.id})" ondragend="this.style.opacity='1'" onclick="openSocialModal(${s.id})" style="background:var(--navy3);border:1px solid var(--border);border-radius:8px;padding:10px 12px;cursor:grab">
             <div style="display:flex;align-items:center;gap:5px;margin-bottom:4px">
               <i class="ti ${platformIcon[s.platform]||'ti-share'}" style="font-size:12px;color:var(--amber)"></i>
               <span style="font-size:var(--text-xs);font-weight:700;color:var(--text1)">${s.client||s.platform}</span>
@@ -9440,8 +9715,51 @@ function renderCredentials(){
   </div>`).join('');
 }
 
-function openFaithModal(id){editingFaithId=id||null;const a=id?DB.faith.find(x=>x.id===id):null;document.getElementById('faithModalTitle').textContent=a?'Edit Activity':'Add Activity';['activity','group','date','submitted','cfo','aevm','status','assigned','drive'].forEach(f=>{const el=document.getElementById('fa-'+f);if(el)el.value=a?(a[f]||''):'';});openModal('faithModal');}
-function saveFaithActivity(){const a={id:editingFaithId||Date.now(),activity:document.getElementById('fa-activity').value.trim(),group:document.getElementById('fa-group').value.trim(),date:document.getElementById('fa-date').value,submitted:document.getElementById('fa-submitted').value,cfo:document.getElementById('fa-cfo').value.trim(),aevm:document.getElementById('fa-aevm').value.trim(),status:document.getElementById('fa-status').value,assigned:document.getElementById('fa-assigned').value.trim(),drive:document.getElementById('fa-drive').value.trim()};if(!a.activity){showToast('Activity name required');return;}const isEdit=!!editingFaithId;const existing=isEdit?DB.faith.find(x=>x.id===editingFaithId):null;a.calEventId=existing?existing.calEventId:null;if(editingFaithId){const i=DB.faith.findIndex(x=>x.id===editingFaithId);if(i>=0)DB.faith[i]=a;SB.update('faith',a.id,a,'faith');}else{DB.faith.unshift(a);SB.upsert('faith',a,'faith');}syncFaithToCalendar(a);addHistory(isEdit?'edit':'add',(isEdit?'Edited':'Added')+' faith: '+a.activity,{...a,_dbKey:'faith'});closeModal('faithModal');renderFaith();showToast('✓ Activity saved');}
+function openFaithModal(id){editingFaithId=id||null;window._pendingFaithTaskId=null;const a=id?DB.faith.find(x=>x.id===id):null;document.getElementById('faithModalTitle').textContent=a?'Edit Activity':'Add Activity';['activity','group','date','submitted','cfo','aevm','status','assigned','drive'].forEach(f=>{const el=document.getElementById('fa-'+f);if(el)el.value=a?(a[f]||''):'';});renderFaithTaskLinkRow();openModal('faithModal');}
+function saveFaithActivity(){const a={id:editingFaithId||Date.now(),activity:document.getElementById('fa-activity').value.trim(),group:document.getElementById('fa-group').value.trim(),date:document.getElementById('fa-date').value,submitted:document.getElementById('fa-submitted').value,cfo:document.getElementById('fa-cfo').value.trim(),aevm:document.getElementById('fa-aevm').value.trim(),status:document.getElementById('fa-status').value,assigned:document.getElementById('fa-assigned').value.trim(),drive:document.getElementById('fa-drive').value.trim()};if(!a.activity){showToast('Activity name required');return;}const isEdit=!!editingFaithId;const existing=isEdit?DB.faith.find(x=>x.id===editingFaithId):null;a.calEventId=existing?existing.calEventId:null;a.taskId=existing?existing.taskId:(window._pendingFaithTaskId||null);window._pendingFaithTaskId=null;if(editingFaithId){const i=DB.faith.findIndex(x=>x.id===editingFaithId);if(i>=0)DB.faith[i]=a;SB.update('faith',a.id,a,'faith');}else{DB.faith.unshift(a);SB.upsert('faith',a,'faith');}syncFaithToCalendar(a);addHistory(isEdit?'edit':'add',(isEdit?'Edited':'Added')+' faith: '+a.activity,{...a,_dbKey:'faith'});closeModal('faithModal');renderFaith();showToast('✓ Activity saved');}
+function renderFaithTaskLinkRow(){
+  const el=document.getElementById('fa-task-link-row');if(!el)return;
+  const a=editingFaithId?DB.faith.find(x=>x.id===editingFaithId):null;
+  const linkedTask=a&&a.taskId?DB.tasks.find(t=>t.id===a.taskId):null;
+  if(linkedTask){
+    el.innerHTML=`<div style="display:flex;align-items:center;gap:8px;padding:9px 12px;background:var(--teal3);border:1px solid var(--teal2);border-radius:8px">
+      <i class="ti ti-checklist" style="color:var(--teal);font-size:15px"></i>
+      <span style="flex:1;font-size:var(--text-sm);color:var(--text1);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Linked: ${linkedTask.title}</span>
+      <span onclick="editTask(${linkedTask.id})" style="font-size:var(--text-xs);color:var(--teal);cursor:pointer">Open</span>
+      <span onclick="unlinkFaithTask()" style="font-size:var(--text-xs);color:var(--red);cursor:pointer">Unlink</span>
+    </div>`;
+  }else{
+    el.innerHTML=`<div onclick="createTaskFromFaith()" style="display:flex;align-items:center;gap:8px;padding:9px 12px;background:var(--hover-tint);border:1px dashed var(--border2);border-radius:8px;cursor:pointer;justify-content:center">
+      <i class="ti ti-checklist-plus" style="color:var(--text3);font-size:15px"></i>
+      <span style="font-size:var(--text-sm);color:var(--text3)">Create linked task in FAITH</span>
+    </div>`;
+  }
+}
+function createTaskFromFaith(){
+  const activity=document.getElementById('fa-activity').value.trim();
+  if(!activity){showToast('⚠ Name the activity first, sir.');return;}
+  const t={id:Date.now(),title:activity,world:'FAITH',priority:'Medium',status:'Todo',due:document.getElementById('fa-date').value||'',notes:'Linked from Faith activity: '+(document.getElementById('fa-group').value.trim()||'')};
+  DB.tasks.unshift(t);
+  SB.upsert('tasks',t,'tasks');
+  addHistory('add','Created task from faith activity: '+t.title,{...t,_dbKey:'tasks'});
+  if(editingFaithId){
+    const a=DB.faith.find(x=>x.id===editingFaithId);
+    if(a){a.taskId=t.id;SB.update('faith',a.id,{taskId:t.id},'faith');}
+  }else{
+    // Not yet saved as an activity — stash the pending link, applied on save
+    window._pendingFaithTaskId=t.id;
+  }
+  renderTasks();
+  renderFaithTaskLinkRow();
+  showToast('✓ Task created and linked');
+}
+function unlinkFaithTask(){
+  if(!editingFaithId)return;
+  const a=DB.faith.find(x=>x.id===editingFaithId);
+  if(a){a.taskId=null;SB.update('faith',a.id,{taskId:null},'faith');}
+  renderFaithTaskLinkRow();
+  showToast('Task unlinked');
+}
 // Faith → Calendar sync: activities with a date get a linked, editable calendar event.
 // Title/date stay representative on Faith edits; everything else (time, location, notes)
 // is independently editable on the calendar side once created — no ongoing two-way lock.
@@ -9536,8 +9854,8 @@ function renderFaithCalendar(){
   const days=new Date(y,m+1,0).getDate();
   const prev=new Date(y,m,0).getDate();
   const today=localDateStr(new Date());
-  const from=new Date(y,m,1).toISOString().split('T')[0];
-  const to=new Date(y,m+1,0).toISOString().split('T')[0];
+  const from=localDateStr(new Date(y,m,1));
+  const to=localDateStr(new Date(y,m+1,0));
   // Faith calendar events (type='fth'), plus faith activities that don't yet have a linked event
   const faithEvents=expandRecurring((DB.calEvents||[]).filter(e=>e.type==='fth'),from,to);
   let html='';
@@ -9807,7 +10125,7 @@ function renderContextEngine(){
   const openTasks=(DB.tasks||[]).filter(t=>t.status!=='Done');
   const highPri=openTasks.filter(t=>t.priority==='High');
   const overdue=openTasks.filter(t=>t.due&&t.due<today);
-  const upcomingEvents=expandRecurring(DB.calEvents||[],today,new Date(Date.now()+7*86400000).toISOString().split('T')[0]).slice(0,5);
+  const upcomingEvents=expandRecurring(DB.calEvents||[],today,localDateStr(new Date(Date.now()+7*86400000))).slice(0,5);
   const recentMemories=(DB.memories||[]).slice(0,6);
   const worldStats=(DB.worlds||[]).map(w=>({
     label:w.label,
@@ -10184,7 +10502,7 @@ function renderLoanStrategy(){
   // Average monthly income — trailing 3 months of Debit entries, for a stable estimate
   // rather than one potentially unusual month.
   const today=new Date();
-  const threeMoAgo=new Date(today.getFullYear(),today.getMonth()-3,today.getDate()).toISOString().split('T')[0];
+  const threeMoAgo=localDateStr(new Date(today.getFullYear(),today.getMonth()-3,today.getDate()));
   const recentIncome=(DB.cashflow||[]).filter(t=>t.type==='Debit'&&t.date>=threeMoAgo);
   const monthsSpan=Math.max(1,Math.round((today-new Date(threeMoAgo))/(30*86400000)));
   const avgMonthlyIncome=recentIncome.reduce((s,t)=>s+(t.amount||0),0)/monthsSpan;
@@ -10196,7 +10514,7 @@ function renderLoanStrategy(){
 
   // Payment order: soonest due date first (avoid late fees / relationship damage) —
   // ties broken by highest interest rate (avalanche method: costs you the most while it sits unpaid).
-  const today30=new Date(today.getTime()+30*86400000).toISOString().split('T')[0];
+  const today30=localDateStr(new Date(today.getTime()+30*86400000));
   const sorted=[...loans].sort((a,b)=>{
     const ad=a.dueDate||'9999',bd=b.dueDate||'9999';
     if(ad!==bd)return ad<bd?-1:1;
@@ -10965,9 +11283,9 @@ function eventsForDate(dateStr){
 function checkReminders(){
   if(!('Notification' in window))return;
   const now=new Date();
-  const todayStr=now.toISOString().split('T')[0];
+  const todayStr=localDateStr(now);
   // Also check tomorrow for overnight events
-  const tmrStr=new Date(now.getTime()+86400000).toISOString().split('T')[0];
+  const tmrStr=localDateStr(new Date(now.getTime()+86400000));
   const candidates=DB.calEvents.filter(e=>(e.date===todayStr||e.date===tmrStr)&&e.reminder&&e.time);
   candidates.forEach(e=>{
     const [h,m]=e.time.split(':').map(Number);
@@ -11035,7 +11353,7 @@ function renderCalTwoWeek(){
   const weekStart=new Date(base);weekStart.setDate(base.getDate()-dow);
   const dates=Array.from({length:14},(_,i)=>{
     const d=new Date(weekStart);d.setDate(weekStart.getDate()+i);
-    return d.toISOString().split('T')[0];
+    return localDateStr(d);
   });
   const today=localDateStr(new Date());
   const fromDate=dates[0],toDate=dates[13];
@@ -11069,13 +11387,13 @@ function renderCalTwoWeek(){
 function calNav(dir){
   if(calView==='day'){
     const d=new Date(calSelectedDate);d.setDate(d.getDate()+dir);
-    calSelectedDate=d.toISOString().split('T')[0];
+    calSelectedDate=localDateStr(d);
   } else if(calView==='week'){
     const d=new Date(calSelectedDate);d.setDate(d.getDate()+dir*7);
-    calSelectedDate=d.toISOString().split('T')[0];
+    calSelectedDate=localDateStr(d);
   } else if(calView==='twoweek'){
     const d=new Date(calSelectedDate);d.setDate(d.getDate()+dir*14);
-    calSelectedDate=d.toISOString().split('T')[0];
+    calSelectedDate=localDateStr(d);
   } else if(calView==='quarter'){
     calMonth+=dir*3;
     if(calMonth>11){calMonth-=12;calYear++;}
@@ -11090,7 +11408,7 @@ function calNav(dir){
 
 function calNavToday(){
   const t=new Date();
-  calSelectedDate=t.toISOString().split('T')[0];
+  calSelectedDate=localDateStr(t);
   calYear=t.getFullYear();calMonth=t.getMonth();
   renderCalendar();
 }
@@ -11144,7 +11462,7 @@ function renderCalSidebar(){
   const up=document.getElementById('calUpcoming');
   if(up){
     const nowD=new Date();const futureD=new Date();futureD.setDate(futureD.getDate()+7);
-    const upcoming=expandRecurring(DB.calEvents,nowD.toISOString().split('T')[0],futureD.toISOString().split('T')[0])
+    const upcoming=expandRecurring(DB.calEvents,localDateStr(nowD),localDateStr(futureD))
       .filter(e=>calContextFilter.has(normaliseType(e.type))||e._isTask)
       .sort((a,b)=>(a._expandedDate||a.date).localeCompare(b._expandedDate||b.date))
       .slice(0,5);
@@ -11218,8 +11536,8 @@ function renderCalMonth(){
   const prevDays=new Date(calYear,calMonth,0).getDate();
 
   // Range for expansion
-  const fromDate=new Date(calYear,calMonth-1,1).toISOString().split('T')[0];
-  const toDate=new Date(calYear,calMonth+1,0).toISOString().split('T')[0];
+  const fromDate=localDateStr(new Date(calYear,calMonth-1,1));
+  const toDate=localDateStr(new Date(calYear,calMonth+1,0));
   const allExpanded=expandRecurring(DB.calEvents,fromDate,toDate);
 
   const getEvs=ds=>allExpanded
@@ -11234,7 +11552,7 @@ function renderCalMonth(){
     if(eh*60+em<=sh*60+sm){
       const ds=e._expandedDate||e.date;
       const next=new Date(ds);next.setDate(next.getDate()+1);
-      const nextStr=next.toISOString().split('T')[0];
+      const nextStr=localDateStr(next);
       if(!continuations[nextStr])continuations[nextStr]=[];
       continuations[nextStr].push(e);
     }
@@ -11284,7 +11602,7 @@ function renderCalWeek(){
 
   const dates=Array.from({length:7},(_,i)=>{
     const d=new Date(weekStart);d.setDate(weekStart.getDate()+i);
-    return d.toISOString().split('T')[0];
+    return localDateStr(d);
   });
   const today=localDateStr(new Date());
 
@@ -11446,7 +11764,7 @@ function renderCalDay(){
   });
   // Continuation blocks — events that started yesterday and continue into this day
   const prevDate=new Date(calSelectedDate);prevDate.setDate(prevDate.getDate()-1);
-  const prevDateStr=prevDate.toISOString().split('T')[0];
+  const prevDateStr=localDateStr(prevDate);
   const prevExpanded=expandRecurring(DB.calEvents,prevDateStr,prevDateStr);
   prevExpanded.filter(e=>(e._expandedDate||e.date)===prevDateStr&&e.time&&e.endTime&&calContextFilter.has(normaliseType(e.type))).forEach(e=>{
     const[sh,sm]=e.time.split(':').map(Number);const[eh,em]=e.endTime.split(':').map(Number);
@@ -11473,8 +11791,8 @@ function renderCalAgenda(){
 
   const allExpanded=expandRecurring(
     DB.calEvents,
-    today.toISOString().split('T')[0],
-    endDate.toISOString().split('T')[0]
+    localDateStr(today),
+    localDateStr(endDate)
   ).filter(e=>calContextFilter.has(normaliseType(e.type))||e._isTask)
    .sort((a,b)=>(a._expandedDate||a.date).localeCompare(b._expandedDate||b.date));
 
@@ -11496,7 +11814,7 @@ function renderCalAgenda(){
         e._overnight=true;
         // Inject continuation on next day
         const next=new Date(ds);next.setDate(next.getDate()+1);
-        const nextStr=next.toISOString().split('T')[0];
+        const nextStr=localDateStr(next);
         if(!byDate[nextStr])byDate[nextStr]=[];
         byDate[nextStr].push({...e,_continuation:true,_contFromDate:ds});
       }
@@ -11504,7 +11822,7 @@ function renderCalAgenda(){
     byDate[ds].push(e);
   });
 
-  const todayStr=today.toISOString().split('T')[0];
+  const todayStr=localDateStr(today);
   let html='<div class="cal-agenda">';
   Object.keys(byDate).sort().forEach(ds=>{
     const d=new Date(ds);
@@ -11556,8 +11874,8 @@ function renderCalQuarter(){
     return{m,y};
   });
   const today=localDateStr(new Date());
-  const qFrom=new Date(qMonths[0].y,qMonths[0].m,1).toISOString().split('T')[0];
-  const qTo=new Date(qMonths[2].y,qMonths[2].m+1,0).toISOString().split('T')[0];
+  const qFrom=localDateStr(new Date(qMonths[0].y,qMonths[0].m,1));
+  const qTo=localDateStr(new Date(qMonths[2].y,qMonths[2].m+1,0));
   const qEvents=expandRecurring(DB.calEvents,qFrom,qTo);
   const MAX_CHIPS=3;
 
@@ -11776,7 +12094,7 @@ function saveCalEvent(){
       // Only auto-advance endDate if not manually set
       if(!document.getElementById('ce-end-date')?.value||endDate===rawDate){
         const d=new Date(rawDate+'T00:00:00');d.setDate(d.getDate()+1);
-        endDate=d.toISOString().split('T')[0];
+        endDate=localDateStr(d);
       }
     }
   }
@@ -12264,10 +12582,9 @@ function openMeetingReview(transcript,world){
       :'<div style="font-size:var(--text-xs);color:var(--text3);font-style:italic">None detected.</div>';
   }
 
-  // If API key available, enhance summary with Claude
-  const apiKey=localStorage.getItem('j-anthropic-key')||localStorage.getItem('j-jelix-api-key');
-  if(apiKey && transcript.length>50){
-    enhanceMeetingSummaryWithAI(transcript,apiKey);
+  // If any AI key is available, enhance summary
+  if(hasAnyAIKey() && transcript.length>50){
+    enhanceMeetingSummaryWithAI(transcript);
   }
 
   openModal('meetingReviewModal');
@@ -12275,19 +12592,13 @@ function openMeetingReview(transcript,world){
 
 async function enhanceMeetingSummaryWithAI(transcript,apiKey){
   try{
-    const res=await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',
-      headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-      body:JSON.stringify({
-        model:'claude-sonnet-4-6',max_tokens:600,
-        system:'You are a meeting note assistant for Justine Luis Inacay, Marketing Manager in Las Piñas, PH. Extract a clean 3-sentence summary and up to 5 specific action items from the transcript. Reply in JSON: {"summary":"...","actionItems":["...","..."]}',
-        messages:[{role:'user',content:'Transcript:\n'+transcript.substring(0,3000)}]
-      })
-    });
-    if(!res.ok)return;
-    const data=await res.json();
-    const text=(data.content||[])[0]?.text||'';
-    const json=JSON.parse(text.replace(/```json|```/g,'').trim());
+    const result=await callAIProvider(
+      'You are a meeting note assistant for Justine Luis Inacay, Marketing Manager in Las Piñas, PH. Extract a clean 3-sentence summary and up to 5 specific action items from the transcript. Reply in JSON only, no markdown fences: {"summary":"...","actionItems":["...","..."]}',
+      [{role:'user',content:'Transcript:\n'+transcript.substring(0,3000)}],
+      {maxTokens:600}
+    );
+    if(!result.ok)return;
+    const json=JSON.parse(result.text.replace(/```json|```/g,'').trim());
     if(json.summary) document.getElementById('mr-summary').value=json.summary;
     if(json.actionItems?.length){
       const actEl=document.getElementById('mr-actions');
@@ -13210,7 +13521,7 @@ function setAgent(id, el){
   const relevantMems=(DB.memories||[]).filter(m=>m.world===world||m.category==='Agent Preference');
   const memCount=document.getElementById('agentMemCount');
   if(memCount) memCount.textContent=relevantMems.length;
-  const hasKey=!!(localStorage.getItem('j-jelix-api-key')||localStorage.getItem('j-anthropic-key'));
+  const hasKey=hasAnyAIKey();
   if(!hasKey){
     // Show onboarding setup screen
     if(msgsEl) msgsEl.innerHTML=`
@@ -13242,7 +13553,7 @@ function setAgent(id, el){
 function saveQuickApiKey(){
   const val=document.getElementById('quickApiKeyInput')?.value?.trim();
   if(!val||!val.startsWith('sk-')){showToast('Invalid key — must start with sk-');return;}
-  localStorage.setItem('j-anthropic-key',val);
+  localStorage.setItem('job-api-key',val);localStorage.setItem('j-anthropic-key',val);
   showToast('✓ API key saved, sir.');
   setAgent(currentAgent,document.querySelector('.ai-agent.active'));
 }
@@ -13303,9 +13614,7 @@ async function sendAI(){
   const todayEvs=(DB.calEvents||[]).filter(e=>e.date===today).slice(0,5);
   const osCtx=`\n\nLIVE OS DATA (as of ${today} PHT):\nOpen tasks: ${openTasks.length} total, ${highTasks.length} high priority${highTasks.length?': '+highTasks.map(t=>t.title).join(', '):''}\nToday's events: ${todayEvs.length?todayEvs.map(e=>(e.time?e.time.slice(0,5)+' ':'')+e.title).join(', '):'none'}\nClients: ${(DB.clients||[]).length} · Tasks done today: ${(DB.tasks||[]).filter(t=>t.status==='Done').length}`;
 
-  const apiKey=localStorage.getItem('j-jelix-api-key')||localStorage.getItem('j-anthropic-key')||'';
-
-  if(!apiKey){
+  if(!hasAnyAIKey()){
     // Fallback to local conversational engine when no key
     await new Promise(r=>setTimeout(r,300));
     document.getElementById('thinkRow')?.remove();
@@ -13327,25 +13636,15 @@ async function sendAI(){
     if(!msgs.length||msgs[msgs.length-1].role!=='user') msgs.push({role:'user',content:text});
 
     const fullSystem=(a.system||JELIX_BASE_SYSTEM)+memCtx+osCtx;
-
-    const res=await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',
-      headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-      body:JSON.stringify({
-        model:'claude-sonnet-4-6',
-        max_tokens:1024,
-        system:fullSystem,
-        tools:[{type:'web_search_20250305',name:'web_search'}],
-        messages:msgs.slice(-12)
-      })
+    const provider=getPref('pref-ai-provider')||'claude';
+    // Web search tool is Claude-specific — Gemini has its own grounding mechanism, not wired here yet
+    const result=await callAIProvider(fullSystem,msgs.slice(-12),{
+      maxTokens:1024,
+      tools:provider==='claude'?[{type:'web_search_20250305',name:'web_search'}]:undefined
     });
     document.getElementById('thinkRow')?.remove();
-    if(!res.ok)throw new Error('API error '+res.status);
-    const data=await res.json();
-    // Handle both text and tool_use blocks
-    const reply=(data.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('\n').trim()
-      || (data.content||[]).map(b=>b.text||'').join('\n').trim()
-      || 'No response, sir.';
+    if(!result.ok)throw new Error(result.error||'AI provider error');
+    const reply=result.text;
     _aiAppend('ai',_md(reply));
     try{speak(reply.replace(/<[^>]+>/g,''));}catch(e){}
 
@@ -13989,7 +14288,7 @@ function renderHealthTrend(){
   const [label,unit]=metricMap[metric]||['Metric',''];
   const logs=getHealthLogs().filter(l=>l.metric.toLowerCase().includes(metric==='hr'?'heart':metric));
   const last7=[];const today=new Date();
-  for(let i=6;i>=0;i--){const d=new Date(today);d.setDate(today.getDate()-i);last7.push({date:d.toISOString().split('T')[0],val:null});}
+  for(let i=6;i>=0;i--){const d=new Date(today);d.setDate(today.getDate()-i);last7.push({date:localDateStr(d),val:null});}
   logs.forEach(l=>{const row=last7.find(r=>r.date===l.date);if(row)row.val=l.value;});
   const canvas=document.getElementById('healthTrendChart');
   const empty=document.getElementById('healthTrendEmpty');
@@ -14973,7 +15272,7 @@ function runMorningIntelligence(){
   const openDecisions=(DB.decisions||[]).filter(d=>d.status==='Open'||d.status==='Pending Review');
 
   // Wins — tasks marked Done (today or recently completed)
-  const yesterday=new Date(Date.now()-86400000).toISOString().split('T')[0];
+  const yesterday=localDateStr(new Date(Date.now()-86400000));
   const wins=allTasks.filter(t=>t.status==='Done').slice(0,8);
 
   // Losses — overdue tasks not yet done (missed their deadline)
@@ -15117,7 +15416,7 @@ function runMorningIntelligence(){
 
     <!-- WHAT I LEARNED (auto-memories from last 48h) -->
     ${(()=>{
-      const cutoff=new Date(Date.now()-48*3600000).toISOString().split('T')[0];
+      const cutoff=localDateStr(new Date(Date.now()-48*3600000));
       const learned=LearnEngine.getRecentLearnings(cutoff);
       if(!learned.length) return '';
       return `<div class="bd-block" style="border-color:rgba(128,255,250,.2)">
@@ -15400,8 +15699,8 @@ function deleteConnection(id){
 function runWeeklySynthesis(){
   const now=new Date();
   const weekAgo=new Date(now);weekAgo.setDate(now.getDate()-7);
-  const weekAgoStr=weekAgo.toISOString().split('T')[0];
-  const todayStr=now.toISOString().split('T')[0];
+  const weekAgoStr=localDateStr(weekAgo);
+  const todayStr=localDateStr(now);
 
   const weekTasks=(DB.tasks||[]).filter(t=>t.due>=weekAgoStr&&t.due<=todayStr);
   const doneTasks=weekTasks.filter(t=>t.status==='Done');
@@ -16758,7 +17057,7 @@ console.log('[J.O.B Systems] JARVIS Intelligence Layer loaded — Skills 1–7 +
 (function(){
   function check(){
     var now=new Date(),h=now.getHours(),m=now.getMinutes(),day=now.getDay();
-    var key=now.toISOString().split('T')[0];
+    var key=localDateStr(now);
     if(h===10&&m===0){
       if(!localStorage.getItem('j-brief-'+key)){
         localStorage.setItem('j-brief-'+key,'1');
