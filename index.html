@@ -4979,6 +4979,14 @@ select option{background:var(--navy3)}
             </div>
             <div style="font-size:9px;color:var(--text3);margin-top:4px">If this voice name doesn't work, check Google's current TTS voice list and enter the correct name here — falls back to Onyx or browser voice automatically either way.</div>
           </div>
+          <div class="fg" style="margin-bottom:12px">
+            <label class="fl">Gemini Chat Model <span style="font-size:9px;background:rgba(66,133,244,.1);color:#4285F4;padding:1px 7px;border-radius:10px;font-weight:700;letter-spacing:.06em">JOB AGENTS</span></label>
+            <div style="display:flex;gap:8px">
+              <input type="text" id="set-gemini-model" placeholder="gemini-2.5-flash" value="" style="flex:1">
+              <button class="btn btn-t" onclick="localStorage.setItem('j-gemini-model',document.getElementById('set-gemini-model').value.trim()||'gemini-2.5-flash');showToast('✓ Model set')">Save</button>
+            </div>
+            <div style="font-size:9px;color:var(--text3);margin-top:4px">Google occasionally retires older model names. If Gemini chat starts failing with a 404, check current names at ai.google.dev/gemini-api/docs/models and update here — no code change needed.</div>
+          </div>
           <div class="fg">
             <label class="fl">OpenAI API Key <span style="font-size:9px;background:rgba(128,255,250,.06);color:var(--text3);padding:1px 7px;border-radius:10px;font-weight:700;letter-spacing:.06em">ONYX TTS · TIER 2</span></label>
             <div style="display:flex;gap:8px">
@@ -6058,7 +6066,8 @@ async function callAIProvider(system,msgs,opts){
     if(!geminiKey)return{ok:false,error:'No Gemini API key configured, sir. Add one in Settings.'};
     try{
       const contents=msgs.map(m=>({role:m.role==='assistant'?'model':'user',parts:[{text:m.content}]}));
-      const res=await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key='+geminiKey,{
+      const model=localStorage.getItem('j-gemini-model')||'gemini-2.5-flash';
+      const res=await fetch('https://generativelanguage.googleapis.com/v1beta/models/'+model+':generateContent?key='+geminiKey,{
         method:'POST',
         headers:{'Content-Type':'application/json'},
         body:JSON.stringify({
@@ -6067,7 +6076,11 @@ async function callAIProvider(system,msgs,opts){
           generationConfig:{maxOutputTokens:maxTokens}
         })
       });
-      if(!res.ok){const errBody=await res.text().catch(()=>'');return{ok:false,error:'Gemini API error '+res.status+(errBody?': '+errBody.substring(0,200):'')};}
+      if(!res.ok){
+        const errBody=await res.text().catch(()=>'');
+        const hint=res.status===404?' — the model name may be outdated; check current model names at ai.google.dev/gemini-api/docs/models and set one via localStorage.setItem(\'j-gemini-model\',\'model-name-here\') in the browser console, or ask Claude to update it.':'';
+        return{ok:false,error:'Gemini API error '+res.status+hint+(errBody?' ('+errBody.substring(0,150)+')':'')};
+      }
       const data=await res.json();
       const text=(data.candidates?.[0]?.content?.parts||[]).map(p=>p.text||'').join('\n').trim();
       return{ok:true,text:text||'No response, sir.'};
@@ -6560,6 +6573,8 @@ async function renderSettingsView(){
   if(gemEl&&gemKey)gemEl.placeholder='AIza...'+gemKey.slice(-6)+' (set)';
   const voiceEl=document.getElementById('set-gemini-tts-voice');
   if(voiceEl)voiceEl.value=GEMINI_TTS_VOICE;
+  const modelEl=document.getElementById('set-gemini-model');
+  if(modelEl)modelEl.value=localStorage.getItem('j-gemini-model')||'gemini-2.5-flash';
   if(oaiEl&&oaiKey)oaiEl.placeholder='sk-proj-...'+oaiKey.slice(-6)+' (set)';
   const gwsStatusEl=document.getElementById('googleWorkspaceStatus');
   if(gwsStatusEl){
