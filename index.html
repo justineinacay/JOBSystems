@@ -4989,10 +4989,10 @@ select option{background:var(--navy3)}
         <!-- JELIX WORKSPACE AGENT — runs in-browser via Gemini function calling -->
         <div class="hc" style="margin-bottom:16px">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
-            <div style="font-size:var(--text-xs);font-weight:700;color:var(--teal);letter-spacing:.1em;text-transform:uppercase;display:flex;align-items:center;gap:6px"><i class="ti ti-robot" style="font-size:var(--text-sm);line-height:1;display:block"></i>JELIX Workspace Agent</div>
+            <div style="font-size:var(--text-xs);font-weight:700;color:var(--teal);letter-spacing:.1em;text-transform:uppercase;display:flex;align-items:center;gap:6px"><i class="ti ti-robot" style="font-size:var(--text-sm);line-height:1;display:block"></i>Ask JELIX</div>
             <span onclick="renderAgentQueue()" style="font-size:var(--text-xs);color:var(--teal);cursor:pointer">Refresh</span>
           </div>
-          <div style="font-size:9px;color:var(--text3);margin-bottom:10px">Gemini decides what to do and acts on Gmail, Calendar, and Drive directly from this app — no external process required. Needs a Gemini API key above and Google Workspace connected.</div>
+          <div style="font-size:9px;color:var(--text3);margin-bottom:10px">JELIX quietly consults the right specialist(s) — tasks, calendar, finance, marketing, and more — and acts on Gmail, Calendar, Drive, or JELIX OS itself when needed. All in-browser, no external process. Needs a Gemini and/or Anthropic API key above.</div>
           <div style="display:flex;gap:8px;margin-bottom:10px">
             <input id="agentPromptInput" placeholder="e.g. Email Lou about the Las Piñas lease renewal" style="flex:1" onkeydown="if(event.key==='Enter')submitJelixAgentPrompt()">
             <button class="btn btn-t" onclick="submitJelixAgentPrompt()">Ask JELIX</button>
@@ -5391,28 +5391,191 @@ const SB={
 };
 
 // ═══════════════════════════════════════════════════════════════════════════
-// JELIX WORKSPACE AGENT — runs entirely in the browser. Gemini decides which
-// action to take (via function calling); the action executes immediately
-// against Gmail/Calendar/Drive using the OAuth token already sitting in
-// localStorage from Google Workspace connect. No local process, no CLI,
-// no background service — this IS the PWA.
+// J.E.L.I.X. ORCHESTRATION LAYER
+// User ↓ JELIX ↓ Intent Detection ↓ Context Engine ↓ Agent Router ↓
+// Specialist Agent ↓ Gemini/Claude ↓ Response ↓ JELIX
+// Runs entirely client-side inside this PWA, backed by Supabase. The user
+// only ever sees "JELIX" — specialist agents never speak directly.
+// ═══════════════════════════════════════════════════════════════════════════
+
+// ── Context Engine — every request gets this without the user repeating anything ──
+function gatherJelixContext(){
+  const today=localDateStr(new Date());
+  const openTasks=(DB.tasks||[]).filter(t=>t.status!=='Done');
+  const dueSoon=openTasks.filter(t=>t.due&&t.due<=localDateStr(new Date(Date.now()+3*86400000))).sort((a,b)=>(a.due||'').localeCompare(b.due||''));
+  const todayEvents=(DB.calEvents||[]).filter(e=>e.date===today);
+  const upcomingEvents=(DB.calEvents||[]).filter(e=>e.date>today).sort((a,b)=>a.date.localeCompare(b.date)).slice(0,8);
+  const monthKey=today.slice(0,7);
+  const monthTxns=(DB.cashflow||[]).filter(t=>(t.date||'').startsWith(monthKey));
+  return{
+    today,
+    currentView:typeof currentView!=='undefined'?currentView:'dashboard',
+    currentWorld:typeof csActiveClient!=='undefined'?csActiveClient:null,
+    openTaskCount:openTasks.length,
+    dueSoon:_jelixCompact(dueSoon,['title','world','priority','due','client'],8),
+    todayEvents:_jelixCompact(todayEvents,['title','time','endTime','type','loc'],8),
+    upcomingEvents:_jelixCompact(upcomingEvents,['title','date','time','type'],8),
+    monthTxns,
+    monthKey
+  };
+}
+function _jelixCompact(records,keys,limit){
+  return (records||[]).slice(0,limit||8).map(r=>{
+    const o={};keys.forEach(k=>{if(r[k]!==undefined&&r[k]!=='')o[k]=r[k];});return o;
+  });
+}
+
+// ── Specialist Agent Registry — 12 agents. Each owns a domain, a context
+// slice, and a system prompt. None of them ever address the user directly;
+// JELIX Core synthesizes their findings into one reply. ──────────────────────
+const JELIX_AGENTS={
+  ATLAS:{name:'ATLAS',domain:'Tasks, projects, Kanban, dependencies, priorities',provider:'claude',
+    context:g=>({openTaskCount:g.openTaskCount,dueSoon:g.dueSoon})},
+  COMET:{name:'COMET',domain:'Calendar, scheduling, meetings, availability',provider:'claude',
+    context:g=>({today:g.todayEvents,upcoming:g.upcomingEvents})},
+  FORGE:{name:'FORGE',domain:'Finance, expenses, budget, revenue, forecasts',provider:'claude',
+    context:g=>{
+      const debits=g.monthTxns.filter(t=>t.type==='Debit').reduce((s,t)=>s+(t.amount||0),0);
+      const credits=g.monthTxns.filter(t=>t.type==='Credit').reduce((s,t)=>s+(t.amount||0),0);
+      return{month:g.monthKey,income:debits,spend:credits,net:debits-credits,budgetLimit:(DB.budget&&DB.budget.monthlyLimit)||null};
+    }},
+  NEXUS:{name:'NEXUS',domain:'Marketing, CRM, social media, SEO, campaigns, content',provider:'gemini',
+    context:()=>({posts:_jelixCompact(DB.socialPosts,['platform','status','date','client'],8),
+      campaigns:_jelixCompact(DB.campaigns,['name','status','client'],5),
+      influencers:_jelixCompact(DB.influencers,['name','platform','status'],5)})},
+  ORBIT:{name:'ORBIT',domain:'Business operations, clients, pipelines, sales',provider:'claude',
+    context:()=>({clients:_jelixCompact(DB.clients,['name','status','world'],10),
+      pipeline:_jelixCompact(DB.pipeline,['stage','client','value'],8)})},
+  VAULT:{name:'VAULT',domain:'Knowledge base, memory, notes, documents, SOPs, search',provider:'claude',
+    context:()=>({notes:_jelixCompact(DB.notes,['title','worldId'],8)})},
+  ECHO:{name:'ECHO',domain:'Conversation memory, context, relationships, history',provider:'claude',
+    context:()=>({memories:_jelixCompact(DB.memories,['memory','category','world','date'],8),
+      recentActivity:_jelixCompact(DB.history,['type','label','at'],8)})},
+  PRISM:{name:'PRISM',domain:'Analytics, KPIs, business intelligence, charts, reports',provider:'claude',
+    context:g=>{
+      const debits=g.monthTxns.filter(t=>t.type==='Debit').reduce((s,t)=>s+(t.amount||0),0);
+      const credits=g.monthTxns.filter(t=>t.type==='Credit').reduce((s,t)=>s+(t.amount||0),0);
+      const doneTasks=(DB.tasks||[]).filter(t=>t.status==='Done').length;
+      const totalTasks=(DB.tasks||[]).length;
+      return{monthRevenue:debits,monthSpend:credits,taskCompletionRate:totalTasks?Math.round(100*doneTasks/totalTasks)+'%':'n/a',
+        activeSocialPosts:(DB.socialPosts||[]).length,openPipelineDeals:(DB.pipeline||[]).length};
+    }},
+  AURA:{name:'AURA',domain:'Habits, morning intelligence, goals, reflection, personal growth',provider:'claude',
+    context:()=>({journal:_jelixCompact(DB.journal,['title','mood','date'],5),
+      faith:_jelixCompact(DB.faith,['title','date'],3)})},
+  SPARK:{name:'SPARK',domain:'Brainstorming, research, strategy, innovation',provider:'gemini',
+    context:()=>({})},
+  PILOT:{name:'PILOT',domain:'Decision support, executive recommendations, risk analysis, planning',provider:'claude',
+    context:g=>({overdueTasks:g.dueSoon.filter(t=>t.due<g.today).length,upcomingWeekEvents:g.upcomingEvents.length})},
+  SENTRY:{name:'SENTRY',domain:'Permissions, security, system health, monitoring',provider:'claude',
+    context:()=>({googleWorkspaceConnected:isGoogleWorkspaceConnected(),hasAIKey:hasAnyAIKey(),
+      pinConfigured:!!localStorage.getItem('j-sys-pin'),realtimeActive:!!(realtimeSocket&&realtimeSocket.readyState===1)})}
+};
+
+// ── Intent Router — decides which specialist(s) this request needs ──────────
+async function classifyJelixAgents(userMessage){
+  const roster=Object.values(JELIX_AGENTS).map(a=>`${a.name}: ${a.domain}`).join('\n');
+  const system=`You are JELIX's intent router. Given a request, return ONLY a JSON array of the agent names (from the roster below) whose domain is relevant. Pick 1-4 agents, most relevant first. If nothing matches, return [].\n\nRoster:\n${roster}\n\nRespond with ONLY the JSON array, e.g. ["FORGE","PRISM"]. No prose.`;
+  const res=await callAIProvider(system,[{role:'user',content:userMessage}],{maxTokens:60,provider:'gemini'});
+  if(!res.ok)return _keywordFallbackAgents(userMessage);
+  try{
+    const match=res.text.match(/\[[\s\S]*\]/);
+    const ids=JSON.parse(match?match[0]:res.text);
+    const valid=ids.filter(id=>JELIX_AGENTS[id]);
+    return valid.length?valid:_keywordFallbackAgents(userMessage);
+  }catch(e){
+    return _keywordFallbackAgents(userMessage);
+  }
+}
+// Safety net if the classifier call fails or returns something unparseable —
+// simple keyword match so the pipeline degrades gracefully, never silently.
+function _keywordFallbackAgents(userMessage){
+  const m=userMessage.toLowerCase();
+  const hits=[];
+  if(/task|todo|project|kanban|priorit/.test(m))hits.push('ATLAS');
+  if(/calendar|schedul|meeting|availab|event/.test(m))hits.push('COMET');
+  if(/expense|budget|revenue|financ|cash|money|₱|forecast/.test(m))hits.push('FORGE');
+  if(/marketing|social|seo|campaign|crm|content/.test(m))hits.push('NEXUS');
+  if(/client|pipeline|sales|deal/.test(m))hits.push('ORBIT');
+  if(/note|document|sop|knowledge|search/.test(m))hits.push('VAULT');
+  if(/remember|memory|history|earlier|before/.test(m))hits.push('ECHO');
+  if(/perform|kpi|analytic|report|how is|how are/.test(m))hits.push('PRISM');
+  if(/habit|morning|goal|reflect|journal/.test(m))hits.push('AURA');
+  if(/idea|brainstorm|strategy|research|innovat/.test(m))hits.push('SPARK');
+  if(/should i|recommend|decide|risk|plan/.test(m))hits.push('PILOT');
+  if(/security|permission|health|connect|status/.test(m))hits.push('SENTRY');
+  return hits.length?hits:['PILOT'];
+}
+
+// ── Specialist execution ─────────────────────────────────────────────────────
+async function runSpecialistAgent(agentId,userMessage,globalContext){
+  const agent=JELIX_AGENTS[agentId];if(!agent)return null;
+  const slice=agent.context(globalContext);
+  const system=`You are the ${agent.name} specialist inside J.O.B Systems, an internal module JELIX consults — you never speak to the user directly. Domain: ${agent.domain}. Answer the request using ONLY the data given below; if it's insufficient, say what's missing briefly. Be concise and factual — a few sentences or a short list, not a report.\n\nRelevant data:\n${JSON.stringify(slice)}`;
+  const res=await callAIProvider(system,[{role:'user',content:userMessage}],{maxTokens:300,provider:agent.provider});
+  return{agentId,ok:res.ok,text:res.ok?res.text:('('+agent.name+' unavailable: '+res.error+')')};
+}
+
+// ── Synthesis — JELIX Core merges specialist findings into one reply ────────
+async function synthesizeJelixReply(userMessage,specialistResults,globalContext){
+  const findings=specialistResults.map(r=>`- ${r.text}`).join('\n');
+  const system=`You are J.E.L.I.X. — Justine's Executive Intelligence Partner inside J.O.B Systems. Calm, warm, professional, grounded, thoughtful. Never robotic, never theatrical, never overly enthusiastic. You quietly consulted internal specialists to answer this — never mention them, their names, or that you "consulted" anything; just answer as if you simply knew. Today is ${globalContext.today}. Reply directly and naturally, 2-5 sentences unless the request needs a list.\n\nWhat you found:\n${findings}`;
+  const res=await callAIProvider(system,[{role:'user',content:userMessage}],{maxTokens:500,provider:'claude'});
+  return res.ok?res.text:findings; // if synthesis call fails, at least surface the raw findings
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ACTION LAYER — real writes into JELIX OS + Google Workspace, executed
+// immediately in-browser via Gemini function calling. This is what makes
+// ATLAS/COMET/FORGE more than read-only advisors: JELIX can actually create
+// the task, book the event, or log the transaction, not just describe it.
 // ═══════════════════════════════════════════════════════════════════════════
 const JELIX_AGENT_TOOLS=[
   {name:'send_email',description:'Send an email via Gmail.',
     parameters:{type:'OBJECT',properties:{to:{type:'STRING'},subject:{type:'STRING'},body:{type:'STRING'}},required:['to','subject','body']}},
-  {name:'create_event',description:'Create a Google Calendar event.',
+  {name:'create_event',description:'Create an event on Google Calendar (external, syncs to Google).',
     parameters:{type:'OBJECT',properties:{calendarId:{type:'STRING',description:"'primary' unless a specific calendar is named"},title:{type:'STRING'},startISO:{type:'STRING',description:'ISO 8601 datetime'},endISO:{type:'STRING',description:'ISO 8601 datetime'},notes:{type:'STRING'}},required:['title','startISO','endISO']}},
   {name:'write_drive_file',description:'Create a file in Google Drive.',
-    parameters:{type:'OBJECT',properties:{fileName:{type:'STRING'},content:{type:'STRING'},mimeType:{type:'STRING'}},required:['fileName','content']}}
+    parameters:{type:'OBJECT',properties:{fileName:{type:'STRING'},content:{type:'STRING'},mimeType:{type:'STRING'}},required:['fileName','content']}},
+  {name:'create_task',description:'Create a task inside J.O.B Systems (ATLAS — internal Kanban, not Google).',
+    parameters:{type:'OBJECT',properties:{title:{type:'STRING'},world:{type:'STRING',description:'e.g. WORK-IH, WORK-CS, VENTURE, BUILD, SIDES, FAITH, LIFE'},priority:{type:'STRING',description:"'High'|'Medium'|'Low'"},due:{type:'STRING',description:'YYYY-MM-DD, optional'},client:{type:'STRING'}},required:['title']}},
+  {name:'create_internal_event',description:'Create an event on the internal JELIX OS calendar (COMET — not Google).',
+    parameters:{type:'OBJECT',properties:{title:{type:'STRING'},date:{type:'STRING',description:'YYYY-MM-DD'},time:{type:'STRING',description:'HH:MM, optional'},endTime:{type:'STRING',description:'HH:MM, optional'},notes:{type:'STRING'}},required:['title','date']}},
+  {name:'log_transaction',description:'Log a cashflow transaction (FORGE — Debit=income, Credit=expense).',
+    parameters:{type:'OBJECT',properties:{type:{type:'STRING',description:"'Debit' or 'Credit'"},amount:{type:'NUMBER'},desc:{type:'STRING'},category:{type:'STRING'},account:{type:'STRING'}},required:['type','amount','desc']}}
 ];
+function jelixCreateInternalTask(f){
+  const t={id:Date.now(),title:f.title||'Untitled Task',world:f.world||'WORK-IH',priority:f.priority||'Medium',status:'To Do',due:f.due||'',client:f.client||'',notes:'',platform:'',startDate:'',startTime:'',endTime:'',groupId:null,subitems:[],timelineS:'',timelineE:f.due||'',numValue:null,connBoard:null,connItemId:null};
+  DB.tasks.unshift(t);SB.upsert('tasks',t,'tasks');
+  addHistory('add','JELIX added task: '+t.title,{...t,_dbKey:'tasks'});
+  reRenderAll();
+  return{ok:true,taskId:t.id};
+}
+function jelixCreateInternalEvent(f){
+  const e={id:Date.now(),title:f.title||'Event',date:f.date,time:f.time||'',endTime:f.endTime||'',type:'lif',loc:'',notes:f.notes||'',allDay:!f.time,overnight:false,reminder:false,remindMin:30,recur:'none'};
+  DB.calEvents.push(e);SB.upsert('cal_events',e,'calEvents');
+  addHistory('add','JELIX added event: '+e.title,{...e,_dbKey:'calEvents'});
+  reRenderAll();
+  return{ok:true,eventId:e.id};
+}
+function jelixLogTransaction(f){
+  const t={id:Date.now(),type:f.type==='Debit'?'Debit':'Credit',date:localDateStr(new Date()),desc:f.desc||'Transaction',amount:parseFloat(f.amount)||0,account:f.account||'Cash',category:f.category||'General',catNotes:'',notes:''};
+  DB.cashflow.unshift(t);SB.upsert('cashflow',t,'cashflow');
+  addHistory('add','JELIX logged '+t.type+': ₱'+t.amount+' — '+t.desc,{...t,_dbKey:'cashflow'});
+  renderLife();renderBrief();
+  return{ok:true,txnId:t.id};
+}
 async function _runJelixTool(name,args){
   if(name==='send_email')return sendGoogleGmail(args.to,args.subject,args.body);
   if(name==='create_event')return createGoogleCalendarEvent(args.calendarId||'primary',args.title,args.startISO,args.endISO,args.notes||'');
   if(name==='write_drive_file')return writeGoogleDriveFile(args.fileName,args.content,args.mimeType||'text/plain');
+  if(name==='create_task')return jelixCreateInternalTask(args);
+  if(name==='create_internal_event')return jelixCreateInternalEvent(args);
+  if(name==='log_transaction')return jelixLogTransaction(args);
   return{ok:false,error:'Unknown tool: '+name};
 }
 // Logs a completed action to Supabase for a visible history — fire-and-forget,
-// never blocks the actual Gmail/Calendar/Drive call above.
+// never blocks the actual write above.
 async function _logJelixAction(intent,payload,world,result){
   try{
     const uid=getAuthUserId();
@@ -5428,14 +5591,10 @@ async function _logJelixAction(intent,payload,world,result){
   }catch(e){/* history is best-effort — never block the real action on this */}
   if(document.getElementById('agentQueueList'))renderAgentQueue();
 }
-// Direct call — skip Gemini's reasoning, just run the action (used by the
-// convenience wrappers below and anywhere else in the app that already
-// knows exactly what it wants done).
+// Direct call — skip Gemini's reasoning, just run the action. Used by app
+// code anywhere else that already knows exactly what it wants done.
 async function runJelixIntent(intent,payload,world){
-  const result=await _runJelixTool(
-    intent==='send_email'?'send_email':intent==='create_event'?'create_event':'write_drive_file',
-    payload
-  );
+  const result=await _runJelixTool(intent,payload);
   if(result.ok)showToast('✓ '+intent+' completed');
   else showToast('⚠ '+intent+' failed: '+result.error);
   _logJelixAction(intent,payload,world,result);
@@ -5445,47 +5604,56 @@ function jelixSendEmail(to,subject,body,world){return runJelixIntent('send_email
 function jelixCreateEvent(calendarId,title,startISO,endISO,notes,world){return runJelixIntent('create_event',{calendarId,title,startISO,endISO,notes},world);}
 function jelixDriveWrite(fileName,content,mimeType,world){return runJelixIntent('write_drive_file',{fileName,content,mimeType},world);}
 
-// The actual assistant entry point: give it a plain-English instruction,
-// Gemini decides whether/which Workspace action to take, executes it via
-// the functions above, then reports back in plain English.
+// ═══════════════════════════════════════════════════════════════════════════
+// MAIN ENTRY POINT — the only function the rest of the app (or the Settings
+// input box) needs to call. Tries the action layer first (Gemini function
+// calling — "do this"); if nothing needed doing, falls through to the full
+// Context Engine → Agent Router → Specialists → Synthesis pipeline for
+// insight/analysis requests ("how's Chainsmoker doing?", "prepare my Monday").
+// ═══════════════════════════════════════════════════════════════════════════
 async function askJelixAgent(userMessage,world){
   const geminiKey=localStorage.getItem('j-gemini-key');
-  if(!geminiKey)return{ok:false,text:'No Gemini API key configured. Add one in Settings.'};
-  if(!isGoogleWorkspaceConnected()&&!localStorage.getItem('j-google-refresh-token'))
-    return{ok:false,text:'Google Workspace isn\'t connected yet. Connect it in Settings first.'};
-  const model=localStorage.getItem('j-gemini-model')||'gemini-3.5-flash';
-  const system=`You are JELIX, Justine's executive assistant. You have tools to send email, create calendar events, and write Drive files on his behalf. Use a tool only when the request clearly calls for a real action; otherwise just answer in text. Today's date: ${new Date().toISOString().slice(0,10)}.`;
-  const body={
-    system_instruction:{parts:[{text:system}]},
-    contents:[{role:'user',parts:[{text:userMessage}]}],
-    tools:[{functionDeclarations:JELIX_AGENT_TOOLS}]
-  };
+  if(!geminiKey&&!hasAnyAIKey())return{ok:false,text:'No AI provider configured. Add a Gemini or Anthropic API key in Settings.'};
+
+  // ── Step 1: does this need an action? (only Gemini supports function
+  // calling here; skip straight to the insight pipeline if no Gemini key) ──
+  if(geminiKey){
+    try{
+      const model=localStorage.getItem('j-gemini-model')||'gemini-3.5-flash';
+      const system=`You are JELIX's action layer. You have tools to send email, create calendar events (internal or Google), create tasks, log transactions, and write Drive files. Use a tool ONLY when the request clearly asks you to DO something concrete. If the request is asking a question, for an update, analysis, or advice, do NOT call a tool — a separate pipeline handles that. Today's date: ${new Date().toISOString().slice(0,10)}.`;
+      const body={system_instruction:{parts:[{text:system}]},contents:[{role:'user',parts:[{text:userMessage}]}],tools:[{functionDeclarations:JELIX_AGENT_TOOLS}]};
+      let res=await fetch('https://generativelanguage.googleapis.com/v1beta/models/'+model+':generateContent?key='+geminiKey,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+      if(res.ok){
+        let data=await res.json();
+        let parts=data.candidates?.[0]?.content?.parts||[];
+        const call=parts.find(p=>p.functionCall);
+        if(call){
+          const fnName=call.functionCall.name,fnArgs=call.functionCall.args||{};
+          const result=await _runJelixTool(fnName,fnArgs);
+          if(result.ok)showToast('✓ JELIX executed: '+fnName);else showToast('⚠ JELIX action failed: '+fnName);
+          _logJelixAction(fnName,fnArgs,world,result);
+          body.contents.push({role:'model',parts:[{functionCall:call.functionCall}]});
+          body.contents.push({role:'user',parts:[{functionResponse:{name:fnName,response:result}}]});
+          res=await fetch('https://generativelanguage.googleapis.com/v1beta/models/'+model+':generateContent?key='+geminiKey,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+          data=await res.json();
+          parts=data.candidates?.[0]?.content?.parts||[];
+          return{ok:result.ok,text:parts.map(p=>p.text||'').join('\n').trim()||(result.ok?'Done.':'That failed: '+result.error)};
+        }
+      }
+    }catch(e){/* fall through to the insight pipeline below */}
+  }
+
+  // ── Step 2: insight/analysis request — full orchestration pipeline ──────
   try{
-    let res=await fetch('https://generativelanguage.googleapis.com/v1beta/models/'+model+':generateContent?key='+geminiKey,{
-      method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)
-    });
-    if(!res.ok)return{ok:false,text:'Gemini API error '+res.status};
-    let data=await res.json();
-    let parts=data.candidates?.[0]?.content?.parts||[];
-    const call=parts.find(p=>p.functionCall);
-    if(!call)return{ok:true,text:parts.map(p=>p.text||'').join('\n').trim()||'Done.'};
-
-    const fnName=call.functionCall.name,fnArgs=call.functionCall.args||{};
-    const result=await _runJelixTool(fnName,fnArgs);
-    if(result.ok)showToast('✓ JELIX executed: '+fnName);else showToast('⚠ JELIX action failed: '+fnName);
-    _logJelixAction(fnName,fnArgs,world,result);
-
-    // Second turn — let Gemini phrase the confirmation using the real result
-    body.contents.push({role:'model',parts:[{functionCall:call.functionCall}]});
-    body.contents.push({role:'user',parts:[{functionResponse:{name:fnName,response:result}}]});
-    res=await fetch('https://generativelanguage.googleapis.com/v1beta/models/'+model+':generateContent?key='+geminiKey,{
-      method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)
-    });
-    data=await res.json();
-    parts=data.candidates?.[0]?.content?.parts||[];
-    return{ok:result.ok,text:parts.map(p=>p.text||'').join('\n').trim()||(result.ok?'Done.':'That failed: '+result.error)};
+    const globalContext=gatherJelixContext();
+    const agentIds=await classifyJelixAgents(userMessage);
+    console.log('[JELIX] consulted:',agentIds.join(', ')); // visible to you in devtools, never to the UI
+    const results=(await Promise.all(agentIds.map(id=>runSpecialistAgent(id,userMessage,globalContext)))).filter(r=>r&&r.ok);
+    if(!results.length)return{ok:false,text:'I wasn\'t able to pull enough context to answer that — check your API keys in Settings.'};
+    const finalText=await synthesizeJelixReply(userMessage,results,globalContext);
+    return{ok:true,text:finalText};
   }catch(e){
-    return{ok:false,text:'JELIX agent error: '+e.message};
+    return{ok:false,text:'JELIX error: '+e.message};
   }
 }
 async function submitJelixAgentPrompt(){
@@ -6243,8 +6411,15 @@ function setOpenAIKey(){const e=localStorage.getItem('jelix-openai-key')||'';con
 // ── Unified AI provider call — routes to Claude or Gemini based on preference ──
 async function callAIProvider(system,msgs,opts){
   opts=opts||{};
-  const provider=getPref('pref-ai-provider')||'claude';
+  let provider=opts.provider||getPref('pref-ai-provider')||'claude';
   const maxTokens=opts.maxTokens||1024;
+  // Fall back to whichever provider actually has a key set — an agent
+  // preferring Gemini shouldn't hard-fail the whole pipeline just because
+  // only the Anthropic key is configured (or vice versa).
+  const hasGemini=!!localStorage.getItem('j-gemini-key');
+  const hasClaude=!!(localStorage.getItem('job-api-key')||localStorage.getItem('j-jelix-api-key')||localStorage.getItem('j-anthropic-key'));
+  if(provider==='gemini'&&!hasGemini&&hasClaude)provider='claude';
+  if(provider==='claude'&&!hasClaude&&hasGemini)provider='gemini';
 
   if(provider==='gemini'){
     const geminiKey=localStorage.getItem('j-gemini-key');
