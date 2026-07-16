@@ -4630,32 +4630,23 @@ select option{background:var(--navy3)}
 
 
 
-    <!-- ===== AI ===== -->    <!-- ===== AI ===== -->
+    <!-- ===== AI — Ask JELIX ===== -->
     <div class="view" id="view-ai">
       <div class="ai-layout">
-        <div class="ai-side">
-          <div style="font-size:var(--text-xs);font-weight:700;letter-spacing:.1em;color:var(--text3);padding:7px 9px 5px;text-transform:uppercase">Job Agents</div>
-          <div class="ai-agent active" onclick="setAgent('civic',this)"><div class="ai-agent-icon" style="background:rgba(26,115,232,.12);color:#1A73E8"><i class="ti ti-building-community"></i></div><div><div class="ai-agent-name">Civic</div><div class="ai-agent-desc">Public Sector · GovTech</div></div></div>
-          <div class="ai-agent" onclick="setAgent('foodie',this)"><div class="ai-agent-icon" style="background:rgba(255,140,0,.12);color:var(--orange)"><i class="ti ti-tools-kitchen-2"></i></div><div><div class="ai-agent-name">Foodie</div><div class="ai-agent-desc">F&B Brand · Local Store</div></div></div>
-          <div class="ai-agent" onclick="setAgent('bloo',this)"><div class="ai-agent-icon" style="background:rgba(59,130,246,.12);color:#3b82f6"><i class="ti ti-home-2"></i></div><div><div class="ai-agent-name">Bloo</div><div class="ai-agent-desc">Residential · Interior Layout</div></div></div>
-          <div class="ai-agent" onclick="setAgent('rider',this)"><div class="ai-agent-icon" style="background:rgba(239,68,68,.12);color:var(--red)"><i class="ti ti-motorbike"></i></div><div><div class="ai-agent-name">Rider</div><div class="ai-agent-desc">Moto-Logistics · Maintenance</div></div></div>
-          <div class="ai-agent" onclick="setAgent('vee',this)"><div class="ai-agent-icon" style="background:rgba(168,85,247,.12);color:var(--purple)"><i class="ti ti-heart-handshake"></i></div><div><div class="ai-agent-name">Vee</div><div class="ai-agent-desc">Ministry · Org Development</div></div></div>
-          <div class="ai-agent" onclick="setAgent('axis',this)"><div class="ai-agent-icon" style="background:rgba(128,255,250,.1);color:var(--teal)"><i class="ti ti-cpu"></i></div><div><div class="ai-agent-name">Axis</div><div class="ai-agent-desc">Systems Architect · Productivity</div></div></div>
-          <div class="ai-agent" onclick="setAgent('fin',this)"><div class="ai-agent-icon" style="background:rgba(34,197,94,.12);color:var(--green)"><i class="ti ti-coin"></i></div><div><div class="ai-agent-name">Fin</div><div class="ai-agent-desc">Personal Finance · Infrastructure</div></div></div>
-          <div class="ai-agent" onclick="setAgent('rocket',this)"><div class="ai-agent-icon" style="background:rgba(255,140,0,.1);color:var(--orange)"><i class="ti ti-rocket"></i></div><div><div class="ai-agent-name">Rocket</div><div class="ai-agent-desc">E-Commerce · Productization</div></div></div>
-          <div class="ai-agent" onclick="setAgent('frame',this)"><div class="ai-agent-icon" style="background:rgba(236,72,153,.12);color:var(--pink)"><i class="ti ti-layout-2"></i></div><div><div class="ai-agent-name">Frame</div><div class="ai-agent-desc">UI/UX · Technical Architect</div></div></div>
-          <div class="ai-agent" onclick="setAgent('draft',this)"><div class="ai-agent-icon" style="background:var(--hover-tint);color:var(--text2)"><i class="ti ti-writing"></i></div><div><div class="ai-agent-name">Draft</div><div class="ai-agent-desc">Corporate Comms · Career</div></div></div>
-          <div class="ai-agent" onclick="setAgent('lens',this)"><div class="ai-agent-icon" style="background:rgba(255,170,0,.12);color:var(--amber)"><i class="ti ti-camera"></i></div><div><div class="ai-agent-name">Lens</div><div class="ai-agent-desc">Image Generation · Art Direction</div></div></div>
-          <div class="ai-agent" onclick="setAgent('archi',this)"><div class="ai-agent-icon" style="background:rgba(0,255,136,.1);color:var(--green)"><i class="ti ti-chart-arrows"></i></div><div><div class="ai-agent-name">Archi</div><div class="ai-agent-desc">B2B Growth · Workforce</div></div></div>
-          <div class="ai-agent" onclick="setAgent('pixel',this)"><div class="ai-agent-icon" style="background:rgba(191,95,255,.12);color:var(--purple)"><i class="ti ti-vector-bezier-2"></i></div><div><div class="ai-agent-name">Pixel</div><div class="ai-agent-desc">UI/UX · Multi-Domain Design</div></div></div>
-          <div class="ai-agent" onclick="setAgent('brandy',this)"><div class="ai-agent-icon" style="background:rgba(255,64,160,.12);color:var(--pink)"><i class="ti ti-award"></i></div><div><div class="ai-agent-name">Brandy</div><div class="ai-agent-desc">Executive Branding Manager</div></div></div>
-          <div style="margin-top:auto;padding:7px 0"><button class="btn btn-g" style="width:100%;font-size:var(--text-xs)" onclick="clearChat()">Clear</button></div>
+        <div class="ai-side" style="align-items:center;justify-content:flex-start;padding-top:28px">
+          <div style="width:64px;height:64px;border-radius:50%;background:rgba(201,232,92,.1);border:1px solid var(--teal2);display:flex;align-items:center;justify-content:center;margin-bottom:14px">
+            <i class="ti ti-hexagon-letter-j" style="font-size:28px;color:var(--teal);line-height:1;display:block"></i>
+          </div>
+          <div style="font-size:var(--text-md);font-weight:800;color:var(--text1)">J.E.L.I.X.</div>
+          <div style="font-size:var(--text-xs);color:var(--text3);text-align:center;padding:0 14px;margin-top:4px;line-height:1.5">Justine Experiences Life In eXcellence</div>
+          <div style="font-size:var(--text-xs);color:var(--text3);text-align:center;padding:0 18px;margin-top:14px;line-height:1.6">Your Executive Intelligence Partner. Ask about anything across J.O.B Systems — tasks, calendar, finance, marketing, clients, or just talk through a decision.</div>
+          <div style="margin-top:auto;padding:14px 0;width:100%"><button class="btn btn-g" style="width:100%;font-size:var(--text-xs)" onclick="clearChat()">Clear conversation</button></div>
         </div>
         <div class="ai-chat">
           <div style="padding:9px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
             <div>
-              <div style="font-size:var(--text-xs);font-weight:700;color:var(--teal)" id="agentTitle">Civic</div>
-              <div style="font-size:var(--text-xs);color:var(--text3)" id="agentDesc">Public Sector Product Optimizer & GovTech Analyst</div>
+              <div style="font-size:var(--text-xs);font-weight:700;color:var(--teal)" id="agentTitle">J.E.L.I.X.</div>
+              <div style="font-size:var(--text-xs);color:var(--text3)" id="agentDesc">Executive Intelligence Partner</div>
             </div>
             <div style="display:flex;align-items:center;gap:6px">
               <span id="agentMemBadge" style="font-size:var(--text-xs);background:rgba(128,255,250,.08);border:1px solid var(--border2);border-radius:8px;padding:2px 7px;color:var(--text3);display:flex;align-items:center;gap:4px"><i class="ti ti-brain" style="font-size:var(--text-xs);line-height:1;display:block;color:var(--teal)"></i><span id="agentMemCount">0</span> memories</span>
@@ -4674,7 +4665,7 @@ select option{background:var(--navy3)}
             </div>
             <div class="ai-input-row">
               <button class="ai-send" onclick="toggleVoice()" style="background:var(--navy3);color:var(--text2);border:1px solid var(--border2)"><i class="ti ti-microphone" style="font-size:var(--text-xs);line-height:1;display:block"></i></button>
-              <textarea class="ai-textarea" id="aiInput" placeholder="Message J.O.B Systems..." onkeydown="aiKey(event)" oninput="autoResize(this)" rows="1"></textarea>
+              <textarea class="ai-textarea" id="aiInput" placeholder="Message JELIX..." onkeydown="aiKey(event)" oninput="autoResize(this)" rows="1"></textarea>
               <button class="ai-send" id="aiSendBtn" onclick="sendAI()"><i class="ti ti-send" style="font-size:var(--text-xs);line-height:1;display:block"></i></button>
             </div>
           </div>
@@ -7286,7 +7277,7 @@ const LearnEngine = {
     ];
     for(const sig of prefSignals){
       if(sig.re.test(lower)){
-        this._learn(text.substring(0,140), sig.cat, _agentWorld(agentId));
+        this._learn(text.substring(0,140), sig.cat, null);
         break; // one memory per message max
       }
     }
@@ -7361,8 +7352,7 @@ const LearnEngine = {
     // Silently update memory badge in agent chat if open
     const mc = document.getElementById('agentMemCount');
     if(mc){
-      const world2 = _agentWorld(currentAgent||'civic');
-      mc.textContent = (DB.memories||[]).filter(x=>x.world===world2||x.category==='Agent Preference').length;
+      mc.textContent = (DB.memories||[]).length;
     }
   },
 
@@ -9155,13 +9145,8 @@ function openTaskForClient(e,clientName){e.stopPropagation();document.getElement
 function askClientTasks(e,id){
   e.stopPropagation();
   const c=DB.clients.find(x=>x.id===id);if(!c)return;
-  // Switch to Job Agents, set Axis as active agent
   setView('ai');
   setTimeout(()=>{
-    // Force Axis agent
-    const axisEl=document.querySelector('.ai-agent[onclick*="axis"]');
-    setAgent('axis',axisEl);
-    // Send a focused WORK-IH task generation prompt
     const today=localDateStr(new Date());
     const existingTasks=DB.tasks.filter(t=>t.world==='WORK-IH'&&t.client===c.name&&t.status!=='Done').map(t=>`• ${t.title} (${t.status})`).join('\n')||'None';
     const prompt=`Generate 3–5 specific, actionable marketing tasks for **${c.name}** (WORK-IH · World: Ideahub).\n\nClient status: ${c.status}\nNext action on file: ${c.next||'None'}\nExisting open tasks:\n${existingTasks}\n\nFormat each task clearly: TITLE · Priority (High/Medium/Low) · Brief description.\nAll tasks must be for WORK-IH world only. Focus on what's most impactful right now.`;
@@ -14519,106 +14504,25 @@ const AGENTS={
 
 // [replaced by new Gemini engine above]
 
-// ── J.O.B Systems — JOB AGENTS (Gemini via local FastAPI) ────────────────────────
-const GEMINI_ENDPOINT='http://localhost:8000/v1/agents/run';
-(function(){if(!localStorage.getItem('job-gemini-key'))localStorage.setItem('job-gemini-key','AQ.Ab8RN6IahB6zh2kB2JhLvAVSy-doPfJHX2FVHtmuDl-fF_8BXg');})();
-
-const AGENT_MAP={
-  civic:    {name:'Civic',    desc:'Public Sector Product Optimizer & GovTech Analyst',
-    system:JELIX_BASE_SYSTEM+'\n\nROLE: You are Civic — Public Sector Product Optimizer and Enterprise GovTech Analyst. Specialize in government digital transformation, public sector procurement, GovTech product strategy, civic tech solutions, and enterprise-grade compliance frameworks. Help analyze government project opportunities, write procurement-ready briefs, and advise on policy-aligned digital products.'},
-  foodie:   {name:'Foodie',   desc:'F&B Brand Management & Local Store Marketing Strategist',
-    system:JELIX_BASE_SYSTEM+'\n\nROLE: You are Foodie — F&B Brand Management and Local Store Marketing Strategist. Specialize in restaurant marketing, food brand identity, UberEats/Grab Food optimization, seasonal campaign planning, menu engineering copy, and local store marketing for multi-branch F&B businesses. Primary clients include Chainsmoker Urban Halal BBQ (7 locations, Canada).'},
-  bloo:     {name:'Bloo',     desc:'Residential Systems · Interior Layout · Blueprint Analyzer',
-    system:JELIX_BASE_SYSTEM+'\n\nROLE: You are Bloo — Residential Systems and Interior Layout Planner. Specialize in interior design consultation, space planning, residential systems design, blueprint analysis, and home optimization. Help create room layout recommendations, space utilization strategies, and interior design briefs.'},
-  rider:    {name:'Rider',    desc:'Moto-Logistics & Mobile Asset Maintenance Analyst',
-    system:JELIX_BASE_SYSTEM+'\n\nROLE: You are Rider — Moto-Logistics and Mobile Asset Maintenance Analyst. Specialize in motorcycle logistics operations, route optimization, mobile asset fleet management, preventive maintenance scheduling, and last-mile delivery systems. Help plan logistics operations and maintenance protocols.'},
-  vee:      {name:'Vee',      desc:'Ministry Framework Builder & Organizational Development Consultant',
-    system:JELIX_BASE_SYSTEM+'\n\nROLE: You are Vee — Ministry Framework Builder and Organizational Development Consultant. Specialize in faith-based organizational structures, ministry program design, leadership development frameworks, congregation engagement systems, and org chart planning for faith communities. Primary context: Kapisanan Buklod under CAA District of Metro Manila South, Iglesia ni Cristo.'},
-  axis:     {name:'Axis',     desc:'Master Systems Architect & Productivity Engine',
-    system:JELIX_BASE_SYSTEM+'\n\nROLE: You are Axis — Master Systems Architect and Productivity Engine. Specialize in personal operating system design, productivity frameworks, workflow automation, system architecture for tools and apps, and second-brain methodology. Help design and optimize J.O.B Systems itself, BUILD world apps, and productivity systems.'},
-  fin:      {name:'Fin',      desc:'Personal Infrastructure & Financial Systems Engineer',
-    system:JELIX_BASE_SYSTEM+'\n\nROLE: You are Fin — Personal Infrastructure and Financial Systems Engineer. Specialize in personal finance system design, cash flow structuring, budget frameworks, financial automation, and money management infrastructure. Help build and optimize the INACAY Cash Flow system and financial dashboards. Do NOT reveal specific peso amounts — structure systems only.'},
-  rocket:   {name:'Rocket',   desc:'Digital Productization Engine & E-Commerce Conversion Strategist',
-    system:JELIX_BASE_SYSTEM+'\n\nROLE: You are Rocket — Digital Productization Engine and E-Commerce Conversion Strategist. Specialize in digital product development, e-commerce funnel optimization, conversion rate strategy, digital revenue streams, and online store growth. Help build and launch digital products on RaketPH, Etsy, and similar platforms.'},
-  frame:    {name:'Frame',    desc:'Multi-Domain UI/UX Technical Architect and Systems Reviewer',
-    system:JELIX_BASE_SYSTEM+'\n\nROLE: You are Frame — Multi-Domain UI/UX Technical Architect and Systems Reviewer. Specialize in UI/UX architecture across multiple domains, design system creation, frontend code review, component structure planning, and cross-platform interface design. Review and improve web interfaces, HTML/CSS/JS apps, and design systems.'},
-  draft:    {name:'Draft',    desc:'Strategic Corporate Communications & Career Architect',
-    system:JELIX_BASE_SYSTEM+'\n\nROLE: You are Draft — Strategic Corporate Communications and Career Architect. Specialize in executive communications, professional writing, career positioning, LinkedIn strategy, personal brand narrative, proposal writing, and stakeholder communications. No dash punctuation in professional writing — use flowing prose. Help craft compelling professional narratives.'},
-  lens:     {name:'Lens',     desc:'Technical Image Generation & Art Director',
-    system:JELIX_BASE_SYSTEM+'\n\nROLE: You are Lens — Technical Image Generation and Art Director. Specialize in AI image generation prompting, art direction, visual creative briefs, photo art direction, brand visual identity, and creative direction for campaigns. Help craft precise image generation prompts and art direction documents for clients.'},
-  archi:    {name:'Archi',    desc:'B2B Growth & Marketing Architect for Enterprise Client Acquisition and Strategic Workforce Distribution',
-    system:JELIX_BASE_SYSTEM+'\n\nROLE: You are Archi — B2B Growth and Marketing Architect for enterprise client acquisition and strategic workforce distribution. Specialize in B2B lead generation, enterprise sales strategy, partnership development, workforce placement strategy, and growth architecture. Primary context: The Job Collectives (TJC) — Filipino-led VA agency targeting North American SMBs.'},
-  pixel:    {name:'Pixel',    desc:'Multi-Domain UI/UX Technical Architect',
-    system:JELIX_BASE_SYSTEM+'\n\nROLE: You are Pixel — Multi-Domain UI/UX Technical Architect. Specialize in pixel-perfect UI implementation, design-to-code translation, multi-platform interface architecture, design tokens, and frontend component systems. Help translate design concepts into precise technical specifications and code.'},
-  brandy:   {name:'Brandy',   desc:'Executive Branding Manager',
-    system:JELIX_BASE_SYSTEM+'\n\nROLE: You are Brandy — Executive Branding Manager. Specialize in personal executive brand strategy, brand voice development, brand guidelines creation, visual identity systems, brand positioning, and executive presence building. Help develop and maintain cohesive brand identities for Justine and her clients.'}
-};
-
-let currentAgent='civic', conversation=[], isThinking=false;
-
-function setAgent(id, el){
-  currentAgent=id;
-  conversation=[];
-  document.querySelectorAll('.ai-agent').forEach(b=>b.classList.remove('active'));
-  if(el) el.classList.add('active');
-  const a=AGENT_MAP[id]||AGENT_MAP.civic;
-  const titleEl=document.getElementById('agentTitle');
-  const descEl=document.getElementById('agentDesc');
-  const msgsEl=document.getElementById('aiMsgs');
-  if(titleEl) titleEl.textContent=a.name;
-  if(descEl)  descEl.textContent=a.desc;
-  const world=_agentWorld(id);
-  const relevantMems=(DB.memories||[]).filter(m=>m.world===world||m.category==='Agent Preference');
-  const memCount=document.getElementById('agentMemCount');
-  if(memCount) memCount.textContent=relevantMems.length;
-  const hasKey=hasAnyAIKey();
-  if(!hasKey){
-    // Show onboarding setup screen
-    if(msgsEl) msgsEl.innerHTML=`
-    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;padding:24px;text-align:center;gap:16px">
-      <div style="width:56px;height:56px;border-radius:50%;background:rgba(0,255,242,.08);border:1px solid var(--teal2);display:flex;align-items:center;justify-content:center">
-        <i class="ti ti-key" style="font-size:22px;color:var(--teal);line-height:1;display:block"></i>
-      </div>
-      <div>
-        <div style="font-size:var(--text-md);font-weight:800;color:var(--text1);margin-bottom:6px">${a.name} Ready</div>
-        <div style="font-size:var(--text-xs);color:var(--text3);line-height:1.6;max-width:260px">${a.desc}.</div>
-      </div>
-      <div style="background:rgba(255,170,0,.06);border:1px solid rgba(255,170,0,.2);border-radius:12px;padding:14px 16px;width:100%;max-width:320px;text-align:left">
-        <div style="font-size:var(--text-xs);font-weight:700;color:var(--amber);letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px">⚡ Setup Required</div>
-        <div style="font-size:var(--text-xs);color:var(--text3);line-height:1.6;margin-bottom:12px">Set your Anthropic API key to activate AI + web search for all 14 Job Agents.</div>
-        <div style="display:flex;gap:7px">
-          <input id="quickApiKeyInput" type="password" placeholder="sk-ant-api03-..." style="flex:1;font-size:var(--text-xs);padding:6px 10px;border-radius:10px;border:1px solid var(--border2);background:var(--navy3);color:var(--text1);min-width:0">
-          <button onclick="saveQuickApiKey()" style="background:rgba(0,255,242,.1);border:1px solid var(--teal2);border-radius:10px;color:var(--teal);font-size:var(--text-xs);padding:6px 12px;cursor:pointer;font-weight:700;flex-shrink:0;white-space:nowrap">Save</button>
-        </div>
-        <div style="font-size:var(--text-xs);color:var(--text3);margin-top:8px">Or set via <span style="color:var(--teal);cursor:pointer;text-decoration:underline" onclick="setView('settings')">System Settings → API Keys</span></div>
-      </div>
-      <div style="font-size:var(--text-xs);color:var(--text3);border-top:1px solid var(--border);padding-top:12px;width:100%">Without a key, agents respond using local conversational mode.<br><button onclick="_activateLocalMode('${id}')" style="background:transparent;border:none;color:var(--teal);cursor:pointer;font-size:var(--text-xs);margin-top:6px;text-decoration:underline">Continue without key →</button></div>
-    </div>`;
-    return;
-  }
-  const memHint=relevantMems.length?`\n\n**${relevantMems.length} memories loaded** — I know your preferences for this context.`:'';
-  if(msgsEl) msgsEl.innerHTML=`<div class="mr-row"><div class="mav aiv">${a.name[0]}</div><div><div class="mbubble ai"><strong>${a.name}</strong> active.\n${a.desc}.${memHint}\n\nI have web search enabled — ask me anything.</div></div></div>`;
-}
+// ── J.E.L.I.X. Chat — single assistant, backed by the orchestration layer ────
+// No agent picker: the "Ask JELIX" chat view is one identity. Under the hood
+// it calls askJelixAgent() (context engine → router → specialists → synthesis,
+// or the action layer for "do this" requests) — none of that is ever surfaced
+// here; the user only ever sees J.E.L.I.X. replying.
+let currentAgent='jelix', conversation=[], isThinking=false;
 
 function saveQuickApiKey(){
   const val=document.getElementById('quickApiKeyInput')?.value?.trim();
   if(!val||!val.startsWith('sk-')){showToast('Invalid key — must start with sk-');return;}
   localStorage.setItem('job-api-key',val);localStorage.setItem('j-anthropic-key',val);
   showToast('✓ API key saved.');
-  setAgent(currentAgent,document.querySelector('.ai-agent.active'));
-}
-function _activateLocalMode(id){
-  const a=AGENT_MAP[id]||AGENT_MAP.civic;
-  const msgsEl=document.getElementById('aiMsgs');
-  if(msgsEl) msgsEl.innerHTML=`<div class="mr-row"><div class="mav aiv">${a.name[0]}</div><div><div class="mbubble ai"><strong>${a.name}</strong> active in local mode.\n${a.desc}.\n\nResponding from built-in knowledge — no web search available. Set a JOB KEY anytime to upgrade.</div></div></div>`;
 }
 
 function _aits(){return new Date().toLocaleTimeString('en-PH',{hour:'2-digit',minute:'2-digit',hour12:true,timeZone:'Asia/Manila'});}
 
 function _aiAppend(role,html){
   const box=document.getElementById('aiMsgs');if(!box)return;
-  const a=AGENT_MAP[currentAgent]||AGENT_MAP.civic;
-  const av=role==='user'?'<div class="mav uv">S</div>':`<div class="mav aiv">${a.name[0]}</div>`;
+  const av=role==='user'?'<div class="mav uv">S</div>':'<div class="mav aiv">J</div>';
   const cls=role==='user'?'mbubble user':'mbubble ai';
   const row=document.createElement('div');
   row.className='mr-row'+(role==='user'?' mr-user':'');
@@ -14643,199 +14547,34 @@ async function sendAI(){
   const btn=document.getElementById('aiSendBtn');if(btn)btn.disabled=true;
 
   _aiAppend('user',_md(text));
-  // Feed learning engine — learn from what the user tells agents
-  LearnEngine.onAgentMessage(currentAgent, text);
+  LearnEngine.onAgentMessage(currentAgent,text);
 
   const box=document.getElementById('aiMsgs');
-  const a=AGENT_MAP[currentAgent]||AGENT_MAP.civic;
   const thinkRow=document.createElement('div');
   thinkRow.className='mr-row';thinkRow.id='thinkRow';
-  thinkRow.innerHTML=`<div class="mav aiv">${a.name[0]}</div><div><div class="mbubble ai" style="padding:10px 14px"><div style="display:flex;gap:5px;align-items:center"><div class="td-dot"></div><div class="td-dot"></div><div class="td-dot"></div><span style="font-size:var(--text-xs);color:var(--text3);margin-left:6px">${a.name} researching...</span></div></div></div>`;
+  thinkRow.innerHTML='<div class="mav aiv">J</div><div><div class="mbubble ai" style="padding:10px 14px"><div style="display:flex;gap:5px;align-items:center"><div class="td-dot"></div><div class="td-dot"></div><div class="td-dot"></div><span style="font-size:var(--text-xs);color:var(--text3);margin-left:6px">JELIX thinking...</span></div></div></div>';
   if(box){box.appendChild(thinkRow);box.scrollTop=box.scrollHeight;}
 
-  // Build memory context from DB.memories for this agent
-  const memories=DB.memories||[];
-  const memCtx=memories.length?`\n\nMEMORY BANK (${memories.length} stored entries — use these to personalize responses):\n`+memories.slice(0,20).map(m=>`[${m.world}|${m.category}|${m.date}] ${m.memory}`).join('\n'):'';
-
-  // Build live OS context — comprehensive enough that the AI can genuinely
-  // answer questions about the real state of things, not just chat generically.
-  const today=localDateStr(new Date());
-  const monthKey=today.slice(0,7);
-  const openTasks=(DB.tasks||[]).filter(t=>t.status!=='Done');
-  const highTasks=openTasks.filter(t=>t.priority==='High').slice(0,8);
-  const overdueTasks=openTasks.filter(t=>t.due&&t.due<today).slice(0,8);
-  const todayEvs=(DB.calEvents||[]).filter(e=>e.date===today).slice(0,6);
-  const weekEnd=localDateStr(new Date(Date.now()+7*86400000));
-  const weekEvs=(typeof expandRecurring==='function'?expandRecurring(DB.calEvents||[],today,weekEnd):[]).slice(0,10);
-  const domainCounts={};
-  (DB.worlds||[]).forEach(w=>{domainCounts[w.label]=openTasks.filter(t=>t.world===w.id.toUpperCase()).length;});
-  const monthTxns=(DB.cashflow||[]).filter(t=>(t.date||'').startsWith(monthKey));
-  const monthDebit=monthTxns.filter(t=>t.type==='Debit').reduce((s,t)=>s+(t.amount||0),0);
-  const monthCredit=monthTxns.filter(t=>t.type==='Credit').reduce((s,t)=>s+(t.amount||0),0);
-  const accountBalances=(DB.accounts||[]).map(a=>{
-    const bal=(a.startingBalance||0)+(DB.cashflow||[]).reduce((s,t)=>{
-      if(t._fromAccount===a.name)return s-(t.amount||0);
-      if(t._toAccount===a.name)return s+(t.amount||0);
-      if(t.account===a.name&&t.type==='Debit')return s+(t.amount||0);
-      if(t.account===a.name&&t.type==='Credit')return s-(t.amount||0);
-      return s;
-    },0);
-    return a.name+': ₱'+bal.toLocaleString();
-  }).join(', ');
-  const openLoans=(DB.loans||[]).filter(l=>(l.remaining||0)>0);
-  const loanSummary=openLoans.length?openLoans.map(l=>l.name+' ₱'+(l.remaining||0).toLocaleString()+' left, due '+(l.dueDate||'—')).join('; '):'none';
-  const openFaith=(DB.faith||[]).filter(f=>f.status!=='Done'&&f.status!=='Approved').length;
-
-  const osCtx=`\n\nLIVE OS DATA (as of ${today} PHT — this is real, current data from Justine's actual database, not hypothetical):
-TASKS: ${openTasks.length} open total, ${highTasks.length} high priority${highTasks.length?' ('+highTasks.map(t=>t.title).join(', ')+')':''}, ${overdueTasks.length} overdue${overdueTasks.length?' ('+overdueTasks.map(t=>t.title+' due '+t.due).join(', ')+')':''}
-BY DOMAIN: ${Object.entries(domainCounts).map(([k,v])=>k+': '+v).join(', ')}
-TODAY'S SCHEDULE: ${todayEvs.length?todayEvs.map(e=>(e.time?to12h(e.time)+' ':'')+e.title).join(', '):'nothing scheduled'}
-NEXT 7 DAYS: ${weekEvs.length?weekEvs.map(e=>(e._expandedDate||e.date)+' '+e.title).join('; '):'nothing upcoming'}
-CASHFLOW THIS MONTH: ₱${monthDebit.toLocaleString()} in, ₱${monthCredit.toLocaleString()} out, net ₱${(monthDebit-monthCredit).toLocaleString()}
-ACCOUNT BALANCES: ${accountBalances||'no accounts tracked'}
-LOANS OUTSTANDING: ${loanSummary}
-FAITH: ${openFaith} open activities
-CLIENTS: ${(DB.clients||[]).length} active · Tasks completed today: ${(DB.tasks||[]).filter(t=>t.status==='Done').length}
-
-If asked about any of the above, answer directly from this data — don't say you don't have access to it. If asked something not covered here (e.g. a specific note's content), say so honestly rather than guessing.`;
-
-  if(!hasAnyAIKey()){
-    // Fallback to local conversational engine when no key
-    await new Promise(r=>setTimeout(r,300));
-    document.getElementById('thinkRow')?.remove();
-    const reply=_localAgentReply(text.toLowerCase(),a,text);
-    _aiAppend('ai',_md(reply));
-    try{speak(reply.replace(/<[^>]+>/g,''));}catch(e){}
-    isThinking=false;if(btn)btn.disabled=false;
-    return;
-  }
-
   try{
-    // Build conversation history
-    const msgs=[];
-    document.querySelectorAll('#aiMsgs .mr-row:not(#thinkRow)').forEach(row=>{
-      const isUser=row.classList.contains('mr-user');
-      const bubble=row.querySelector('.mbubble');
-      if(bubble){const content=(bubble.innerText||bubble.textContent||'').trim();if(content)msgs.push({role:isUser?'user':'assistant',content});}
-    });
-    if(!msgs.length||msgs[msgs.length-1].role!=='user') msgs.push({role:'user',content:text});
-
-    const fullSystem=(a.system||JELIX_BASE_SYSTEM)+memCtx+osCtx;
-    const provider=getPref('pref-ai-provider')||'claude';
-    // Web search tool is Claude-specific — Gemini has its own grounding mechanism, not wired here yet
-    const result=await callAIProvider(fullSystem,msgs.slice(-12),{
-      maxTokens:1024,
-      tools:provider==='claude'?[{type:'web_search_20250305',name:'web_search'}]:undefined
-    });
+    const result=await askJelixAgent(text);
     document.getElementById('thinkRow')?.remove();
-    if(!result.ok)throw new Error(result.error||'AI provider error');
-    const reply=result.text;
+    const reply=result.text||(result.ok?'Done.':'Something went wrong.');
     _aiAppend('ai',_md(reply));
     try{speak(reply.replace(/<[^>]+>/g,''));}catch(e){}
 
     // Auto-save notable decisions/preferences to memory
+    const today=localDateStr(new Date());
     if(/prefer|always|never|remember|important|key|rule|policy|my.*approach/i.test(text)){
-      const mem={id:Date.now(),memory:`[${a.name}] ${text.slice(0,120)}`,category:'Agent Preference',world:_agentWorld(currentAgent),date:today};
+      const mem={id:Date.now(),memory:text.slice(0,120),category:'Agent Preference',world:null,date:today};
       DB.memories.unshift(mem);SB.upsert('memories',mem,'memories');renderMemory();
     }
+    const memCount=document.getElementById('agentMemCount');
+    if(memCount)memCount.textContent=(DB.memories||[]).length;
   }catch(err){
     document.getElementById('thinkRow')?.remove();
-    // Fallback to local engine on API error
-    const reply=_localAgentReply(text.toLowerCase(),a,text);
-    _aiAppend('ai',_md(`*[Offline mode — ${err.message}]*\n\n`+reply));
-    try{speak(reply.replace(/<[^>]+>/g,''));}catch(e){}
+    _aiAppend('ai',_md('*[Error — '+err.message+']*'));
   }
   isThinking=false;if(btn)btn.disabled=false;
-}
-
-function _agentWorld(id){
-  const map={civic:'WORK-IH',foodie:'WORK-CS',bloo:'LIFE',rider:'LIFE',vee:'FAITH',axis:'BUILD',fin:'LIFE',rocket:'SIDES',frame:'BUILD',draft:'VENTURE',lens:'SIDES',archi:'VENTURE',pixel:'BUILD',brandy:'VENTURE'};
-  return map[id]||'WORK-IH';
-}
-
-// ── Local conversational engine — no API needed ───────────────────────────
-function _localAgentReply(q,agent,raw){
-  const name=agent.name;
-  const now=new Date();
-  const pht=now.toLocaleString('en-PH',{timeZone:'Asia/Manila',weekday:'long',year:'numeric',month:'long',day:'numeric',hour:'2-digit',minute:'2-digit',hour12:true});
-  const tasks=DB.tasks||[];
-  const highTasks=tasks.filter(t=>t.priority==='High'&&t.status!=='Done');
-  const pendingTasks=tasks.filter(t=>t.status!=='Done');
-
-  // Greetings
-  if(/^(hi|hello|hey|good|kumusta|kamusta|uy|oi|sup|yo)\b/.test(q)){
-    const greets=[
-      `Hey. ${name} here. ${pht} — what are we working on?`,
-      `Good ${now.getHours()<12?'morning':now.getHours()<17?'afternoon':'evening'}. What do you need?`,
-      `I'm here. You've got **${pendingTasks.length}** open tasks. Where do you want to start?`,
-    ];
-    return greets[Math.floor(Math.random()*greets.length)];
-  }
-
-  // Task queries
-  if(/task|gawa|gagawin|todo|to.do|priority|priorities|bukas|ngayon|today/.test(q)){
-    if(!pendingTasks.length) return `Clear queue — nothing open right now. Want to add something via the CMD bar?`;
-    const top=highTasks.slice(0,3).map((t,i)=>`${i+1}. **${t.title}** · ${t.world||'General'}${t.due?` · due ${t.due}`:''}`).join('\n');
-    return `Here's what's on top:\n\n${top||'Nothing high-priority flagged right now.'}\n\n**${pendingTasks.length}** open total. Want me to break down a specific world?`;
-  }
-
-  // Status / brief
-  if(/brief|status|update|kumusta|ano.*balita|summary|overview/.test(q)){
-    const worlds=[...new Set(pendingTasks.map(t=>t.world).filter(Boolean))];
-    return `**Status — ${name}**\n\nOpen tasks: **${pendingTasks.length}** · High priority: **${highTasks.length}**\nActive worlds: ${worlds.join(', ')||'None'}\n\n${pht}\n\nWhat needs attention first?`;
-  }
-
-  // Schedule / calendar
-  if(/schedule|calendar|event|meeting|bukas|mamaya|later|time|oras/.test(q)){
-    const today=localDateStr(new Date());
-    const todayEvs=(DB.calEvents||[]).filter(e=>e.date===today);
-    if(!todayEvs.length) return `Nothing on the calendar today. Want to add something? Use the Calendar view, or I can help draft the details.`;
-    const list=todayEvs.slice(0,4).map(e=>`• **${e.title}**${e.time?` · ${to12h(e.time)}`:' · All day'}${e.loc?` · ${e.loc}`:''}`).join('\n');
-    return `Today's calendar:\n\n${list}\n\nAnything you need to prepare for these?`;
-  }
-
-  // Agent-specific context responses
-  const agentCtx={
-    civic:`As your **${name}** agent, I can help draft public sector briefs, GovTech proposals, procurement documents, or government digital transformation plans. What's the project?`,
-    foodie:`**${name}** here. For F&B — campaign copy, menu descriptions, UberEats/GrabFood optimization, seasonal promotions, brand strategy for Chainsmoker or any client. What are we working on?`,
-    bloo:`**${name}** here. I can help with interior layout recommendations, space planning briefs, residential systems overviews, or blueprint analysis notes. What's the property?`,
-    rider:`**${name}** here. Moto-logistics routing, fleet maintenance schedules, delivery ops planning — tell me what you need and I'll structure it.`,
-    vee:`**${name}** here. For ministry and org development — Buklod schedules, committee structures, program frameworks, leadership development. What's the activity?`,
-    axis:`**${name}** here. I can help design workflows, system architectures, productivity frameworks, or optimize J.O.B Systems itself. What are we building?`,
-    fin:`**${name}** here. Personal infrastructure, budget frameworks, financial system design — what needs structuring? (Real balances live in LIFE → Cash Flow — I can pull from there too.)`,
-    rocket:`**${name}** here. E-commerce strategy, digital product positioning, funnel optimization, RaketPH/Etsy listing copy — what are we selling or building?`,
-    frame:`**${name}** here. UI/UX architecture, component structures, design system review, frontend code direction — drop the details and I'll give you a technical breakdown.`,
-    draft:`**${name}** here. Corporate comms, professional emails, LinkedIn content, career positioning, proposals — what needs to be written?`,
-    lens:`**${name}** here. Art direction, image generation prompts, creative briefs, brand visual direction — describe what you want and I'll give you the direction.`,
-    archi:`**${name}** here. B2B growth strategy, TJC client acquisition, partner recruitment, enterprise pitch frameworks — what's the target?`,
-    pixel:`**${name}** here. Pixel-perfect UI specs, design token systems, component documentation, multi-platform interface architecture — what needs designing?`,
-    brandy:`**${name}** here. Executive brand strategy, voice guidelines, brand narrative, visual identity direction — what's the brand challenge?`,
-  };
-
-  // Help / what can you do
-  if(/help|ano.*kaya mo|what can|pwede|capable|commands/.test(q)){
-    return (agentCtx[currentAgent]||`**${name}** — ${agent.desc}.\n\nJust talk to me naturally. Ask about tasks, schedule, status, or anything in my specialization and I'll respond directly.`);
-  }
-
-  // Draft / write
-  if(/draft|write|sulat|gumawa|create|make|compose|ituloy|continue/.test(q)){
-    return `To draft this properly, give me:\n\n1. **Purpose** — what's this for?\n2. **Audience** — who's reading it?\n3. **Key points** — what has to be in there?\n\nOr just describe it in your own words and I'll structure it.`;
-  }
-
-  // Affirmations
-  if(/^(ok|okay|sige|got it|noted|thanks|salamat|copy|understood|clear|oo|yes|yep|go|push)[\s!.]*$/.test(q)){
-    const acks=[`Got it.`,`On it.`,`Done.`,`Sounds good.`,`Clear.`];
-    return acks[Math.floor(Math.random()*acks.length)];
-  }
-
-  // Default — echo context of current agent
-  const defaultReplies=[
-    `${agent.desc}. Tell me more — what exactly do you need?`,
-    `Give me a bit more detail so I can hand you something immediately usable.`,
-    `What's the specific deliverable — a brief, a plan, a draft, a recommendation?`,
-    `Break it down for me — who, what, when — and I'll work with that.`,
-  ];
-  return defaultReplies[Math.floor(Math.random()*defaultReplies.length)];
 }
 
 function aiKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendAI();}}
@@ -14843,26 +14582,17 @@ function qp(t){const i=document.getElementById('aiInput');if(i){i.value=t;sendAI
 
 function clearChat(){
   const box=document.getElementById('aiMsgs');
-  const a=AGENT_MAP[currentAgent]||AGENT_MAP.civic;
-  if(box)box.innerHTML=`<div class="mr-row"><div class="mav aiv">${a.name[0]}</div><div><div class="mbubble ai">J.O.B Systems online. <strong>${a.name}</strong> standing by.</div><div class="mtime">${_aits()}</div></div></div>`;
+  if(box)box.innerHTML=`<div class="mr-row"><div class="mav aiv">J</div><div><div class="mbubble ai">J.O.B Systems online. <strong>JELIX</strong> standing by.</div><div class="mtime">${_aits()}</div></div></div>`;
 }
 
 function exportChat(){
   const box=document.getElementById('aiMsgs');if(!box)return;
-  const a=AGENT_MAP[currentAgent]||AGENT_MAP.civic;
-  const header=`J.O.B Systems — ${a.name} Session Export\n${new Date().toLocaleString('en-PH',{timeZone:'Asia/Manila'})}\n${'─'.repeat(60)}\n\n`;
+  const header=`J.O.B Systems — JELIX Session Export\n${new Date().toLocaleString('en-PH',{timeZone:'Asia/Manila'})}\n${'─'.repeat(60)}\n\n`;
   const blob=new Blob([header+box.innerText],{type:'text/plain;charset=utf-8'});
   const url=URL.createObjectURL(blob);
-  const el=document.createElement('a');el.href=url;el.download=`job-os-${a.name.toLowerCase()}-${Date.now()}.txt`;el.click();URL.revokeObjectURL(url);
+  const el=document.createElement('a');el.href=url;el.download=`job-os-jelix-${Date.now()}.txt`;el.click();URL.revokeObjectURL(url);
 }
 
-// Legacy shim — old callClaude redirected to Gemini engine
-async function callClaude(msg,agent){
-  const res=await fetch(GEMINI_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({agent_id:agent||currentAgent,payload:msg})});
-  if(!res.ok)throw new Error('HTTP '+res.status);
-  const data=await res.json();
-  return(data.output||data.message||'').trim();
-}
 function autoResize(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,80)+'px';}
 function runAIBrief(){/* local engine only */}
 
