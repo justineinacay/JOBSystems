@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5608,7 +5609,7 @@ function renderUrgentPanel(){
   if(!el)return;
   const today=localDateStr(new Date());
   if(!items.length){
-    el.innerHTML='<div class="urgent-strip none"><i class="ti ti-circle-check" style="font-size:var(--text-xs)"></i><span>All clear, sir</span></div>';
+    el.innerHTML='<div class="urgent-strip none"><i class="ti ti-circle-check" style="font-size:var(--text-xs)"></i><span>All clear</span></div>';
     return;
   }
   const overdueCount=items.filter(t=>t.due&&t.due<today).length;
