@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -4987,6 +4986,21 @@ select option{background:var(--navy3)}
           <div id="googleWorkspaceStatus"></div>
         </div>
 
+        <!-- JELIX WORKSPACE AGENT — runs in-browser via Gemini function calling -->
+        <div class="hc" style="margin-bottom:16px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+            <div style="font-size:var(--text-xs);font-weight:700;color:var(--teal);letter-spacing:.1em;text-transform:uppercase;display:flex;align-items:center;gap:6px"><i class="ti ti-robot" style="font-size:var(--text-sm);line-height:1;display:block"></i>JELIX Workspace Agent</div>
+            <span onclick="renderAgentQueue()" style="font-size:var(--text-xs);color:var(--teal);cursor:pointer">Refresh</span>
+          </div>
+          <div style="font-size:9px;color:var(--text3);margin-bottom:10px">Gemini decides what to do and acts on Gmail, Calendar, and Drive directly from this app — no external process required. Needs a Gemini API key above and Google Workspace connected.</div>
+          <div style="display:flex;gap:8px;margin-bottom:10px">
+            <input id="agentPromptInput" placeholder="e.g. Email Lou about the Las Piñas lease renewal" style="flex:1" onkeydown="if(event.key==='Enter')submitJelixAgentPrompt()">
+            <button class="btn btn-t" onclick="submitJelixAgentPrompt()">Ask JELIX</button>
+          </div>
+          <div id="agentPromptResult" style="font-size:var(--text-xs);color:var(--text2);margin-bottom:10px;white-space:pre-wrap"></div>
+          <div id="agentQueueList" style="font-size:var(--text-xs);color:var(--text3)">Loading...</div>
+        </div>
+
         <!-- SECURITY ACTIVITY -->
         <div class="hc" style="margin-bottom:16px">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
@@ -5377,6 +5391,134 @@ const SB={
 };
 
 // ═══════════════════════════════════════════════════════════════════════════
+// JELIX WORKSPACE AGENT — runs entirely in the browser. Gemini decides which
+// action to take (via function calling); the action executes immediately
+// against Gmail/Calendar/Drive using the OAuth token already sitting in
+// localStorage from Google Workspace connect. No local process, no CLI,
+// no background service — this IS the PWA.
+// ═══════════════════════════════════════════════════════════════════════════
+const JELIX_AGENT_TOOLS=[
+  {name:'send_email',description:'Send an email via Gmail.',
+    parameters:{type:'OBJECT',properties:{to:{type:'STRING'},subject:{type:'STRING'},body:{type:'STRING'}},required:['to','subject','body']}},
+  {name:'create_event',description:'Create a Google Calendar event.',
+    parameters:{type:'OBJECT',properties:{calendarId:{type:'STRING',description:"'primary' unless a specific calendar is named"},title:{type:'STRING'},startISO:{type:'STRING',description:'ISO 8601 datetime'},endISO:{type:'STRING',description:'ISO 8601 datetime'},notes:{type:'STRING'}},required:['title','startISO','endISO']}},
+  {name:'write_drive_file',description:'Create a file in Google Drive.',
+    parameters:{type:'OBJECT',properties:{fileName:{type:'STRING'},content:{type:'STRING'},mimeType:{type:'STRING'}},required:['fileName','content']}}
+];
+async function _runJelixTool(name,args){
+  if(name==='send_email')return sendGoogleGmail(args.to,args.subject,args.body);
+  if(name==='create_event')return createGoogleCalendarEvent(args.calendarId||'primary',args.title,args.startISO,args.endISO,args.notes||'');
+  if(name==='write_drive_file')return writeGoogleDriveFile(args.fileName,args.content,args.mimeType||'text/plain');
+  return{ok:false,error:'Unknown tool: '+name};
+}
+// Logs a completed action to Supabase for a visible history — fire-and-forget,
+// never blocks the actual Gmail/Calendar/Drive call above.
+async function _logJelixAction(intent,payload,world,result){
+  try{
+    const uid=getAuthUserId();
+    const taskRow={intent,payload,world:world||null,status:result.ok?'done':'failed'};
+    if(uid)taskRow.user_id=uid;
+    const inserted=await sbFetch('agent_tasks','POST',taskRow);
+    const task=Array.isArray(inserted)?inserted[0]:inserted;
+    if(task?.id){
+      const logRow={task_id:task.id,result,executor:'jelix-browser'};
+      if(uid)logRow.user_id=uid;
+      await sbFetch('agent_log','POST',logRow);
+    }
+  }catch(e){/* history is best-effort — never block the real action on this */}
+  if(document.getElementById('agentQueueList'))renderAgentQueue();
+}
+// Direct call — skip Gemini's reasoning, just run the action (used by the
+// convenience wrappers below and anywhere else in the app that already
+// knows exactly what it wants done).
+async function runJelixIntent(intent,payload,world){
+  const result=await _runJelixTool(
+    intent==='send_email'?'send_email':intent==='create_event'?'create_event':'write_drive_file',
+    payload
+  );
+  if(result.ok)showToast('✓ '+intent+' completed');
+  else showToast('⚠ '+intent+' failed: '+result.error);
+  _logJelixAction(intent,payload,world,result);
+  return result;
+}
+function jelixSendEmail(to,subject,body,world){return runJelixIntent('send_email',{to,subject,body},world);}
+function jelixCreateEvent(calendarId,title,startISO,endISO,notes,world){return runJelixIntent('create_event',{calendarId,title,startISO,endISO,notes},world);}
+function jelixDriveWrite(fileName,content,mimeType,world){return runJelixIntent('write_drive_file',{fileName,content,mimeType},world);}
+
+// The actual assistant entry point: give it a plain-English instruction,
+// Gemini decides whether/which Workspace action to take, executes it via
+// the functions above, then reports back in plain English.
+async function askJelixAgent(userMessage,world){
+  const geminiKey=localStorage.getItem('j-gemini-key');
+  if(!geminiKey)return{ok:false,text:'No Gemini API key configured. Add one in Settings.'};
+  if(!isGoogleWorkspaceConnected()&&!localStorage.getItem('j-google-refresh-token'))
+    return{ok:false,text:'Google Workspace isn\'t connected yet. Connect it in Settings first.'};
+  const model=localStorage.getItem('j-gemini-model')||'gemini-3.5-flash';
+  const system=`You are JELIX, Justine's executive assistant. You have tools to send email, create calendar events, and write Drive files on his behalf. Use a tool only when the request clearly calls for a real action; otherwise just answer in text. Today's date: ${new Date().toISOString().slice(0,10)}.`;
+  const body={
+    system_instruction:{parts:[{text:system}]},
+    contents:[{role:'user',parts:[{text:userMessage}]}],
+    tools:[{functionDeclarations:JELIX_AGENT_TOOLS}]
+  };
+  try{
+    let res=await fetch('https://generativelanguage.googleapis.com/v1beta/models/'+model+':generateContent?key='+geminiKey,{
+      method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)
+    });
+    if(!res.ok)return{ok:false,text:'Gemini API error '+res.status};
+    let data=await res.json();
+    let parts=data.candidates?.[0]?.content?.parts||[];
+    const call=parts.find(p=>p.functionCall);
+    if(!call)return{ok:true,text:parts.map(p=>p.text||'').join('\n').trim()||'Done.'};
+
+    const fnName=call.functionCall.name,fnArgs=call.functionCall.args||{};
+    const result=await _runJelixTool(fnName,fnArgs);
+    if(result.ok)showToast('✓ JELIX executed: '+fnName);else showToast('⚠ JELIX action failed: '+fnName);
+    _logJelixAction(fnName,fnArgs,world,result);
+
+    // Second turn — let Gemini phrase the confirmation using the real result
+    body.contents.push({role:'model',parts:[{functionCall:call.functionCall}]});
+    body.contents.push({role:'user',parts:[{functionResponse:{name:fnName,response:result}}]});
+    res=await fetch('https://generativelanguage.googleapis.com/v1beta/models/'+model+':generateContent?key='+geminiKey,{
+      method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)
+    });
+    data=await res.json();
+    parts=data.candidates?.[0]?.content?.parts||[];
+    return{ok:result.ok,text:parts.map(p=>p.text||'').join('\n').trim()||(result.ok?'Done.':'That failed: '+result.error)};
+  }catch(e){
+    return{ok:false,text:'JELIX agent error: '+e.message};
+  }
+}
+async function submitJelixAgentPrompt(){
+  const input=document.getElementById('agentPromptInput');if(!input)return;
+  const msg=input.value.trim();if(!msg)return;
+  const outEl=document.getElementById('agentPromptResult');
+  if(outEl)outEl.textContent='JELIX is working on it...';
+  input.value='';
+  const res=await askJelixAgent(msg);
+  if(outEl)outEl.textContent=res.text;
+}
+// Pulls the most recent queued/executed tasks straight from Supabase (not
+// cached in DB) since this is an operational log, not app state.
+async function renderAgentQueue(){
+  const el=document.getElementById('agentQueueList');if(!el)return;
+  try{
+    const tasks=await sbFetch('agent_tasks','GET',null,'limit=8');
+    if(!tasks||!tasks.length){el.innerHTML='<div style="padding:6px 0">No agent actions yet.</div>';return;}
+    const statusColor=s=>s==='done'?'var(--green)':s==='failed'?'var(--red)':s==='executing'?'var(--amber)':'var(--text3)';
+    el.innerHTML=tasks.map(t=>`
+      <div style="display:flex;align-items:center;gap:10px;padding:7px 10px;background:var(--navy3);border:1px solid var(--border);border-left:3px solid ${statusColor(t.status)};border-radius:10px;margin-bottom:6px">
+        <div style="flex:1;min-width:0">
+          <div style="font-size:var(--text-sm);font-weight:700;color:var(--text1)">${t.intent}${t.world?' · '+t.world:''}</div>
+          <div style="font-size:9px;color:var(--text4);margin-top:1px">${new Date(t.created_at).toLocaleString('en-PH')}</div>
+        </div>
+        <span style="font-size:9px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:${statusColor(t.status)}">${t.status}</span>
+      </div>`).join('');
+  }catch(err){
+    el.innerHTML='<div style="padding:6px 0;color:var(--text4)">Agent history unavailable — check Supabase connection.</div>';
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
 // J.O.B. REALTIME — Cross-Device Sync Engine
 // WebSocket listener: pushes Supabase INSERT/UPDATE/DELETE to all open tabs
 // ═══════════════════════════════════════════════════════════════════════════
@@ -5402,7 +5544,9 @@ const REALTIME_TABLES=[
   {name:'campaigns',         key:'campaigns'},
   {name:'influencers',       key:'influencers'},
   {name:'pricing',           key:'pricing'},
-  {name:'credentials',       key:'credentials'}
+  {name:'credentials',       key:'credentials'},
+  {name:'agent_tasks',       key:'agentTasks'},
+  {name:'agent_log',         key:'agentLog'}
 ];
 
 function initRealtime(){
@@ -5431,6 +5575,15 @@ function initRealtime(){
     var oldRecord=msg.payload.old_record;
     var type=msg.payload.type;
     var key=tableMap.key;
+    if(tableName==='agent_tasks'||tableName==='agent_log'){
+      // Operational log, not app state — don't push into DB[], just refresh the panel
+      if(tableName==='agent_tasks'&&type==='UPDATE'&&record&&record.status){
+        if(record.status==='done')showToast('✓ JELIX Executor finished: '+record.intent);
+        else if(record.status==='failed')showToast('⚠ JELIX Executor failed: '+record.intent);
+      }
+      if(document.getElementById('agentQueueList'))renderAgentQueue();
+      return;
+    }
     if(!DB[key])DB[key]=[];
     if(type==='INSERT'){
       if(!DB[key].find(function(r){return r.id===record.id;})){
@@ -6155,7 +6308,9 @@ const GOOGLE_OAUTH_REDIRECT_URI='https://justineinacay.github.io/JOBSystems/';
 const GOOGLE_OAUTH_SCOPES=[
   'https://www.googleapis.com/auth/calendar',
   'https://www.googleapis.com/auth/gmail.readonly',
+  'https://www.googleapis.com/auth/gmail.send',
   'https://www.googleapis.com/auth/drive.readonly',
+  'https://www.googleapis.com/auth/drive.file',
   'https://www.googleapis.com/auth/tasks',
 ].join(' ');
 
@@ -6301,6 +6456,78 @@ async function fetchGoogleCalendarEvents(maxResults){
     if(!res.ok)return{ok:false,error:'Google Calendar API error '+res.status};
     const data=await res.json();
     return{ok:true,events:data.items||[]};
+  }catch(e){
+    return{ok:false,error:e.message};
+  }
+}
+
+// ── Gmail: send ─────────────────────────────────────────────────────────────
+// Gmail's send endpoint takes a raw base64url-encoded RFC 2822 message.
+async function sendGoogleGmail(to,subject,body){
+  const token=await ensureGoogleToken();
+  if(!token)return{ok:false,error:'Google Workspace not connected'};
+  try{
+    const raw=`To: ${to}\r\nSubject: ${subject}\r\nContent-Type: text/plain; charset=UTF-8\r\n\r\n${body}`;
+    const encoded=btoa(unescape(encodeURIComponent(raw))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+    const res=await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/send',{
+      method:'POST',
+      headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json'},
+      body:JSON.stringify({raw:encoded})
+    });
+    if(!res.ok){const errBody=await res.text().catch(()=>'');return{ok:false,error:'Gmail send failed '+res.status+(errBody?': '+errBody.substring(0,200):'')};}
+    const data=await res.json();
+    return{ok:true,messageId:data.id};
+  }catch(e){
+    return{ok:false,error:e.message};
+  }
+}
+
+// ── Calendar: create event ──────────────────────────────────────────────────
+// startISO/endISO: full ISO datetimes, e.g. '2026-07-20T14:00:00+08:00'
+async function createGoogleCalendarEvent(calendarId,title,startISO,endISO,notes){
+  const token=await ensureGoogleToken();
+  if(!token)return{ok:false,error:'Google Workspace not connected'};
+  try{
+    const res=await fetch(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId||'primary')}/events`,{
+      method:'POST',
+      headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json'},
+      body:JSON.stringify({
+        summary:title,
+        description:notes||'',
+        start:{dateTime:startISO},
+        end:{dateTime:endISO}
+      })
+    });
+    if(!res.ok){const errBody=await res.text().catch(()=>'');return{ok:false,error:'Calendar create failed '+res.status+(errBody?': '+errBody.substring(0,200):'')};}
+    const data=await res.json();
+    return{ok:true,eventId:data.id,htmlLink:data.htmlLink};
+  }catch(e){
+    return{ok:false,error:e.message};
+  }
+}
+
+// ── Drive: write a file ─────────────────────────────────────────────────────
+// Uses drive.file scope — this app can only see/manage files it creates itself,
+// which is the least-privilege option and doesn't require Google verification.
+async function writeGoogleDriveFile(fileName,content,mimeType,folderId){
+  const token=await ensureGoogleToken();
+  if(!token)return{ok:false,error:'Google Workspace not connected'};
+  try{
+    const metadata={name:fileName,mimeType:mimeType||'text/plain'};
+    if(folderId)metadata.parents=[folderId];
+    const boundary='jelix-'+Date.now();
+    const body=
+      `--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${JSON.stringify(metadata)}\r\n`+
+      `--${boundary}\r\nContent-Type: ${metadata.mimeType}\r\n\r\n${content}\r\n`+
+      `--${boundary}--`;
+    const res=await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart',{
+      method:'POST',
+      headers:{'Authorization':'Bearer '+token,'Content-Type':`multipart/related; boundary=${boundary}`},
+      body
+    });
+    if(!res.ok){const errBody=await res.text().catch(()=>'');return{ok:false,error:'Drive write failed '+res.status+(errBody?': '+errBody.substring(0,200):'')};}
+    const data=await res.json();
+    return{ok:true,fileId:data.id};
   }catch(e){
     return{ok:false,error:e.message};
   }
@@ -6625,6 +6852,7 @@ async function renderSettingsView(){
     }
   }
   loadSecurityActivityLog();
+  renderAgentQueue();
   // Bio toggle button
   const bioBtn=document.getElementById('bioToggleBtn');
   if(bioBtn){
@@ -7952,11 +8180,11 @@ function renderBrief(){
     return credits.filter(t=>t.date===dayStr).reduce((s,t)=>s+(t.amount||0),0);
   });
   const chartMax=Math.max(...dailySpend,1);
-  const CH=64,CW=280;
+  const CH=64,CW=280,TOP_PAD=18; // TOP_PAD reserves headroom so the peak-value label never collides with the peak dot
   const stepX=dailySpend.length>1?CW/(dailySpend.length-1):CW;
   const points=dailySpend.map((v,i)=>{
     const x=i*stepX;
-    const y=CH-Math.max(1,(v/chartMax)*(CH-4));
+    const y=CH-Math.max(1,(v/chartMax)*(CH-TOP_PAD-4));
     return{x,y,v};
   });
   const pathD=points.map((p,i)=>(i===0?'M':'L')+p.x.toFixed(1)+','+p.y.toFixed(1)).join(' ');
@@ -7975,7 +8203,7 @@ function renderBrief(){
     <path d="${pathD}" fill="none" stroke="var(--teal)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/>
     ${dailySpend.length<=15?points.map((p,i)=>`<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="2" fill="var(--navy3)" stroke="var(--teal)" stroke-width="1.3"/>`).join(''):''}
     <circle cx="${maxPoint.x.toFixed(1)}" cy="${maxPoint.y.toFixed(1)}" r="3" fill="var(--amber)"/>
-    <text x="${Math.min(Math.max(maxPoint.x,18),CW-18).toFixed(1)}" y="${Math.max(maxPoint.y-8,10).toFixed(1)}" font-size="9" fill="var(--amber)" text-anchor="middle" font-weight="700">₱${Math.round(dailySpend[maxIdx]).toLocaleString()}</text>
+    <text x="${Math.min(Math.max(maxPoint.x,18),CW-18).toFixed(1)}" y="${(maxPoint.y>=17?maxPoint.y-8:maxPoint.y+15).toFixed(1)}" font-size="9" fill="var(--amber)" text-anchor="middle" font-weight="700">₱${Math.round(dailySpend[maxIdx]).toLocaleString()}</text>
     <circle cx="${lastPoint.x.toFixed(1)}" cy="${lastPoint.y.toFixed(1)}" r="3.5" fill="var(--teal)" stroke="var(--navy2)" stroke-width="1.5"/>
   </svg>`;
 
