@@ -44,32 +44,40 @@
   --w-sides:#F59E0B;
   --w-faith:#EF4444;
   --w-life:#8B5CF6;
-  /* ── Typography scale ── */
-  --text-xs:11px;
-  --text-sm:13px;
-  --text-md:15px;
-  --text-lg:28px;
-  --font:'Inter',Arial,sans-serif;
-  --font-display:'Inter',Arial,sans-serif;
-  --font-body:'Roboto','Inter',Arial,sans-serif;
-  /* DARK — J.A.R.V.I.S. tech-hard: absolute blacks, glowing cyans, amber alerts (only theme) */
-  --navy:#030508;--navy2:#07101a;--navy3:#0d1a2a;--navy4:#112034;
-  --teal:#80fffa;--teal2:#40e8e0;--teal3:rgba(128,255,250,.1);--teal4:rgba(128,255,250,.04);
-  --orange:#ff8c00;--orange2:#cc6e00;--orange3:rgba(255,140,0,.12);--orange4:rgba(255,140,0,.05);
-  --text1:#eafaff;--text2:#98d8f0;--text3:#3a7090;
-  --border:rgba(255,255,255,.07);--border2:rgba(255,255,255,.12);
-  --green:#00ff88;--red:#ff2244;--amber:#ffaa00;--purple:#bf5fff;--pink:#ff40a0;
-  --cyan-glow:0 0 14px rgba(128,255,250,.5);
-  --amber-glow:0 0 12px rgba(255,170,0,.5);
-  --red-glow:0 0 12px rgba(255,34,68,.5);
-  --card-shadow:0 0 0 rgba(0,0,0,0);
-  --hover-tint:rgba(255,255,255,.04);
-  --lock-backdrop:rgba(2,4,8,.85);
-  --modal-backdrop:rgba(0,0,0,.85);
-  --success-bg:rgba(0,255,136,.12);--success-text:#00ff88;
-  --warning-bg:rgba(255,170,0,.12);--warning-text:#ffaa00;
-  --danger-bg:rgba(255,34,68,.12);--danger-text:#ff2244;
-  --info-bg:rgba(128,255,250,.12);--info-text:#80fffa;
+  /* ── Typography scale — bumped up for readability ── */
+  --text-xs:12px;   /* Micro */
+  --text-sm:13px;   /* Caption */
+  --text-md:15px;   /* Body */
+  --text-lg:29px;   /* Large stat numbers (existing usage) */
+  --text-card-title:17px;
+  --text-section:21px;
+  --text-hero:45px;
+  --font:'Inter',-apple-system,BlinkMacSystemFont,'SF Pro Display',Arial,sans-serif;
+  --font-display:'Inter',-apple-system,BlinkMacSystemFont,'SF Pro Display',Arial,sans-serif;
+  --font-body:'Inter',-apple-system,BlinkMacSystemFont,'SF Pro Display',Arial,sans-serif;
+  /* ── Corner radius system ── */
+  --radius-card:26px;--radius-pill:999px;--radius-input:18px;--radius-dialog:30px;--radius-panel:28px;
+  /* V2 PALETTE, eye-comfort pass — background lifted off near-black, accent softened from
+     harsh neon lime to a calmer lime-gold so it doesn't strain against the dark surface. */
+  --navy:#0B0F14;--navy2:#10151C;--navy3:#161C25;--navy4:#1C232E;--navy5:#242C38;--navy-panel:#181F28;
+  --teal:#C9E85C;--teal2:#A8C94A;--teal3:rgba(201,232,92,.10);--teal4:rgba(201,232,92,.05);
+  --blue:#69A9FF;--blue2:rgba(105,169,255,.10);
+  --orange:#FFB547;--orange2:#D6962F;--orange3:rgba(255,181,71,.10);--orange4:rgba(255,181,71,.05);
+  --text1:#F5F6F7;--text2:rgba(245,246,247,.74);--text3:rgba(245,246,247,.50);--text4:rgba(245,246,247,.30);
+  --border:rgba(255,255,255,.05);--border2:rgba(255,255,255,.09);
+  --green:#58E39C;--red:#FF6B7F;--amber:#FFB547;--purple:#A774FF;--pink:#FF6BA3;
+  /* Glows removed per design direction — accents stay flat, no glowing buttons */
+  --cyan-glow:none;
+  --amber-glow:none;
+  --red-glow:none;
+  --card-shadow:0 20px 60px rgba(0,0,0,.35);
+  --hover-tint:rgba(255,255,255,.05);
+  --lock-backdrop:rgba(11,15,20,.90);
+  --modal-backdrop:rgba(11,15,20,.85);
+  --success-bg:rgba(88,227,156,.12);--success-text:#58E39C;
+  --warning-bg:rgba(255,181,71,.12);--warning-text:#FFB547;
+  --danger-bg:rgba(255,107,127,.12);--danger-text:#FF6B7F;
+  --info-bg:rgba(201,232,92,.12);--info-text:#C9E85C;
 }
 
 /* ── iOS Safari form control fix — prevent white/light default rendering ── */
@@ -190,7 +198,7 @@ select option{background:var(--navy3)}
 .ni i{font-size:var(--text-md);flex-shrink:0;line-height:1;display:block;opacity:.8}
 .ni:hover{background:var(--navy3);color:var(--text1)}
 .ni:hover i{opacity:1}
-.ni.active{background:var(--teal3);color:var(--teal);font-weight:700;border:1px solid var(--teal2);box-shadow:inset 0 0 8px rgba(128,255,250,.06)}
+.ni.active{background:var(--navy4);color:var(--text1);font-weight:600;border:none;border-left:2px solid var(--teal);box-shadow:none;padding-left:10px}
 .ni.active i{filter:drop-shadow(0 0 4px rgba(128,255,250,.4));opacity:1}
 .ni.active::after{content:'';margin-left:auto;width:5px;height:5px;border-radius:50%;background:var(--teal);flex-shrink:0}
 .ni.wo:hover,.ni.wo.active{background:rgba(255,140,0,.1);color:var(--orange)}
@@ -212,7 +220,7 @@ select option{background:var(--navy3)}
 @keyframes pulse{0%,100%{opacity:1;box-shadow:0 0 4px var(--green)}50%{opacity:.5;box-shadow:0 0 10px var(--green)}}
 
 /* TOPBAR */
-.tb-logo{font-size:var(--text-md);font-weight:900;color:var(--teal);letter-spacing:.18em;text-shadow:0 0 10px rgba(128,255,250,.7),0 0 24px rgba(128,255,250,.3)}
+.tb-logo{font-size:var(--text-md);letter-spacing:.01em}
 .tb-r{display:flex;align-items:center;gap:8px}
 .hpill{font-size:var(--text-sm);color:var(--teal2);background:var(--teal4);border:1px solid var(--border2);padding:4px 10px;border-radius:8px;display:flex;align-items:center;gap:6px;white-space:nowrap}
 .hdot{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green);animation:pulse 2s infinite;flex-shrink:0}
@@ -238,10 +246,10 @@ select option{background:var(--navy3)}
 .vb{flex:1;overflow-y:auto;padding:20px 24px;-webkit-overflow-scrolling:touch}
 
 /* BUTTONS */
-.btn{padding:6px 14px;border-radius:8px;font-size:var(--text-sm);font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:5px;transition:all .15s;-webkit-tap-highlight-color:transparent;touch-action:manipulation;user-select:none}
+.btn{padding:7px 16px;border-radius:var(--radius-pill);font-size:var(--text-sm);font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:5px;transition:all .15s;-webkit-tap-highlight-color:transparent;touch-action:manipulation;user-select:none}
 .btn i{font-size:var(--text-sm);line-height:1;display:block}
-.btn-t{background:rgba(128,255,250,.1);color:var(--teal);border:1px solid rgba(128,255,250,.2)}
-.btn-t:hover,.btn-t:active{background:var(--teal);color:var(--navy)}
+.btn-t{background:var(--teal);color:var(--navy);border:1px solid var(--teal);font-weight:700}
+.btn-t:hover,.btn-t:active{background:var(--teal2);border-color:var(--teal2)}
 .btn-o{background:rgba(255,140,0,.1);color:var(--orange);border:1px solid rgba(255,140,0,.25)}
 .btn-o:hover{background:var(--orange);color:var(--navy)}
 .btn-g{background:var(--hover-tint);color:var(--text2);border:1px solid var(--border2)}
@@ -252,7 +260,8 @@ select option{background:var(--navy3)}
 .btn-p:hover{background:var(--purple);color:white}
 
 /* CARDS */
-.hc{background:var(--navy2);border:1px solid var(--border);border-radius:24px;padding:24px;position:relative;overflow:hidden;transition:border-color .2s,box-shadow .2s;box-shadow:none}
+.hc{background:var(--navy2);border:1px solid var(--border);border-radius:var(--radius-card);padding:24px;position:relative;overflow:hidden;transition:border-color .2s,box-shadow .2s,transform .15s;box-shadow:none}
+.hc:hover{transform:translateY(-2px)}
 .hc:hover{border-color:var(--border2);box-shadow:var(--card-shadow)}
 .hc.oc:hover{border-color:rgba(255,140,0,.25);box-shadow:0 4px 24px rgba(255,140,0,.08)}
 .cl{font-size:11px;font-weight:600;letter-spacing:.06em;color:var(--text3);margin-bottom:8px;text-transform:uppercase}
@@ -574,11 +583,11 @@ select option{background:var(--navy3)}
 @keyframes tsl{from{transform:translateY(8px);opacity:0}to{transform:none;opacity:1}}
 
 /* CMD PALETTE */
-.cov{position:fixed;inset:0;background:rgba(4,13,26,.92);z-index:1000;display:none;align-items:flex-start;justify-content:center;padding-top:90px;backdrop-filter:blur(6px)}
+.cov{position:fixed;inset:0;background:rgba(11,15,20,.75);z-index:1000;display:none;align-items:flex-start;justify-content:center;padding-top:90px;backdrop-filter:blur(12px)}
 .cov.open{display:flex}
-.cbox{background:var(--navy2);border:1px solid var(--teal2);border-radius:12px;width:min(520px,94vw);box-shadow:0 0 40px rgba(0,212,200,.2)}
-.ciw{display:flex;align-items:center;gap:9px;padding:13px 15px;border-bottom:1px solid var(--border)}
-.cinput{border:none;background:transparent;font-size:var(--text-sm);flex:1;outline:none;color:var(--text1)}
+.cbox{background:var(--navy-panel);border:1px solid var(--border2);border-radius:var(--radius-panel);width:min(560px,94vw);box-shadow:var(--card-shadow)}
+.ciw{display:flex;align-items:center;gap:10px;padding:16px 20px;border-bottom:1px solid var(--border)}
+.cinput{border:none;background:transparent;font-size:var(--text-md);flex:1;outline:none;color:var(--text1)}
 .cres{max-height:320px;overflow-y:auto;padding:5px}
 .cgl{font-size:var(--text-xs);font-weight:700;letter-spacing:.1em;color:var(--text3);padding:7px 10px 3px;text-transform:uppercase}
 .cr{display:flex;align-items:center;gap:9px;padding:7px 10px;border-radius:10px;cursor:pointer}
@@ -665,27 +674,27 @@ select option{background:var(--navy3)}
   z-index:1;
 }
 .vorb.idle{
-  background:radial-gradient(circle at 35% 35%,rgba(128,255,250,.3),rgba(0,212,200,.15));
-  border:1px solid rgba(128,255,250,.4);
+  background:radial-gradient(circle at 35% 35%,var(--teal3),var(--teal4));
+  border:1px solid var(--border2);
   color:var(--teal);
-  box-shadow:0 0 12px rgba(128,255,250,.2);
+  box-shadow:none;
 }
 .vorb.listening{
-  background:radial-gradient(circle at 35% 35%,rgba(255,34,68,.4),rgba(255,34,68,.15));
-  border:1px solid rgba(255,34,68,.5);
-  color:var(--red);
-  box-shadow:0 0 16px rgba(255,34,68,.35);
-  animation:siri-orb-pulse 1.2s ease-in-out infinite;
+  background:radial-gradient(circle at 35% 35%,var(--teal3),var(--teal4));
+  border:1px solid var(--teal2);
+  color:var(--teal);
+  box-shadow:none;
+  animation:siri-orb-pulse 1.6s ease-in-out infinite;
 }
 .vorb.processing,.vorb.executing{
-  background:radial-gradient(circle at 35% 35%,rgba(128,255,250,.3),rgba(0,212,200,.15));
-  border:1px solid rgba(128,255,250,.4);
+  background:radial-gradient(circle at 35% 35%,var(--teal3),var(--teal4));
+  border:1px solid var(--border2);
   color:var(--teal);
-  animation:vspin .9s linear infinite;
+  animation:starBreatheScale 1.4s ease-in-out infinite;
 }
 @keyframes siri-orb-pulse{
-  0%,100%{box-shadow:0 0 12px rgba(255,34,68,.3),0 0 0 0 rgba(255,34,68,.25)}
-  50%{box-shadow:0 0 20px rgba(255,34,68,.5),0 0 0 6px rgba(255,34,68,0)}
+  0%,100%{box-shadow:0 0 0 0 var(--teal4)}
+  50%{box-shadow:0 0 0 8px transparent}
 }
 /* Siri waveform bars — shown during listening */
 .siri-wave{
@@ -818,7 +827,7 @@ select option{background:var(--navy3)}
 @keyframes neon-pulse{0%,100%{text-shadow:0 0 4px var(--teal)}50%{text-shadow:0 0 16px var(--teal),0 0 32px var(--teal2)}}
 
 .hc:hover{border-color:var(--teal2);box-shadow:0 0 12px rgba(0,212,200,.08)}
-.tb-logo{animation:neon-pulse 4s ease-in-out infinite}
+/* Logo pulse removed — calm, static per design direction */
 .kcard:hover{box-shadow:0 4px 20px rgba(0,212,200,.12),0 0 0 1px var(--teal2)}
 .btn-t:hover{box-shadow:0 0 12px rgba(0,212,200,.3)}
 .btn-d:hover{box-shadow:0 0 12px rgba(239,68,68,.3)}
@@ -3146,105 +3155,67 @@ select option{background:var(--navy3)}
 @keyframes bootspinrev{from{transform:rotate(0deg)}to{transform:rotate(-360deg)}}
 @keyframes bootfadeout{from{opacity:1;transform:scale(1)}to{opacity:0;transform:scale(1.05)}}
 @keyframes mbara{0%,100%{transform:scaleY(1)}50%{transform:scaleY(2.2)}}
+@keyframes starBreathe{0%,100%{opacity:.5;transform:scale(.9)}50%{opacity:1;transform:scale(1.15)}}
+@keyframes starBreatheScale{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+@keyframes bootWordmarkFade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
 @keyframes jelixglow{0%,100%{text-shadow:0 0 20px rgba(0,212,200,.4),0 0 60px rgba(0,212,200,.15)}50%{text-shadow:0 0 40px rgba(0,212,200,.8),0 0 100px rgba(0,212,200,.3),0 0 140px rgba(0,212,200,.1)}}
 @keyframes letterflicker{0%,100%{opacity:1}92%{opacity:1}93%{opacity:.4}94%{opacity:1}96%{opacity:.7}97%{opacity:1}}
 @keyframes scanline{0%{transform:translateY(-100%)}100%{transform:translateY(100vh)}}
 @keyframes bootpulse{0%,100%{opacity:.3}50%{opacity:1}}
 </style>
-<div id="bootScreen" style="position:fixed;inset:0;background:rgba(2,9,18,.85);z-index:99999;display:none;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;cursor:pointer" onclick="loadYTApi()">
-
-  <!-- SCANLINE EFFECT -->
-  <div style="position:absolute;inset:0;pointer-events:none;z-index:1;overflow:hidden">
-    <div style="position:absolute;left:0;right:0;height:2px;background:linear-gradient(180deg,transparent,rgba(0,212,200,.06),transparent);animation:scanline 4s linear infinite"></div>
-  </div>
-
-  <!-- GRID BACKGROUND -->
-  <div style="position:absolute;inset:0;pointer-events:none;z-index:0;background-image:linear-gradient(rgba(0,212,200,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,200,.025) 1px,transparent 1px);background-size:40px 40px"></div>
-
-  <!-- CORNER BRACKETS -->
-  <div style="position:absolute;top:24px;left:24px;width:40px;height:40px;border-top:2px solid rgba(0,212,200,.5);border-left:2px solid rgba(0,212,200,.5)"></div>
-  <div style="position:absolute;top:24px;right:24px;width:40px;height:40px;border-top:2px solid rgba(0,212,200,.5);border-right:2px solid rgba(0,212,200,.5)"></div>
-  <div style="position:absolute;bottom:24px;left:24px;width:40px;height:40px;border-bottom:2px solid rgba(0,212,200,.5);border-left:2px solid rgba(0,212,200,.5)"></div>
-  <div style="position:absolute;bottom:24px;right:24px;width:40px;height:40px;border-bottom:2px solid rgba(0,212,200,.5);border-right:2px solid rgba(0,212,200,.5)"></div>
-
-  <!-- TOP TAG -->
-  <div style="position:absolute;top:28px;left:50%;transform:translateX(-50%);font-size:var(--text-xs);color:rgba(0,212,200,.4);letter-spacing:.3em;font-family:monospace;white-space:nowrap">SYS :: JOB-SYSTEMS-v2.6 :: MANILA-PHT</div>
+<div id="bootScreen" style="position:fixed;inset:0;background:var(--navy);z-index:99999;display:none;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;cursor:pointer" onclick="loadYTApi()">
 
   <!-- CONTENT -->
-  <div style="position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:clamp(12px,3vh,32px);width:100%;max-width:min(680px,96vw);padding:0 clamp(12px,4vw,24px)">
+  <div style="position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:clamp(16px,3.5vh,32px);width:100%;max-width:min(420px,92vw);padding:0 clamp(12px,4vw,24px)">
 
-    <!-- ORBIT RINGS + LOGO -->
-    <div style="position:relative;width:min(240px,55vw);height:min(240px,55vw);flex-shrink:0">
-      <!-- outer ring -->
-      <svg style="position:absolute;inset:0;width:100%;height:100%;animation:bootspin 6s linear infinite" viewBox="0 0 240 240">
-        <circle cx="120" cy="120" r="114" stroke="rgba(0,212,200,.08)" stroke-width="1" fill="none"/>
-        <circle cx="120" cy="120" r="114" stroke="#00d4c8" stroke-width="1.5" fill="none" stroke-dasharray="80 636" stroke-linecap="round"/>
-        <circle cx="120" cy="120" r="114" stroke="#ff6b1a" stroke-width="1" fill="none" stroke-dasharray="20 636" stroke-dashoffset="-300" stroke-linecap="round"/>
+    <!-- NORTH STAR — glow expands, contracts. Calm, not a spinner. -->
+    <div style="position:relative;width:64px;height:64px;flex-shrink:0;display:flex;align-items:center;justify-content:center">
+      <div style="position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle,var(--teal3) 0%,transparent 70%);animation:starBreathe 1.8s ease-in-out infinite"></div>
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" style="position:relative;animation:starBreatheScale 1.8s ease-in-out infinite">
+        <path d="M12 1.5 C12.6 7 13 10.4 14.4 11.6 C15.6 13 19 13.4 24 14 C19 14.6 15.6 15 14.4 16.4 C13 17.6 12.6 21 12 26.5 C11.4 21 11 17.6 9.6 16.4 C8.4 15 5 14.6 0 14 C5 13.4 8.4 13 9.6 11.6 C11 10.4 11.4 7 12 1.5 Z" fill="var(--teal)"/>
+        <path d="M19 2 C19.3 4 19.5 5 20 5.6 C20.6 6.1 21.6 6.3 23.6 6.6 C21.6 6.9 20.6 7.1 20 7.6 C19.5 8.1 19.3 9.2 19 11.2 C18.7 9.2 18.5 8.1 18 7.6 C17.4 7.1 16.4 6.9 14.4 6.6 C16.4 6.3 17.4 6.1 18 5.6 C18.5 5 18.7 4 19 2 Z" fill="var(--teal)" opacity=".55"/>
       </svg>
-      <!-- mid ring -->
-      <svg style="position:absolute;top:8%;left:8%;width:84%;height:84%;animation:bootspinrev 4s linear infinite" viewBox="0 0 200 200">
-        <circle cx="100" cy="100" r="94" stroke="rgba(0,212,200,.06)" stroke-width="1" fill="none"/>
-        <circle cx="100" cy="100" r="94" stroke="#00a89e" stroke-width="1" fill="none" stroke-dasharray="50 591" stroke-linecap="round"/>
-        <circle cx="100" cy="100" r="94" stroke="#ff6b1a" stroke-width=".8" fill="none" stroke-dasharray="14 591" stroke-dashoffset="-200" stroke-linecap="round"/>
-      </svg>
-      <!-- inner ring -->
-      <svg style="position:absolute;top:44px;left:44px;width:152px;height:152px;animation:bootspin 2.5s linear infinite" viewBox="0 0 152 152">
-        <circle cx="76" cy="76" r="70" stroke="rgba(0,212,200,.05)" stroke-width="1" fill="none"/>
-        <circle cx="76" cy="76" r="70" stroke="rgba(255,107,26,.4)" stroke-width="1" fill="none" stroke-dasharray="25 440" stroke-linecap="round"/>
-      </svg>
-      <!-- CENTER LOGO — centered inside orbit -->
-      <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px">
-        <div style="font-size:clamp(22px,7vw,36px);font-weight:900;color:#00d4c8;letter-spacing:.05em;line-height:1.1;animation:jelixglow 3s ease-in-out infinite,letterflicker 7s infinite;font-family:Arial Black,Arial,sans-serif;text-align:center">J.O.B<br>Systems</div>
-        <div style="width:70%;height:1px;background:linear-gradient(90deg,transparent,#00d4c8,transparent);margin:4px 0"></div>
-        <div style="font-size:clamp(7px,1.8vw,10px);color:rgba(0,168,158,.8);letter-spacing:.35em;font-family:monospace;font-weight:700;text-transform:uppercase">PERSONAL OS</div>
-      </div>
-      <!-- corner ticks on orbit -->
-      <div style="position:absolute;top:0;left:50%;transform:translateX(-50%);width:6px;height:6px;background:#00d4c8;border-radius:50%;box-shadow:0 0 8px #00d4c8;animation:bootpulse 2s infinite"></div>
-      <div style="position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:4px;height:4px;background:#ff6b1a;border-radius:50%;box-shadow:0 0 6px #ff6b1a"></div>
     </div>
 
-    <!-- TITLE BLOCK -->
-    <div style="text-align:center">
-      <div style="font-size:var(--text-xs);font-weight:700;color:rgba(0,212,200,.8);letter-spacing:.06em;margin-bottom:4px;font-family:Arial Black,Arial,sans-serif">
-        <span style="color:#00d4c8">J</span>ustine &nbsp;·&nbsp;
-        <span style="color:#00d4c8">O</span>perating &nbsp;·&nbsp;
-        <span style="color:#00d4c8">B</span>lueprint
+    <!-- WORDMARK — fades in -->
+    <div style="text-align:center;animation:bootWordmarkFade 800ms ease-out">
+      <div style="font-size:var(--text-section);font-weight:600;letter-spacing:.01em;margin-bottom:2px">
+        <span style="color:var(--teal);font-weight:700">J.O.B</span><span style="color:var(--text2)"> Systems</span>
       </div>
-      <div style="font-size:var(--text-xs);color:rgba(0,168,158,.45);letter-spacing:.22em;text-transform:uppercase;margin-bottom:10px;font-family:monospace">Personal Operating System · Manila, PH</div>
-      <div id="bootStatus" style="font-size:var(--text-xs);color:rgba(0,212,200,.5);letter-spacing:.1em;min-height:18px;font-family:monospace;transition:all .3s">Initializing systems...</div>
+      <div style="font-size:var(--text-xs);color:var(--text4);letter-spacing:.16em;text-transform:uppercase">Personal Operating System</div>
     </div>
+
+    <div id="bootStatus" style="font-size:var(--text-sm);color:var(--text3);min-height:18px;transition:all .3s">Initializing...</div>
 
     <!-- PROGRESS BAR -->
-    <div style="width:min(460px,90vw);max-width:90vw">
-      <div style="height:3px;background:rgba(0,212,200,.08);border-radius:6px;overflow:hidden;margin-bottom:8px">
-        <div id="bootBar" style="height:100%;background:linear-gradient(90deg,#00d4c8,#00a89e,#ff6b1a);border-radius:6px;width:0%;transition:width .5s cubic-bezier(.4,0,.2,1);box-shadow:0 0 12px rgba(0,212,200,.6)"></div>
+    <div style="width:100%">
+      <div style="height:3px;background:var(--border2);border-radius:6px;overflow:hidden;margin-bottom:8px">
+        <div id="bootBar" style="height:100%;background:var(--teal);border-radius:6px;width:0%;transition:width .5s cubic-bezier(.4,0,.2,1)"></div>
       </div>
       <div style="display:flex;justify-content:space-between;align-items:center">
-        <div id="bootPct" style="font-size:var(--text-xs);color:rgba(0,212,200,.5);letter-spacing:.1em;font-family:monospace">0%</div>
-        <div style="font-size:var(--text-xs);color:rgba(58,104,120,.6);letter-spacing:.12em;font-family:monospace">SUPABASE · MANILA · PHT</div>
+        <div id="bootPct" style="font-size:var(--text-xs);color:var(--text3)">0%</div>
+        <div style="font-size:var(--text-xs);color:var(--text4)">Manila, PHT</div>
       </div>
     </div>
 
     <!-- BOOT LOG -->
-    <div id="bootLog" style="width:min(460px,90vw);max-width:90vw;font-size:var(--text-xs);color:rgba(0,168,158,.5);line-height:2;font-family:monospace;text-align:left;max-height:clamp(60px,12vh,110px);overflow:hidden"></div>
+    <div id="bootLog" style="width:100%;font-size:var(--text-xs);color:var(--text4);line-height:1.9;text-align:left;max-height:clamp(50px,10vh,90px);overflow:hidden"></div>
 
     <!-- MUSIC ROW -->
-    <div style="display:flex;align-items:center;gap:14px">
-      <div id="bootMusicBars" style="display:flex;gap:3px;align-items:flex-end;height:18px;opacity:.4">
-        <div style="width:3px;background:#00d4c8;border-radius:6px;animation:mbara .5s ease-in-out infinite;height:5px"></div>
-        <div style="width:3px;background:#00d4c8;border-radius:6px;animation:mbara .5s ease-in-out .08s infinite;height:11px"></div>
-        <div style="width:3px;background:#00d4c8;border-radius:6px;animation:mbara .5s ease-in-out .16s infinite;height:7px"></div>
-        <div style="width:3px;background:#00d4c8;border-radius:6px;animation:mbara .5s ease-in-out .24s infinite;height:14px"></div>
-        <div style="width:3px;background:#00d4c8;border-radius:6px;animation:mbara .5s ease-in-out .32s infinite;height:5px"></div>
-        <div style="width:3px;background:#00d4c8;border-radius:6px;animation:mbara .5s ease-in-out .4s infinite;height:9px"></div>
+    <div style="display:flex;align-items:center;gap:12px">
+      <div id="bootMusicBars" style="display:flex;gap:3px;align-items:flex-end;height:16px;opacity:.5">
+        <div style="width:3px;background:var(--teal);border-radius:6px;animation:mbara .5s ease-in-out infinite;height:5px"></div>
+        <div style="width:3px;background:var(--teal);border-radius:6px;animation:mbara .5s ease-in-out .08s infinite;height:11px"></div>
+        <div style="width:3px;background:var(--teal);border-radius:6px;animation:mbara .5s ease-in-out .16s infinite;height:7px"></div>
+        <div style="width:3px;background:var(--teal);border-radius:6px;animation:mbara .5s ease-in-out .24s infinite;height:14px"></div>
+        <div style="width:3px;background:var(--teal);border-radius:6px;animation:mbara .5s ease-in-out .32s infinite;height:5px"></div>
+        <div style="width:3px;background:var(--teal);border-radius:6px;animation:mbara .5s ease-in-out .4s infinite;height:9px"></div>
       </div>
-      <div id="bootMusicLabel" style="font-size:var(--text-xs);color:rgba(0,168,158,.4);letter-spacing:.12em;font-family:monospace">CLICK ANYWHERE TO PLAY MUSIC</div>
-      <button id="bootMuteBtn" onclick="event.stopPropagation();toggleBootMusic()" style="background:rgba(0,212,200,.06);border:1px solid rgba(0,212,200,.2);border-radius:8px;color:rgba(0,212,200,.5);font-size:var(--text-xs);padding:3px 10px;cursor:pointer;letter-spacing:.08em;font-family:monospace;transition:all .2s" onmouseover="this.style.background='rgba(0,212,200,.12)'" onmouseout="this.style.background='rgba(0,212,200,.06)'">MUTE</button>
+      <div id="bootMusicLabel" style="font-size:var(--text-xs);color:var(--text4)">Click anywhere to play music</div>
+      <button id="bootMuteBtn" onclick="event.stopPropagation();toggleBootMusic()" style="background:var(--navy4);border:1px solid var(--border2);border-radius:var(--radius-pill);color:var(--text3);font-size:var(--text-xs);padding:4px 12px;cursor:pointer;transition:all .2s" onmouseover="this.style.background='var(--navy5)'" onmouseout="this.style.background='var(--navy4)'">Mute</button>
     </div>
 
   </div><!-- end content -->
-
-
 
 </div>
 
@@ -3318,7 +3289,13 @@ select option{background:var(--navy3)}
   <header class="topbar">
     <div style="display:flex;align-items:center;gap:8px">
       <button id="navPeekBtn" onclick="toggleNav()" title="Show navigation" style="display:none;align-items:center;justify-content:center;width:30px;height:30px;border-radius:10px;cursor:pointer;background:rgba(0,255,242,.08);border:1px solid var(--teal2);color:var(--teal);font-size:var(--text-sm);flex-shrink:0"><i class="ti ti-layout-sidebar-left-expand" style="line-height:1;display:block"></i></button>
-      <div class="tb-logo">J.O.B Systems</div>
+      <div class="tb-logo" style="display:flex;align-items:center;gap:8px">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" style="flex-shrink:0">
+          <path d="M12 1.5 C12.6 7 13 10.4 14.4 11.6 C15.6 13 19 13.4 24 14 C19 14.6 15.6 15 14.4 16.4 C13 17.6 12.6 21 12 26.5 C11.4 21 11 17.6 9.6 16.4 C8.4 15 5 14.6 0 14 C5 13.4 8.4 13 9.6 11.6 C11 10.4 11.4 7 12 1.5 Z" fill="var(--teal)"/>
+          <path d="M19 2 C19.3 4 19.5 5 20 5.6 C20.6 6.1 21.6 6.3 23.6 6.6 C21.6 6.9 20.6 7.1 20 7.6 C19.5 8.1 19.3 9.2 19 11.2 C18.7 9.2 18.5 8.1 18 7.6 C17.4 7.1 16.4 6.9 14.4 6.6 C16.4 6.3 17.4 6.1 18 5.6 C18.5 5 18.7 4 19 2 Z" fill="var(--teal)" opacity=".55"/>
+        </svg>
+        <span><span style="color:var(--teal);font-weight:700">J.O.B</span><span style="color:var(--text2);font-weight:400"> Systems</span></span>
+      </div>
       <div style="height:24px;width:1px;background:var(--border2)"></div>
       <div id="desktopSearchBar" style="background:var(--navy3);border:1px solid transparent;border-radius:100px;padding:8px 16px;display:flex;align-items:center;gap:10px;cursor:pointer;width:clamp(120px,20vw,280px)" onclick="openCmd()">
         <i class="ti ti-search" style="color:var(--text3);font-size:var(--text-xs);line-height:1;display:block"></i>
@@ -3331,7 +3308,6 @@ select option{background:var(--navy3)}
       <span id="tickerTime" style="font-weight:700;color:var(--teal)">--:--</span>
       <span id="tickerDate">--</span>
       <span id="tickerWeather"><i class="ti ti-cloud" style="font-size:10px;vertical-align:middle"></i> -- °C</span>
-      <span id="tickerFx" title="USD to PHP, updates every 30 min">USD/PHP --</span>
     </div>
       <div class="tb-r">
 
@@ -3360,8 +3336,8 @@ select option{background:var(--navy3)}
             <div class="acct-menu-item" onclick="setGeminiAPIKey()" id="geminiKeyBtn"><i class="ti ti-brand-google" style="color:#4285F4"></i><span>Gemini Key</span></div>
             <div class="acct-menu-item" onclick="setView('history')"><i class="ti ti-history"></i><span>Activity History</span></div>
             <div style="height:1px;background:var(--border);margin:6px 0"></div>
-            <div class="acct-menu-item" onclick="if(confirm('Sign out completely, sir? You\'ll need your email and password to sign back in.'))authSignOut()"><i class="ti ti-logout" style="color:var(--red)"></i><span style="color:var(--red)">Sign Out</span></div>
-            <div class="acct-menu-item" onclick="if(confirm('Sign out on every device, sir? Use this if a device is lost or you suspect someone else has access. All sessions everywhere will need to sign in again.'))authSignOutEverywhere()"><i class="ti ti-shield-x" style="color:var(--red)"></i><span style="color:var(--red)">Sign Out Everywhere</span></div>
+            <div class="acct-menu-item" onclick="if(confirm('Sign out completely? You\'ll need your email and password to sign back in.'))authSignOut()"><i class="ti ti-logout" style="color:var(--red)"></i><span style="color:var(--red)">Sign Out</span></div>
+            <div class="acct-menu-item" onclick="if(confirm('Sign out on every device? Use this if a device is lost or you suspect someone else has access. All sessions everywhere will need to sign in again.'))authSignOutEverywhere()"><i class="ti ti-shield-x" style="color:var(--red)"></i><span style="color:var(--red)">Sign Out Everywhere</span></div>
             <div style="height:1px;background:var(--border);margin:6px 0"></div>
             <div class="acct-menu-item"><i class="ti ti-cloud"></i><span id="weatherText">-- °C</span><span style="margin-left:auto;font-size:var(--text-xs);color:var(--text3)" id="topDate"></span></div>
           </div>
@@ -3639,7 +3615,7 @@ select option{background:var(--navy3)}
 
             <!-- CREDENTIALS VAULT (usernames/links only — no passwords, per policy) -->
             <div id="mktg-vault" style="display:none">
-              <div style="background:rgba(255,170,0,.08);border:1px solid rgba(255,170,0,.3);border-radius:12px;padding:10px 14px;margin-bottom:12px;font-size:var(--text-xs);color:var(--amber);display:flex;align-items:center;gap:8px"><i class="ti ti-shield-lock" style="font-size:var(--text-sm)"></i>Usernames and login links only, sir — passwords stay in your password manager, never stored here.</div>
+              <div style="background:rgba(255,170,0,.08);border:1px solid rgba(255,170,0,.3);border-radius:12px;padding:10px 14px;margin-bottom:12px;font-size:var(--text-xs);color:var(--amber);display:flex;align-items:center;gap:8px"><i class="ti ti-shield-lock" style="font-size:var(--text-sm)"></i>Usernames and login links only — passwords stay in your password manager, never stored here.</div>
               <div style="display:flex;justify-content:flex-end;margin-bottom:10px"><button class="btn btn-o" style="font-size:var(--text-xs)" onclick="openCredentialModal()"><i class="ti ti-plus"></i> Credential</button></div>
               <div id="credentialGrid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px"></div>
             </div>
@@ -4334,7 +4310,7 @@ select option{background:var(--navy3)}
                 </div>
                 <div style="margin-bottom:12px">
                   <div style="font-size:var(--text-xs);color:var(--text3);margin-bottom:5px">Notes</div>
-                  <textarea class="mi" id="wellnessNotes" rows="2" placeholder="How are you feeling today, sir?" style="resize:none"></textarea>
+                  <textarea class="mi" id="wellnessNotes" rows="2" placeholder="How are you feeling today?" style="resize:none"></textarea>
                 </div>
                 <button class="btn btn-t" style="width:100%;font-size:var(--text-xs);justify-content:center" onclick="saveWellness()"><i class="ti ti-check" style="font-size:var(--text-xs);line-height:1;display:inline-block;margin-right:4px"></i>Save Today's Check-in</button>
               </div>
@@ -4687,7 +4663,7 @@ select option{background:var(--navy3)}
             </div>
           </div>
           <div class="ai-msgs" id="aiMsgs">
-            <div class="mr-row"><div class="mav aiv">J</div><div><div class="mbubble ai">Hello, sir. J.O.B Systems online.\n\nSay "hey jelix" to activate voice. Press Space to push-to-talk.\nAll worlds and Supabase connected. How can I assist?</div><div class="mtime" id="initTime"></div></div></div>
+            <div class="mr-row"><div class="mav aiv">J</div><div><div class="mbubble ai">Hello. J.O.B Systems online.\n\nSay "hey jelix" to activate voice. Press Space to push-to-talk.\nAll worlds and Supabase connected. How can I assist?</div><div class="mtime" id="initTime"></div></div></div>
           </div>
           <div class="ai-input-area">
             <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:7px">
@@ -4749,7 +4725,7 @@ select option{background:var(--navy3)}
       <div class="vb" id="jarvisMorningBody">
         <div style="text-align:center;padding:40px;color:var(--text3);font-size:var(--text-sm)">
           <i class="ti ti-sun" style="font-size:32px;display:block;margin-bottom:12px;color:var(--amber)"></i>
-          Click <strong style="color:var(--amber)">Run Brief</strong> to generate your morning intelligence report, sir.
+          Click <strong style="color:var(--amber)">Run Brief</strong> to generate your morning intelligence report.
         </div>
       </div>
     </div>
@@ -4833,7 +4809,7 @@ select option{background:var(--navy3)}
         <div class="va"><button class="btn btn-t" onclick="renderContextEngine()"><i class="ti ti-refresh"></i> Refresh</button></div>
       </div>
       <div class="vb" style="padding:20px 24px;overflow-y:auto" id="contextEngineBody">
-        <div style="text-align:center;padding:40px;color:var(--text3)"><i class="ti ti-brain" style="font-size:32px;display:block;margin-bottom:10px;opacity:.3"></i>Click Refresh to generate your context snapshot, sir.</div>
+        <div style="text-align:center;padding:40px;color:var(--text3)"><i class="ti ti-brain" style="font-size:32px;display:block;margin-bottom:10px;opacity:.3"></i>Click Refresh to generate your context snapshot.</div>
       </div>
     </div>
 
@@ -5272,7 +5248,7 @@ async function authSignOutEverywhere(){
     // the more important thing is this device stops trusting the old session.
   }
   localStorage.removeItem('j-auth-session');
-  showToast('Signed out on every device, sir.');
+  showToast('Signed out on every device.');
   setTimeout(()=>window.location.reload(),800);
 }
 let _authMode='signin';
@@ -5289,7 +5265,7 @@ async function submitAuthForm(){
   const errEl=document.getElementById('authScreenError');
   const btn=document.getElementById('authSubmitBtn');
   errEl.style.display='none';
-  if(!email||!password){errEl.textContent='Enter both email and password, sir.';errEl.style.display='block';return;}
+  if(!email||!password){errEl.textContent='Enter both email and password.';errEl.style.display='block';return;}
   if(password.length<6){errEl.textContent='Password must be at least 6 characters.';errEl.style.display='block';return;}
   btn.disabled=true;btn.textContent='Please wait...';
   const result=_authMode==='signin'?await authSignIn(email,password):await authSignUp(email,password);
@@ -5481,7 +5457,7 @@ function initRealtime(){
 async function loadAllFromSupabase(){
   showToast('↻ Syncing with Supabase...');
   await Promise.all([SB.load('tasks','tasks'),SB.load('clients','clients'),SB.load('venture','venture'),SB.load('faith','faith'),SB.load('cashflow','cashflow'),SB.load('cal_events','calEvents'),SB.load('journal','journal'),SB.load('notes','notes'),SB.load('memories','memories'),SB.load('sides','sides'),SB.load('history','history'),SB.load('loans','loans'),SB.load('accounts','accounts'),SB.load('collateral','collateral'),SB.load('social_posts','socialPosts'),SB.load('creative_projects','creativeProjects'),SB.load('pipeline','pipeline'),SB.load('campaigns','campaigns'),SB.load('influencers','influencers'),SB.load('pricing','pricing'),SB.load('credentials','credentials')]);
-  reRenderAll();showToast('✓ Supabase synced');speak('All systems synced, sir.');
+  reRenderAll();showToast('✓ Supabase synced');speak('All systems synced.');
 }
 // ═══════════════════════════════════════════════════════════════════════════
 // STORE — Centralized render bus
@@ -5525,15 +5501,29 @@ const Store={
 function reRenderAll(){Store.notifyAll();}
 
 // ── Dynamic sidebar world nav ─────────────────────────────────────────────
+function _miniProgressRing(pct,color){
+  const r=7,c=2*Math.PI*r;
+  const offset=c-(pct/100)*c;
+  return `<svg width="18" height="18" viewBox="0 0 18 18" style="flex-shrink:0;transform:rotate(-90deg)">
+    <circle cx="9" cy="9" r="${r}" fill="none" stroke="var(--border2)" stroke-width="2"/>
+    <circle cx="9" cy="9" r="${r}" fill="none" stroke="${color}" stroke-width="2" stroke-dasharray="${c}" stroke-dashoffset="${offset}" stroke-linecap="round"/>
+  </svg>`;
+}
 function renderSideNav(){
   const container=document.getElementById('navWorldsList');
   if(!container)return;
   container.innerHTML=(DB.worlds||[]).map(function(w){
     const colorVal=(w.color&&/^#/.test(w.color))?w.color:('var('+(w.cssVar||'--w-ideahub')+')');
+    const worldTasks=(DB.tasks||[]).filter(t=>t.world===w.id.toUpperCase());
+    const doneCount=worldTasks.filter(t=>t.status==='Done').length;
+    const openCount=worldTasks.length-doneCount;
+    const pct=worldTasks.length?Math.round((doneCount/worldTasks.length)*100):0;
     return '<div class="ni world-ni" data-view="'+w.id+'" data-world-id="'+w.id+'" title="'+w.label+'" style="cursor:pointer;position:relative;--ni-color:'+colorVal+'">'
       +'<i class="ti '+(w.icon||'ti-star')+'" style="color:'+colorVal+'"></i>'
-      +'<span style="flex:1">'+w.label+'</span>'
-      +'<button data-edit-world="'+w.id+'" style="margin-left:auto;background:transparent;border:none;color:var(--text3);cursor:pointer;font-size:var(--text-xs);padding:2px 5px;opacity:0;transition:opacity .15s" class="world-edit-btn" title="Edit"><i class="ti ti-pencil" style="font-size:var(--text-xs);line-height:1;display:block"></i></button>'
+      +'<span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+w.label+'</span>'
+      +(openCount?'<span style="font-size:var(--text-xs);color:var(--text3);flex-shrink:0;margin-right:4px">'+openCount+'</span>':'')
+      +_miniProgressRing(pct,colorVal)
+      +'<button data-edit-world="'+w.id+'" style="margin-left:4px;background:transparent;border:none;color:var(--text3);cursor:pointer;font-size:var(--text-xs);padding:2px 5px;opacity:0;transition:opacity .15s;flex-shrink:0" class="world-edit-btn" title="Edit"><i class="ti ti-pencil" style="font-size:var(--text-xs);line-height:1;display:block"></i></button>'
       +'</div>';
   }).join('');
   // Attach click handlers safely (no inline quotes)
@@ -5715,7 +5705,7 @@ function saveWorld(){
 function deleteWorld(id){
   const w=(DB.worlds||[]).find(x=>x.id===id);
   if(!w){showToast('Domain not found');return;}
-  if(w.id==='work-ih'||w.id==='work-cs'){showToast('Cannot delete primary WORK worlds, sir.');return;}
+  if(w.id==='work-ih'||w.id==='work-cs'){showToast('Cannot delete primary WORK worlds.');return;}
   if(!confirm(`Delete world "${w.label}"?`))return;
   DB.worlds=DB.worlds.filter(x=>x.id!==id);
   save('worlds');
@@ -5937,11 +5927,11 @@ function lockOS(){
     app.style.display='none';
     ls.style.display='flex';
     ls.style.opacity='1';
-    showToast('System locked, sir.');
+    showToast('System locked.');
     speak('J.O.B Systems locked. Enter PIN to continue.');
   }
 }
-function toggleMute(){isMuted=!isMuted;const btn=document.getElementById('muteBtn'),icon=document.getElementById('muteIcon'),label=document.getElementById('acctMuteLabel');if(isMuted){speechSynthesis.cancel();if(currentAudio){currentAudio.pause();currentAudio=null;}icon.className='ti ti-volume-off';btn.style.borderColor='var(--red)';btn.style.color='var(--red)';if(label)label.textContent='Voice Output: Off';showToast('Voice muted');}else{icon.className='ti ti-volume';btn.style.borderColor='var(--border2)';btn.style.color='var(--text2)';if(label)label.textContent='Voice Output: On';speak('Voice activated. J.O.B Systems online, sir.');}}
+function toggleMute(){isMuted=!isMuted;const btn=document.getElementById('muteBtn'),icon=document.getElementById('muteIcon'),label=document.getElementById('acctMuteLabel');if(isMuted){speechSynthesis.cancel();if(currentAudio){currentAudio.pause();currentAudio=null;}icon.className='ti ti-volume-off';btn.style.borderColor='var(--red)';btn.style.color='var(--red)';if(label)label.textContent='Voice Output: Off';showToast('Voice muted');}else{icon.className='ti ti-volume';btn.style.borderColor='var(--border2)';btn.style.color='var(--text2)';if(label)label.textContent='Voice Output: On';speak('Voice activated. J.O.B Systems online.');}}
 
 // ── Topbar: Account menu + Notifications dropdown ──────────────────────
 function toggleAccountMenu(e){
@@ -6058,13 +6048,13 @@ function renderTopNotifPanel(){
         <i class="ti ti-calendar-event" style="color:var(--teal);margin-top:2px"></i>
         <div style="min-width:0"><div style="font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${e.title}</div><div style="font-size:var(--text-xs);color:var(--text3)">${e.time?to12h(e.time):'All day'}</div></div>
       </div>`).join('')}
-      ${!totalCount?'<div style="padding:20px;text-align:center;color:var(--text3);font-size:var(--text-sm)">All clear, sir.</div>':''}
+      ${!totalCount?'<div style="padding:20px;text-align:center;color:var(--text3);font-size:var(--text-sm)">All clear.</div>':''}
     </div>
   `;
   const badge=document.getElementById('topNotifBadge');
   if(badge)badge.style.display=totalCount?'block':'none';
 }
-function setOpenAIKey(){const e=localStorage.getItem('jelix-openai-key')||'';const k=prompt('Enter your OpenAI API key for ONYX voice:\n\nLeave blank to remove.',e);if(k===null)return;if(k.trim()){localStorage.setItem('jelix-openai-key',k.trim());showToast('ONYX key saved. Premium voice enabled.');speak('Premium voice activated. Good evening, sir.');}else{localStorage.removeItem('jelix-openai-key');showToast('Key removed. Using browser voice.');}}
+function setOpenAIKey(){const e=localStorage.getItem('jelix-openai-key')||'';const k=prompt('Enter your OpenAI API key for ONYX voice:\n\nLeave blank to remove.',e);if(k===null)return;if(k.trim()){localStorage.setItem('jelix-openai-key',k.trim());showToast('ONYX key saved. Premium voice enabled.');speak('Premium voice activated. Good evening.');}else{localStorage.removeItem('jelix-openai-key');showToast('Key removed. Using browser voice.');}}
 // ── Unified AI provider call — routes to Claude or Gemini based on preference ──
 async function callAIProvider(system,msgs,opts){
   opts=opts||{};
@@ -6073,7 +6063,7 @@ async function callAIProvider(system,msgs,opts){
 
   if(provider==='gemini'){
     const geminiKey=localStorage.getItem('j-gemini-key');
-    if(!geminiKey)return{ok:false,error:'No Gemini API key configured, sir. Add one in Settings.'};
+    if(!geminiKey)return{ok:false,error:'No Gemini API key configured. Add one in Settings.'};
     try{
       const contents=msgs.map(m=>({role:m.role==='assistant'?'model':'user',parts:[{text:m.content}]}));
       const model=localStorage.getItem('j-gemini-model')||'gemini-3.5-flash';
@@ -6093,7 +6083,7 @@ async function callAIProvider(system,msgs,opts){
       }
       const data=await res.json();
       const text=(data.candidates?.[0]?.content?.parts||[]).map(p=>p.text||'').join('\n').trim();
-      return{ok:true,text:text||'No response, sir.'};
+      return{ok:true,text:text||'No response.'};
     }catch(e){
       return{ok:false,error:e.message};
     }
@@ -6101,7 +6091,7 @@ async function callAIProvider(system,msgs,opts){
 
   // Default: Claude
   const antKey=localStorage.getItem('job-api-key')||localStorage.getItem('j-jelix-api-key')||localStorage.getItem('j-anthropic-key');
-  if(!antKey)return{ok:false,error:'No Anthropic API key configured, sir. Add one in Settings.'};
+  if(!antKey)return{ok:false,error:'No Anthropic API key configured. Add one in Settings.'};
   try{
     const body={model:'claude-sonnet-4-6',max_tokens:maxTokens,system,messages:msgs};
     if(opts.tools)body.tools=opts.tools;
@@ -6114,7 +6104,7 @@ async function callAIProvider(system,msgs,opts){
     const data=await res.json();
     const text=(data.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('\n').trim()
       ||(data.content||[]).map(b=>b.text||'').join('\n').trim();
-    return{ok:true,text:text||'No response, sir.'};
+    return{ok:true,text:text||'No response.'};
   }catch(e){
     return{ok:false,error:e.message};
   }
@@ -6198,7 +6188,7 @@ async function _handleGoogleOAuthCallback(){
       localStorage.setItem('j-google-access-token',data.access_token);
       localStorage.setItem('j-google-token-expiry',String(expiry));
       if(data.refresh_token)localStorage.setItem('j-google-refresh-token',data.refresh_token);
-      showToast('✓ Google Workspace connected, sir.');
+      showToast('✓ Google Workspace connected.');
     }else{
       showToast('⚠ Google connection failed: '+(data.error_description||data.error||'unknown error'));
       console.error('Google OAuth token exchange failed',data);
@@ -6221,7 +6211,7 @@ function isGoogleWorkspaceConnected(){
   return !!token&&Date.now()<expiry;
 }
 function disconnectGoogleWorkspace(){
-  if(!confirm('Disconnect your Google Workspace account, sir?'))return;
+  if(!confirm('Disconnect your Google Workspace account?'))return;
   localStorage.removeItem('j-google-access-token');
   localStorage.removeItem('j-google-token-expiry');
   localStorage.removeItem('j-google-refresh-token');
@@ -6296,13 +6286,13 @@ function setGeminiAPIKey(){
     return;
   }
   if(trimmed.length<20){
-    showToast('⚠ That looks too short to be a real API key, sir.');
+    showToast('⚠ That looks too short to be a real API key.');
     return;
   }
   if(!trimmed.startsWith('AIza')){
     showToast('⚠ Saved — but this doesn\'t match the standard AIza... format Google AI Studio issues. If it fails, get a fresh key at aistudio.google.com/apikey.');
   }else{
-    showToast('✓ Gemini key saved, sir.');
+    showToast('✓ Gemini key saved.');
   }
   localStorage.setItem('j-gemini-key',trimmed);
 }
@@ -6315,8 +6305,8 @@ function setJelixAPIKey(){
     localStorage.setItem('job-api-key',k.trim());
     const btn=document.getElementById('apiKeyBtn');
     if(btn){btn.style.color='var(--green)';btn.style.borderColor='var(--green)';btn.textContent='KEY ✓';}
-    showToast('✓ API key saved. AI agents ready, sir.');
-    speak('AI agents online, sir.');
+    showToast('✓ API key saved. AI agents ready.');
+    speak('AI agents online.');
   }else if(k.trim()===''){
     localStorage.removeItem('job-api-key');
     const btn=document.getElementById('apiKeyBtn');
@@ -6470,7 +6460,7 @@ function updateSystemPin(){
   if(/^\d{4}$/.test(input)){
     setSystemPin(input);
     document.getElementById('set-new-pin').value='';
-    showToast('✓ System PIN updated, sir.');
+    showToast('✓ System PIN updated.');
   }else{
     showToast('⚠ PIN must be exactly 4 digits.');
   }
@@ -6486,7 +6476,7 @@ function toggleBiometricSetting(){
 
 function saveKey(storageKey,inputId){
   const val=document.getElementById(inputId)?.value.trim()||'';
-  if(val){localStorage.setItem(storageKey,val);showToast('✓ Key saved, sir.');}
+  if(val){localStorage.setItem(storageKey,val);showToast('✓ Key saved.');}
   else{localStorage.removeItem(storageKey);showToast('Key removed.');}
   // Refresh topbar key indicator
   const btn=document.getElementById('apiKeyBtn');
@@ -6503,7 +6493,7 @@ function exportLocalDB(){
   a.href=URL.createObjectURL(blob);
   a.download='JELIX_Backup_'+localDateStr(new Date())+'.json';
   a.click();
-  showToast('✓ Backup downloaded, sir.');
+  showToast('✓ Backup downloaded.');
 }
 
 function importLocalDB(event){
@@ -7032,28 +7022,6 @@ async function fetchWeather(){
 }
 fetchWeather();setInterval(fetchWeather,600000);
 
-// ── USD → PHP live conversion (free, no key — Frankfurter API) ─────────
-async function fetchFxRate(){
-  const el=document.getElementById('tickerFx');if(!el)return;
-  try{
-    const cached=JSON.parse(localStorage.getItem('j-fx-usd-php')||'null');
-    const now=Date.now();
-    if(cached&&(now-cached.ts)<1800000){ // reuse cache under 30 min old
-      el.textContent='USD/PHP ₱'+cached.rate.toFixed(2);
-      return;
-    }
-    const r=await fetch('https://api.frankfurter.app/latest?from=USD&to=PHP');
-    const d=await r.json();
-    const rate=d.rates.PHP;
-    localStorage.setItem('j-fx-usd-php',JSON.stringify({rate,ts:now}));
-    el.textContent='USD/PHP ₱'+rate.toFixed(2);
-  }catch(e){
-    const cached=JSON.parse(localStorage.getItem('j-fx-usd-php')||'null');
-    el.textContent=cached?('USD/PHP ₱'+cached.rate.toFixed(2)):'USD/PHP —';
-  }
-}
-fetchFxRate();setInterval(fetchFxRate,1800000);
-
 // ===== VIEWS =====
 let currentView='dashboard';
 function setView(v){
@@ -7145,7 +7113,7 @@ function _populateMmmStatus(){
     // Greeting by hour
     const h=new Date().getHours();
     const greetEl=document.getElementById('mmmGreeting');
-    if(greetEl)greetEl.textContent=(h<12?'Good morning':h<17?'Good afternoon':'Good evening')+', sir.';
+    if(greetEl)greetEl.textContent=(h<12?'Good morning':h<17?'Good afternoon':'Good evening')+'.';
     // Date
     const dateEl=document.getElementById('mmmDate');
     if(dateEl){
@@ -7579,7 +7547,7 @@ function renderBriefWorldTasks(){
       </div>`;
     });
   });
-  el.innerHTML=rows||'<div style="font-size:var(--text-xs);color:var(--text3);padding:10px">No tasks yet, sir.</div>';
+  el.innerHTML=rows||'<div style="font-size:var(--text-xs);color:var(--text3);padding:10px">No tasks yet.</div>';
   // Hide the desktop table header on mobile since cards carry their own labels
   const headerRow=el.previousElementSibling;
   if(headerRow&&headerRow.style.gridTemplateColumns)headerRow.style.display=window.innerWidth<=768?'none':'grid';
@@ -7706,16 +7674,29 @@ function renderOverheadScoreboard(){
     {icon:'ti-heart',label:'Faith Open Tasks',val:faithOpenTasks,color:'var(--pink)',bg:'rgba(255,40,160,.07)',onclick:"setView('faith')"},
   ];
 
-  el.innerHTML=tiles.map(t=>`
-    <div onclick="${t.onclick}" style="background:${t.bg};border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:10px 12px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden"
-      onmouseover="this.style.borderColor='${t.color}';this.style.boxShadow='0 0 12px ${t.bg}'"
-      onmouseout="this.style.borderColor='rgba(255,255,255,.06)';this.style.boxShadow='none'">
-      <div style="display:flex;align-items:center;gap:5px;margin-bottom:5px">
-        <i class="ti ${t.icon}" style="font-size:var(--text-xs);color:${t.color};line-height:1;display:block"></i>
-        <span style="font-size:var(--text-xs);font-weight:700;letter-spacing:.1em;color:var(--text3);text-transform:uppercase">${t.label}</span>
+  el.innerHTML=tiles.map(t=>{
+    // Small illustrative sparkline — deterministic per tile so it's stable across renders, not random noise
+    const seed=t.label.split('').reduce((s,c)=>s+c.charCodeAt(0),0);
+    const pts=Array.from({length:8},(_,i)=>{
+      const wobble=Math.sin(seed+i*1.7)*0.5+0.5;
+      return 4+wobble*16;
+    });
+    const path=pts.map((y,i)=>(i===0?'M':'L')+(i*(60/7)).toFixed(1)+','+(24-y).toFixed(1)).join(' ');
+    const spark=`<svg width="60" height="24" viewBox="0 0 60 24" style="display:block"><path d="${path}" fill="none" stroke="${t.color}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" opacity=".55"/></svg>`;
+    return `
+    <div onclick="${t.onclick}" style="background:var(--navy2);border:1px solid var(--border);border-radius:var(--radius-card);padding:16px 18px;cursor:pointer;transition:transform .15s,border-color .2s;position:relative;overflow:hidden"
+      onmouseover="this.style.borderColor='var(--border2)';this.style.transform='translateY(-2px)'"
+      onmouseout="this.style.borderColor='var(--border)';this.style.transform='translateY(0)'">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px">
+        <div style="display:flex;align-items:center;gap:6px">
+          <i class="ti ${t.icon}" style="font-size:var(--text-sm);color:${t.color};line-height:1;display:block"></i>
+          <span style="font-size:var(--text-xs);font-weight:600;letter-spacing:.04em;color:var(--text3);text-transform:uppercase">${t.label}</span>
+        </div>
+        ${spark}
       </div>
-      <div style="font-size:var(--text-lg);font-weight:800;color:${t.color};line-height:1;font-variant-numeric:tabular-nums">${t.val}</div>
-    </div>`).join('');
+      <div style="font-size:var(--text-lg);font-weight:700;color:var(--text1);line-height:1;font-variant-numeric:tabular-nums">${t.val}</div>
+    </div>`;
+  }).join('');
 }
 
 // ===== SMART SEARCH — content-aware =====
@@ -7886,7 +7867,7 @@ function buildDailyBriefSummary(){
   const urgent=(DB.clients||[]).filter(c=>c.status==='Urgent').length;
 
   let parts=[];
-  parts.push(`${greeting}, sir. J.O.B Systems online. Today is ${day}.`);
+  parts.push(`${greeting}. J.O.B Systems online. Today is ${day}.`);
 
   if(overdue.length>0) parts.push(`You have ${overdue.length} overdue task${overdue.length>1?'s':''} past their deadline.`);
   if(highPrio.length>0) parts.push(`${highPrio.length} high-priority task${highPrio.length>1?'s require':' requires'} attention.`);
@@ -7904,7 +7885,7 @@ function buildDailyBriefSummary(){
   }
   if(urgent>0) parts.push(`${urgent} urgent client${urgent>1?'s':''} need${urgent===1?'s':''} follow-up.`);
   parts.push(`Cash balance: ${balance>0?'surplus of':'deficit of'} ${Math.abs(Math.round(balance)).toLocaleString()} pesos.`);
-  parts.push(`All systems nominal. Standing by, sir.`);
+  parts.push(`All systems nominal. Standing by.`);
 
   return parts.join(' ');
 }
@@ -7914,7 +7895,7 @@ function editMonthlyBudget(){
   const val=prompt('Set your monthly budget limit (₱):',cur);
   if(val===null)return;
   const num=parseFloat(val.replace(/[^0-9.]/g,''));
-  if(isNaN(num)||num<=0){showToast('⚠ Enter a valid amount, sir.');return;}
+  if(isNaN(num)||num<=0){showToast('⚠ Enter a valid amount.');return;}
   DB.budget={monthlyLimit:num};
   localStorage.setItem('j-budget',JSON.stringify(DB.budget));
   renderBrief();
@@ -8021,7 +8002,7 @@ function renderBrief(){
         <div style="font-size:var(--text-xs);color:var(--text3);margin-top:1px">World: <span style="color:${worldColor(t.world)}">${t.world}</span>${t.client?' · '+t.client:''}${t.link?' · Link: <span style="color:var(--teal)">'+t.link+'</span>':''}</div>
       </div>
       <button onclick="event.stopPropagation();editTask(${t.id})" style="background:transparent;border:1px solid var(--border2);border-radius:8px;color:var(--text3);font-size:var(--text-xs);padding:3px 9px;cursor:pointer;flex-shrink:0;white-space:nowrap" onmouseover="this.style.borderColor='var(--teal)';this.style.color='var(--teal)'" onmouseout="this.style.borderColor='var(--border2)';this.style.color='var(--text3)'">Direct entry</button>
-    </div>`).join('')||`<div style="font-size:var(--text-xs);color:var(--text3);padding:8px;text-align:center">No high-priority tasks. Clean slate, sir.</div>`;
+    </div>`).join('')||`<div style="font-size:var(--text-xs);color:var(--text3);padding:8px;text-align:center">No high-priority tasks. Clean slate.</div>`;
 
   const due=DB.tasks.filter(t=>t.status!=='Done').length;
   const badge=document.getElementById('taskBadge');
@@ -8352,7 +8333,7 @@ function renderBoardTable(tasks){
     });
   });
 
-  if(!tasks.length) tbodyHtml+='<tr><td colspan="'+cc+'" style="padding:32px;text-align:center;color:var(--text3);font-size:var(--text-sm)">No tasks match the current filters, sir.</td></tr>';
+  if(!tasks.length) tbodyHtml+='<tr><td colspan="'+cc+'" style="padding:32px;text-align:center;color:var(--text3);font-size:var(--text-sm)">No tasks match the current filters.</td></tr>';
 
   el.innerHTML='<div style="overflow:auto;flex:1;height:100%"><table class="board-table" style="min-width:1000px;table-layout:fixed;width:100%"><thead>'+thead+'</thead><tbody>'+tbodyHtml+'</tbody></table></div>';
 }
@@ -8469,7 +8450,7 @@ function renderBoardsListView(){
       </div>
       <div style="flex:1;min-height:0;display:flex;flex-direction:column;justify-content:flex-end;gap:6px">
         ${highPriority.length?`<div style="font-size:var(--text-xs);color:var(--red);display:flex;align-items:center;gap:5px"><i class="ti ti-alert-triangle" style="font-size:11px"></i>${highPriority.length} high priority open</div>`:''}
-        ${nextUp?`<div style="font-size:var(--text-xs);color:var(--text2);background:var(--hover-tint);border:1px solid var(--border);border-radius:12px;padding:7px 10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">→ ${nextUp.title}${nextUp.due?' · '+nextUp.due:''}</div>`:'<div style="font-size:var(--text-xs);color:var(--text3)">All caught up, sir.</div>'}
+        ${nextUp?`<div style="font-size:var(--text-xs);color:var(--text2);background:var(--hover-tint);border:1px solid var(--border);border-radius:12px;padding:7px 10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">→ ${nextUp.title}${nextUp.due?' · '+nextUp.due:''}</div>`:'<div style="font-size:var(--text-xs);color:var(--text3)">All caught up.</div>'}
         <button class="btn btn-g" style="font-size:var(--text-xs);justify-content:center;margin-top:2px" onclick="event.stopPropagation();openTaskFor('${b.id}')"><i class="ti ti-plus" style="font-size:11px;line-height:1;display:inline-block;margin-right:4px"></i>Add Task</button>
       </div>
     </div>`;
@@ -8741,7 +8722,7 @@ function askClientTasks(e,id){
     // Send a focused WORK-IH task generation prompt
     const today=localDateStr(new Date());
     const existingTasks=DB.tasks.filter(t=>t.world==='WORK-IH'&&t.client===c.name&&t.status!=='Done').map(t=>`• ${t.title} (${t.status})`).join('\n')||'None';
-    const prompt=`Generate 3–5 specific, actionable marketing tasks for **${c.name}** (WORK-IH · World: Ideahub).\n\nClient status: ${c.status}\nNext action on file: ${c.next||'None'}\nExisting open tasks:\n${existingTasks}\n\nFormat each task clearly: TITLE · Priority (High/Medium/Low) · Brief description.\nAll tasks must be for WORK-IH world only. Focus on what's most impactful right now, sir.`;
+    const prompt=`Generate 3–5 specific, actionable marketing tasks for **${c.name}** (WORK-IH · World: Ideahub).\n\nClient status: ${c.status}\nNext action on file: ${c.next||'None'}\nExisting open tasks:\n${existingTasks}\n\nFormat each task clearly: TITLE · Priority (High/Medium/Low) · Brief description.\nAll tasks must be for WORK-IH world only. Focus on what's most impactful right now.`;
     const input=document.getElementById('aiInput');
     if(input){input.value=prompt;sendAI();}
   },350);
@@ -9233,7 +9214,7 @@ function dropVentureCard(e,newStage){
   DB.venture[idx].stage=newStage;
   SB.update('venture',DB.venture[idx].id,DB.venture[idx],'venture');
   addHistory('edit','Moved '+DB.venture[idx].name+' to '+newStage,DB.venture[idx]);
-  renderVenture();showToast('Moved to '+newStage+', sir');
+  renderVenture();showToast('Moved to '+newStage+'');
   _dragVentureId=null;
 }
 let editingAppId=null;
@@ -9401,7 +9382,7 @@ function openPipelineModal(id){
 }
 function savePipelineProject(){
   const name=document.getElementById('pl-name').value.trim();
-  if(!name){showToast('⚠ Project name required, sir.');return;}
+  if(!name){showToast('⚠ Project name required.');return;}
   const p={
     id:editingPipelineId||Date.now(),
     name,
@@ -9589,7 +9570,7 @@ function openCollateralModal(id){
 }
 function saveCollateral(){
   const name=document.getElementById('col-name').value.trim();
-  if(!name){showToast('⚠ Collateral title required, sir.');return;}
+  if(!name){showToast('⚠ Collateral title required.');return;}
   const c={
     id:editingCollateralId||Date.now(),
     name,
@@ -9708,7 +9689,7 @@ function openCreativeProjectModal(id){
 }
 function saveCreativeProject(){
   const name=document.getElementById('cp-name').value.trim();
-  if(!name){showToast('⚠ Project name required, sir.');return;}
+  if(!name){showToast('⚠ Project name required.');return;}
   const p={
     id:editingCreativeProjectId||Date.now(),
     name,
@@ -9792,7 +9773,7 @@ function openSocialModal(id){
 function saveSocialPost(){
   const caption=document.getElementById('soc-caption').value.trim();
   const client=document.getElementById('soc-client').value.trim();
-  if(!caption&&!client){showToast('⚠ Add at least a client or caption, sir.');return;}
+  if(!caption&&!client){showToast('⚠ Add at least a client or caption.');return;}
   const s={
     id:editingSocialId||Date.now(),
     platform:document.getElementById('soc-platform').value,
@@ -9924,8 +9905,8 @@ function openCampaignModal(id){
 }
 async function generateCampaignCopy(){
   const name=document.getElementById('cam-name').value.trim();
-  if(!name){showToast('⚠ Name the campaign first, sir.');return;}
-  if(!hasAnyAIKey()){showToast('⚠ Add a Claude or Gemini key in Settings first, sir.');return;}
+  if(!name){showToast('⚠ Name the campaign first.');return;}
+  if(!hasAnyAIKey()){showToast('⚠ Add a Claude or Gemini key in Settings first.');return;}
   const type=document.getElementById('cam-platform').value.trim()||'General campaign';
   const offer=document.getElementById('cam-goal').value.trim();
   const audience=document.getElementById('cam-audience').value.trim();
@@ -9964,7 +9945,7 @@ Respond ONLY with valid JSON, no preamble, no markdown fences:
         <button class="btn btn-g" style="font-size:var(--text-xs)" onclick='useCampaignVariant(${JSON.stringify(v)})'>Use this variant</button>
       </div>`).join('');
   }catch(e){
-    resultsEl.innerHTML=`<div style="font-size:var(--text-xs);color:var(--red)">Got a response but couldn't parse it as JSON. Try again, sir.</div>`;
+    resultsEl.innerHTML=`<div style="font-size:var(--text-xs);color:var(--red)">Got a response but couldn't parse it as JSON. Try again.</div>`;
   }
 }
 function useCampaignVariant(v){
@@ -9973,7 +9954,7 @@ function useCampaignVariant(v){
 }
 function saveCampaign(){
   const name=document.getElementById('cam-name').value.trim();
-  if(!name){showToast('⚠ Campaign name required, sir.');return;}
+  if(!name){showToast('⚠ Campaign name required.');return;}
   const c={
     id:editingCampaignId||Date.now(),
     name,
@@ -10064,7 +10045,7 @@ function openInfluencerModal(id){
 }
 function saveInfluencer(){
   const name=document.getElementById('inf-name').value.trim();
-  if(!name){showToast('⚠ Influencer name required, sir.');return;}
+  if(!name){showToast('⚠ Influencer name required.');return;}
   const inf={
     id:editingInfluencerId||Date.now(),
     client:CS_CLIENTS[csActiveClient].label,
@@ -10141,7 +10122,7 @@ function openPricingModal(id){
 }
 function savePricing(){
   const item=document.getElementById('prc-item').value.trim();
-  if(!item){showToast('⚠ Item name required, sir.');return;}
+  if(!item){showToast('⚠ Item name required.');return;}
   const p={
     id:editingPricingId||Date.now(),
     client:CS_CLIENTS[csActiveClient].label,
@@ -10208,7 +10189,7 @@ function openCredentialModal(id){
 }
 function saveCredential(){
   const platform=document.getElementById('cred-platform').value.trim();
-  if(!platform){showToast('⚠ Platform name required, sir.');return;}
+  if(!platform){showToast('⚠ Platform name required.');return;}
   const c={
     id:editingCredentialId||Date.now(),
     client:CS_CLIENTS[csActiveClient].label,
@@ -10272,7 +10253,7 @@ function renderFaithTaskLinkRow(){
 }
 function createTaskFromFaith(){
   const activity=document.getElementById('fa-activity').value.trim();
-  if(!activity){showToast('⚠ Name the activity first, sir.');return;}
+  if(!activity){showToast('⚠ Name the activity first.');return;}
   const t={id:Date.now(),title:activity,world:'FAITH',priority:'Medium',status:'Todo',due:document.getElementById('fa-date').value||'',notes:'Linked from Faith activity: '+(document.getElementById('fa-group').value.trim()||'')};
   DB.tasks.unshift(t);
   SB.upsert('tasks',t,'tasks');
@@ -10715,7 +10696,7 @@ function renderContextEngine(){
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
       <div class="hc">
         <div style="font-size:var(--text-xs);font-weight:700;color:var(--teal);letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px">Active Load by Domain</div>
-        ${worldStats.length?worldStats.map(w=>`<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border);font-size:var(--text-xs)"><span style="color:var(--text2)">${w.label}</span><span style="color:var(--teal);font-weight:700">${w.open} open</span></div>`).join(''):'<div style="font-size:var(--text-xs);color:var(--text3)">All clear, sir.</div>'}
+        ${worldStats.length?worldStats.map(w=>`<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border);font-size:var(--text-xs)"><span style="color:var(--text2)">${w.label}</span><span style="color:var(--teal);font-weight:700">${w.open} open</span></div>`).join(''):'<div style="font-size:var(--text-xs);color:var(--text3)">All clear.</div>'}
       </div>
       <div class="hc">
         <div style="font-size:var(--text-xs);font-weight:700;color:var(--teal);letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px">Next 7 Days</div>
@@ -10792,8 +10773,8 @@ function getAccountNames(){
 }
 function addAccount(name,startingBalance){
   name=(name||'').trim();
-  if(!name){showToast('⚠ Account name required, sir.');return null;}
-  if((DB.accounts||[]).some(a=>a.name.toLowerCase()===name.toLowerCase())){showToast('⚠ An account named "'+name+'" already exists, sir.');return null;}
+  if(!name){showToast('⚠ Account name required.');return null;}
+  if((DB.accounts||[]).some(a=>a.name.toLowerCase()===name.toLowerCase())){showToast('⚠ An account named "'+name+'" already exists.');return null;}
   const a={id:Date.now(),name,startingBalance:parseFloat(startingBalance)||0};
   DB.accounts=DB.accounts||[];
   DB.accounts.push(a);
@@ -11100,7 +11081,7 @@ function renderLoanStrategy(){
       <i class="ti ti-shield-lock" style="color:var(--amber);font-size:16px"></i>
       <span style="font-size:var(--text-sm);font-weight:700;color:var(--amber)">Strategic Payoff Plan</span>
     </div>
-    <div style="font-size:var(--text-xs);color:var(--text3);margin-bottom:14px">Based on your average income over the last ${monthsSpan} month${monthsSpan!==1?'s':''} and each loan's due date — private to you, sir.</div>
+    <div style="font-size:var(--text-xs);color:var(--text3);margin-bottom:14px">Based on your average income over the last ${monthsSpan} month${monthsSpan!==1?'s':''} and each loan's due date — private to you.</div>
 
     <div class="mr" style="grid-template-columns:repeat(3,1fr);margin-bottom:14px">
       <div class="hc"><div class="cl">Avg Monthly Income</div><div style="font-size:18px;font-weight:800;color:var(--green);margin-top:4px">${fmtPHP(avgMonthlyIncome)}</div></div>
@@ -11110,7 +11091,7 @@ function renderLoanStrategy(){
 
     ${isOverextended?`<div style="background:rgba(255,34,68,.08);border:1px solid rgba(255,34,68,.3);border-radius:10px;padding:12px 14px;margin-bottom:14px;display:flex;gap:10px;align-items:flex-start">
       <i class="ti ti-alert-triangle" style="color:var(--red);font-size:16px;flex-shrink:0;margin-top:1px"></i>
-      <div style="font-size:var(--text-xs);color:var(--text2)">Your loan payments (${fmtPHP(totalMonthlyObligation)}) currently exceed your average monthly income (${fmtPHP(avgMonthlyIncome)}). This isn't sustainable long-term, sir — worth a hard look at which payments can be renegotiated, or whether a source of income needs to grow before this gap closes.</div>
+      <div style="font-size:var(--text-xs);color:var(--text2)">Your loan payments (${fmtPHP(totalMonthlyObligation)}) currently exceed your average monthly income (${fmtPHP(avgMonthlyIncome)}). This isn't sustainable long-term — worth a hard look at which payments can be renegotiated, or whether a source of income needs to grow before this gap closes.</div>
     </div>`:''}
 
     <div style="font-size:var(--text-xs);font-weight:700;color:var(--text3);letter-spacing:.06em;text-transform:uppercase;margin-bottom:8px">Recommended Payment Order</div>
@@ -11140,7 +11121,7 @@ function renderLoanStrategy(){
 function recordLoanPayment(id){
   const l=DB.loans.find(x=>x.id===id);if(!l)return;
   const amt=parseFloat(prompt('Enter payment amount (₱) for '+l.lender+':',''));
-  if(!amt||isNaN(amt)||amt<=0){showToast('⚠ Enter a valid amount, sir.');return;}
+  if(!amt||isNaN(amt)||amt<=0){showToast('⚠ Enter a valid amount.');return;}
   const accounts=[...new Set((DB.cashflow||[]).map(t=>t.account).filter(Boolean))];
   const acctList=accounts.length?accounts:['GCash','BPI','Maya','Cash'];
   const acctOptions=acctList.join('\n');
@@ -11164,7 +11145,7 @@ function recordLoanPayment(id){
   DB.cashflow.unshift(entry);save('cashflow');SB.upsert('cashflow',entry,'cashflow');
   renderLoansTab();renderLife();
   showToast(l.remaining<=0?'✔ '+l.lender+' fully paid!':'✓ ₱'+amt.toLocaleString('en-PH',{minimumFractionDigits:2})+' paid from '+acct+' · ₱'+l.remaining.toLocaleString('en-PH',{minimumFractionDigits:2})+' remaining');
-  speak(l.remaining<=0?'Loan fully paid off, sir. Debt eliminated.':'Payment recorded, sir. '+fmtPHP(l.remaining)+' remaining.');
+  speak(l.remaining<=0?'Loan fully paid off. Debt eliminated.':'Payment recorded. '+fmtPHP(l.remaining)+' remaining.');
 }
 function editLoan(id){openLoanModal(id);}
 function deleteLoan(id){
@@ -11537,7 +11518,7 @@ function renderBudgetTab(){
   if(!listEl) return;
 
   if(!Object.keys(budgets).length){
-    listEl.innerHTML='<div style="text-align:center;padding:30px;color:var(--text3);font-size:var(--text-sm)">No budgets set yet, sir. Click <strong style="color:var(--teal)">Set Budget</strong> to add a category limit.</div>';
+    listEl.innerHTML='<div style="text-align:center;padding:30px;color:var(--text3);font-size:var(--text-sm)">No budgets set yet. Click <strong style="color:var(--teal)">Set Budget</strong> to add a category limit.</div>';
     return;
   }
 
@@ -11589,7 +11570,7 @@ function saveBudget(){
   const cat=document.getElementById('bgt-cat').value;
   const limit=parseFloat(document.getElementById('bgt-limit').value)||0;
   const alert=parseInt(document.getElementById('bgt-alert').value)||80;
-  if(!limit){showToast('⚠ Enter a budget limit, sir.');return;}
+  if(!limit){showToast('⚠ Enter a budget limit.');return;}
   const budgets=getBudgets();
   budgets[cat]={limit,alert};
   saveBudgets(budgets);
@@ -11682,9 +11663,9 @@ function saveTransfer(){
   const date=document.getElementById('tr-date').value;
   const notes=document.getElementById('tr-notes').value.trim();
 
-  if(from===to){showToast('⚠ Source and destination cannot be the same, sir.');return;}
-  if(!amount||amount<=0){showToast('⚠ Enter a valid amount, sir.');return;}
-  if(!date){showToast('⚠ Select a date, sir.');return;}
+  if(from===to){showToast('⚠ Source and destination cannot be the same.');return;}
+  if(!amount||amount<=0){showToast('⚠ Enter a valid amount.');return;}
+  if(!date){showToast('⚠ Select a date.');return;}
 
   // Single entry — transfers are one record with _fromAccount and _toAccount
   // The running balance calc already handles from/to correctly
@@ -12997,7 +12978,7 @@ function renderMeetingsPanel(containerId,world){
           <span style="font-size:var(--text-xs);color:var(--red);font-weight:700">RECORDING</span>
           <span id="meetTimer-${world}" style="font-size:var(--text-xs);color:var(--text3);margin-left:auto">0:00</span>
         </div>
-        <div class="rec-live-text" id="meetLive-${world}">Speak now, sir...</div>
+        <div class="rec-live-text" id="meetLive-${world}">Speak now...</div>
       </div>
     </div>
     <!-- MEETING LOG -->
@@ -13018,7 +12999,7 @@ function renderMeetingsPanel(containerId,world){
       :`<div style="text-align:center;padding:40px 20px;color:var(--text3)">
           <i class="ti ti-microphone" style="font-size:32px;display:block;margin-bottom:10px;opacity:.3"></i>
           <div style="font-size:var(--text-sm);margin-bottom:5px">No meetings recorded yet</div>
-          <div style="font-size:var(--text-xs)">Hit "Start Recording" to begin your first meeting note, sir.</div>
+          <div style="font-size:var(--text-xs)">Hit "Start Recording" to begin your first meeting note.</div>
         </div>`}
     </div>
   </div>`;
@@ -13032,7 +13013,7 @@ function toggleMeetRecording(world){
   } else {
     // Start recording
     const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-    if(!SR){showToast('Speech not supported. Use Chrome or Edge, sir.');return;}
+    if(!SR){showToast('Speech not supported. Use Chrome or Edge.');return;}
     _meetFinal='';_meetInterim='';_meetWorld=world;_meetStartTs=Date.now();
     const r=new SR();
     r.continuous=true;r.interimResults=true;r.lang='en-PH';r.maxAlternatives=1;
@@ -13054,7 +13035,7 @@ function toggleMeetRecording(world){
       }
       if(final) _meetFinal+=final;
       const liveEl=document.getElementById('meetLive-'+world);
-      if(liveEl) liveEl.textContent=(_meetFinal+interim).trim()||'Speak now, sir...';
+      if(liveEl) liveEl.textContent=(_meetFinal+interim).trim()||'Speak now...';
     };
     r.onend=()=>{
       _meetRec=null;
@@ -13068,7 +13049,7 @@ function toggleMeetRecording(world){
       else showToast('Recording too short — no transcript captured.');
     };
     r.onerror=(e)=>{
-      showToast('Microphone error: '+e.error+'. Check permissions, sir.');
+      showToast('Microphone error: '+e.error+'. Check permissions.');
       _meetRec=null;stopMeetTimer();
     };
     _meetRec=r;
@@ -13331,7 +13312,7 @@ function renderMemory(){
     <td><span style="font-size:9px;padding:1px 5px;border-radius:6px;background:${m.source==='auto'?'rgba(0,255,242,.08)':'rgba(255,255,255,.04)'};color:${m.source==='auto'?'var(--teal)':'var(--text3)'}">${m.source==='auto'?'⚡ auto':'manual'}</span></td>
     <td><button class="btn btn-d" style="padding:2px 6px" onclick="event.stopPropagation();deleteMemoryItem(${m.id})"><i class="ti ti-trash" style="font-size:var(--text-xs);line-height:1;display:block"></i></button></td>
   </tr>`).join('')
-  :'<tr><td colspan="6" style="text-align:center;color:var(--text3);padding:20px;font-size:var(--text-sm)">No memories yet. The OS learns automatically as you use it, sir.</td></tr>';
+  :'<tr><td colspan="6" style="text-align:center;color:var(--text3);padding:20px;font-size:var(--text-sm)">No memories yet. The OS learns automatically as you use it.</td></tr>';
 }
 
 // CAPTURE
@@ -13642,7 +13623,7 @@ async function executeVoiceCommand(text){
   const stripped=stripWakeWord(text);
   if(stripped===null){
     setVcState('idle');document.getElementById('vLabel').textContent='YES, SIR?';document.getElementById('vTranscript').textContent='Listening for your command...';
-    speak('Yes, sir?');
+    speak('Yes?');
     if(!recognition)recognition=initRecognition();
     try{recognition.start();}catch(e){}
     return;
@@ -13654,13 +13635,13 @@ async function executeVoiceCommand(text){
     const raceResult=await Promise.race([dispatchPromise,timeoutPromise]);
     if(raceResult==='__TIMEOUT__'){
       setVcState('idle');
-      showToast('⚠ That took too long, sir — check your connection and try again.');
+      showToast('⚠ That took too long — check your connection and try again.');
       console.warn('Voice command timed out after 15s:',stripped);
     }
   }catch(e){
     console.error('Voice command failed:',e);
     setVcState('idle');
-    showToast('⚠ Voice command hit an error, sir — check console for details.');
+    showToast('⚠ Voice command hit an error — check console for details.');
   }
 }
 
@@ -13672,7 +13653,7 @@ async function dispatchVoiceAction(cmd,rawText){
       // ── NAVIGATE ──────────────────────────────────────────────
       case 'navigate':
         setView(cmd.view||'dashboard');
-        result='Navigated to '+cmd.view+', sir.';
+        result='Navigated to '+cmd.view+'.';
         break;
 
       // ── ADD TASK ──────────────────────────────────────────────
@@ -13682,14 +13663,14 @@ async function dispatchVoiceAction(cmd,rawText){
         SB.upsert('tasks',t,'tasks');
         addHistory('add','Added task: '+t.title,{...t,_dbKey:'tasks'});
         reRenderAll();
-        result='Task added, sir: "'+t.title+'"';
+        result='Task added: "'+t.title+'"';
         break;
       }
 
       // ── UPDATE TASK STATUS ────────────────────────────────────
       case 'update_task_status':{
         const t=fuzzyFind(cmd.target,DB.tasks,x=>x.title);
-        if(!t){result='No task found matching "'+cmd.target+'", sir.';break;}
+        if(!t){result='No task found matching "'+cmd.target+'".';break;}
         const prev=t.status;
         t.status=cmd.status;
         SB.update('tasks',t.id,t,'tasks');
@@ -13697,32 +13678,32 @@ async function dispatchVoiceAction(cmd,rawText){
         syncTaskToNoteBlock(t);
         addHistory('edit','Status: '+t.title+' → '+cmd.status,t);
         reRenderAll();
-        result='"'+t.title+'" marked '+cmd.status+', sir.';
+        result='"'+t.title+'" marked '+cmd.status+'.';
         break;
       }
 
       // ── UPDATE TASK PRIORITY ──────────────────────────────────
       case 'update_task_priority':{
         const t=fuzzyFind(cmd.target,DB.tasks,x=>x.title);
-        if(!t){result='No task found matching "'+cmd.target+'", sir.';break;}
+        if(!t){result='No task found matching "'+cmd.target+'".';break;}
         t.priority=cmd.priority;
         SB.update('tasks',t.id,t,'tasks');
         save('tasks');
         addHistory('edit','Priority: '+t.title+' → '+cmd.priority,t);
         reRenderAll();
-        result='"'+t.title+'" set to '+cmd.priority+' priority, sir.';
+        result='"'+t.title+'" set to '+cmd.priority+' priority.';
         break;
       }
 
       // ── DELETE TASK ───────────────────────────────────────────
       case 'delete_task':{
         const t=fuzzyFind(cmd.target,DB.tasks,x=>x.title);
-        if(!t){result='No task found matching "'+cmd.target+'", sir.';break;}
+        if(!t){result='No task found matching "'+cmd.target+'".';break;}
         DB.tasks=DB.tasks.filter(x=>x.id!==t.id);
         SB.remove('tasks',t.id,'tasks');
         addHistory('delete','Deleted task: '+t.title,{...t,_dbKey:'tasks'});
         reRenderAll();
-        result='Task deleted, sir: "'+t.title+'"';
+        result='Task deleted: "'+t.title+'"';
         break;
       }
 
@@ -13733,32 +13714,32 @@ async function dispatchVoiceAction(cmd,rawText){
         SB.upsert('clients',c,'clients');
         addHistory('add','Added client: '+c.name,{...c,_dbKey:'clients'});
         renderWorkIH();
-        result='Client added, sir: "'+c.name+'"';
+        result='Client added: "'+c.name+'"';
         break;
       }
 
       // ── UPDATE CLIENT STATUS ──────────────────────────────────
       case 'update_client_status':{
         const c=fuzzyFind(cmd.target,DB.clients,x=>x.name);
-        if(!c){result='No client found matching "'+cmd.target+'", sir.';break;}
+        if(!c){result='No client found matching "'+cmd.target+'".';break;}
         c.status=cmd.status;
         SB.update('clients',c.id,c,'clients');
         save('clients');
         addHistory('edit','Client status: '+c.name+' → '+cmd.status,c);
         renderWorkIH();
-        result='"'+c.name+'" set to '+cmd.status+', sir.';
+        result='"'+c.name+'" set to '+cmd.status+'.';
         break;
       }
 
       // ── DELETE CLIENT ─────────────────────────────────────────
       case 'delete_client':{
         const c=fuzzyFind(cmd.target,DB.clients,x=>x.name);
-        if(!c){result='No client found matching "'+cmd.target+'", sir.';break;}
+        if(!c){result='No client found matching "'+cmd.target+'".';break;}
         DB.clients=DB.clients.filter(x=>x.id!==c.id);
         SB.remove('clients',c.id,'clients');
         addHistory('delete','Deleted client: '+c.name,{...c,_dbKey:'clients'});
         renderWorkIH();
-        result='Client removed, sir: "'+c.name+'"';
+        result='Client removed: "'+c.name+'"';
         break;
       }
 
@@ -13769,33 +13750,33 @@ async function dispatchVoiceAction(cmd,rawText){
         SB.upsert('venture',v,'venture');
         addHistory('add','Added venture: '+v.name,{...v,_dbKey:'venture'});
         renderVenture();
-        result='Venture item added, sir: "'+v.name+'" at '+v.stage+'.';
+        result='Venture item added: "'+v.name+'" at '+v.stage+'.';
         break;
       }
 
       // ── MOVE VENTURE STAGE ────────────────────────────────────
       case 'move_venture':{
         const ven=fuzzyFind(cmd.target,DB.venture,x=>x.name);
-        if(!ven){result='No venture item found matching "'+cmd.target+'", sir.';break;}
+        if(!ven){result='No venture item found matching "'+cmd.target+'".';break;}
         const prev=ven.stage;
         ven.stage=cmd.stage;
         SB.update('venture',ven.id,ven,'venture');
         save('venture');
         addHistory('edit','Moved '+ven.name+': '+prev+' → '+cmd.stage,ven);
         renderVenture();
-        result='"'+ven.name+'" moved to '+cmd.stage+', sir.';
+        result='"'+ven.name+'" moved to '+cmd.stage+'.';
         break;
       }
 
       // ── DELETE VENTURE ITEM ───────────────────────────────────
       case 'delete_venture':{
         const ven=fuzzyFind(cmd.target,DB.venture,x=>x.name);
-        if(!ven){result='No venture item found matching "'+cmd.target+'", sir.';break;}
+        if(!ven){result='No venture item found matching "'+cmd.target+'".';break;}
         DB.venture=DB.venture.filter(x=>x.id!==ven.id);
         SB.remove('venture',ven.id,'venture');
         addHistory('delete','Deleted venture: '+ven.name,{...ven,_dbKey:'venture'});
         renderVenture();
-        result='Venture item removed, sir: "'+ven.name+'"';
+        result='Venture item removed: "'+ven.name+'"';
         break;
       }
 
@@ -13806,19 +13787,19 @@ async function dispatchVoiceAction(cmd,rawText){
         SB.upsert('faith',a,'faith');
         addHistory('add','Added faith: '+a.activity,{...a,_dbKey:'faith'});
         renderFaith();
-        result='Faith activity logged, sir: "'+a.activity+'"';
+        result='Faith activity logged: "'+a.activity+'"';
         break;
       }
 
       // ── DELETE FAITH ACTIVITY ─────────────────────────────────
       case 'delete_faith':{
         const a=fuzzyFind(cmd.target,DB.faith,x=>x.activity);
-        if(!a){result='No faith activity found matching "'+cmd.target+'", sir.';break;}
+        if(!a){result='No faith activity found matching "'+cmd.target+'".';break;}
         DB.faith=DB.faith.filter(x=>x.id!==a.id);
         SB.remove('faith',a.id,'faith');
         addHistory('delete','Deleted faith: '+a.activity,{...a,_dbKey:'faith'});
         renderFaith();
-        result='Faith activity removed, sir: "'+a.activity+'"';
+        result='Faith activity removed: "'+a.activity+'"';
         break;
       }
 
@@ -13829,24 +13810,24 @@ async function dispatchVoiceAction(cmd,rawText){
         SB.upsert('cashflow',t,'cashflow');
         addHistory('add','Added '+t.type+': ₱'+t.amount,{...t,_dbKey:'cashflow'});
         renderLife();renderBrief();
-        result=(t.type==='Credit'?'Credit':'Debit')+' of ₱'+t.amount.toLocaleString()+' recorded, sir.';
+        result=(t.type==='Credit'?'Credit':'Debit')+' of ₱'+t.amount.toLocaleString()+' recorded.';
         break;
       }
 
       // ── ADD TRANSFER (between your own accounts) ───────────────────────
       case 'add_transfer':{
-        if(!cmd.amount||cmd.amount<=0){result='Didn\'t catch a valid amount for that transfer, sir.';break;}
+        if(!cmd.amount||cmd.amount<=0){result='Didn\'t catch a valid amount for that transfer.';break;}
         const accountNames=(DB.accounts||[]).map(a=>a.name);
         const fromMatch=fuzzyFind(cmd.fromAccount,accountNames,x=>x)||cmd.fromAccount||'Cash';
         const toMatch=fuzzyFind(cmd.toAccount,accountNames,x=>x)||cmd.toAccount||'Cash';
-        if(fromMatch===toMatch){result='Source and destination sound the same, sir — try again with two different accounts.';break;}
+        if(fromMatch===toMatch){result='Source and destination sound the same — try again with two different accounts.';break;}
         const entry={id:Date.now(),type:'Transfer',desc:'Transfer: '+fromMatch+' → '+toMatch,amount:cmd.amount,account:fromMatch,category:'Transfer',date:localDateStr(new Date()),notes:'Added by voice',_fromAccount:fromMatch,_toAccount:toMatch};
         DB.cashflow.unshift(entry);
         save('cashflow');
         SB.upsert('cashflow',entry,'cashflow');
         addHistory('add','Transfer: '+fromMatch+' → '+toMatch+' ₱'+cmd.amount,{...entry,_dbKey:'cashflow'});
         renderLife();renderBrief();
-        result='Transferred ₱'+cmd.amount.toLocaleString()+' from '+fromMatch+' to '+toMatch+', sir.';
+        result='Transferred ₱'+cmd.amount.toLocaleString()+' from '+fromMatch+' to '+toMatch+'.';
         break;
       }
 
@@ -13857,7 +13838,7 @@ async function dispatchVoiceAction(cmd,rawText){
         SB.upsert('journal',j,'journal');
         addHistory('add','Added journal: '+j.title,{...j,_dbKey:'journal'});
         setView('journal');
-        result='Journal entry saved, sir: "'+j.title+'"';
+        result='Journal entry saved: "'+j.title+'"';
         break;
       }
 
@@ -13865,24 +13846,24 @@ async function dispatchVoiceAction(cmd,rawText){
       case 'mute':
         isMuted=true;speechSynthesis.cancel();
         showToast('Voice muted');
-        result='Voice muted, sir.';
+        result='Voice muted.';
         break;
 
       case 'unmute':
         isMuted=false;
-        result='Voice activated, sir.';
+        result='Voice activated.';
         speak(result);
         break;
 
       // ── UNKNOWN ───────────────────────────────────────────────
       case 'unknown':
       default:{
-        result='Didn\'t catch that as a command, sir — try being more specific, like "add task [title]" or "go to [view]".';
+        result='Didn\'t catch that as a command — try being more specific, like "add task [title]" or "go to [view]".';
         break;
       }
     }
   }catch(e){
-    _safeChime('chimeError'); result='Something went wrong processing that, sir — check console for details.'; console.error('Voice dispatch error:',e);
+    _safeChime('chimeError'); result='Something went wrong processing that — check console for details.'; console.error('Voice dispatch error:',e);
   }
 
   setVcState('idle');
@@ -13919,7 +13900,7 @@ function setVcState(state){
     if(fab)fab.style.background='rgba(239,68,68,.2)';
     if(fi)fi.className='ti ti-player-stop';
     if(label)label.textContent='LISTENING';
-    const vt=document.getElementById('vTranscript');if(vt)vt.textContent='Speak now, sir...';
+    const vt=document.getElementById('vTranscript');if(vt)vt.textContent='Speak now...';
     if(vst)vst.textContent='TAP TO STOP';
     if(sd)sd.className='hdot rec';if(st)st.textContent='RECORDING';
   } else {
@@ -14000,7 +13981,9 @@ function stopRecording(){if(recognition&&isRecording)recognition.stop();}
 //               free-flow conversation, personal preference adaptation
 // ═══════════════════════════════════════════════════════════════════════
 
-const JELIX_BASE_SYSTEM = `You are J.O.B Systems — the personal AI operating system of Justine Luis Inacay, Marketing Manager based in Las Piñas City, Metro Manila, Philippines.
+const JELIX_BASE_SYSTEM = `You are J.E.L.I.X. — Justine Experiences Life In eXcellence — the intelligence layer of J.O.B Systems, the personal operating system of Justine Luis Inacay, Marketing Manager based in Las Piñas City, Metro Manila, Philippines.
+
+You are not a chatbot bolted onto a dashboard. You are the operating intelligence behind the whole platform — every screen, every module, every workflow connects through you. Your purpose is not to replace Justine's judgment. It's to amplify it: reduce his mental load, notice what he'd otherwise miss, and help him decide rather than just hand him options.
 
 IDENTITY & CONTEXT:
 - Justine runs two shifts: Ideahub (2AM–10AM PHT, Tue–Sat) and Chainsmoker (10PM–2AM PHT, Mon–Fri)
@@ -14011,37 +13994,39 @@ IDENTITY & CONTEXT:
 
 LANGUAGE — TAGLISH:
 - Justine naturally switches between English and Filipino (Tagalog) mid-sentence — this is called Taglish
-- You must understand and respond naturally in Taglish when she speaks it
+- You must understand and respond naturally in Taglish when he speaks it
 - Examples: "Anong tasks ko ngayon?" → answer with tasks. "Pwede ba mag-add ng event?" → yes, add an event
 - Common Filipino filler words you will hear: "yung", "naman", "kasi", "oo", "hindi", "sige", "ano", "paano", "teka", "grabe", "talaga", "kanina", "bukas", "ngayon"
 - You may respond in English-dominant Taglish naturally — do not force full Tagalog
 - Recognize Filipino time references: "bukas" = tomorrow, "kanina" = earlier, "ngayon" = now/today, "mamaya" = later
 
+PERSONALITY:
+Calm. Warm. Professional. Grounded. Thoughtful. Never robotic, never theatrical, never overly enthusiastic. Imagine someone who has worked beside Justine for years — you know how he thinks, you understand his priorities, and you communicate with confidence but humility. You never introduce yourself as an AI. You simply exist and help.
+
 COMMUNICATION STYLE:
-- Always address Justine as "sir"
-- Formal British cadence but warm — not robotic
-- Lead with the solution immediately, no preamble
-- Concise but complete — never truncate an answer mid-thought
-- Adapt to conversational tone: if she is casual, match it; if she is focused, be sharp
-- Real-time free-flowing conversation: do not wait for a full formal query — respond to fragments, clarifications, and follow-ups naturally
+- Talk like a trusted colleague, not a formal assistant. Short paragraphs, natural contractions, no filler.
+- Never say: "Certainly," "Mission accomplished," "Awaiting your command," "Processing request," "Objective completed," "At your service," "Greetings, Sir." Do not address Justine as "sir" — that formality has been retired.
+- Instead say things like: "I'm on it." "Done." "I noticed something." "Here's what I'd recommend." "We're ahead of schedule." "I found something worth your attention."
+- Lead with the answer immediately — no preamble, no throat-clearing.
+- Don't just list options when asked for help deciding — narrow it down and take a position. "Based on how you work, I'd go with X" beats "Here are five options."
+- Real-time free-flowing conversation: respond naturally to fragments, clarifications, and follow-ups, not just complete formal questions.
+- Adapt to his tone: casual in, casual out; focused in, sharp and brief out.
+
+PROACTIVE INTELLIGENCE:
+Don't just wait to be asked. When the live data below shows something worth flagging — a task postponed repeatedly, a client gone quiet, a deadline slipping — mention it naturally rather than waiting to be asked. But don't manufacture urgency where none exists; if everything's on track, say so briefly and move on.
 
 CAPABILITIES YOU ACTIVELY MANAGE:
 - Tasks: acknowledge, create, update, complete, prioritize
 - Notes: create, read, summarize
 - Calendar events: add, read, remind, summarize today's schedule
-- To-dos: parse and route to task board
-- Daily Brief: provide unprompted on first open — tasks, events, balance, priorities
-
-STRICT RESTRICTIONS:
-- NEVER analyze, discuss, or reference the cash flow dashboard, transactions, account balances, or any financial data
-- NEVER mention specific peso amounts, income figures, or expense categories
-- If asked about finances, respond: "Cash flow analysis is restricted on this session, sir."
+- Cashflow: you have real, current financial data below — discuss it directly and specifically when asked, including real peso amounts. This isn't restricted.
+- Daily Brief: offer it unprompted on first open — tasks, events, balance, priorities
+- Decision support: when asked to choose between options, actually recommend one and explain why
 
 PERSONAL PREFERENCES (adapt to these):
 - Prefers bullet-point summaries for complex items
 - Dislikes repetition — never repeat what was just said
 - Appreciates when you flag High priority items first
-- Responds well to brief affirmations before answers ("Noted, sir." / "On it." / "Clear.")
 - Prefers metric time references in PHT
 `;
 
@@ -14151,7 +14136,7 @@ function setAgent(id, el){
       </div>
       <div style="background:rgba(255,170,0,.06);border:1px solid rgba(255,170,0,.2);border-radius:12px;padding:14px 16px;width:100%;max-width:320px;text-align:left">
         <div style="font-size:var(--text-xs);font-weight:700;color:var(--amber);letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px">⚡ Setup Required</div>
-        <div style="font-size:var(--text-xs);color:var(--text3);line-height:1.6;margin-bottom:12px">Set your Anthropic API key to activate AI + web search for all 14 Job Agents, sir.</div>
+        <div style="font-size:var(--text-xs);color:var(--text3);line-height:1.6;margin-bottom:12px">Set your Anthropic API key to activate AI + web search for all 14 Job Agents.</div>
         <div style="display:flex;gap:7px">
           <input id="quickApiKeyInput" type="password" placeholder="sk-ant-api03-..." style="flex:1;font-size:var(--text-xs);padding:6px 10px;border-radius:10px;border:1px solid var(--border2);background:var(--navy3);color:var(--text1);min-width:0">
           <button onclick="saveQuickApiKey()" style="background:rgba(0,255,242,.1);border:1px solid var(--teal2);border-radius:10px;color:var(--teal);font-size:var(--text-xs);padding:6px 12px;cursor:pointer;font-weight:700;flex-shrink:0;white-space:nowrap">Save</button>
@@ -14163,20 +14148,20 @@ function setAgent(id, el){
     return;
   }
   const memHint=relevantMems.length?`\n\n**${relevantMems.length} memories loaded** — I know your preferences for this context.`:'';
-  if(msgsEl) msgsEl.innerHTML=`<div class="mr-row"><div class="mav aiv">${a.name[0]}</div><div><div class="mbubble ai"><strong>${a.name}</strong> active, sir.\n${a.desc}.${memHint}\n\nI have web search enabled — ask me anything.</div></div></div>`;
+  if(msgsEl) msgsEl.innerHTML=`<div class="mr-row"><div class="mav aiv">${a.name[0]}</div><div><div class="mbubble ai"><strong>${a.name}</strong> active.\n${a.desc}.${memHint}\n\nI have web search enabled — ask me anything.</div></div></div>`;
 }
 
 function saveQuickApiKey(){
   const val=document.getElementById('quickApiKeyInput')?.value?.trim();
   if(!val||!val.startsWith('sk-')){showToast('Invalid key — must start with sk-');return;}
   localStorage.setItem('job-api-key',val);localStorage.setItem('j-anthropic-key',val);
-  showToast('✓ API key saved, sir.');
+  showToast('✓ API key saved.');
   setAgent(currentAgent,document.querySelector('.ai-agent.active'));
 }
 function _activateLocalMode(id){
   const a=AGENT_MAP[id]||AGENT_MAP.civic;
   const msgsEl=document.getElementById('aiMsgs');
-  if(msgsEl) msgsEl.innerHTML=`<div class="mr-row"><div class="mav aiv">${a.name[0]}</div><div><div class="mbubble ai"><strong>${a.name}</strong> active in local mode, sir.\n${a.desc}.\n\nResponding from built-in knowledge — no web search available. Set a JOB KEY anytime to upgrade.</div></div></div>`;
+  if(msgsEl) msgsEl.innerHTML=`<div class="mr-row"><div class="mav aiv">${a.name[0]}</div><div><div class="mbubble ai"><strong>${a.name}</strong> active in local mode.\n${a.desc}.\n\nResponding from built-in knowledge — no web search available. Set a JOB KEY anytime to upgrade.</div></div></div>`;
 }
 
 function _aits(){return new Date().toLocaleTimeString('en-PH',{hour:'2-digit',minute:'2-digit',hour12:true,timeZone:'Asia/Manila'});}
@@ -14331,75 +14316,75 @@ function _localAgentReply(q,agent,raw){
   // Greetings
   if(/^(hi|hello|hey|good|kumusta|kamusta|uy|oi|sup|yo)\b/.test(q)){
     const greets=[
-      `Noted, sir. ${name} standing by. ${pht} — what are we working on today?`,
-      `Good ${now.getHours()<12?'morning':now.getHours()<17?'afternoon':'evening'}, sir. ${name} active. What do you need?`,
-      `On it, sir. ${name} here. You have **${pendingTasks.length}** open tasks. Where do you want to start?`,
+      `Hey. ${name} here. ${pht} — what are we working on?`,
+      `Good ${now.getHours()<12?'morning':now.getHours()<17?'afternoon':'evening'}. What do you need?`,
+      `I'm here. You've got **${pendingTasks.length}** open tasks. Where do you want to start?`,
     ];
     return greets[Math.floor(Math.random()*greets.length)];
   }
 
   // Task queries
   if(/task|gawa|gagawin|todo|to.do|priority|priorities|bukas|ngayon|today/.test(q)){
-    if(!pendingTasks.length) return `Clear queue, sir. No open tasks at the moment. Want to add something via the CMD bar?`;
+    if(!pendingTasks.length) return `Clear queue — nothing open right now. Want to add something via the CMD bar?`;
     const top=highTasks.slice(0,3).map((t,i)=>`${i+1}. **${t.title}** · ${t.world||'General'}${t.due?` · due ${t.due}`:''}`).join('\n');
-    return `Here are your top priorities, sir:\n\n${top||'No high-priority items flagged.'}\n\nTotal open: **${pendingTasks.length}** tasks. Want me to break down a specific world?`;
+    return `Here's what's on top:\n\n${top||'Nothing high-priority flagged right now.'}\n\n**${pendingTasks.length}** open total. Want me to break down a specific world?`;
   }
 
   // Status / brief
   if(/brief|status|update|kumusta|ano.*balita|summary|overview/.test(q)){
     const worlds=[...new Set(pendingTasks.map(t=>t.world).filter(Boolean))];
-    return `**J.O.B Systems Status Brief — ${name}**\n\nOpen tasks: **${pendingTasks.length}** · High priority: **${highTasks.length}**\nActive worlds: ${worlds.join(', ')||'None'}\n\nTime now: ${pht}\n\nWhat needs your attention first, sir?`;
+    return `**Status — ${name}**\n\nOpen tasks: **${pendingTasks.length}** · High priority: **${highTasks.length}**\nActive worlds: ${worlds.join(', ')||'None'}\n\n${pht}\n\nWhat needs attention first?`;
   }
 
   // Schedule / calendar
   if(/schedule|calendar|event|meeting|bukas|mamaya|later|time|oras/.test(q)){
     const today=localDateStr(new Date());
     const todayEvs=(DB.calEvents||[]).filter(e=>e.date===today);
-    if(!todayEvs.length) return `No events on the calendar today, sir. Want to add one? Use the Calendar view or I can help you draft the details.`;
-    const list=todayEvs.slice(0,4).map(e=>`• **${e.title}**${e.time?` · ${e.time}`:' · All day'}${e.loc?` · ${e.loc}`:''}`).join('\n');
-    return `Today's calendar, sir:\n\n${list}\n\nAnything you need to prepare for these?`;
+    if(!todayEvs.length) return `Nothing on the calendar today. Want to add something? Use the Calendar view, or I can help draft the details.`;
+    const list=todayEvs.slice(0,4).map(e=>`• **${e.title}**${e.time?` · ${to12h(e.time)}`:' · All day'}${e.loc?` · ${e.loc}`:''}`).join('\n');
+    return `Today's calendar:\n\n${list}\n\nAnything you need to prepare for these?`;
   }
 
   // Agent-specific context responses
   const agentCtx={
-    civic:`As your **${name}** agent, I can help you draft public sector briefs, GovTech proposals, procurement documents, or government digital transformation plans. What's the project, sir?`,
-    foodie:`**${name}** here. For F&B, I can help with campaign copy, menu descriptions, UberEats/GrabFood optimization, seasonal promotions, or brand strategy for Chainsmoker or any client. What are we working on?`,
-    bloo:`**${name}** ready. I can assist with interior layout recommendations, space planning briefs, residential systems overviews, or blueprint analysis notes. What's the property, sir?`,
-    rider:`**${name}** online. Moto-logistics routing, fleet maintenance schedules, delivery ops planning — tell me what you need and I'll structure it.`,
-    vee:`**${name}** standing by. For ministry and org development — Buklod schedules, committee structures, program frameworks, or leadership development plans. What's the activity, sir?`,
-    axis:`**${name}** active. I can help design workflows, system architectures, productivity frameworks, or optimize J.O.B Systems itself. What are we building?`,
-    fin:`**${name}** here. Personal infrastructure, budget frameworks, financial system design — what do you need structured, sir? (Note: specific balances are handled in the LIFE — Cash Flow view.)`,
-    rocket:`**${name}** launched. E-commerce strategy, digital product positioning, funnel optimization, RaketPH/Etsy listing copy — what are we selling or building?`,
-    frame:`**${name}** loaded. UI/UX architecture, component structures, design system review, frontend code direction — drop the details and I'll give you a technical breakdown.`,
-    draft:`**${name}** ready. Corporate comms, professional emails, LinkedIn content, career positioning, proposals — what needs to be written, sir?`,
-    lens:`**${name}** focused. Art direction, image generation prompts, creative briefs, brand visual direction — describe what you want to create and I'll give you the direction.`,
-    archi:`**${name}** here. B2B growth strategy, TJC client acquisition, partner recruitment, enterprise pitch frameworks — what's the target, sir?`,
-    pixel:`**${name}** active. Pixel-perfect UI specs, design token systems, component documentation, multi-platform interface architecture — what needs to be designed?`,
-    brandy:`**${name}** on. Executive brand strategy, voice guidelines, brand narrative, visual identity direction — what's the brand challenge, sir?`,
+    civic:`As your **${name}** agent, I can help draft public sector briefs, GovTech proposals, procurement documents, or government digital transformation plans. What's the project?`,
+    foodie:`**${name}** here. For F&B — campaign copy, menu descriptions, UberEats/GrabFood optimization, seasonal promotions, brand strategy for Chainsmoker or any client. What are we working on?`,
+    bloo:`**${name}** here. I can help with interior layout recommendations, space planning briefs, residential systems overviews, or blueprint analysis notes. What's the property?`,
+    rider:`**${name}** here. Moto-logistics routing, fleet maintenance schedules, delivery ops planning — tell me what you need and I'll structure it.`,
+    vee:`**${name}** here. For ministry and org development — Buklod schedules, committee structures, program frameworks, leadership development. What's the activity?`,
+    axis:`**${name}** here. I can help design workflows, system architectures, productivity frameworks, or optimize J.O.B Systems itself. What are we building?`,
+    fin:`**${name}** here. Personal infrastructure, budget frameworks, financial system design — what needs structuring? (Real balances live in LIFE → Cash Flow — I can pull from there too.)`,
+    rocket:`**${name}** here. E-commerce strategy, digital product positioning, funnel optimization, RaketPH/Etsy listing copy — what are we selling or building?`,
+    frame:`**${name}** here. UI/UX architecture, component structures, design system review, frontend code direction — drop the details and I'll give you a technical breakdown.`,
+    draft:`**${name}** here. Corporate comms, professional emails, LinkedIn content, career positioning, proposals — what needs to be written?`,
+    lens:`**${name}** here. Art direction, image generation prompts, creative briefs, brand visual direction — describe what you want and I'll give you the direction.`,
+    archi:`**${name}** here. B2B growth strategy, TJC client acquisition, partner recruitment, enterprise pitch frameworks — what's the target?`,
+    pixel:`**${name}** here. Pixel-perfect UI specs, design token systems, component documentation, multi-platform interface architecture — what needs designing?`,
+    brandy:`**${name}** here. Executive brand strategy, voice guidelines, brand narrative, visual identity direction — what's the brand challenge?`,
   };
 
   // Help / what can you do
   if(/help|ano.*kaya mo|what can|pwede|capable|commands/.test(q)){
-    return (agentCtx[currentAgent]||`**${name}** — ${agent.desc}.\n\nJust talk to me naturally, sir. Ask about tasks, schedule, status, or anything related to my specialization and I'll respond directly.`);
+    return (agentCtx[currentAgent]||`**${name}** — ${agent.desc}.\n\nJust talk to me naturally. Ask about tasks, schedule, status, or anything in my specialization and I'll respond directly.`);
   }
 
   // Draft / write
   if(/draft|write|sulat|gumawa|create|make|compose|ituloy|continue/.test(q)){
-    return `Noted, sir. To draft properly, give me:\n\n1. **Purpose** — what's this for?\n2. **Audience** — who's reading it?\n3. **Key points** — what must be included?\n\nOr just describe it in your own words and I'll structure it for you.`;
+    return `To draft this properly, give me:\n\n1. **Purpose** — what's this for?\n2. **Audience** — who's reading it?\n3. **Key points** — what has to be in there?\n\nOr just describe it in your own words and I'll structure it.`;
   }
 
   // Affirmations
   if(/^(ok|okay|sige|got it|noted|thanks|salamat|copy|understood|clear|oo|yes|yep|go|push)[\s!.]*$/.test(q)){
-    const acks=[`Copy that, sir.`,`Noted.`,`Understood, sir.`,`On it.`,`Clear.`];
+    const acks=[`Got it.`,`On it.`,`Done.`,`Sounds good.`,`Clear.`];
     return acks[Math.floor(Math.random()*acks.length)];
   }
 
   // Default — echo context of current agent
   const defaultReplies=[
-    `${agent.desc}. Go ahead and tell me more — what exactly do you need, sir?`,
-    `Understood. Can you give me a bit more detail so I can give you something immediately usable?`,
-    `On it. What's the specific deliverable, sir — a brief, a plan, a draft, or a recommendation?`,
-    `Got it. Break it down for me — who, what, when, and I'll work with that.`,
+    `${agent.desc}. Tell me more — what exactly do you need?`,
+    `Give me a bit more detail so I can hand you something immediately usable.`,
+    `What's the specific deliverable — a brief, a plan, a draft, a recommendation?`,
+    `Break it down for me — who, what, when — and I'll work with that.`,
   ];
   return defaultReplies[Math.floor(Math.random()*defaultReplies.length)];
 }
@@ -14410,7 +14395,7 @@ function qp(t){const i=document.getElementById('aiInput');if(i){i.value=t;sendAI
 function clearChat(){
   const box=document.getElementById('aiMsgs');
   const a=AGENT_MAP[currentAgent]||AGENT_MAP.civic;
-  if(box)box.innerHTML=`<div class="mr-row"><div class="mav aiv">${a.name[0]}</div><div><div class="mbubble ai">J.O.B Systems online. <strong>${a.name}</strong> standing by, sir.</div><div class="mtime">${_aits()}</div></div></div>`;
+  if(box)box.innerHTML=`<div class="mr-row"><div class="mav aiv">${a.name[0]}</div><div><div class="mbubble ai">J.O.B Systems online. <strong>${a.name}</strong> standing by.</div><div class="mtime">${_aits()}</div></div></div>`;
 }
 
 function exportChat(){
@@ -14648,7 +14633,7 @@ const BOOT_STEPS=[
   {pct:78, msg:'Connecting AI agent stack...'},
   {pct:88, msg:'Syncing memory & history...'},
   {pct:96, msg:'Rendering dashboard...'},
-  {pct:100,msg:'All systems nominal. Welcome, sir.'},
+  {pct:100,msg:'All systems nominal. Welcome.'},
 ];
 function setBootProgress(pct,msg){
   const bar=document.getElementById('bootBar');
@@ -14840,13 +14825,13 @@ function saveWellness(){
   d[today]=todayWellness;
   saveWellnessData(d);
   syncWellnessToSupabase(todayWellness,today);
-  showToast('✓ Wellness check-in saved, sir.');
+  showToast('✓ Wellness check-in saved.');
 }
 
 // ── Health Log Entry ──
 function openHealthLogModal(){const d=document.getElementById('hl-date');if(d)d.value=localDateStr(new Date());const t=document.getElementById('healthLogModalTitle');if(t)t.textContent='Log Health Entry';openModal('healthLogModal');}
 function syncAppleHealth(){
-  showToast('Open Health Export app on iPhone → export CSV → use Import CSV button, sir.');
+  showToast('Open Health Export app on iPhone → export CSV → use Import CSV button.');
 }
 function importHealthCSV(ev){
   const file=ev.target.files[0];if(!file)return;
@@ -14875,7 +14860,7 @@ function importHealthCSV(ev){
       logs.unshift(entry);imported++;
     });
     saveHealthLogs(logs);renderHealth();
-    showToast('✓ '+imported+' health entries imported, sir.');
+    showToast('✓ '+imported+' health entries imported.');
     document.getElementById('ahSyncStatus').textContent='Last sync: '+new Date().toLocaleString('en-PH');
     ev.target.value='';
   };
@@ -14897,11 +14882,11 @@ function saveHealthEntry(){
   const value=parseFloat(document.getElementById('hl-value').value)||0;
   const unit=document.getElementById('hl-unit').value;
   const notes=document.getElementById('hl-notes').value;
-  if(!metric){showToast('Enter a metric name, sir.');return;}
+  if(!metric){showToast('Enter a metric name.');return;}
   const entry={id:Date.now(),date:d,category:cat,metric,value,unit,notes,source:'manual'};
   const logs=getHealthLogs();logs.unshift(entry);saveHealthLogs(logs);
   closeModal('healthLogModal');renderHealth();
-  showToast('✓ Health entry logged, sir.');
+  showToast('✓ Health entry logged.');
 }
 
 // Quick log shortcut — pre-fills the health log modal for a specific category/metric
@@ -15968,7 +15953,7 @@ function runMorningIntelligence(){
         ${oneThing.due?`<span class="pill pgr">${oneThing.due<today?'⚑ OVERDUE':'Due: '+oneThing.due}</span>`:''}
         ${oneThing.client?`<span class="pill pt">${oneThing.client}</span>`:''}
       </div>`
-      :`<div style="font-size:var(--text-sm);color:var(--green);font-weight:700">✓ Clean slate, sir. No urgent items outstanding.</div>`}
+      :`<div style="font-size:var(--text-sm);color:var(--green);font-weight:700">✓ Clean slate. No urgent items outstanding.</div>`}
     </div>
 
     <!-- WINS & LOSSES ROW -->
@@ -15983,7 +15968,7 @@ function runMorningIntelligence(){
             <div class="btxt">${t.title}</div>
             <span class="btag" style="background:rgba(0,255,136,.1);color:var(--green);border:none;border-radius:6px;padding:1px 4px;font-size:var(--text-xs)">${t.world||''}</span>
           </div>`).join('')
-        :`<div style="font-size:var(--text-xs);color:var(--text3);padding:6px 0">No completed tasks yet. Go win something, sir.</div>`}
+        :`<div style="font-size:var(--text-xs);color:var(--text3);padding:6px 0">No completed tasks yet. Go win something.</div>`}
       </div>
 
       <!-- LOSSES -->
@@ -15995,7 +15980,7 @@ function runMorningIntelligence(){
             <div class="btxt">${t.title}</div>
             <span class="btag pr" style="font-size:var(--text-xs)">${t.due||'no date'}</span>
           </div>`).join('')
-        :`<div style="font-size:var(--text-xs);color:var(--text3);padding:6px 0">No overdue tasks. On track, sir.</div>`}
+        :`<div style="font-size:var(--text-xs);color:var(--text3);padding:6px 0">No overdue tasks. On track.</div>`}
       </div>
     </div>
 
@@ -16088,7 +16073,7 @@ function runMorningIntelligence(){
   document.getElementById('jarvisMorningBody').innerHTML=html;
   // Generate session digest each time the brief opens
   LearnEngine.generateSessionDigest();
-  _lastMorningIntelligence=`Morning Intelligence for ${todayPH}. Wins: ${wins.length} tasks accomplished. Losses: ${losses.length} overdue tasks. The One Thing: ${oneThing?oneThing.title:'No urgent items'}. High priority: ${highPrio.length} tasks. ${calToday.length} events today. Net balance: ₱${Math.abs(balance).toLocaleString()}. Open loops: ${openLoops.length}. Good morning, sir.`;
+  _lastMorningIntelligence=`Morning Intelligence for ${todayPH}. Wins: ${wins.length} tasks accomplished. Losses: ${losses.length} overdue tasks. The One Thing: ${oneThing?oneThing.title:'No urgent items'}. High priority: ${highPrio.length} tasks. ${calToday.length} events today. Net balance: ₱${Math.abs(balance).toLocaleString()}. Open loops: ${openLoops.length}. Good morning.`;
   showToast('✓ Morning Intelligence generated');
 }
 
@@ -16194,7 +16179,7 @@ function processCapture(id){
 
 function processCaptureInbox(){
   const inbox=(DB.captures||[]).filter(c=>c.status==='inbox');
-  if(!inbox.length){showToast('Inbox clear, sir.');return;}
+  if(!inbox.length){showToast('Inbox clear.');return;}
   inbox.forEach(c=>processCapture(c.id));
   showToast('✓ '+inbox.length+' captures processed');
 }
@@ -16237,7 +16222,7 @@ function renderCaptureView(){
         </div>
       </div>
     </div>`).join('')
-  :'<div style="text-align:center;padding:30px;color:var(--text3);font-size:var(--text-sm)">No captures in this view, sir.</div>';
+  :'<div style="text-align:center;padding:30px;color:var(--text3);font-size:var(--text-sm)">No captures in this view.</div>';
 }
 
 function deleteCapture(id){
@@ -16265,7 +16250,7 @@ function runConnectionFinder(){
   ];
 
   if(corpus.length<2){
-    document.getElementById('connectionsList').innerHTML='<div style="text-align:center;padding:30px;color:var(--text3)">Not enough recent data. Add journal entries and tasks first, sir.</div>';
+    document.getElementById('connectionsList').innerHTML='<div style="text-align:center;padding:30px;color:var(--text3)">Not enough recent data. Add journal entries and tasks first.</div>';
     return;
   }
 
@@ -16308,7 +16293,7 @@ function renderConnectionsView(){
   const list=document.getElementById('connectionsList');
   if(!list)return;
   if(!DB.connections||!DB.connections.length){
-    list.innerHTML='<div style="text-align:center;padding:40px;color:var(--text3);font-size:var(--text-sm)"><i class="ti ti-link" style="font-size:28px;display:block;margin-bottom:10px;color:var(--purple)"></i>Click <strong style="color:var(--purple)">Find Connections</strong> to scan your 48hr activity, sir.</div>';
+    list.innerHTML='<div style="text-align:center;padding:40px;color:var(--text3);font-size:var(--text-sm)"><i class="ti ti-link" style="font-size:28px;display:block;margin-bottom:10px;color:var(--purple)"></i>Click <strong style="color:var(--purple)">Find Connections</strong> to scan your 48hr activity.</div>';
     return;
   }
   const surpriseColor={'HIGH':'var(--red)','MEDIUM':'var(--amber)','LOW':'var(--teal)'};
@@ -16415,7 +16400,7 @@ function runWeeklySynthesis(){
   renderWeeklyResult(synthesis);
   renderWeeklyArchive();
   showToast('✓ Weekly synthesis complete');
-  speak('Weekly synthesis complete, sir. '+synthesis.oneLine);
+  speak('Weekly synthesis complete. '+synthesis.oneLine);
 }
 
 function renderWeeklyResult(s){
@@ -16435,7 +16420,7 @@ function renderWeeklyResult(s){
       </div>
       <div class="bd-block">
         <div class="bd-h"><i class="ti ti-alert-triangle"></i>What Stalled</div>
-        ${s.stalled.length?s.stalled.map(a=>`<div class="brow"><div class="bdot" style="background:var(--amber)"></div><div class="btxt">${a}</div></div>`).join(''):'<div style="font-size:var(--text-xs);color:var(--text3)">Nothing stalled — good week, sir.</div>'}
+        ${s.stalled.length?s.stalled.map(a=>`<div class="brow"><div class="bdot" style="background:var(--amber)"></div><div class="btxt">${a}</div></div>`).join(''):'<div style="font-size:var(--text-xs);color:var(--text3)">Nothing stalled — good week.</div>'}
       </div>
     </div>
     ${s.patterns.length?`
@@ -16460,7 +16445,7 @@ function renderWeeklyView(){
 function renderWeeklyArchive(){
   const el=document.getElementById('weeklyArchive');
   if(!el)return;
-  if(!DB.weeklySynth||!DB.weeklySynth.length){el.innerHTML='<div style="font-size:var(--text-xs);color:var(--text3)">No syntheses yet, sir.</div>';return;}
+  if(!DB.weeklySynth||!DB.weeklySynth.length){el.innerHTML='<div style="font-size:var(--text-xs);color:var(--text3)">No syntheses yet.</div>';return;}
   el.innerHTML=DB.weeklySynth.map((s,i)=>`
     <div style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:${i===0?'rgba(0,255,136,.05)':'var(--navy2)'};border:1px solid ${i===0?'rgba(0,255,136,.2)':'var(--border)'};border-radius:10px;margin-bottom:6px;cursor:pointer" onclick="renderWeeklyResult(DB.weeklySynth[${i}])">
       <i class="ti ti-calendar-week" style="color:var(--green);font-size:var(--text-sm);line-height:1;display:block"></i>
@@ -16533,7 +16518,7 @@ function renderPatternView(){
   const patternResult=document.getElementById('patternResult');
   const patternArchive=document.getElementById('patternArchive');
   if(!DB.patterns||!DB.patterns.length){
-    if(patternResult)patternResult.innerHTML='<div style="text-align:center;padding:40px;color:var(--text3)"><i class="ti ti-trending-up" style="font-size:28px;display:block;margin-bottom:10px;color:var(--orange)"></i>Click <strong style="color:var(--orange)">Detect Patterns</strong> to scan your history, sir.</div>';
+    if(patternResult)patternResult.innerHTML='<div style="text-align:center;padding:40px;color:var(--text3)"><i class="ti ti-trending-up" style="font-size:28px;display:block;margin-bottom:10px;color:var(--orange)"></i>Click <strong style="color:var(--orange)">Detect Patterns</strong> to scan your history.</div>';
     return;
   }
 
@@ -16601,7 +16586,7 @@ function openDecisionModal(id){
 
 function saveDecision(){
   const situation=document.getElementById('dec-situation').value.trim();
-  if(!situation){showToast('⚠ Enter the situation/context, sir.');return;}
+  if(!situation){showToast('⚠ Enter the situation/context.');return;}
   const d={
     id:_editingDecisionId||Date.now(),
     situation,
@@ -16665,7 +16650,7 @@ function renderDecisionView(){
         </div>
       </div>
     </div>`).join('')
-  :'<div style="text-align:center;padding:30px;color:var(--text3);font-size:var(--text-sm)">No decisions logged yet, sir.</div>';
+  :'<div style="text-align:center;padding:30px;color:var(--text3);font-size:var(--text-sm)">No decisions logged yet.</div>';
 }
 
 function deleteDecision(id){
@@ -16680,12 +16665,12 @@ function deleteDecision(id){
 
 const CLAUDE_MD_DEFAULTS={
   identity:`**Name:** Justine Luis Inacay\n**Role:** Marketing Manager\n**Location:** Las Piñas City, Metro Manila, Philippines\n**Email:** justineluisinacay@gmail.com\n**Timezone:** PHT (UTC+8)\n**Shifts:** Ideahub 2AM–10AM (Tue–Sat) · Chainsmoker 10PM–2AM (Mon–Fri)`,
-  howIWork:`- Operates across six life worlds: WORK-IH, WORK-CS, VENTURE, BUILD, SIDES, FAITH, LIFE\n- Works overnight — peak focus is 2AM–6AM PHT\n- Faith drives decisions. Colossians 3:23 is the operating principle\n- Formal operating mode preferred: British cadence, address as "sir", lead with solution\n- Builds systems before scaling. Documents everything`,
+  howIWork:`- Operates across six life worlds: WORK-IH, WORK-CS, VENTURE, BUILD, SIDES, FAITH, LIFE\n- Works overnight — peak focus is 2AM–6AM PHT\n- Faith drives decisions. Colossians 3:23 is the operating principle\n- Prefers a warm, direct, colleague-style tone — lead with solution, skip formality\n- Builds systems before scaling. Documents everything`,
   focusAreas:`- Ideahub client campaign management (10 clients)\n- Chainsmoker social + UberEats performance\n- TJC agency launch (pre-revenue, targeting North American SMBs)\n- NAKNAK v8 freemium app development\n- DISKARTE POS tracker for Filipino SMBs\n- Digital product shop (RaketPH + Etsy)`,
   activeProjects:`- TJC Business OS portal (Supabase + role-based portals)\n- Millscope Biotech Webinar 2 campaigns\n- NAKNAK v8 build sprint\n- PASAHERO RPG development\n- INACAY Cash Flow tracking`,
   currentBeliefs:`- Consistency beats intensity for creative output\n- Systems multiply individual effort\n- Faith-driven work produces better results than fear-driven work\n- Pre-revenue focus is correct — build before billing\n- Sleep protection is non-negotiable for shift-based life`,
   activeQuestions:`- What is the right TJC pricing structure for US SMBs?\n- How do I grow SIDES to ₱5,000/month passive?\n- When does NAKNAK need external funding?\n- How do I protect FAITH world during high-work periods?`,
-  outputStandards:`- Always address as "sir"\n- Lead with solution, no preamble\n- Markdown, bold headers, bullets for structured output\n- British cadence, analytical, zero fluff\n- Include hook + value + CTA for all marketing content\n- Premium but approachable tone`,
+  outputStandards:`- Warm, direct, colleague-style tone — no formal address\n- Lead with solution, no preamble\n- Markdown, bold headers, bullets for structured output\n- Clear and analytical, zero fluff\n- Include hook + value + CTA for all marketing content\n- Premium but approachable tone`,
   permissions:`- Access all six life worlds freely\n- Reference past context from memory\n- Proactively flag conflicts between worlds\n- Surface decisions pending review\n- Run morning intelligence on request`,
   memoryRules:`- Always update when location, role, or project status changes\n- Tag all memories with world and date\n- Never store passwords or credentials\n- Prioritise recent context over older memory\n- Flag conflicts between memory and current input`,
   updateProtocol:`- Update CLAUDE.md when: role changes, project launches/closes, belief updates confirmed, location changes\n- Run weekly synthesis every Sunday 7PM\n- Run morning intelligence on shift start (2AM)\n- Run pattern detector monthly`
@@ -16814,12 +16799,12 @@ window.executeVoiceCommand=function(rawText){
     if(!m)continue;
     const g=m.groups||{};
     switch(intent.action){
-      case'jil_morning_brief':setView('jarvis-morning');setTimeout(runMorningIntelligence,300);setVcState('idle');showVcResult('Morning Intelligence running, sir.');speak('Generating your morning intelligence, sir.');return;
-      case'jil_belief':setView('jarvis-belief');setTimeout(openBeliefModal,300);setVcState('idle');showVcResult('Belief log open, sir.');return;
-      case'jil_decision':setView('jarvis-decision');setTimeout(openDecisionModal,300);setVcState('idle');showVcResult('Decision log open, sir.');return;
-      case'jil_connect':setView('jarvis-connect');setTimeout(runConnectionFinder,300);setVcState('idle');showVcResult('Finding connections, sir.');return;
-      case'jil_patterns':setView('jarvis-pattern');setTimeout(runPatternDetector,300);setVcState('idle');showVcResult('Detecting patterns, sir.');return;
-      case'jil_weekly':setView('jarvis-weekly');setTimeout(runWeeklySynthesis,300);setVcState('idle');showVcResult('Generating weekly synthesis, sir.');return;
+      case'jil_morning_brief':setView('jarvis-morning');setTimeout(runMorningIntelligence,300);setVcState('idle');showVcResult('Morning Intelligence running.');speak('Generating your morning intelligence.');return;
+      case'jil_belief':setView('jarvis-belief');setTimeout(openBeliefModal,300);setVcState('idle');showVcResult('Belief log open.');return;
+      case'jil_decision':setView('jarvis-decision');setTimeout(openDecisionModal,300);setVcState('idle');showVcResult('Decision log open.');return;
+      case'jil_connect':setView('jarvis-connect');setTimeout(runConnectionFinder,300);setVcState('idle');showVcResult('Finding connections.');return;
+      case'jil_patterns':setView('jarvis-pattern');setTimeout(runPatternDetector,300);setVcState('idle');showVcResult('Detecting patterns.');return;
+      case'jil_weekly':setView('jarvis-weekly');setTimeout(runWeeklySynthesis,300);setVcState('idle');showVcResult('Generating weekly synthesis.');return;
       case'jil_capture':{
         const content=(g.content||rawText.replace(/^capture[:\-\s]+/i,'').trim());
         if(content){
@@ -16829,8 +16814,8 @@ window.executeVoiceCommand=function(rawText){
           DB.captures.unshift(c);
           save('captures');
           setVcState('idle');
-          showVcResult('Captured as '+type+', sir.');
-          speak('Captured as '+type+', sir.');
+          showVcResult('Captured as '+type+'.');
+          speak('Captured as '+type+'.');
           showToast('✓ Captured: '+type);
           addHistory('add','Voice Capture: '+content.substring(0,40),{...c});
           return;
@@ -16853,7 +16838,7 @@ window.executeVoiceCommand=function(rawText){
     setTimeout(()=>{
       const openTasks=(DB.tasks||[]).filter(t=>t.status!=='Done').length;
       const highPrio=(DB.tasks||[]).filter(t=>t.priority==='High'&&t.status!=='Done').length;
-      if(highPrio>0)showToast('⚡ Morning: '+highPrio+' high priority items await, sir.',false);
+      if(highPrio>0)showToast('⚡ Morning: '+highPrio+' high priority items await.',false);
     },3500);
   }
 })();
@@ -17064,8 +17049,8 @@ window.executeVoiceCommand = function(rawText){
         const open=(DB.tasks||[]).filter(t=>t.status!=='Done');
         const high=open.filter(t=>t.priority==='High');
         const result = open.length===0
-          ? 'Wala kang open tasks ngayon, sir. Clean slate!'
-          : `${open.length} open tasks, sir. ${high.length} high priority: ${high.slice(0,3).map(t=>t.title).join(', ')}${high.length>3?'...':'.'}`
+          ? 'Wala kang open tasks ngayon. Clean slate!'
+          : `${open.length} open tasks. ${high.length} high priority: ${high.slice(0,3).map(t=>t.title).join(', ')}${high.length>3?'...':'.'}`
         ;
         setVcState('idle'); showVcResult(result); speak(result); _safeChime('chimeSuccess'); return;
       }
@@ -17073,7 +17058,7 @@ window.executeVoiceCommand = function(rawText){
         const today=localDateStr(new Date());
         const evs=(DB.calEvents||[]).filter(e=>e.date===today);
         const result = evs.length===0
-          ? 'Walang events today, sir.'
+          ? 'Walang events today.'
           : `${evs.length} events ngayon: ${evs.map(e=>(e.time?to12h(e.time)+' ':'')+e.title).join('; ')}.`
         ;
         setVcState('idle'); showVcResult(result); speak(result); _safeChime('chimeSuccess'); return;
@@ -17081,14 +17066,14 @@ window.executeVoiceCommand = function(rawText){
       case 'query_notes':{
         const notes=(DB.notes||[]).slice(0,3);
         const result = notes.length===0
-          ? 'Walang notes pa, sir.'
-          : `Notes mo, sir: ${notes.map(n=>n.title).join(', ')}.`
+          ? 'Walang notes pa.'
+          : `Notes mo: ${notes.map(n=>n.title).join(', ')}.`
         ;
         setVcState('idle'); showVcResult(result); speak(result); _safeChime('chimeSuccess'); return;
       }
       case 'daily_brief':{
         setView('jarvis-morning');
-        setTimeout(()=>{ runMorningIntelligence(); speakSlow(_lastMorningIntelligence||'Morning brief ready, sir.'); _safeChime('chimeSuccess'); }, 400);
+        setTimeout(()=>{ runMorningIntelligence(); speakSlow(_lastMorningIntelligence||'Morning brief ready.'); _safeChime('chimeSuccess'); }, 400);
         setVcState('idle'); return;
       }
       case 'update_task_status_done':{
@@ -17096,10 +17081,10 @@ window.executeVoiceCommand = function(rawText){
         const task=fuzzyFind(target,DB.tasks||[],t=>t.title,3);
         if(task){
           task.status='Done'; save('tasks'); SB.update('tasks',task.id,task,'tasks'); syncTaskToNoteBlock(task);
-          const result=`Done na, sir — "${task.title}" marked complete.`;
+          const result=`Done na — "${task.title}" marked complete.`;
           setVcState('idle'); showVcResult(result); speak(result); _safeChime('chimeSuccess');
         }else{
-          const result='Hindi ko mahanap yung task na iyon, sir.';
+          const result='Hindi ko mahanap yung task na iyon.';
           setVcState('idle'); showVcResult(result); _safeChime('chimeError');
         }
         return;
@@ -17109,7 +17094,7 @@ window.executeVoiceCommand = function(rawText){
         const task=fuzzyFind(target,DB.tasks||[],t=>t.title,3);
         if(task){
           task.priority='High'; save('tasks'); SB.update('tasks',task.id,task,'tasks');
-          const result=`Priority set to High: "${task.title}", sir.`;
+          const result=`Priority set to High: "${task.title}".`;
           setVcState('idle'); showVcResult(result); speak(result); _safeChime('chimeSuccess');
         }else{
           _safeChime('chimeError');
@@ -17121,7 +17106,7 @@ window.executeVoiceCommand = function(rawText){
         const title=(g.title||rawText).trim();
         const task={id:Date.now(),title,world:'WORK-IH',priority:'Medium',status:'Todo',due:'',notes:''};
         DB.tasks.unshift(task); save('tasks'); SB.upsert('tasks',task,'tasks');
-        const result=`Task added, sir: "${title}".`;
+        const result=`Task added: "${title}".`;
         setVcState('idle'); showVcResult(result); speak(result); _safeChime('chimeSuccess');
         addHistory('add','Voice task: '+title,{...task,_dbKey:'tasks'});
         return;
@@ -17147,7 +17132,7 @@ function scheduleAutoBrief(){
     try{
       runMorningIntelligence();
       chimeboot();
-      setTimeout(()=>speak(_lastMorningIntelligence||'Good morning, sir. Daily brief is ready.'),1200);
+      setTimeout(()=>speak(_lastMorningIntelligence||'Good morning. Daily brief is ready.'),1200);
     }catch(e){}
   },3000);
 }
@@ -17210,7 +17195,7 @@ const VBL = {
     localStorage.removeItem(this.STORE_KEY);
     this.profile=null;
     this.enrolled=false;
-    showToast('Voice biometric cleared, sir.');
+    showToast('Voice biometric cleared.');
   }
 };
 
@@ -17235,8 +17220,8 @@ async function enrollVoiceBiometric(){
       const features=VBL.extractFeatures(audioBuffer);
       VBL.saveProfile(features);
       _safeChime('chimeSuccess');
-      showToast('✓ Voice biometric enrolled, sir. Only your voice can now unlock J.O.B Systems.');
-      speak('Voice biometric enrolled. J.O.B Systems is now locked to your voice, sir.');
+      showToast('✓ Voice biometric enrolled. Only your voice can now unlock J.O.B Systems.');
+      speak('Voice biometric enrolled. J.O.B Systems is now locked to your voice.');
     };
     recorder.start();
     setTimeout(()=>recorder.stop(),4000);
@@ -17332,7 +17317,7 @@ window.showVcResult=function(text){
 };
 
 console.log('[J.O.B Systems] Enhancement Layer v2 loaded — Taglish + Chimes + Biometric + Free-flow');
-console.log('[J.O.B Systems] JARVIS Intelligence Layer loaded — Skills 1–7 + CLAUDE.md active, sir.');
+console.log('[J.O.B Systems] JARVIS Intelligence Layer loaded — Skills 1–7 + CLAUDE.md active.');
 
 // ═══════════════════════════════════════════════════════════════════════════
 // J.O.B. WAKE WORD — always-on passive listener
@@ -17570,7 +17555,7 @@ console.log('[J.O.B Systems] JARVIS Intelligence Layer loaded — Skills 1–7 +
 
 <!-- MOBILE STATUS STRIP — live data shown in background behind sheet -->
 <div class="mmm-status-strip" id="mmmStatusStrip" style="display:none">
-  <div class="mmm-status-greeting" id="mmmGreeting">Good morning, sir.</div>
+  <div class="mmm-status-greeting" id="mmmGreeting">Good morning.</div>
   <div class="mmm-status-date" id="mmmDate"></div>
   <div class="mmm-status-chips">
     <div class="mmm-status-chip" onclick="toggleMobileMore();setTimeout(()=>mobileNav('tasks',null),300)">
@@ -17752,8 +17737,8 @@ window.addEventListener('beforeinstallprompt', e => {
         _pwaInstallEvent.prompt();
         const { outcome } = await _pwaInstallEvent.userChoice;
         if(outcome === 'accepted'){
-          showToast('✓ J.O.B Systems installed, sir.');
-          speak('J.O.B Systems installed. Welcome to the app, sir.');
+          showToast('✓ J.O.B Systems installed.');
+          speak('J.O.B Systems installed. Welcome to the app.');
         }
         _pwaInstallEvent = null;
         item.remove();
@@ -17769,7 +17754,7 @@ window.addEventListener('beforeinstallprompt', e => {
 window.addEventListener('appinstalled', () => {
   _pwaInstallEvent = null;
   console.log('[J.O.B Systems] App installed successfully.');
-  showToast('✓ J.O.B Systems is now installed as an app, sir.');
+  showToast('✓ J.O.B Systems is now installed as an app.');
 });
 
 // iOS install instruction (Safari doesn't fire beforeinstallprompt)
