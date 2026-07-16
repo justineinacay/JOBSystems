@@ -1,0 +1,33 @@
+# ── Secrets — never commit these ─────────────────────────────────────────
+# Google OAuth client secret JSON (downloaded from Google Cloud Console).
+# The secret itself lives only as a Supabase Edge Function secret — this
+# downloaded JSON file is the source you copied it from, and must never
+# land in this repo, public or private.
+client_secret_*.json
+*.client_secret.json
+google-credentials.json
+google-oauth-secret.json
+
+# Any local environment / secrets files
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+secrets.json
+
+# Supabase service_role key if ever exported to a file (anon key is the
+# only key that belongs in the client-side app — service_role must never
+# appear in this repo under any filename)
+service_role*.json
+supabase-service-key*
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+.vscode/
+*.swp
+
+# Local backups you don't want tracked
+*.backup.html
+*.bak
