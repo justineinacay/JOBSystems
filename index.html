@@ -4982,8 +4982,8 @@ select option{background:var(--navy3)}
           <div class="fg" style="margin-bottom:12px">
             <label class="fl">Gemini Chat Model <span style="font-size:9px;background:rgba(66,133,244,.1);color:#4285F4;padding:1px 7px;border-radius:10px;font-weight:700;letter-spacing:.06em">JOB AGENTS</span></label>
             <div style="display:flex;gap:8px">
-              <input type="text" id="set-gemini-model" placeholder="gemini-2.5-flash" value="" style="flex:1">
-              <button class="btn btn-t" onclick="localStorage.setItem('j-gemini-model',document.getElementById('set-gemini-model').value.trim()||'gemini-2.5-flash');showToast('✓ Model set')">Save</button>
+              <input type="text" id="set-gemini-model" placeholder="gemini-3.5-flash" value="" style="flex:1">
+              <button class="btn btn-t" onclick="localStorage.setItem('j-gemini-model',document.getElementById('set-gemini-model').value.trim()||'gemini-3.5-flash');showToast('✓ Model set')">Save</button>
             </div>
             <div style="font-size:9px;color:var(--text3);margin-top:4px">Google occasionally retires older model names. If Gemini chat starts failing with a 404, check current names at ai.google.dev/gemini-api/docs/models and update here — no code change needed.</div>
           </div>
@@ -5758,6 +5758,16 @@ function runCapture(){
   const raw=input.value.trim();if(!raw)return;input.value='';
   // Feed learning engine
   LearnEngine.onCapture(raw);
+  // Also log into the Capture Processor's own record — even though the quick-actions
+  // below execute immediately, this keeps a persistent, reviewable trail in the
+  // Capture Processor inbox instead of the action just vanishing once it's done.
+  try{
+    const capEntry={id:Date.now()+1,content:raw,type:'Task',world:'LIFE',notes:'Via CMD bar',status:'processed',date:localDateStr(new Date()),time:new Date().toISOString()};
+    DB.captures.unshift(capEntry);
+    save('captures');
+    SB.upsert('captures',capEntry,'captures');
+    if(typeof renderCaptureView==='function')renderCaptureView();
+  }catch(e){}
   const WM={'cs':'WORK-CS','chainsmoker':'WORK-CS','ih':'WORK-IH','ideahub':'WORK-IH',
     'build':'BUILD','faith':'FAITH','buklod':'FAITH','sides':'SIDES','raket':'SIDES',
     'venture':'VENTURE','tjc':'VENTURE','life':'LIFE'};
@@ -6046,7 +6056,7 @@ function renderTopNotifPanel(){
       ${todayEvents.length?`<div style="font-size:var(--text-xs);font-weight:700;color:var(--text3);letter-spacing:.06em;text-transform:uppercase;padding:10px 10px 4px">Today's Schedule</div>`:''}
       ${todayEvents.map(e=>`<div class="acct-menu-item" onclick="closeTopDropdowns();setView('calendar');calSelectedDate='${e._expandedDate||e.date}';setCalView('day')" style="align-items:flex-start">
         <i class="ti ti-calendar-event" style="color:var(--teal);margin-top:2px"></i>
-        <div style="min-width:0"><div style="font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${e.title}</div><div style="font-size:var(--text-xs);color:var(--text3)">${e.time?e.time.substring(0,5):'All day'}</div></div>
+        <div style="min-width:0"><div style="font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${e.title}</div><div style="font-size:var(--text-xs);color:var(--text3)">${e.time?to12h(e.time):'All day'}</div></div>
       </div>`).join('')}
       ${!totalCount?'<div style="padding:20px;text-align:center;color:var(--text3);font-size:var(--text-sm)">All clear, sir.</div>':''}
     </div>
@@ -6066,7 +6076,7 @@ async function callAIProvider(system,msgs,opts){
     if(!geminiKey)return{ok:false,error:'No Gemini API key configured, sir. Add one in Settings.'};
     try{
       const contents=msgs.map(m=>({role:m.role==='assistant'?'model':'user',parts:[{text:m.content}]}));
-      const model=localStorage.getItem('j-gemini-model')||'gemini-2.5-flash';
+      const model=localStorage.getItem('j-gemini-model')||'gemini-3.5-flash';
       const res=await fetch('https://generativelanguage.googleapis.com/v1beta/models/'+model+':generateContent?key='+geminiKey,{
         method:'POST',
         headers:{'Content-Type':'application/json'},
@@ -6574,7 +6584,7 @@ async function renderSettingsView(){
   const voiceEl=document.getElementById('set-gemini-tts-voice');
   if(voiceEl)voiceEl.value=GEMINI_TTS_VOICE;
   const modelEl=document.getElementById('set-gemini-model');
-  if(modelEl)modelEl.value=localStorage.getItem('j-gemini-model')||'gemini-2.5-flash';
+  if(modelEl)modelEl.value=localStorage.getItem('j-gemini-model')||'gemini-3.5-flash';
   if(oaiEl&&oaiKey)oaiEl.placeholder='sk-proj-...'+oaiKey.slice(-6)+' (set)';
   const gwsStatusEl=document.getElementById('googleWorkspaceStatus');
   if(gwsStatusEl){
@@ -7810,7 +7820,7 @@ function renderTimeGrid(dateStr){
           const top=timeToY(hh+(mm/60));
           const colors={default:'var(--teal)',oc:'var(--orange)',pu:'var(--purple)'};
           const c=colors[ev.type]||colors.default;
-          return `<div style="position:absolute;top:${top}%;left:4px;right:4px;background:rgba(0,0,0,.5);border-left:3px solid ${c};border-radius:0 4px 4px 0;padding:3px 7px;font-size:var(--text-xs);color:${c};z-index:2;cursor:pointer;min-height:22px" title="${ev.notes||''}">${ev.time?ev.time.substring(0,5)+' ':''}<b>${ev.title}</b></div>`;
+          return `<div style="position:absolute;top:${top}%;left:4px;right:4px;background:rgba(0,0,0,.5);border-left:3px solid ${c};border-radius:0 4px 4px 0;padding:3px 7px;font-size:var(--text-xs);color:${c};z-index:2;cursor:pointer;min-height:22px" title="${ev.notes||''}">${ev.time?to12h(ev.time)+' ':''}<b>${ev.title}</b></div>`;
         }).join('')}
         <!-- Task blocks -->
         ${taskBlocks.map(t=>{
@@ -7937,14 +7947,25 @@ function renderBrief(){
     return credits.filter(t=>t.date===dayStr).reduce((s,t)=>s+(t.amount||0),0);
   });
   const chartMax=Math.max(...dailySpend,1);
-  const CH=64,barGap=2;
-  const barW=Math.max(3,(280-((dailySpend.length-1)*barGap))/dailySpend.length);
-  const bars=dailySpend.map((v,i)=>{
-    const h=Math.max(2,(v/chartMax)*CH);
-    const isToday=i===dailySpend.length-1;
-    return `<rect x="${i*(barW+barGap)}" y="${CH-h}" width="${barW}" height="${h}" rx="1.5" fill="${isToday?'var(--teal)':'var(--teal4)'}"/>`;
-  }).join('');
-  const chartSvg=`<svg width="100%" height="${CH}" viewBox="0 0 280 ${CH}" preserveAspectRatio="none" style="display:block">${bars}</svg>`;
+  const CH=64,CW=280;
+  const stepX=dailySpend.length>1?CW/(dailySpend.length-1):CW;
+  const points=dailySpend.map((v,i)=>{
+    const x=i*stepX;
+    const y=CH-Math.max(1,(v/chartMax)*(CH-4));
+    return{x,y,v};
+  });
+  const pathD=points.map((p,i)=>(i===0?'M':'L')+p.x.toFixed(1)+','+p.y.toFixed(1)).join(' ');
+  const areaD=pathD+` L${points[points.length-1].x.toFixed(1)},${CH} L0,${CH} Z`;
+  const lastPoint=points[points.length-1];
+  const chartSvg=`<svg width="100%" height="${CH}" viewBox="0 0 ${CW} ${CH}" preserveAspectRatio="none" style="display:block;overflow:visible">
+    <defs><linearGradient id="cfSpendGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="var(--teal)" stop-opacity="0.28"/>
+      <stop offset="100%" stop-color="var(--teal)" stop-opacity="0"/>
+    </linearGradient></defs>
+    <path d="${areaD}" fill="url(#cfSpendGrad)" stroke="none"/>
+    <path d="${pathD}" fill="none" stroke="var(--teal)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/>
+    <circle cx="${lastPoint.x.toFixed(1)}" cy="${lastPoint.y.toFixed(1)}" r="3.5" fill="var(--teal)" stroke="var(--navy2)" stroke-width="1.5"/>
+  </svg>`;
 
   document.getElementById('briefFinances').innerHTML=`
     <div style="font-size:var(--text-xs);color:var(--text3);margin-bottom:8px;letter-spacing:.04em">${monthLabel}</div>
@@ -7965,9 +7986,9 @@ function renderBrief(){
       </div>
     </div>
 
-    <!-- Daily spend chart — properly sized, not a tiny sparkline -->
+    <!-- Daily spend — line graph tracking expenses across the current month -->
     <div style="background:var(--navy3);border:1px solid var(--border);border-radius:10px;padding:10px 12px;margin-bottom:12px">
-      <div style="font-size:var(--text-xs);color:var(--text3);margin-bottom:6px">Daily spend this month</div>
+      <div style="font-size:var(--text-xs);color:var(--text3);margin-bottom:6px">Expense trend this month</div>
       ${chartSvg}
     </div>
 
@@ -8318,7 +8339,7 @@ function renderBoardTable(tasks){
             <td style="width:90px"><span style="display:flex;align-items:center;gap:4px"><div class="pdot ${t.priority==='High'?'ph':t.priority==='Medium'?'pm':'pl'}"></div>${t.priority||'—'}</span></td>
             <td style="width:110px"><span class="pill ${t.status==='Done'?'pg':t.status==='In Progress'?'pt':t.status==='No Progress'?'pam':'pgr'}">${t.status}</span></td>
             <td style="width:100px;color:var(--text3)">${t.due||'—'}</td>
-            ${boardColVis.time?`<td style="width:90px;color:var(--text3)">${t.startTime?t.startTime.substring(0,5)+(t.endTime?' – '+t.endTime.substring(0,5):''):'—'}</td>`:''}
+            ${boardColVis.time?`<td style="width:90px;color:var(--text3)">${t.startTime?t.startTime.substring(0,5)+(t.endTime?' – '+to12h(t.endTime):''):'—'}</td>`:''}
             <td style="width:100px;color:var(--text3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${t.platform||'—'}</td>
             <td style="width:42px" onclick="event.stopPropagation()"><button class="btn btn-d" style="padding:2px 7px" onclick="deleteTask(event,${t.id})"><i class="ti ti-trash" style="font-size:11px;line-height:1;display:block"></i></button></td>
           </tr>
@@ -11727,6 +11748,18 @@ let calEditingId=null;
 // backward by a full day (e.g. Saturday becomes Friday). This app is built
 // entirely around Asia/Manila local time, so date strings must always be
 // derived from LOCAL date components, never toISOString().
+// Converts a 24-hour "HH:MM" string (as stored by <input type="time">) to
+// 12-hour display format "h:MM AM/PM" — used everywhere a stored time gets
+// shown to the user, since raw input values are always 24-hour internally.
+function to12h(t){
+  if(!t)return t;
+  const parts=t.split(':');
+  let h=parseInt(parts[0],10);
+  const m=parts[1]||'00';
+  const ampm=h>=12?'PM':'AM';
+  h=h%12;if(h===0)h=12;
+  return h+':'+m+' '+ampm;
+}
 function localDateStr(d){
   const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),day=String(d.getDate()).padStart(2,'0');
   return y+'-'+m+'-'+day;
@@ -12023,7 +12056,7 @@ function renderCalSidebar(){
         <div style="width:3px;border-radius:6px;background:${w.color};align-self:stretch;flex-shrink:0;min-height:32px"></div>
         <div style="min-width:0">
           <div style="font-size:var(--text-sm);color:var(--text1);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500">${e.title}</div>
-          <div style="font-size:var(--text-xs);color:var(--text3);margin-top:2px">${e._expandedDate||e.date}${e.time?' · '+e.time.substring(0,5):''}</div>
+          <div style="font-size:var(--text-xs);color:var(--text3);margin-top:2px">${e._expandedDate||e.date}${e.time?' · '+to12h(e.time):''}</div>
         </div>
       </div>`;
     }).join('')||'<div style="font-size:var(--text-xs);color:var(--text3)">Nothing upcoming.</div>';
@@ -12128,8 +12161,8 @@ function renderCalMonth(){
     const conts=continuations[ds]||[];
     html+=`<div class="cday${isToday?' today':''}${isSel?' selected':''}" onclick="calSelectedDate='${ds}';renderCalendar()" ondblclick="openCalEventModalOnDate('${ds}')">
       <div class="dn">${day}</div>
-      ${conts.map(e=>{const w=calWorldById(normaliseType(e.type));return`<div style="font-size:var(--text-xs);background:${w.hex}15;color:${w.color};border-left:2px dashed ${w.hex};border-radius:6px;padding:1px 5px;margin-bottom:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;opacity:.75" onclick="event.stopPropagation();showCalPopover(event,${e.id||0},'${e._expandedDate||e.date}')" title="${e.title} (continued)">↩ ${e.title} until ${e.endTime.substring(0,5)}</div>`;}).join('')}
-      ${evs.slice(0,Math.max(0,3-conts.length)).map(e=>`<div class="${evClass(e)}" onclick="event.stopPropagation();showCalPopover(event,${e.id||0},'${e._expandedDate||e.date}')" title="${e.title}">${e.time?e.time.substring(0,5)+' ':''}${e.title}</div>`).join('')}
+      ${conts.map(e=>{const w=calWorldById(normaliseType(e.type));return`<div style="font-size:var(--text-xs);background:${w.hex}15;color:${w.color};border-left:2px dashed ${w.hex};border-radius:6px;padding:1px 5px;margin-bottom:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;opacity:.75" onclick="event.stopPropagation();showCalPopover(event,${e.id||0},'${e._expandedDate||e.date}')" title="${e.title} (continued)">↩ ${e.title} until ${to12h(e.endTime)}</div>`;}).join('')}
+      ${evs.slice(0,Math.max(0,3-conts.length)).map(e=>`<div class="${evClass(e)}" onclick="event.stopPropagation();showCalPopover(event,${e.id||0},'${e._expandedDate||e.date}')" title="${e.title}">${e.time?to12h(e.time)+' ':''}${e.title}</div>`).join('')}
       ${evs.length+conts.length>3?`<div style="font-size:var(--text-xs);color:var(--text3);padding:1px 4px">+${evs.length+conts.length-3} more</div>`:''}
     </div>`;
   }
@@ -12215,14 +12248,14 @@ function renderCalWeek(){
         const h1=Math.max(24*48-top,20);
         html+=`<div class="cal-event-block" style="top:${top}px;height:${h1}px;background:${w.hex}22;border-left:3px solid ${w.hex};color:${w.color};border-bottom:1px dashed ${w.hex}88" onclick="event.stopPropagation();showCalPopover(event,${e.id||0},'${e._expandedDate||e.date}')">
           <div class="ceb-title">${e.title}</div>
-          <div class="ceb-time">${e.time.substring(0,5)} ↓</div>
+          <div class="ceb-time">${to12h(e.time)} ↓</div>
         </div>`;
       } else {
         const bot=e.endTime?t2px(e.endTime):top+48;
         const h=Math.max(bot-top,20);
         html+=`<div class="cal-event-block" style="top:${top}px;height:${h}px;background:${w.hex}22;border-left:3px solid ${w.hex};color:${w.color}" onclick="event.stopPropagation();showCalPopover(event,${e.id||0},'${e._expandedDate||e.date}')">
           <div class="ceb-title">${e.title}</div>
-          <div class="ceb-time">${e.time.substring(0,5)}${e.endTime?'–'+e.endTime.substring(0,5):''}</div>
+          <div class="ceb-time">${to12h(e.time)}${e.endTime?'–'+to12h(e.endTime):''}</div>
         </div>`;
       }
     });
@@ -12236,7 +12269,7 @@ function renderCalWeek(){
         const bot=t2px(e.endTime);const h=Math.max(bot,20);
         html+=`<div class="cal-event-block" style="top:0;height:${h}px;background:${w.hex}18;border-left:3px dashed ${w.hex};color:${w.color};opacity:.8" onclick="event.stopPropagation();showCalPopover(event,${e.id||0},'${e._expandedDate||e.date}')">
           <div class="ceb-title">↩ ${e.title}</div>
-          <div class="ceb-time">until ${e.endTime.substring(0,5)}</div>
+          <div class="ceb-time">until ${to12h(e.endTime)}</div>
         </div>`;
       });
     }
@@ -12300,7 +12333,7 @@ function renderCalDay(){
       const h1=Math.max(1440-top,24);
       html+=`<div class="cal-event-block" style="top:${top}px;height:${h1}px;background:${w.hex}22;border-left:3px solid ${w.hex};color:${w.color};border-bottom:1px dashed ${w.hex}88" onclick="event.stopPropagation();showCalPopover(event,${e.id||0},'${e._expandedDate||e.date}')">
         <div class="ceb-title">${e.title}</div>
-        <div class="ceb-time">${e.time.substring(0,5)} → midnight ↓</div>
+        <div class="ceb-time">${to12h(e.time)} → midnight ↓</div>
         ${e.loc?`<div class="ceb-time"><i class="ti ti-map-pin"></i> ${e.loc}</div>`:''}
       </div>`;
     } else {
@@ -12308,7 +12341,7 @@ function renderCalDay(){
       const h=Math.max(bot-top,24);
       html+=`<div class="cal-event-block" style="top:${top}px;height:${h}px;background:${w.hex}22;border-left:3px solid ${w.hex};color:${w.color}" onclick="event.stopPropagation();showCalPopover(event,${e.id||0},'${e._expandedDate||e.date}')">
         <div class="ceb-title">${e.title}</div>
-        <div class="ceb-time">${e.time.substring(0,5)}${e.endTime?' – '+e.endTime.substring(0,5):''}</div>
+        <div class="ceb-time">${to12h(e.time)}${e.endTime?' – '+to12h(e.endTime):''}</div>
         ${e.loc?`<div class="ceb-time"><i class="ti ti-map-pin"></i> ${e.loc}</div>`:''}
       </div>`;
     }
@@ -12324,7 +12357,7 @@ function renderCalDay(){
     const bot=t2px(e.endTime);const h=Math.max(bot,20);
     html+=`<div class="cal-event-block" style="top:0;height:${h}px;background:${w.hex}18;border-left:3px dashed ${w.hex};color:${w.color};opacity:.85" onclick="event.stopPropagation();showCalPopover(event,${e.id||0},'${e._expandedDate||e.date}')">
       <div class="ceb-title">↩ ${e.title}</div>
-      <div class="ceb-time">cont. until ${e.endTime.substring(0,5)}</div>
+      <div class="ceb-time">cont. until ${to12h(e.endTime)}</div>
     </div>`;
   });
   html+='</div></div></div>';
@@ -12390,7 +12423,7 @@ function renderCalAgenda(){
       if(e._continuation){
         // Continuation block — lighter style with ↩ indicator
         html+=`<div class="cal-agenda-event" style="opacity:.75;border-left:3px dashed ${w.hex}" onclick="showCalPopover(event,${e.id||0},'${e._contFromDate||ds}')">
-          <div class="ae-time" style="color:${w.color}">↩ until ${e.endTime?e.endTime.substring(0,5):'—'}</div>
+          <div class="ae-time" style="color:${w.color}">↩ until ${e.endTime?to12h(e.endTime):'—'}</div>
           <div class="ae-dot" style="background:${w.hex};opacity:.5"></div>
           <div class="ae-body">
             <div class="ae-title" style="font-style:italic">${e.title} <span style="font-size:var(--text-xs);color:var(--text3)">continued</span></div>
@@ -12399,7 +12432,7 @@ function renderCalAgenda(){
         </div>`;
       } else {
         html+=`<div class="cal-agenda-event" onclick="showCalPopover(event,${e.id||0},'${ds}')">
-          <div class="ae-time">${e.time?e.time.substring(0,5)+(e.endTime?' – '+e.endTime.substring(0,5):''):'All day'}${e._overnight?' ↓':''}</div>
+          <div class="ae-time">${e.time?to12h(e.time)+(e.endTime?' – '+to12h(e.endTime):''):'All day'}${e._overnight?' ↓':''}</div>
           <div class="ae-dot" style="background:${w.hex}"></div>
           <div class="ae-body">
             <div class="ae-title">${e._isTask?'<i class="ti ti-checklist" style="font-size:11px;color:var(--teal);margin-right:5px;vertical-align:middle"></i>':''}${e.title}${e._recurring?'<span style="font-size:var(--text-xs);color:var(--text3);margin-left:5px">↻</span>':''}${e._overnight?'<span style="font-size:var(--text-xs);color:var(--amber);margin-left:5px;font-weight:700">overnight</span>':''}</div>
@@ -12516,7 +12549,7 @@ function showCalPopover(ev,id,dateStr){
       <div style="width:12px;height:12px;border-radius:50%;background:${w.hex};flex-shrink:0"></div>
       <div class="cal-popover-title">${e.title}</div>
     </div>
-    <div class="cal-popover-row"><i class="ti ti-calendar"></i>${dateStr||e.date}${e.time?' · '+e.time.substring(0,5)+(e.endTime?' – '+e.endTime.substring(0,5):''):''}</div>
+    <div class="cal-popover-row"><i class="ti ti-calendar"></i>${dateStr||e.date}${e.time?' · '+to12h(e.time)+(e.endTime?' – '+to12h(e.endTime):''):''}</div>
     ${e.loc?`<div class="cal-popover-row"><i class="ti ti-map-pin"></i>${e.loc}</div>`:''}
     ${e.notes?`<div class="cal-popover-row"><i class="ti ti-notes"></i>${e.notes}</div>`:''}
     ${e.recur&&e.recur!=='none'?`<div class="cal-popover-row"><i class="ti ti-repeat"></i>Repeats ${e.recur}${e.recurEnd?' until '+e.recurEnd:''}</div>`:''}
@@ -13615,7 +13648,20 @@ async function executeVoiceCommand(text){
     return;
   }
   const cmd=parseVoiceCommand(stripped);
-  await dispatchVoiceAction(cmd,stripped);
+  try{
+    const dispatchPromise=dispatchVoiceAction(cmd,stripped);
+    const timeoutPromise=new Promise(resolve=>setTimeout(()=>resolve('__TIMEOUT__'),15000));
+    const raceResult=await Promise.race([dispatchPromise,timeoutPromise]);
+    if(raceResult==='__TIMEOUT__'){
+      setVcState('idle');
+      showToast('⚠ That took too long, sir — check your connection and try again.');
+      console.warn('Voice command timed out after 15s:',stripped);
+    }
+  }catch(e){
+    console.error('Voice command failed:',e);
+    setVcState('idle');
+    showToast('⚠ Voice command hit an error, sir — check console for details.');
+  }
 }
 
 async function dispatchVoiceAction(cmd,rawText){
@@ -13831,35 +13877,22 @@ async function dispatchVoiceAction(cmd,rawText){
       // ── UNKNOWN ───────────────────────────────────────────────
       case 'unknown':
       default:{
-        const suggestions=[
-          '"Add task: [title]"',
-          '"Go to [view]"',
-          '"Mark [task] as done"',
-          '"Delete task: [name]"',
-          '"Move [venture name] to Active"',
-          '"Add client: [name]"',
-          '"Add debit: [description] [amount]"',
-          '"Delete faith: [activity name]"',
-          '"Mute" / "Unmute"',
-        ];
-        result=''; // Unrecognised — silent per config
+        result='Didn\'t catch that as a command, sir — try being more specific, like "add task [title]" or "go to [view]".';
         break;
       }
     }
   }catch(e){
-    _safeChime('chimeError'); result=''; // Error — chime only, no voice
+    _safeChime('chimeError'); result='Something went wrong processing that, sir — check console for details.'; console.error('Voice dispatch error:',e);
   }
 
   setVcState('idle');
-  // Show result visually only — no voice confirmation per config
+  // Always show something — silent failures are exactly what makes this feel broken
   if(result) showVcResult(result);
   if(result) showToast(result.length>60?result.substring(0,57)+'…':result);
   addHistory('voice','Voice: '+rawText.substring(0,60),{cmd:cmd?.action||'unknown',raw:rawText});
-  // Chime only: success vs error vs unrecognised (silent)
   if(cmd && cmd.action && cmd.action!=='unknown'){
     _safeChime('chimeSuccess');
   }
-  // Unrecognised = silent (no chime, no toast, no speak)
 }
 
 // VOICE UI
@@ -13870,32 +13903,34 @@ function showVcResult(text){const r=document.getElementById('vResult');if(!text|
 function setVcState(state){
   vcState=state;
   const pill=document.getElementById('vPill'),orb=document.getElementById('vOrb'),label=document.getElementById('vLabel'),oi=document.getElementById('vOrbIcon'),wave=document.getElementById('siriWave');
-  pill.className='vpill'+(state==='listening'?' listening':'');
-  orb.className='vorb '+state;
-  label.className='vlabel'+(state==='error'?' error':state==='listening'?' listening':'');
+  if(pill)pill.className='vpill'+(state==='listening'?' listening':'');
+  if(orb)orb.className='vorb '+state;
+  if(label)label.className='vlabel'+(state==='error'?' error':state==='listening'?' listening':'');
   const vsb=document.getElementById('vsbtn'),vst=document.getElementById('vsbtnTxt');
+  // voiceFab lived in the desktop topbar — removed when the topbar was decluttered,
+  // so this may legitimately be null now. Everything here must tolerate that.
   const fab=document.getElementById('voiceFab'),fi=document.getElementById('voiceFabIcon');
   const sd=document.getElementById('statusDot'),st=document.getElementById('statusText');
   // Siri wave: show only when listening
   if(wave) wave.style.opacity=state==='listening'?'1':'0';
   if(state==='listening'){
-    oi.className='ti ti-player-stop';
-    vsb.classList.add('active');
-    fab.style.background='rgba(239,68,68,.2)';
-    fi.className='ti ti-player-stop';
-    label.textContent='LISTENING';
-    document.getElementById('vTranscript').textContent='Speak now, sir...';
-    vst.textContent='TAP TO STOP';
-    sd.className='hdot rec';st.textContent='RECORDING';
+    if(oi)oi.className='ti ti-player-stop';
+    if(vsb)vsb.classList.add('active');
+    if(fab)fab.style.background='rgba(239,68,68,.2)';
+    if(fi)fi.className='ti ti-player-stop';
+    if(label)label.textContent='LISTENING';
+    const vt=document.getElementById('vTranscript');if(vt)vt.textContent='Speak now, sir...';
+    if(vst)vst.textContent='TAP TO STOP';
+    if(sd)sd.className='hdot rec';if(st)st.textContent='RECORDING';
   } else {
-    oi.className='ti ti-microphone';
-    vsb.classList.remove('active');
-    fab.style.background='var(--navy3)';
-    fi.className='ti ti-microphone';
-    sd.className='hdot';st.textContent='ONLINE';
-    if(state==='processing'){label.textContent='PROCESSING';vst.textContent='PROCESSING';}
-    else if(state==='idle'||state==='executing'){label.textContent='J.O.B Systems';document.getElementById('vTranscript').textContent='Space to talk...';vst.textContent='VOICE · SPACE';}
-    else if(state==='error'){label.textContent='UNCLEAR';vst.textContent='VOICE · SPACE';}
+    if(oi)oi.className='ti ti-microphone';
+    if(vsb)vsb.classList.remove('active');
+    if(fab)fab.style.background='var(--navy3)';
+    if(fi)fi.className='ti ti-microphone';
+    if(sd)sd.className='hdot';if(st)st.textContent='ONLINE';
+    if(state==='processing'){if(label)label.textContent='PROCESSING';if(vst)vst.textContent='PROCESSING';}
+    else if(state==='idle'||state==='executing'){if(label)label.textContent='J.O.B Systems';const vt=document.getElementById('vTranscript');if(vt)vt.textContent='Space to talk...';if(vst)vst.textContent='VOICE · SPACE';}
+    else if(state==='error'){if(label)label.textContent='UNCLEAR';if(vst)vst.textContent='VOICE · SPACE';}
   }
 }
 
@@ -14220,7 +14255,7 @@ async function sendAI(){
   const osCtx=`\n\nLIVE OS DATA (as of ${today} PHT — this is real, current data from Justine's actual database, not hypothetical):
 TASKS: ${openTasks.length} open total, ${highTasks.length} high priority${highTasks.length?' ('+highTasks.map(t=>t.title).join(', ')+')':''}, ${overdueTasks.length} overdue${overdueTasks.length?' ('+overdueTasks.map(t=>t.title+' due '+t.due).join(', ')+')':''}
 BY DOMAIN: ${Object.entries(domainCounts).map(([k,v])=>k+': '+v).join(', ')}
-TODAY'S SCHEDULE: ${todayEvs.length?todayEvs.map(e=>(e.time?e.time.slice(0,5)+' ':'')+e.title).join(', '):'nothing scheduled'}
+TODAY'S SCHEDULE: ${todayEvs.length?todayEvs.map(e=>(e.time?to12h(e.time)+' ':'')+e.title).join(', '):'nothing scheduled'}
 NEXT 7 DAYS: ${weekEvs.length?weekEvs.map(e=>(e._expandedDate||e.date)+' '+e.title).join('; '):'nothing upcoming'}
 CASHFLOW THIS MONTH: ₱${monthDebit.toLocaleString()} in, ₱${monthCredit.toLocaleString()} out, net ₱${(monthDebit-monthCredit).toLocaleString()}
 ACCOUNT BALANCES: ${accountBalances||'no accounts tracked'}
@@ -15973,7 +16008,7 @@ function runMorningIntelligence(){
         ${calToday.length?calToday.slice(0,5).map(e=>`
           <div class="brow">
             <div class="bdot" style="background:${e.type==='pu'?'var(--purple)':e.type==='oc'?'var(--red)':'var(--teal)'}"></div>
-            <div class="btxt">${e.time?e.time.substring(0,5)+' · ':''}${e.title}</div>
+            <div class="btxt">${e.time?to12h(e.time)+' · ':''}${e.title}</div>
           </div>`).join('')
         :`<div style="font-size:var(--text-xs);color:var(--text3);padding:6px 0">No events today.</div>`}
       </div>
@@ -17039,7 +17074,7 @@ window.executeVoiceCommand = function(rawText){
         const evs=(DB.calEvents||[]).filter(e=>e.date===today);
         const result = evs.length===0
           ? 'Walang events today, sir.'
-          : `${evs.length} events ngayon: ${evs.map(e=>(e.time?e.time.slice(0,5)+' ':'')+e.title).join('; ')}.`
+          : `${evs.length} events ngayon: ${evs.map(e=>(e.time?to12h(e.time)+' ':'')+e.title).join('; ')}.`
         ;
         setVcState('idle'); showVcResult(result); speak(result); _safeChime('chimeSuccess'); return;
       }
