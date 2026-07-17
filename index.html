@@ -1232,7 +1232,7 @@ select option{background:var(--navy3)}
   #cf-overview > div:last-child{grid-template-columns:1fr !important}
 
   /* ── Settings view panels ── */
-  #view-settings .vb{padding:12px !important}
+  #view-settings .vb{padding:12px !important;padding-bottom:calc(72px + env(safe-area-inset-bottom)) !important}
   #view-settings .hc{padding:12px !important}
 
   /* ── Scoreboard tiles: balance text size ── */
@@ -1878,12 +1878,15 @@ select option{background:var(--navy3)}
   .mca-title{font-size:var(--text-sm);font-weight:600;color:var(--text1);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .mca-sub{font-size:var(--text-xs);color:var(--text3);margin-top:2px}
 
-  /* Show strip + agenda on mobile cal, hide main month/week grid */
+  /* Show strip + agenda on mobile cal for month/week (purpose-built mobile
+     UX); Day and Quarter render their own real grids instead — both are
+     already single-column/vertical-scroll by design, so they don't need
+     the strip+agenda substitute and were being hidden for no real reason. */
   .cal-main > .cal-grid,
   .cal-main > .cal-week-header,
-  .cal-main > .cal-week-grid,
-  .cal-main > .cal-day-view,
-  .cal-main > .cal-quarter-grid{display:none !important}
+  .cal-main > .cal-week-grid{display:none !important}
+  .cal-main > .cal-day-view{display:flex !important}
+  .cal-main > .cal-quarter-grid{display:grid !important;grid-template-columns:1fr !important}
   .cal-shell{flex-direction:column}
   .cal-main{display:flex;flex-direction:column;flex:1;overflow:hidden;min-height:0}
 }
@@ -6304,15 +6307,18 @@ function toggleDomainTimer(worldId){
     s.running=false;s.startedAt=null;
   }else{
     s.running=true;s.startedAt=Date.now();
+    localStorage.removeItem('j-timer-badge-hidden'); // starting a fresh session always surfaces the badge again
   }
   _timerSaveState(worldId,s);
   refreshDomainTimerDisplay(worldId);
+  renderFloatingTimerBadge();
   if(s.running)_ensureDomainTimerTick();
 }
 function resetDomainTimer(worldId){
   if(!confirm("Reset today's timer for this domain?"))return;
   _timerSaveState(worldId,{accumSec:0,running:false,startedAt:null});
   refreshDomainTimerDisplay(worldId);
+  renderFloatingTimerBadge();
 }
 function editDomainAllottedHours(worldId){
   const w=(DB.worlds||[]).find(x=>x.id===worldId);if(!w)return;
@@ -6330,7 +6336,15 @@ function _ensureDomainTimerTick(){
   _domainTimerTickInterval=setInterval(()=>{
     const s=_timerState(currentView);
     if(s.running)refreshDomainTimerDisplay(currentView);
+    renderFloatingTimerBadge();
   },1000);
+}
+// Per-domain in-page card: full vs. a slim one-line minimized state.
+function _timerCardStateKey(worldId){return 'j-timer-cardstate-'+worldId;}
+function timerCardIsMini(worldId){return localStorage.getItem(_timerCardStateKey(worldId))==='mini';}
+function toggleTimerCardState(worldId){
+  localStorage.setItem(_timerCardStateKey(worldId),timerCardIsMini(worldId)?'full':'mini');
+  refreshDomainTimerDisplay(worldId);
 }
 function domainTimerCardHTML(worldId){
   const w=(DB.worlds||[]).find(x=>x.id===worldId);if(!w)return'';
@@ -6342,10 +6356,25 @@ function domainTimerCardHTML(worldId){
   const pct=allotted>0?Math.min(100,Math.round((elapsedHrs/allotted)*100)):0;
   const overBudget=allotted>0&&elapsedHrs>allotted;
   const fmtHM=sec=>{const h=Math.floor(sec/3600),m=Math.floor((sec%3600)/60),ss=Math.floor(sec%60);return String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(ss).padStart(2,'0');};
+
+  if(timerCardIsMini(worldId)){
+    return`<div class="hc" style="margin:12px 18px 0;flex-shrink:0;padding:9px 14px;display:flex;align-items:center;gap:10px">
+      <span style="width:8px;height:8px;border-radius:50%;background:${s.running?colorVal:'var(--text4)'};flex-shrink:0${s.running?';box-shadow:0 0 6px '+colorVal:''}"></span>
+      <span style="font-size:var(--text-xs);font-weight:700;color:${colorVal};letter-spacing:.06em;text-transform:uppercase;flex-shrink:0">Time Today</span>
+      <span style="font-size:var(--text-sm);font-weight:800;color:var(--text1);font-variant-numeric:tabular-nums">${fmtHM(elapsedSec)}</span>
+      ${allotted>0?`<span style="font-size:9px;color:var(--text3)">of ${allotted}h</span>`:''}
+      <div style="flex:1"></div>
+      <button class="btn ${s.running?'btn-d':'btn-t'}" style="font-size:9px;padding:4px 9px;flex-shrink:0" onclick="toggleDomainTimer('${worldId}')"><i class="ti ${s.running?'ti-player-pause':'ti-player-play'}"></i></button>
+      <button onclick="toggleTimerCardState('${worldId}')" style="background:transparent;border:none;color:var(--text3);cursor:pointer;padding:2px;flex-shrink:0" title="Expand"><i class="ti ti-chevron-down" style="font-size:14px;display:block"></i></button>
+    </div>`;
+  }
   return`<div class="hc" style="margin:12px 18px 0;flex-shrink:0">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:6px">
       <span style="font-size:var(--text-xs);font-weight:700;color:${colorVal};letter-spacing:.08em;text-transform:uppercase"><i class="ti ti-clock-hour-4"></i> Time Today</span>
-      <span onclick="editDomainAllottedHours('${worldId}')" style="font-size:var(--text-xs);color:var(--text3);cursor:pointer">${allotted>0?allotted+'h allotted':'Set allotted hours'} <i class="ti ti-pencil" style="font-size:9px"></i></span>
+      <div style="display:flex;align-items:center;gap:10px">
+        <span onclick="editDomainAllottedHours('${worldId}')" style="font-size:var(--text-xs);color:var(--text3);cursor:pointer">${allotted>0?allotted+'h allotted':'Set allotted hours'} <i class="ti ti-pencil" style="font-size:9px"></i></span>
+        <button onclick="toggleTimerCardState('${worldId}')" style="background:transparent;border:none;color:var(--text3);cursor:pointer;padding:2px" title="Minimize"><i class="ti ti-chevron-up" style="font-size:14px;display:block"></i></button>
+      </div>
     </div>
     <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
       <div style="font-size:22px;font-weight:800;color:${overBudget?'var(--red)':'var(--text1)'};font-variant-numeric:tabular-nums;letter-spacing:-.01em;flex-shrink:0">${fmtHM(elapsedSec)}</div>
@@ -6357,6 +6386,44 @@ function domainTimerCardHTML(worldId){
       <button class="btn btn-g" style="font-size:var(--text-xs);flex-shrink:0;padding:6px 8px" onclick="resetDomainTimer('${worldId}')" title="Reset today"><i class="ti ti-refresh"></i></button>
     </div>
   </div>`;
+}
+// ── Global floating side badge — visible from ANY view while a timer is
+// running, so switching domains never means losing track of one that's
+// still going. Independent of each page's own mini/full card state.
+function _activeRunningTimerWorld(){
+  return (DB.worlds||[]).find(w=>_timerState(w.id).running);
+}
+function renderFloatingTimerBadge(){
+  let badge=document.getElementById('floatingTimerBadge');
+  const activeWorld=_activeRunningTimerWorld();
+  const hidden=localStorage.getItem('j-timer-badge-hidden')==='1';
+  if(!activeWorld||hidden){
+    if(badge)badge.style.display='none';
+    return;
+  }
+  if(!badge){
+    badge=document.createElement('div');
+    badge.id='floatingTimerBadge';
+    document.body.appendChild(badge);
+  }
+  const w=activeWorld;
+  const colorVal=(w.color&&/^#/.test(w.color))?w.color:('var('+(w.cssVar||'--teal')+')');
+  const elapsedSec=_timerElapsedSec(w.id);
+  const fmtHM=sec=>{const h=Math.floor(sec/3600),m=Math.floor((sec%3600)/60);return String(h).padStart(2,'0')+':'+String(m).padStart(2,'0');};
+  badge.style.cssText='position:fixed;top:50%;right:0;transform:translateY(-50%);z-index:500;display:flex;align-items:center;gap:8px;background:var(--navy2);border:1px solid var(--border2);border-left:3px solid '+colorVal+';border-radius:12px 0 0 12px;padding:10px 10px 10px 14px;box-shadow:-2px 0 16px rgba(0,0,0,.4)';
+  badge.innerHTML=`
+    <div onclick="setView('${w.id}')" style="display:flex;flex-direction:column;align-items:flex-start;cursor:pointer">
+      <span style="font-size:9px;color:var(--text3);font-weight:700;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap;max-width:90px;overflow:hidden;text-overflow:ellipsis">${w.label}</span>
+      <span style="font-size:15px;font-weight:800;color:var(--text1);font-variant-numeric:tabular-nums">${fmtHM(elapsedSec)}</span>
+    </div>
+    <button onclick="event.stopPropagation();toggleDomainTimer('${w.id}')" style="background:transparent;border:none;color:${colorVal};cursor:pointer;padding:4px;flex-shrink:0"><i class="ti ti-player-pause" style="font-size:18px;display:block"></i></button>
+    <button onclick="event.stopPropagation();hideFloatingTimerBadge()" style="background:transparent;border:none;color:var(--text3);cursor:pointer;padding:2px;flex-shrink:0" title="Hide"><i class="ti ti-x" style="font-size:13px;display:block"></i></button>
+  `;
+  badge.style.display='flex';
+}
+function hideFloatingTimerBadge(){
+  localStorage.setItem('j-timer-badge-hidden','1');
+  renderFloatingTimerBadge();
 }
 function mountDomainTimer(worldId){
   const view=document.getElementById('view-'+worldId);if(!view)return;
@@ -7278,6 +7345,9 @@ async function triggerBiometric(){
 document.addEventListener('DOMContentLoaded',()=>{
   // Render dynamic world navigation
   renderSideNav();
+  // Restore the floating timer badge if a timer was left running from a previous session
+  renderFloatingTimerBadge();
+  if(_activeRunningTimerWorld())_ensureDomainTimerTick();
   // Auto-trigger biometric on lock screen (first thing shown)
   if(localStorage.getItem('j-bio-enabled')==='true'){
     setTimeout(triggerBiometric,1000);
@@ -8334,11 +8404,23 @@ function formatTime12(t){
   return h12+':'+(String(m).padStart(2,'0'))+' '+ampm;
 }
 
-// Hook renderCalendar to also render strip on mobile
+// Hook renderCalendar to also render strip on mobile — but only for
+// month/week, where it's the intended simplified substitute. Day, Quarter,
+// and Agenda now render their own real (already mobile-safe) views, so the
+// strip+agenda must get out of the way instead of stacking on top of them.
 const _origRenderCalendar=window.renderCalendar;
 window.renderCalendar=function(){
   if(typeof _origRenderCalendar==='function')_origRenderCalendar();
-  if(window.innerWidth<=430)renderMobileCalStrip();
+  if(window.innerWidth<=430){
+    if(calView==='month'||calView==='week'||calView==='twoweek'){
+      renderMobileCalStrip();
+    }else{
+      const strip=document.getElementById('mobileCalWeekStrip');
+      const agenda=document.getElementById('mobileCalAgenda');
+      if(strip)strip.style.display='none';
+      if(agenda)agenda.style.display='none';
+    }
+  }
 };
 
 // Hook mobileNav to fire animateViewTransition
@@ -17497,7 +17579,7 @@ console.log('[J.O.B Systems] JELIX Intelligence Layer loaded — Skills 1–7 + 
   </div>
   <div style="display:flex;align-items:center;gap:10px;flex-shrink:0">
     <span id="mobileWeather" style="font-size:11px;color:var(--text3);display:flex;align-items:center;gap:3px"><i class="ti ti-cloud" style="font-size:11px"></i>-- °C</span>
-    <button id="mobileNotifBtn" onclick="toggleTopNotif(event)" style="position:relative;background:var(--navy3);border:1px solid var(--border2);border-radius:100px;width:34px;height:34px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text2);flex-shrink:0">
+    <button id="mobileNotifBtn" onclick="toggleTopNotif(event)" style="position:relative;background:var(--navy3);border:1px solid var(--border2);border-radius:100px;width:42px;height:30px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text2);flex-shrink:0">
       <i class="ti ti-bell" style="font-size:15px"></i>
       <span id="mobileNotifBadge" style="display:none;position:absolute;top:5px;right:6px;width:7px;height:7px;border-radius:50%;background:var(--red);border:1.5px solid var(--navy2)"></span>
     </button>
@@ -17629,7 +17711,7 @@ console.log('[J.O.B Systems] JELIX Intelligence Layer loaded — Skills 1–7 + 
       <div class="vlabel" id="vLabel">Ready</div>
       <div class="vtranscript" id="vTranscript">Space to talk...</div>
     </div>
-    <button onclick="closeVBar()" style="background:var(--hover-tint);border:1px solid rgba(255,255,255,.1);border-radius:50%;width:24px;height:24px;color:var(--text3);font-size:var(--text-sm);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;line-height:1">×</button>
+    <button onclick="closeVBar()" style="background:var(--hover-tint);border:1px solid rgba(255,255,255,.1);border-radius:100px;width:30px;height:22px;color:var(--text3);font-size:var(--text-sm);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;line-height:1">×</button>
   </div>
 </div>
 
