@@ -460,7 +460,7 @@ select option{background:var(--navy3)}
 .cev-sid {background:rgba(255,170,0,.12);color:var(--amber);border-left:2px solid var(--amber)}
 .cev-fth {background:rgba(168,85,247,.12);color:var(--purple);border-left:2px solid var(--purple)}
 .cev-lif {background:rgba(59,130,246,.12);color:#3b82f6;border-left:2px solid #3b82f6}
-.cev-task{background:rgba(255,170,0,.08);color:var(--amber);border-left:2px solid var(--amber);border-style:dashed solid solid solid}
+.cev-task{background:transparent;color:var(--text2);border-left:2px dashed var(--amber);padding-left:5px}
 
 /* ── Week view ── */
 .cal-week-grid{display:grid;grid-template-columns:48px repeat(7,1fr);flex:1;overflow:hidden;min-height:0}
@@ -4716,6 +4716,32 @@ select option{background:var(--navy3)}
       </div>
     </div>
 
+    <!-- ===== CUSTOM DOMAIN (generic, modular) ===== -->
+    <div class="view" id="view-domain-generic">
+      <div class="vh">
+        <div>
+          <div class="vt" id="domainGenericTitle"><i class="ti ti-star"></i>Domain</div>
+          <div class="vs" id="domainGenericSub">Custom domain</div>
+        </div>
+        <div class="va">
+          <button class="btn btn-g" onclick="openDomainModulesModal(currentView)"><i class="ti ti-adjustments"></i> Customize</button>
+        </div>
+      </div>
+      <div class="vb" id="domainGenericBody" style="display:flex;flex-direction:column;gap:14px;overflow-y:auto;-webkit-overflow-scrolling:touch"></div>
+    </div>
+
+    <!-- CUSTOMIZE DOMAIN MODULES MODAL -->
+    <div class="mov" id="domainModulesModal">
+      <div class="modal" style="width:min(380px,92vw)">
+        <div class="mh"><div class="mt">Customize Domain</div><button class="mc" onclick="closeModal('domainModulesModal')">×</button></div>
+        <div class="mb">
+          <div style="font-size:var(--text-xs);color:var(--text3);margin-bottom:14px">Choose which modules appear on this domain's page.</div>
+          <div id="domainModulesList" style="display:flex;flex-direction:column;gap:8px"></div>
+        </div>
+        <div class="mf"><button class="btn btn-t" onclick="closeModal('domainModulesModal')">Done</button></div>
+      </div>
+    </div>
+
     <!-- ===== MEMORY ===== -->
     <div class="view" id="view-memory">
       <div class="vh">
@@ -6119,6 +6145,245 @@ function toggleUrgentPopover(){
   }
 }
 let editingWorldId=null;
+// ═══════════════════════════════════════════════════════════════════════════
+// GENERIC DOMAIN VIEW — what a custom domain (Add Domain) actually renders.
+// Modules (tasks/kanban/calendar/notes) are toggleable per-domain and stored
+// on the world object itself (DB.worlds[i].modules), local-only like the
+// rest of the Domains config.
+// ═══════════════════════════════════════════════════════════════════════════
+const DOMAIN_MODULE_DEFAULTS=['tasks','kanban','calendar','notes'];
+const DOMAIN_MODULE_LABELS={
+  tasks:{label:'Task List',icon:'ti-list-check',desc:'A simple task list scoped to this domain'},
+  kanban:{label:'Kanban Board',icon:'ti-layout-kanban',desc:'Todo / In Progress / No Progress / Done'},
+  calendar:{label:'Calendar',icon:'ti-calendar',desc:'Upcoming events tagged to this domain'},
+  notes:{label:'Notes',icon:'ti-notes',desc:'Notes filed under this domain'}
+};
+function domainModulesFor(worldId){
+  const w=(DB.worlds||[]).find(x=>x.id===worldId);
+  return (w&&Array.isArray(w.modules))?w.modules:DOMAIN_MODULE_DEFAULTS.slice();
+}
+function renderDomainGenericView(worldId){
+  const w=(DB.worlds||[]).find(x=>x.id===worldId);
+  const body=document.getElementById('domainGenericBody');
+  const titleEl=document.getElementById('domainGenericTitle');
+  if(!w||!body)return;
+  const colorVal=(w.color&&/^#/.test(w.color))?w.color:('var('+(w.cssVar||'--teal')+')');
+  if(titleEl)titleEl.innerHTML=`<i class="ti ${w.icon||'ti-star'}" style="color:${colorVal}"></i>${w.label}`;
+  const modules=domainModulesFor(worldId);
+  const worldTag=worldId.toUpperCase();
+  const tasks=(DB.tasks||[]).filter(t=>t.world===worldTag);
+  const notes=(DB.notes||[]).filter(n=>n.worldId===worldId);
+  let html=domainTimerCardHTML(worldId).replace('margin:12px 18px 0','margin:0');
+  if(modules.includes('tasks')){
+    const open=tasks.filter(t=>t.status!=='Done');
+    html+=`<div class="hc">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <span style="font-size:var(--text-xs);font-weight:700;color:${colorVal};letter-spacing:.08em;text-transform:uppercase"><i class="ti ti-list-check"></i> Tasks</span>
+        <button class="btn btn-t" style="font-size:var(--text-xs)" onclick="openTaskForStatus('${worldTag}','Todo')"><i class="ti ti-plus"></i> Add Task</button>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        ${open.length?open.slice(0,10).map(t=>`<div onclick="editTask(${t.id})" style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--navy3);border:1px solid var(--border);border-radius:10px;cursor:pointer">
+          <span style="width:7px;height:7px;border-radius:50%;background:${t.priority==='High'?'var(--red)':t.priority==='Medium'?'var(--amber)':'var(--text3)'};flex-shrink:0"></span>
+          <span style="flex:1;font-size:var(--text-sm);color:var(--text1);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${t.title}</span>
+          ${t.due?`<span style="font-size:9px;color:var(--text3);flex-shrink:0">${t.due}</span>`:''}
+        </div>`).join(''):'<div style="font-size:var(--text-xs);color:var(--text3);text-align:center;padding:12px">No open tasks yet.</div>'}
+      </div>
+    </div>`;
+  }
+  if(modules.includes('kanban')){
+    const statuses=['Todo','In Progress','No Progress','Done'];
+    const sc={'Todo':'var(--text3)','In Progress':'var(--teal)','No Progress':'var(--amber)','Done':'var(--green)'};
+    html+=`<div class="hc">
+      <div style="font-size:var(--text-xs);font-weight:700;color:${colorVal};letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px"><i class="ti ti-layout-kanban"></i> Kanban</div>
+      <div style="display:flex;gap:10px;overflow-x:auto;padding-bottom:4px">
+        ${statuses.map(s=>{
+          const items=tasks.filter(t=>t.status===s);
+          return `<div style="min-width:180px;flex-shrink:0;background:var(--navy2);border:1px solid var(--border);border-top:2px solid ${sc[s]};border-radius:10px;overflow:hidden">
+            <div style="padding:7px 10px;border-bottom:1px solid var(--border);font-size:9px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:${sc[s]};display:flex;justify-content:space-between"><span>${s}</span><span>${items.length}</span></div>
+            <div style="padding:6px;display:flex;flex-direction:column;gap:5px;max-height:220px;overflow-y:auto">
+              ${items.length?items.map(t=>`<div onclick="editTask(${t.id})" style="background:var(--navy3);border:1px solid var(--border);border-radius:7px;padding:7px 9px;cursor:pointer;font-size:var(--text-xs);color:var(--text1)">${t.title}</div>`).join(''):`<div style="font-size:9px;color:var(--text3);text-align:center;padding:8px">—</div>`}
+            </div>
+            ${s!=='Done'?`<div onclick="openTaskForStatus('${worldTag}','${s}')" style="padding:6px;text-align:center;font-size:9px;color:var(--text3);cursor:pointer;border-top:1px solid var(--border)"><i class="ti ti-plus"></i> Add</div>`:''}
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`;
+  }
+  if(modules.includes('calendar')){
+    const today=localDateStr(new Date());
+    const upcoming=(DB.calEvents||[]).filter(e=>e.type===worldId&&e.date>=today).sort((a,b)=>a.date.localeCompare(b.date)).slice(0,6);
+    html+=`<div class="hc">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <span style="font-size:var(--text-xs);font-weight:700;color:${colorVal};letter-spacing:.08em;text-transform:uppercase"><i class="ti ti-calendar"></i> Calendar</span>
+        <button class="btn btn-t" style="font-size:var(--text-xs)" onclick="_openDomainEventModal('${worldId}')"><i class="ti ti-plus"></i> Add Event</button>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        ${upcoming.length?upcoming.map(e=>`<div onclick="editCalEvent(${e.id})" style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:${colorVal}14;border-left:2px solid ${colorVal};border-radius:8px;cursor:pointer">
+          <span style="flex:1;font-size:var(--text-sm);color:var(--text1)">${e.title}</span>
+          <span style="font-size:9px;color:var(--text3);flex-shrink:0">${e.date}${e.time?' · '+to12h(e.time):''}</span>
+        </div>`).join(''):'<div style="font-size:var(--text-xs);color:var(--text3);text-align:center;padding:12px">Nothing scheduled yet.</div>'}
+      </div>
+    </div>`;
+  }
+  if(modules.includes('notes')){
+    html+=`<div class="hc">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <span style="font-size:var(--text-xs);font-weight:700;color:${colorVal};letter-spacing:.08em;text-transform:uppercase"><i class="ti ti-notes"></i> Notes</span>
+        <button class="btn btn-t" style="font-size:var(--text-xs)" onclick="_newDomainNote('${worldId}')"><i class="ti ti-plus"></i> New Note</button>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        ${notes.length?notes.slice(0,8).map(n=>`<div onclick="setView('notes');setTimeout(()=>{const i=DB.notes.findIndex(x=>x.id===${n.id});if(i>=0){currentNote=i;renderNotesList();openNoteEditor(i);}},100)" style="padding:8px 10px;background:var(--navy3);border:1px solid var(--border);border-radius:10px;cursor:pointer;font-size:var(--text-sm);color:var(--text1);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${n.title||'Untitled'}</div>`).join(''):'<div style="font-size:var(--text-xs);color:var(--text3);text-align:center;padding:12px">No notes yet.</div>'}
+      </div>
+    </div>`;
+  }
+  if(!modules.length){
+    html=`<div style="text-align:center;padding:40px 20px;color:var(--text3)">
+      <i class="ti ti-layout-grid-add" style="font-size:32px;display:block;margin-bottom:10px;opacity:.5"></i>
+      <div style="font-size:var(--text-sm);margin-bottom:10px">No modules added yet.</div>
+      <button class="btn btn-t" onclick="openDomainModulesModal('${worldId}')">Add modules</button>
+    </div>`;
+  }
+  body.innerHTML=html;
+}
+function openDomainModulesModal(worldId){
+  const list=document.getElementById('domainModulesList');if(!list)return;
+  const active=domainModulesFor(worldId);
+  list.innerHTML=Object.entries(DOMAIN_MODULE_LABELS).map(([id,m])=>`
+    <label style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--navy3);border:1px solid var(--border);border-radius:10px;cursor:pointer">
+      <input type="checkbox" ${active.includes(id)?'checked':''} onchange="toggleDomainModule('${worldId}','${id}',this.checked)" style="width:16px;height:16px;accent-color:var(--teal);flex-shrink:0">
+      <i class="ti ${m.icon}" style="color:var(--teal);font-size:var(--text-md)"></i>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:var(--text-sm);font-weight:600;color:var(--text1)">${m.label}</div>
+        <div style="font-size:9px;color:var(--text3)">${m.desc}</div>
+      </div>
+    </label>`).join('');
+  openModal('domainModulesModal');
+}
+function toggleDomainModule(worldId,moduleId,checked){
+  const i=(DB.worlds||[]).findIndex(w=>w.id===worldId);if(i<0)return;
+  let mods=domainModulesFor(worldId).slice();
+  if(checked&&!mods.includes(moduleId))mods.push(moduleId);
+  if(!checked)mods=mods.filter(m=>m!==moduleId);
+  DB.worlds[i].modules=mods;
+  save('worlds');
+  if(currentView===worldId)renderDomainGenericView(worldId);
+}
+function _openDomainEventModal(worldId){
+  openCalEventModalOnDate(localDateStr(new Date()));
+  setTimeout(()=>{const sel=document.getElementById('ce-type');if(sel)sel.value=worldId;},50);
+}
+function _newDomainNote(worldId){
+  const n={id:Date.now(),title:'New Note',worldId:worldId,blocks:[{id:Date.now()+'.1',type:'h1',content:'',done:false},{id:Date.now()+'.2',type:'p',content:'',done:false}]};
+  DB.notes.push(n);save('notes');
+  setView('notes');
+  setTimeout(()=>{currentNote=DB.notes.length-1;renderNotesList();openNoteEditor(currentNote);},150);
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// DOMAIN TIME ALLOCATION — an adjustable daily-hours budget per domain, with
+// a start/pause timer tracking actual time spent today against it. Works
+// identically for built-in worlds (Ideahub, Chainsmoker, etc.) and custom
+// domains — both live in DB.worlds, so one engine covers all of them.
+// ═══════════════════════════════════════════════════════════════════════════
+function _timerKey(worldId){return 'j-timer-'+worldId+'-'+localDateStr(new Date());}
+function _timerState(worldId){
+  try{return JSON.parse(localStorage.getItem(_timerKey(worldId))||'null')||{accumSec:0,running:false,startedAt:null};}
+  catch(e){return{accumSec:0,running:false,startedAt:null};}
+}
+function _timerSaveState(worldId,state){localStorage.setItem(_timerKey(worldId),JSON.stringify(state));}
+function _timerElapsedSec(worldId){
+  const s=_timerState(worldId);
+  let sec=s.accumSec||0;
+  if(s.running&&s.startedAt)sec+=(Date.now()-s.startedAt)/1000;
+  return sec;
+}
+function toggleDomainTimer(worldId){
+  const s=_timerState(worldId);
+  if(s.running){
+    s.accumSec=(s.accumSec||0)+(Date.now()-s.startedAt)/1000;
+    s.running=false;s.startedAt=null;
+  }else{
+    s.running=true;s.startedAt=Date.now();
+  }
+  _timerSaveState(worldId,s);
+  refreshDomainTimerDisplay(worldId);
+  if(s.running)_ensureDomainTimerTick();
+}
+function resetDomainTimer(worldId){
+  if(!confirm("Reset today's timer for this domain?"))return;
+  _timerSaveState(worldId,{accumSec:0,running:false,startedAt:null});
+  refreshDomainTimerDisplay(worldId);
+}
+function editDomainAllottedHours(worldId){
+  const w=(DB.worlds||[]).find(x=>x.id===worldId);if(!w)return;
+  const val=prompt('Hours allotted per day for '+w.label+':',w.allottedHours||'');
+  if(val===null)return;
+  const num=parseFloat(val);
+  if(isNaN(num)||num<0){showToast('Enter a valid number of hours.');return;}
+  w.allottedHours=num;
+  save('worlds');
+  refreshDomainTimerDisplay(worldId);
+}
+let _domainTimerTickInterval=null;
+function _ensureDomainTimerTick(){
+  if(_domainTimerTickInterval)return;
+  _domainTimerTickInterval=setInterval(()=>{
+    const s=_timerState(currentView);
+    if(s.running)refreshDomainTimerDisplay(currentView);
+  },1000);
+}
+function domainTimerCardHTML(worldId){
+  const w=(DB.worlds||[]).find(x=>x.id===worldId);if(!w)return'';
+  const colorVal=(w.color&&/^#/.test(w.color))?w.color:('var('+(w.cssVar||'--teal')+')');
+  const allotted=w.allottedHours||0;
+  const elapsedSec=_timerElapsedSec(worldId);
+  const elapsedHrs=elapsedSec/3600;
+  const s=_timerState(worldId);
+  const pct=allotted>0?Math.min(100,Math.round((elapsedHrs/allotted)*100)):0;
+  const overBudget=allotted>0&&elapsedHrs>allotted;
+  const fmtHM=sec=>{const h=Math.floor(sec/3600),m=Math.floor((sec%3600)/60),ss=Math.floor(sec%60);return String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(ss).padStart(2,'0');};
+  return`<div class="hc" style="margin:12px 18px 0;flex-shrink:0">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:6px">
+      <span style="font-size:var(--text-xs);font-weight:700;color:${colorVal};letter-spacing:.08em;text-transform:uppercase"><i class="ti ti-clock-hour-4"></i> Time Today</span>
+      <span onclick="editDomainAllottedHours('${worldId}')" style="font-size:var(--text-xs);color:var(--text3);cursor:pointer">${allotted>0?allotted+'h allotted':'Set allotted hours'} <i class="ti ti-pencil" style="font-size:9px"></i></span>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+      <div style="font-size:22px;font-weight:800;color:${overBudget?'var(--red)':'var(--text1)'};font-variant-numeric:tabular-nums;letter-spacing:-.01em;flex-shrink:0">${fmtHM(elapsedSec)}</div>
+      <div style="flex:1;min-width:120px">
+        ${allotted>0?`<div style="height:6px;background:var(--navy4);border-radius:4px;overflow:hidden;margin-bottom:3px"><div style="height:100%;width:${pct}%;background:${overBudget?'var(--red)':colorVal};border-radius:4px;transition:width .3s"></div></div>
+        <div style="font-size:9px;color:var(--text3)">${overBudget?'Over by '+(elapsedHrs-allotted).toFixed(1)+'h':(allotted-elapsedHrs).toFixed(1)+'h remaining'}</div>`:`<div style="font-size:9px;color:var(--text3)">No daily allotment set yet — click above to set one.</div>`}
+      </div>
+      <button class="btn ${s.running?'btn-d':'btn-t'}" style="font-size:var(--text-xs);flex-shrink:0" onclick="toggleDomainTimer('${worldId}')"><i class="ti ${s.running?'ti-player-pause':'ti-player-play'}"></i> ${s.running?'Pause':'Start'}</button>
+      <button class="btn btn-g" style="font-size:var(--text-xs);flex-shrink:0;padding:6px 8px" onclick="resetDomainTimer('${worldId}')" title="Reset today"><i class="ti ti-refresh"></i></button>
+    </div>
+  </div>`;
+}
+function mountDomainTimer(worldId){
+  const view=document.getElementById('view-'+worldId);if(!view)return;
+  if(document.getElementById('domainTimer-'+worldId))return;
+  const vh=view.querySelector('.vh');
+  const mount=document.createElement('div');
+  mount.id='domainTimer-'+worldId;
+  if(vh&&vh.parentNode)vh.parentNode.insertBefore(mount,vh.nextSibling);
+  else view.insertBefore(mount,view.firstChild);
+}
+function renderDomainTimerCard(worldId){
+  mountDomainTimer(worldId);
+  const mount=document.getElementById('domainTimer-'+worldId);if(!mount)return;
+  mount.innerHTML=domainTimerCardHTML(worldId);
+  if(_timerState(worldId).running)_ensureDomainTimerTick();
+}
+// Dispatcher used by the timer's own controls and the live tick — works
+// whether the active view is a built-in world (has a mounted card) or a
+// custom domain (re-renders the generic view, which builds its own card).
+function refreshDomainTimerDisplay(worldId){
+  const mount=document.getElementById('domainTimer-'+worldId);
+  if(mount){mount.innerHTML=domainTimerCardHTML(worldId);return;}
+  if(currentView===worldId&&document.getElementById('view-domain-generic')?.classList.contains('active')){
+    renderDomainGenericView(worldId);
+  }
+}
+
 function openWorldModal(id){
   editingWorldId=id||null;
   const w=id?(DB.worlds||[]).find(x=>x.id===id):null;
@@ -7628,13 +7893,19 @@ let currentView='dashboard';
 function setView(v){
   document.querySelectorAll('.view').forEach(el=>el.classList.remove('active'));
   document.querySelectorAll('[data-view]').forEach(el=>el.classList.toggle('active',el.dataset.view===v));
-  const el=document.getElementById('view-'+v);if(el)el.classList.add('active');
+  let el=document.getElementById('view-'+v);
+  // Custom domains (added via + Add Domain) have no dedicated view element —
+  // route them into the generic modular domain view instead of going blank.
+  const isCustomDomain=!el&&(DB.worlds||[]).some(w=>w.id===v);
+  if(isCustomDomain)el=document.getElementById('view-domain-generic');
+  if(el)el.classList.add('active');
   currentView=v;addHistory('navigate','Navigated to '+v,{view:v});
   LearnEngine.onNavigate(v);
   renderSideNav();
   const r={dashboard:renderBrief,'work-ih':renderWorkIH,'work-cs':renderWorkCS,venture:renderVenture,build:renderBuild,sides:renderSides,faith:renderFaith,life:renderLife,calendar:renderCalendar,tasks:renderTasks,notes:renderNotesList,journal:renderJournal,memory:renderMemory,history:renderHistory,settings:renderSettingsView,'worlds-settings':renderWorldsSettings};
   if(v==='life'){renderLife();}
   else if(v==='biomonitor'){setView('life');setTimeout(()=>{const btns=document.querySelectorAll('.cfbt');btns.forEach(b=>{if(b.textContent.includes('Bio Monitor')){setCFTab('biomonitor',b);}});},150);}
+  else if(isCustomDomain)renderDomainGenericView(v);
   else if(r[v])r[v]();
   // Sync mobile bottom-nav active state
   syncMobileNavActive(v);
@@ -8162,9 +8433,9 @@ function briefWeekNav(dir){
 function renderBriefWeekStrip(){
   const today=new Date();
   const todayStr=localDateStr(today);
-  const mon=new Date(today);
-  mon.setDate(today.getDate()-((today.getDay()+6)%7)+briefWeekOffset*7);
-  const days=Array.from({length:7},(_,i)=>{const d=new Date(mon);d.setDate(mon.getDate()+i);return d;});
+  const sun=new Date(today);
+  sun.setDate(today.getDate()-today.getDay()+briefWeekOffset*7);
+  const days=Array.from({length:7},(_,i)=>{const d=new Date(sun);d.setDate(sun.getDate()+i);return d;});
   const months=['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
   const label=document.getElementById('briefWeekLabel');
   if(label)label.textContent=months[mon.getMonth()]+' '+mon.getFullYear();
@@ -8511,17 +8782,21 @@ function renderBrief(){
   const budgetLimit=(DB.budget&&DB.budget.monthlyLimit)||30000;
   const budgetPct=Math.min(100,Math.round((creditTotal/budgetLimit)*100));
   const budgetColor=budgetPct>=100?'var(--red)':budgetPct>=80?'var(--amber)':'var(--teal)';
-  // Chart: daily spend for every day this month so far — bar chart, one bar per day
-  const daysInMonthSoFar=now.getDate();
-  const dailySpend=Array.from({length:daysInMonthSoFar},(_,i)=>{
-    const dayStr=monthKey+'-'+String(i+1).padStart(2,'0');
+  // Chart: trailing 7 days (not the whole month) — gives each bar enough
+  // room for its own value label without overlapping its neighbors.
+  const last7Dates=Array.from({length:7},(_,i)=>{
+    const d=new Date(now);d.setDate(now.getDate()-(6-i));
+    return d;
+  });
+  const dailySpend=last7Dates.map(d=>{
+    const dayStr=localDateStr(d);
     return credits.filter(t=>t.date===dayStr).reduce((s,t)=>s+(t.amount||0),0);
   });
   const chartMax=Math.max(...dailySpend,1);
-  const CH=48,CW=280,TOP_PAD=16; // TOP_PAD reserves headroom so the peak-value label never collides with its bar
+  const CH=52,CW=280,TOP_PAD=18; // TOP_PAD reserves headroom so the peak-value label never collides with its bar
   const maxIdx=dailySpend.indexOf(Math.max(...dailySpend));
   const slotW=CW/dailySpend.length;
-  const barGap=Math.min(2,slotW*.2);
+  const barGap=Math.min(10,slotW*.25);
   const barW=Math.max(1.5,slotW-barGap);
   const gridLines=[0,1,2].map(i=>`<line x1="0" y1="${16+(CH-16)/2*i}" x2="${CW}" y2="${16+(CH-16)/2*i}" stroke="var(--border)" stroke-width="1"/>`).join('');
   const bars=dailySpend.map((v,i)=>{
@@ -8530,22 +8805,22 @@ function renderBrief(){
     const y=CH-h;
     const isMax=i===maxIdx&&v>0;
     const isToday=i===dailySpend.length-1;
-    return `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${barW.toFixed(1)}" height="${h.toFixed(1)}" rx="1.5" fill="${isMax?'var(--amber)':isToday?'var(--teal)':'var(--teal3)'}"/>`;
+    return `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${barW.toFixed(1)}" height="${h.toFixed(1)}" rx="2" fill="${isMax?'var(--amber)':isToday?'var(--teal)':'var(--teal3)'}"/>`;
   }).join('');
   const maxBarX=maxIdx*slotW+slotW/2;
-  // Small value labels above every other non-zero day — the peak gets its own
-  // bigger amber callout below; these are the "per-day" indicators.
+  // With only 7 bars now, every non-zero day gets its own legible label —
+  // this is the "per-day indicator" that a 31-bar month couldn't fit.
   const dayLabels=dailySpend.map((v,i)=>{
     if(v<=0||i===maxIdx)return'';
     const barX=i*slotW+slotW/2;
     const barY=CH-Math.max(1.5,(v/chartMax)*(CH-TOP_PAD));
-    return `<text x="${barX.toFixed(1)}" y="${Math.max(barY-4,9).toFixed(1)}" font-size="5.5" fill="var(--text3)" text-anchor="middle" font-weight="600">₱${Math.round(v).toLocaleString()}</text>`;
+    return `<text x="${barX.toFixed(1)}" y="${Math.max(barY-5,9).toFixed(1)}" font-size="8" fill="var(--text2)" text-anchor="middle" font-weight="700">₱${Math.round(v).toLocaleString()}</text>`;
   }).join('');
   const chartSvg=`<svg width="100%" height="${CH+16}" viewBox="0 0 ${CW} ${CH+16}" preserveAspectRatio="none" style="display:block;overflow:visible">
     ${gridLines}
     ${bars}
     ${dayLabels}
-    ${chartMax>1?`<text x="${Math.min(Math.max(maxBarX,14),CW-14).toFixed(1)}" y="10" font-size="7.5" fill="var(--amber)" text-anchor="middle" font-weight="700">₱${Math.round(dailySpend[maxIdx]).toLocaleString()}</text>`:''}
+    ${chartMax>1?`<text x="${Math.min(Math.max(maxBarX,16),CW-16).toFixed(1)}" y="11" font-size="9" fill="var(--amber)" text-anchor="middle" font-weight="700">₱${Math.round(dailySpend[maxIdx]).toLocaleString()}</text>`:''}
   </svg>`;
 
   document.getElementById('briefFinances').innerHTML=`
@@ -8565,17 +8840,15 @@ function renderBrief(){
       </div>
     </div>
 
-    <!-- Daily spend — bar chart, one bar per day this month -->
+    <!-- Daily spend — 7-day trailing window, one bar per day -->
     <div style="background:var(--navy3);border:1px solid var(--border);border-radius:10px;padding:10px 12px;margin-bottom:12px">
       <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px">
-        <span style="font-size:var(--text-xs);color:var(--text3)">Daily expense monitoring</span>
+        <span style="font-size:var(--text-xs);color:var(--text3)">Last 7 days</span>
         <span style="font-size:var(--text-xs);color:var(--teal);font-weight:700">Today: ₱${Math.round(dailySpend[dailySpend.length-1]).toLocaleString()}</span>
       </div>
       ${chartSvg}
       <div style="display:flex;justify-content:space-between;margin-top:4px">
-        <span style="font-size:9px;color:var(--text4)">1</span>
-        <span style="font-size:9px;color:var(--text4)">${Math.ceil(dailySpend.length/2)}</span>
-        <span style="font-size:9px;color:var(--text4)">${dailySpend.length}</span>
+        ${last7Dates.map(d=>`<span style="font-size:9px;color:var(--text4);flex:1;text-align:center">${d.toLocaleDateString('en-PH',{weekday:'short',timeZone:'Asia/Manila'}).slice(0,2)}</span>`).join('')}
       </div>
     </div>
 
@@ -9246,7 +9519,7 @@ const IH_CLIENT_COLORS=[
 ];
 function getClientColor(idx){return IH_CLIENT_COLORS[idx%IH_CLIENT_COLORS.length];}
 
-function renderWorkIH(){
+function renderWorkIH(){renderDomainTimerCard('work-ih');
   const grid=document.getElementById('ihClientCards');if(!grid)return;
   if(!DB.clients.length){grid.innerHTML='<div style="font-size:var(--text-xs);color:var(--text3);padding:10px">No clients yet. Click + Client to begin.</div>';return;}
   grid.innerHTML=DB.clients.map((c,idx)=>{
@@ -9417,7 +9690,7 @@ function renderCSActive(){
   if(csActiveView==='kanban')renderCSKanban(tasks,cfg);
   else renderCSList(tasks,cfg);
 }
-function renderWorkCS(){renderCSActive();}
+function renderWorkCS(){renderDomainTimerCard('work-cs');renderCSActive();}
 function renderCSKanban(tasks,cfg){
   if(!tasks){const allCS=DB.tasks.filter(t=>t.world==='WORK-CS');cfg=CS_CLIENTS[csActiveClient];tasks=csActiveClient==='chainsmoker'?allCS.filter(t=>!t.client||/chainsmoker/i.test(t.client)):allCS.filter(t=>/sweetheart/i.test(t.client||''));}
   buildKanban('csKanbanCols',tasks,'WORK-CS',['Todo','In Progress','No Progress','Done'],{},csActiveClient==='chainsmoker');
@@ -9613,7 +9886,7 @@ function saveVentureItem(){
   addHistory(isEdit?'edit':'add',(isEdit?'Edited':'Added')+' venture: '+v.name,{...v,_dbKey:'venture'});
   closeModal('ventureModal');renderVenture();showToast('✓ Saved');
 }
-function renderVenture(){
+function renderVenture(){renderDomainTimerCard('venture');
   const clients=DB.venture.filter(v=>v.type==='Client');
   const partners=DB.venture.filter(v=>v.type==='Partner/VA');
   document.getElementById('vtClientCount').textContent=clients.length;
@@ -9881,7 +10154,7 @@ function deleteApp(){
   showToast('App deleted');
 }
 
-function renderBuild(){
+function renderBuild(){renderDomainTimerCard('build');
   const apps=DB.buildApps||[];
   const grid=document.getElementById('buildApps');
   if(grid){
@@ -10095,7 +10368,7 @@ function renderBuildTasks(){
     <td><button class="btn btn-d" style="padding:2px 6px" onclick="event.stopPropagation();deleteTask(event,${t.id})"><i class="ti ti-trash" style="font-size:var(--text-xs);line-height:1;display:block"></i></button></td>
   </tr>`).join(''):`<tr><td colspan="6" style="text-align:center;color:var(--text3);font-size:var(--text-sm);padding:20px">No BUILD tasks yet. Use + Task to add one.</td></tr>`;
 }
-function renderSides(){
+function renderSides(){renderDomainTimerCard('sides');
   const countEl=document.getElementById('sidesCount');if(countEl)countEl.textContent=DB.sides.length;
   const activeEl=document.getElementById('sidesActive');if(activeEl)activeEl.textContent=DB.sides.filter(p=>p.status==='Active').length;
   const rev=DB.sides.reduce((s,p)=>s+(p.price||0),0);const revEl=document.getElementById('sidesRevenue');if(revEl)revEl.textContent='₱'+rev.toLocaleString('en-PH');
@@ -10908,7 +11181,7 @@ function syncFaithToCalendar(a){
   if(typeof renderCalendar==='function')renderCalendar();
 }
 function deleteFaith(id){const a=DB.faith.find(x=>x.id===id);DB.faith=DB.faith.filter(x=>x.id!==id);SB.remove('faith',id,'faith');if(a&&a.calEventId){DB.calEvents=DB.calEvents.filter(e=>e.id!==a.calEventId);SB.remove('cal_events',a.calEventId,'calEvents');save('calEvents');}addHistory('delete','Deleted faith: '+a.activity,{...a,_dbKey:'faith'});renderFaith();if(typeof renderCalendar==='function')renderCalendar();showToast('Deleted');}
-function renderFaith(){
+function renderFaith(){renderDomainTimerCard('faith');
   const tb=document.getElementById('faithTbody'),em=document.getElementById('faithEmpty');
   if(!DB.faith.length){tb.innerHTML='';em.style.display='';return;}
   em.style.display='none';
@@ -11441,7 +11714,7 @@ function shiftOverviewMonth(dir){
 }
 function setOverviewMonthToday(){overviewYear=new Date().getFullYear();overviewMonth=new Date().getMonth();renderLife();}
 
-function renderLife(){
+function renderLife(){renderDomainTimerCard('life');
   const txns = DB.cashflow||[];
   const monthStr=`${overviewYear}-${String(overviewMonth+1).padStart(2,'0')}`;
   const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
@@ -12304,7 +12577,16 @@ const CAL_WORLDS = [
 // Legacy type map (backward compat with old oc/pu/pt etc)
 const CAL_TYPE_MAP = {pt:'ih',oc:'cs',po:'ven',pg:'bld',pam:'sid',pu:'fth',pgr:'lif',task:'task'};
 
-function calWorldById(id){return CAL_WORLDS.find(w=>w.id===id)||CAL_WORLDS[0];}
+function calWorldById(id){
+  const builtin=CAL_WORLDS.find(w=>w.id===id);
+  if(builtin)return builtin;
+  const custom=(DB.worlds||[]).find(w=>w.id===id);
+  if(custom){
+    const isHex=custom.color&&/^#/.test(custom.color);
+    return{id:custom.id,label:custom.label,color:isHex?custom.color:'var('+(custom.cssVar||'--teal')+')',hex:isHex?custom.color:'#80fffa'};
+  }
+  return CAL_WORLDS[0];
+}
 function normaliseType(t){return CAL_TYPE_MAP[t]||t||'lif';}
 function evColor(e){
   if(e._isTask)return 'var(--amber)';
@@ -13156,6 +13438,7 @@ function editCalEvent(id){
   document.getElementById('ce-date').value=e.date||'';
   document.getElementById('ce-time').value=e.time||'';
   const etEl=document.getElementById('ce-end-time');if(etEl)etEl.value=e.endTime||'';
+  _populateCeTypeCustomDomains();
   document.getElementById('ce-type').value=e.type||'lif';
   document.getElementById('ce-loc').value=e.loc||'';
   document.getElementById('ce-notes').value=e.notes||'';
@@ -13320,9 +13603,19 @@ function saveCalEvent(){
 }
 
 function openCalEventModal(){openCalEventModalOnDate(calSelectedDate||localDateStr(new Date()));}
+function _populateCeTypeCustomDomains(){
+  const sel=document.getElementById('ce-type');if(!sel)return;
+  const builtinIds=new Set(CAL_WORLDS.map(w=>w.id));
+  [...sel.options].forEach(o=>{if(o.dataset.custom)o.remove();});
+  (DB.worlds||[]).filter(w=>!builtinIds.has(w.id)).forEach(w=>{
+    const o=document.createElement('option');o.value=w.id;o.textContent=w.label;o.dataset.custom='1';
+    sel.appendChild(o);
+  });
+}
 function openCalEventModalOnDate(date){
   calEditingId=null;
   selectedCalDate=date;
+  _populateCeTypeCustomDomains();
   document.getElementById('calModalTitle').textContent='Add Event';
   document.getElementById('ce-date').value=date;
   const edEl=document.getElementById('ce-end-date');if(edEl){edEl.value=date;edEl.min=date;}
