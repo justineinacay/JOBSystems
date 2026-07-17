@@ -180,6 +180,8 @@ select option{background:var(--navy3)}
 .app.nav-collapsed .nbadge{position:absolute;top:6px;right:16px;transform:scale(.9)}
 .app.nav-collapsed .ni span:not(.nbadge){display:none}
 .app.nav-collapsed .ni.world-ni.active::after{display:none}
+.app.nav-collapsed .ni.active{border-left:none;padding-left:0!important}
+.app.nav-collapsed .ni.active::after{display:none}
 .app.nav-collapsed #navProfileCard .np-text{display:none}
 .app.nav-collapsed #navProfileCard{justify-content:center;padding:10px 4px}
 .app.nav-collapsed #navProfileCard > div:first-child{margin:0}
@@ -6449,6 +6451,7 @@ function toggleAccountMenu(e){
 }
 let _notifHideTimer=null;
 function showNotifPreview(){
+  if(!window.matchMedia||!window.matchMedia('(hover: hover)').matches)return; // touch devices don't get hover-preview — avoids the tap/hover race entirely
   const panel=document.getElementById('topNotifPanel');if(!panel)return;
   cancelHideNotifPreview();
   if(panel.style.display==='block')return; // already open via click
@@ -6469,33 +6472,37 @@ function cancelHideNotifPreview(){
 function toggleTopNotif(e){
   const panel=document.getElementById('topNotifPanel');
   if(!panel)return;
-  const isOpen=panel.style.display==='block';
+  // A real click-opened panel closes on the next click. But on touch devices,
+  // tapping fires a synthetic mouseenter (which opens the hover preview) a
+  // moment before the click itself — so "is it open" must specifically mean
+  // "opened by click", not "opened by anything". Otherwise the tap's own
+  // hover-preview gets mistaken for an already-open panel and just closes it.
+  const isOpenByClick=panel.style.display==='block'&&panel.dataset.hoverOnly!=='1';
   closeTopDropdowns();
-  if(!isOpen){
-    renderTopNotifPanel();
-    // Anchor near whichever trigger opened it (desktop topbar bell or mobile header bell)
-    const trigger=(e&&e.currentTarget)||document.getElementById('topNotifBtn');
-    if(trigger){
-      const r=trigger.getBoundingClientRect();
-      panel.style.position='fixed';
-      const opensDownward=r.top<window.innerHeight-420;
-      panel.style.top=opensDownward?((r.bottom+8)+'px'):'';
-      panel.style.bottom=opensDownward?'':((window.innerHeight-r.top+8)+'px');
-      const left=Math.min(Math.max(8,r.right-340),window.innerWidth-348);
-      panel.style.left=left+'px';
-      panel.style.right='';
-    }
-    panel.style.display='block';
-    panel.dataset.hoverOnly=''; // click-opened — stays open regardless of mouse position
-    setTimeout(()=>{
-      document.addEventListener('click',function closeNotif(e){
-        if(!e.target.closest('#topNotifPanel')&&!e.target.closest('#topNotifBtn')&&!e.target.closest('#mobileNotifBtn')){
-          panel.style.display='none';
-          document.removeEventListener('click',closeNotif);
-        }
-      });
-    },10);
+  if(isOpenByClick)return;
+  renderTopNotifPanel();
+  // Anchor near whichever trigger opened it (desktop topbar bell or mobile header bell)
+  const trigger=(e&&e.currentTarget)||document.getElementById('topNotifBtn');
+  if(trigger){
+    const r=trigger.getBoundingClientRect();
+    panel.style.position='fixed';
+    const opensDownward=r.top<window.innerHeight-420;
+    panel.style.top=opensDownward?((r.bottom+8)+'px'):'';
+    panel.style.bottom=opensDownward?'':((window.innerHeight-r.top+8)+'px');
+    const left=Math.min(Math.max(8,r.right-340),window.innerWidth-348);
+    panel.style.left=left+'px';
+    panel.style.right='';
   }
+  panel.style.display='block';
+  panel.dataset.hoverOnly=''; // click-opened — stays open regardless of mouse position
+  setTimeout(()=>{
+    document.addEventListener('click',function closeNotif(e){
+      if(!e.target.closest('#topNotifPanel')&&!e.target.closest('#topNotifBtn')&&!e.target.closest('#mobileNotifBtn')){
+        panel.style.display='none';
+        document.removeEventListener('click',closeNotif);
+      }
+    });
+  },10);
 }
 function closeTopDropdowns(){
   const menu=document.getElementById('accountMenu');if(menu)menu.style.display='none';
@@ -8176,8 +8183,8 @@ function renderBriefWeekStrip(){
         <div style="font-size:16px;font-weight:${isToday?'800':'500'};color:${isToday?'var(--teal)':'var(--text2)'};line-height:1.2">${d.getDate()}</div>
       </div>
       <div class="bws-events">
-        ${evs.slice(0,2).map(e=>`<div style="font-size:var(--text-xs);background:${e.type==='oc'?'var(--orange3)':e.type==='pu'?'rgba(168,85,247,.1)':'var(--teal3)'};color:${e.type==='oc'?'var(--orange)':e.type==='pu'?'var(--purple)':'var(--teal)'};border-radius:6px;padding:1px 4px;margin-bottom:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${e.title}</div>`).join('')}
-        ${tasks.slice(0,2).map(t=>`<div style="font-size:var(--text-xs);background:rgba(239,68,68,.1);color:var(--red);border-radius:6px;padding:1px 4px;margin-bottom:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">\u2691 ${t.title}</div>`).join('')}
+        ${evs.slice(0,2).map(e=>{const w=calWorldById(normaliseType(e.type));return`<div style="font-size:var(--text-xs);background:${w.hex}22;color:${w.color};border-left:2px solid ${w.hex};border-radius:5px;padding:1px 4px;margin-bottom:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${e.title}</div>`;}).join('')}
+        ${tasks.slice(0,2).map(t=>`<div style="font-size:var(--text-xs);color:var(--text2);padding:1px 4px 1px 2px;margin-bottom:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:flex;align-items:center;gap:4px"><span style="width:5px;height:5px;border-radius:50%;background:var(--amber);flex-shrink:0;display:inline-block"></span>${t.title}</div>`).join('')}
         ${!hasItems?`<div style="font-size:var(--text-xs);color:var(--text3);text-align:center;padding-top:2px">—</div>`:''}
       </div>
     </div>`;
@@ -8526,10 +8533,19 @@ function renderBrief(){
     return `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${barW.toFixed(1)}" height="${h.toFixed(1)}" rx="1.5" fill="${isMax?'var(--amber)':isToday?'var(--teal)':'var(--teal3)'}"/>`;
   }).join('');
   const maxBarX=maxIdx*slotW+slotW/2;
+  // Small value labels above every other non-zero day — the peak gets its own
+  // bigger amber callout below; these are the "per-day" indicators.
+  const dayLabels=dailySpend.map((v,i)=>{
+    if(v<=0||i===maxIdx)return'';
+    const barX=i*slotW+slotW/2;
+    const barY=CH-Math.max(1.5,(v/chartMax)*(CH-TOP_PAD));
+    return `<text x="${barX.toFixed(1)}" y="${Math.max(barY-4,9).toFixed(1)}" font-size="5.5" fill="var(--text3)" text-anchor="middle" font-weight="600">₱${Math.round(v).toLocaleString()}</text>`;
+  }).join('');
   const chartSvg=`<svg width="100%" height="${CH+16}" viewBox="0 0 ${CW} ${CH+16}" preserveAspectRatio="none" style="display:block;overflow:visible">
     ${gridLines}
     ${bars}
-    ${chartMax>1?`<text x="${Math.min(Math.max(maxBarX,14),CW-14).toFixed(1)}" y="10" font-size="7" fill="var(--amber)" text-anchor="middle" font-weight="700">₱${Math.round(dailySpend[maxIdx]).toLocaleString()}</text>`:''}
+    ${dayLabels}
+    ${chartMax>1?`<text x="${Math.min(Math.max(maxBarX,14),CW-14).toFixed(1)}" y="10" font-size="7.5" fill="var(--amber)" text-anchor="middle" font-weight="700">₱${Math.round(dailySpend[maxIdx]).toLocaleString()}</text>`:''}
   </svg>`;
 
   document.getElementById('briefFinances').innerHTML=`
@@ -8537,15 +8553,15 @@ function renderBrief(){
     <div style="display:flex;gap:7px;margin-bottom:12px">
       <div style="flex:1;min-width:0;background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.25);border-radius:12px;padding:8px 10px">
         <div style="font-size:9px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--text3)">Debit</div>
-        <div style="font-size:clamp(15px,4vw,20px);font-weight:800;color:var(--green);letter-spacing:-.02em;line-height:1.25;word-break:break-word">${fmt(total)}</div>
+        <div style="font-size:clamp(17px,4.5vw,24px);font-weight:800;color:var(--green);letter-spacing:-.02em;line-height:1.25;word-break:break-word">${fmt(total)}</div>
       </div>
       <div style="flex:1;min-width:0;background:rgba(255,181,71,.08);border:1px solid rgba(255,181,71,.25);border-radius:12px;padding:8px 10px">
         <div style="font-size:9px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--text3)">Credit</div>
-        <div style="font-size:clamp(15px,4vw,20px);font-weight:800;color:var(--amber);letter-spacing:-.02em;line-height:1.25;word-break:break-word">${fmt(creditTotal)}</div>
+        <div style="font-size:clamp(17px,4.5vw,24px);font-weight:800;color:var(--amber);letter-spacing:-.02em;line-height:1.25;word-break:break-word">${fmt(creditTotal)}</div>
       </div>
       <div style="flex:1;min-width:0;background:${balance>=0?'rgba(34,197,94,.08)':'rgba(255,107,127,.08)'};border:1px solid ${balance>=0?'rgba(34,197,94,.25)':'rgba(255,107,127,.25)'};border-radius:12px;padding:8px 10px">
         <div style="font-size:9px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--text3)">Balance</div>
-        <div style="font-size:clamp(15px,4vw,20px);font-weight:800;color:${balance>0?'var(--green)':balance<0?'var(--red)':'var(--text2)'};letter-spacing:-.02em;line-height:1.25;word-break:break-word">${balance>=0?'+':''}${fmt(balance)}</div>
+        <div style="font-size:clamp(17px,4.5vw,24px);font-weight:800;color:${balance>0?'var(--green)':balance<0?'var(--red)':'var(--text2)'};letter-spacing:-.02em;line-height:1.25;word-break:break-word">${balance>=0?'+':''}${fmt(balance)}</div>
       </div>
     </div>
 
