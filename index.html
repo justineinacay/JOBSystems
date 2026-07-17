@@ -136,7 +136,7 @@ table{table-layout:auto;width:100%}
 .view,.vb,.modal,.bd-block,.hc{max-width:100%;box-sizing:border-box}
 img,svg,video,canvas{max-width:100%;height:auto}
 
-/* Light theme removed — JARVIS dark locked */
+/* Light theme removed — JELIX dark locked */
 
 /* ── Lock Screen ─────────────────────────────────────────────── */
 #lockScreen{position:fixed;inset:0;background:var(--lock-backdrop);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);z-index:99998;display:none;flex-direction:column;align-items:center;justify-content:center;gap:0}
@@ -6121,7 +6121,7 @@ function runCapture(){
 
 // ===== TTS =====
 let isMuted=false,ttsVoice=null;
-function loadVoices(){const v=speechSynthesis.getVoices();ttsVoice=v.find(x=>x.name.includes('Daniel')||x.name.includes('Google UK English Male')||x.name.includes('Microsoft George')||(x.lang==='en-GB'&&x.localService))||v.find(x=>x.lang.startsWith('en'))||null;}
+function loadVoices(){const v=speechSynthesis.getVoices();ttsVoice=v.find(x=>x.lang==='en-US'&&/natural|neural/i.test(x.name))||v.find(x=>x.lang.startsWith('en-US'))||v.find(x=>x.lang.startsWith('en'))||null;}
 speechSynthesis.onvoiceschanged=loadVoices;loadVoices();
 // ── TTS Priority: OpenAI (Onyx) → Browser ────────────────────────────────
 let currentAudio=null; // track playing audio to allow cancel
@@ -7159,7 +7159,7 @@ const DB={
     {id:3,title:'CFO Caucus',date:'2026-06-15',time:'20:00',type:'teal',loc:'',notes:''},
   ],
   history:JSON.parse(localStorage.getItem('j-history')||'null')||[],
-  // ── JARVIS Intelligence Layer tables (persisted same as core tables) ──
+  // ── JELIX Intelligence Layer tables (persisted same as core tables) ──
   captures:JSON.parse(localStorage.getItem('j-captures')||'null')||[],
   beliefs:JSON.parse(localStorage.getItem('j-beliefs')||'null')||[],
   decisions:JSON.parse(localStorage.getItem('j-decisions')||'null')||[],
@@ -14056,8 +14056,8 @@ async function executeVoiceCommand(text){
   setVcState('processing');document.getElementById('vTranscript').textContent=text;showVBar();
   const stripped=stripWakeWord(text);
   if(stripped===null){
-    setVcState('idle');document.getElementById('vLabel').textContent='YES, SIR?';document.getElementById('vTranscript').textContent='Listening for your command...';
-    speak('Yes?');
+    setVcState('idle');document.getElementById('vLabel').textContent="I'M LISTENING";document.getElementById('vTranscript').textContent='Go ahead...';
+    speak('Yeah, go ahead.');
     if(!recognition)recognition=initRecognition();
     try{recognition.start();}catch(e){}
     return;
@@ -15193,7 +15193,7 @@ function deleteHealthEntry(id){
 function renderEndurance(){renderHealth();}  // alias for safety
 
 // ===== DARK/LIGHT THEME =====
-// Theme toggle removed — JARVIS dark mode locked
+// Theme toggle removed — JELIX dark mode locked
 
 // ===== DATA TICKER =====
 function updateTicker(){
@@ -15307,9 +15307,9 @@ document.body.addEventListener('touchmove', function(e) {
 })();
 
 // ═══════════════════════════════════════════════════════════════════════════
-// J.O.B Systems — JARVIS INTELLIGENCE LAYER
+// J.O.B Systems — JELIX INTELLIGENCE LAYER
 // Skills 1–7 + CLAUDE.md Live Doc
-// Author: JARVIS BUILD ENGINE · June 2026
+// Author: JELIX BUILD ENGINE · June 2026
 // Rules: inherits all CSS vars · uses SB/DB · voice-ready · mobile-responsive
 // ═══════════════════════════════════════════════════════════════════════════
 
@@ -16481,11 +16481,11 @@ function chimeNotify(){
   _playChime(440,'sine',0.3,0.15,0.3);
 }
 
-// Boot chime: tri-tone ascending (JARVIS startup feel)
+// Boot chime — soft three-note ascending tone, JELIX coming online
 function chimeboot(){
-  _playChime(349,'triangle',0.2,0.18,0.2);
-  setTimeout(()=>_playChime(440,'triangle',0.2,0.18,0.2),200);
-  setTimeout(()=>_playChime(523,'triangle',0.4,0.22,0.4),400);
+  _playChime(349,'sine',0.15,0.16,0.22);
+  setTimeout(()=>_playChime(440,'sine',0.15,0.16,0.22),190);
+  setTimeout(()=>_playChime(523,'sine',0.3,0.18,0.45),380);
 }
 
 // Patch speak() to play chimes instead of speaking error messages
@@ -16812,7 +16812,7 @@ window.showVcResult=function(text){
 };
 
 console.log('[J.O.B Systems] Enhancement Layer v2 loaded — Taglish + Chimes + Biometric + Free-flow');
-console.log('[J.O.B Systems] JARVIS Intelligence Layer loaded — Skills 1–7 + CLAUDE.md active.');
+console.log('[J.O.B Systems] JELIX Intelligence Layer loaded — Skills 1–7 + CLAUDE.md active.');
 
 // ═══════════════════════════════════════════════════════════════════════════
 // J.O.B. WAKE WORD — always-on passive listener
