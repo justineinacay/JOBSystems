@@ -6154,32 +6154,37 @@ let editingWorldId=null;
 // on the world object itself (DB.worlds[i].modules), local-only like the
 // rest of the Domains config.
 // ═══════════════════════════════════════════════════════════════════════════
-const DOMAIN_MODULE_DEFAULTS=['tasks','kanban','calendar','notes'];
+const DOMAIN_MODULE_ALL_IDS=['timer','tasks','kanban','calendar','pipeline','notes'];
+const DOMAIN_MODULE_DEFAULTS=['timer','tasks','kanban','calendar','notes'];
 const DOMAIN_MODULE_LABELS={
+  timer:{label:'Time Allocation',icon:'ti-clock-hour-4',desc:'Daily hours budget with a start/pause timer'},
   tasks:{label:'Task List',icon:'ti-list-check',desc:'A simple task list scoped to this domain'},
   kanban:{label:'Kanban Board',icon:'ti-layout-kanban',desc:'Todo / In Progress / No Progress / Done'},
   calendar:{label:'Calendar',icon:'ti-calendar',desc:'Upcoming events tagged to this domain'},
+  pipeline:{label:'Pipeline',icon:'ti-git-branch',desc:'Lead → Contacted → Proposal → Won stage board'},
   notes:{label:'Notes',icon:'ti-notes',desc:'Notes filed under this domain'}
 };
 function domainModulesFor(worldId){
   const w=(DB.worlds||[]).find(x=>x.id===worldId);
   return (w&&Array.isArray(w.modules))?w.modules:DOMAIN_MODULE_DEFAULTS.slice();
 }
-function renderDomainGenericView(worldId){
+// Order is tracked separately from visibility — dragging to reorder works
+// on all module types (even ones currently off), so turning one on later
+// keeps whatever position you last dragged it to.
+function domainModuleOrderFor(worldId){
   const w=(DB.worlds||[]).find(x=>x.id===worldId);
-  const body=document.getElementById('domainGenericBody');
-  const titleEl=document.getElementById('domainGenericTitle');
-  if(!w||!body)return;
-  const colorVal=(w.color&&/^#/.test(w.color))?w.color:('var('+(w.cssVar||'--teal')+')');
-  if(titleEl)titleEl.innerHTML=`<i class="ti ${w.icon||'ti-star'}" style="color:${colorVal}"></i>${w.label}`;
-  const modules=domainModulesFor(worldId);
-  const worldTag=worldId.toUpperCase();
-  const tasks=(DB.tasks||[]).filter(t=>t.world===worldTag);
-  const notes=(DB.notes||[]).filter(n=>n.worldId===worldId);
-  let html=domainTimerCardHTML(worldId).replace('margin:12px 18px 0','margin:0');
-  if(modules.includes('tasks')){
+  const stored=(w&&Array.isArray(w.moduleOrder))?w.moduleOrder.slice():[];
+  const merged=stored.filter(id=>DOMAIN_MODULE_ALL_IDS.includes(id));
+  DOMAIN_MODULE_ALL_IDS.forEach(id=>{if(!merged.includes(id))merged.push(id);});
+  return merged;
+}
+
+// ── Per-module renderers — each returns an HTML string for one card ────────
+const DOMAIN_MODULE_RENDERERS={
+  timer:(worldId)=>domainTimerCardHTML(worldId).replace('margin:12px 18px 0','margin:0'),
+  tasks:(worldId,colorVal,worldTag,tasks)=>{
     const open=tasks.filter(t=>t.status!=='Done');
-    html+=`<div class="hc">
+    return`<div class="hc">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
         <span style="font-size:var(--text-xs);font-weight:700;color:${colorVal};letter-spacing:.08em;text-transform:uppercase"><i class="ti ti-list-check"></i> Tasks</span>
         <button class="btn btn-t" style="font-size:var(--text-xs)" onclick="openTaskForStatus('${worldTag}','Todo')"><i class="ti ti-plus"></i> Add Task</button>
@@ -6192,11 +6197,11 @@ function renderDomainGenericView(worldId){
         </div>`).join(''):'<div style="font-size:var(--text-xs);color:var(--text3);text-align:center;padding:12px">No open tasks yet.</div>'}
       </div>
     </div>`;
-  }
-  if(modules.includes('kanban')){
+  },
+  kanban:(worldId,colorVal,worldTag,tasks)=>{
     const statuses=['Todo','In Progress','No Progress','Done'];
     const sc={'Todo':'var(--text3)','In Progress':'var(--teal)','No Progress':'var(--amber)','Done':'var(--green)'};
-    html+=`<div class="hc">
+    return`<div class="hc">
       <div style="font-size:var(--text-xs);font-weight:700;color:${colorVal};letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px"><i class="ti ti-layout-kanban"></i> Kanban</div>
       <div style="display:flex;gap:10px;overflow-x:auto;padding-bottom:4px">
         ${statuses.map(s=>{
@@ -6211,11 +6216,11 @@ function renderDomainGenericView(worldId){
         }).join('')}
       </div>
     </div>`;
-  }
-  if(modules.includes('calendar')){
+  },
+  calendar:(worldId,colorVal)=>{
     const today=localDateStr(new Date());
     const upcoming=(DB.calEvents||[]).filter(e=>e.type===worldId&&e.date>=today).sort((a,b)=>a.date.localeCompare(b.date)).slice(0,6);
-    html+=`<div class="hc">
+    return`<div class="hc">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
         <span style="font-size:var(--text-xs);font-weight:700;color:${colorVal};letter-spacing:.08em;text-transform:uppercase"><i class="ti ti-calendar"></i> Calendar</span>
         <button class="btn btn-t" style="font-size:var(--text-xs)" onclick="_openDomainEventModal('${worldId}')"><i class="ti ti-plus"></i> Add Event</button>
@@ -6227,9 +6232,34 @@ function renderDomainGenericView(worldId){
         </div>`).join(''):'<div style="font-size:var(--text-xs);color:var(--text3);text-align:center;padding:12px">Nothing scheduled yet.</div>'}
       </div>
     </div>`;
-  }
-  if(modules.includes('notes')){
-    html+=`<div class="hc">
+  },
+  pipeline:(worldId,colorVal)=>{
+    const stages=['Lead','Contacted','Proposal','Won'];
+    const items=(DB.pipeline||[]).filter(p=>p.worldId===worldId);
+    return`<div class="hc">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <span style="font-size:var(--text-xs);font-weight:700;color:${colorVal};letter-spacing:.08em;text-transform:uppercase"><i class="ti ti-git-branch"></i> Pipeline</span>
+        <button class="btn btn-t" style="font-size:var(--text-xs)" onclick="_addDomainPipelineItem('${worldId}')"><i class="ti ti-plus"></i> Add Deal</button>
+      </div>
+      <div style="display:flex;gap:10px;overflow-x:auto;padding-bottom:4px">
+        ${stages.map(s=>{
+          const stageItems=items.filter(p=>p.stage===s);
+          const total=stageItems.reduce((sum,p)=>sum+(parseFloat(p.value)||0),0);
+          return`<div style="min-width:170px;flex-shrink:0;background:var(--navy2);border:1px solid var(--border);border-radius:10px;overflow:hidden">
+            <div style="padding:7px 10px;border-bottom:1px solid var(--border);font-size:9px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:${colorVal}">${s} <span style="color:var(--text3);font-weight:600">(${stageItems.length})</span></div>
+            <div style="padding:6px;display:flex;flex-direction:column;gap:5px;max-height:220px;overflow-y:auto">
+              ${stageItems.length?stageItems.map(p=>`<div onclick="_advanceDomainPipelineItem('${worldId}',${p.id})" style="background:var(--navy3);border:1px solid var(--border);border-radius:7px;padding:7px 9px;cursor:pointer">
+                <div style="font-size:var(--text-xs);color:var(--text1);font-weight:600">${p.title}</div>
+                ${p.value?`<div style="font-size:9px;color:var(--text3);margin-top:2px">₱${Number(p.value).toLocaleString()}</div>`:''}
+              </div>`).join(''):`<div style="font-size:9px;color:var(--text3);text-align:center;padding:8px">—</div>`}
+            </div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`;
+  },
+  notes:(worldId,colorVal,worldTag,tasks,notes)=>{
+    return`<div class="hc">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
         <span style="font-size:var(--text-xs);font-weight:700;color:${colorVal};letter-spacing:.08em;text-transform:uppercase"><i class="ti ti-notes"></i> Notes</span>
         <button class="btn btn-t" style="font-size:var(--text-xs)" onclick="_newDomainNote('${worldId}')"><i class="ti ti-plus"></i> New Note</button>
@@ -6239,7 +6269,25 @@ function renderDomainGenericView(worldId){
       </div>
     </div>`;
   }
-  if(!modules.length){
+};
+function renderDomainGenericView(worldId){
+  const w=(DB.worlds||[]).find(x=>x.id===worldId);
+  const body=document.getElementById('domainGenericBody');
+  const titleEl=document.getElementById('domainGenericTitle');
+  if(!w||!body)return;
+  const colorVal=(w.color&&/^#/.test(w.color))?w.color:('var('+(w.cssVar||'--teal')+')');
+  if(titleEl)titleEl.innerHTML=`<i class="ti ${w.icon||'ti-star'}" style="color:${colorVal}"></i>${w.label}`;
+  const active=domainModulesFor(worldId);
+  const order=domainModuleOrderFor(worldId);
+  const worldTag=worldId.toUpperCase();
+  const tasks=(DB.tasks||[]).filter(t=>t.world===worldTag);
+  const notes=(DB.notes||[]).filter(n=>n.worldId===worldId);
+  const visibleOrder=order.filter(id=>active.includes(id));
+  let html=visibleOrder.map(id=>{
+    const renderer=DOMAIN_MODULE_RENDERERS[id];
+    return renderer?renderer(worldId,colorVal,worldTag,tasks,notes):'';
+  }).join('');
+  if(!visibleOrder.length){
     html=`<div style="text-align:center;padding:40px 20px;color:var(--text3)">
       <i class="ti ti-layout-grid-add" style="font-size:32px;display:block;margin-bottom:10px;opacity:.5"></i>
       <div style="font-size:var(--text-sm);margin-bottom:10px">No modules added yet.</div>
@@ -6248,19 +6296,74 @@ function renderDomainGenericView(worldId){
   }
   body.innerHTML=html;
 }
+function _addDomainPipelineItem(worldId){
+  const title=prompt('Deal / opportunity name:');
+  if(!title)return;
+  const valStr=prompt('Estimated value (optional, numbers only):','');
+  const p={id:Date.now(),worldId,title,stage:'Lead',value:valStr?parseFloat(valStr)||0:0};
+  if(!DB.pipeline)DB.pipeline=[];
+  DB.pipeline.unshift(p);save('pipeline');
+  SB.upsert('pipeline',p,'pipeline');
+  renderDomainGenericView(worldId);
+}
+function _advanceDomainPipelineItem(worldId,id){
+  const stages=['Lead','Contacted','Proposal','Won'];
+  const p=(DB.pipeline||[]).find(x=>x.id===id);if(!p)return;
+  const i=stages.indexOf(p.stage);
+  if(i<stages.length-1){
+    p.stage=stages[i+1];
+    save('pipeline');SB.update('pipeline',p.id,p,'pipeline');
+    renderDomainGenericView(worldId);
+    showToast('→ Moved to '+p.stage);
+  }else if(confirm('Remove "'+p.title+'" from the pipeline?')){
+    DB.pipeline=DB.pipeline.filter(x=>x.id!==id);
+    save('pipeline');
+    sbFetch('pipeline','DELETE',null,`id=eq.${id}`).catch(()=>{});
+    renderDomainGenericView(worldId);
+  }
+}
+// ── Customize modal — checkbox visibility + drag-to-reorder, Notion-style ──
+let _dmDragId=null;
 function openDomainModulesModal(worldId){
   const list=document.getElementById('domainModulesList');if(!list)return;
+  _renderDomainModulesList(worldId);
+  openModal('domainModulesModal');
+}
+function _renderDomainModulesList(worldId){
+  const list=document.getElementById('domainModulesList');if(!list)return;
   const active=domainModulesFor(worldId);
-  list.innerHTML=Object.entries(DOMAIN_MODULE_LABELS).map(([id,m])=>`
-    <label style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--navy3);border:1px solid var(--border);border-radius:10px;cursor:pointer">
+  const order=domainModuleOrderFor(worldId);
+  list.innerHTML=order.map(id=>{
+    const m=DOMAIN_MODULE_LABELS[id];if(!m)return'';
+    return`<label draggable="true"
+      ondragstart="_dmDragId='${id}';event.currentTarget.style.opacity='.4'"
+      ondragend="event.currentTarget.style.opacity='1'"
+      ondragover="event.preventDefault();event.currentTarget.style.borderColor='var(--teal)'"
+      ondragleave="event.currentTarget.style.borderColor='var(--border)'"
+      ondrop="event.preventDefault();event.currentTarget.style.borderColor='var(--border)';reorderDomainModule('${worldId}','${id}')"
+      style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:var(--navy3);border:1px solid var(--border);border-radius:10px;cursor:grab">
+      <i class="ti ti-grip-vertical" style="color:var(--text4);font-size:14px;flex-shrink:0"></i>
       <input type="checkbox" ${active.includes(id)?'checked':''} onchange="toggleDomainModule('${worldId}','${id}',this.checked)" style="width:16px;height:16px;accent-color:var(--teal);flex-shrink:0">
-      <i class="ti ${m.icon}" style="color:var(--teal);font-size:var(--text-md)"></i>
+      <i class="ti ${m.icon}" style="color:var(--teal);font-size:var(--text-md);flex-shrink:0"></i>
       <div style="flex:1;min-width:0">
         <div style="font-size:var(--text-sm);font-weight:600;color:var(--text1)">${m.label}</div>
         <div style="font-size:9px;color:var(--text3)">${m.desc}</div>
       </div>
-    </label>`).join('');
-  openModal('domainModulesModal');
+    </label>`;
+  }).join('');
+}
+function reorderDomainModule(worldId,targetId){
+  if(!_dmDragId||_dmDragId===targetId)return;
+  const i=(DB.worlds||[]).findIndex(w=>w.id===worldId);if(i<0)return;
+  let order=domainModuleOrderFor(worldId);
+  order=order.filter(id=>id!==_dmDragId);
+  const targetIdx=order.indexOf(targetId);
+  order.splice(targetIdx,0,_dmDragId);
+  DB.worlds[i].moduleOrder=order;
+  save('worlds');
+  _dmDragId=null;
+  _renderDomainModulesList(worldId);
+  if(currentView===worldId)renderDomainGenericView(worldId);
 }
 function toggleDomainModule(worldId,moduleId,checked){
   const i=(DB.worlds||[]).findIndex(w=>w.id===worldId);if(i<0)return;
@@ -6463,7 +6566,7 @@ function openWorldModal(id){
   document.getElementById('wm-color').value=colorVal;
   document.getElementById('wm-color-picker').value=colorVal;
   const delBtn=document.getElementById('wm-delete-btn');
-  if(delBtn){const prot=w&&(w.id==='work-ih'||w.id==='work-cs');delBtn.style.display=(w&&!prot)?'block':'none';}
+  if(delBtn){const prot=w&&w.id==='work-ih';delBtn.style.display=(w&&!prot)?'block':'none';}
   openModal('worldModal');
 }
 function saveWorld(){
@@ -6489,7 +6592,7 @@ function saveWorld(){
 function deleteWorld(id){
   const w=(DB.worlds||[]).find(x=>x.id===id);
   if(!w){showToast('Domain not found');return;}
-  if(w.id==='work-ih'||w.id==='work-cs'){showToast('Cannot delete primary WORK worlds.');return;}
+  if(w.id==='work-ih'){showToast('Cannot delete the primary WORK world.');return;}
   if(!confirm(`Delete world "${w.label}"?`))return;
   DB.worlds=DB.worlds.filter(x=>x.id!==id);
   save('worlds');
@@ -7686,7 +7789,6 @@ const DB={
   ],
   worlds:JSON.parse(localStorage.getItem('j-worlds')||'null')||[
     {id:'work-ih',  label:'WORK — Ideahub',        icon:'ti-briefcase',      color:'var(--w-ideahub)',    cssVar:'--w-ideahub',   core:true},
-    {id:'work-cs',  label:'WORK — Chainsmoker',     icon:'ti-flame',          color:'var(--w-chainsmoker)',cssVar:'--w-chainsmoker',core:true},
     {id:'venture',  label:'Job Collectives',         icon:'ti-rocket',         color:'var(--w-venture)',    cssVar:'--w-venture',   core:true},
     {id:'build',    label:'Code Collectives',        icon:'ti-code',           color:'var(--w-build)',      cssVar:'--w-build',     core:true},
     {id:'sides',    label:'Creative Collectives',    icon:'ti-palette',        color:'var(--w-sides)',      cssVar:'--w-sides',     core:true},
@@ -7695,6 +7797,15 @@ const DB={
   ],
 };
 function save(k){localStorage.setItem('j-'+k,JSON.stringify(DB[k]))}
+// One-time migration: your existing browser already has a saved worlds list
+// (the seed array above only applies to a brand-new install) — this removes
+// Chainsmoker from that saved list too, once, so it actually disappears from
+// your nav instead of just the template. Its task/client/cashflow history is
+// untouched; only the domain's nav entry goes away.
+if((DB.worlds||[]).some(w=>w.id==='work-cs')){
+  DB.worlds=DB.worlds.filter(w=>w.id!=='work-cs');
+  save('worlds');
+}
 
 // ===== HISTORY =====
 function addHistory(type,label,data){
@@ -8520,14 +8631,14 @@ function renderBriefWeekStrip(){
   const days=Array.from({length:7},(_,i)=>{const d=new Date(sun);d.setDate(sun.getDate()+i);return d;});
   const months=['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
   const label=document.getElementById('briefWeekLabel');
-  if(label){const weekMid=days[3]||sun;label.textContent=months[weekMid.getMonth()]+' '+weekMid.getFullYear();}
+  if(label)label.textContent=months[mon.getMonth()]+' '+mon.getFullYear();
   const strip=document.getElementById('briefWeekStrip');
   if(!strip)return;
   strip.innerHTML=days.map(d=>{
     const ds=localDateStr(d);
     const isToday=ds===todayStr;
-    const evs=(DB.calEvents||[]).filter(e=>e.date===ds);
-    const tasks=(DB.tasks||[]).filter(t=>t.due===ds&&t.status!=='Done');
+    const evs=DB.calEvents.filter(e=>e.date===ds);
+    const tasks=DB.tasks.filter(t=>t.due===ds&&t.status!=='Done');
     const dayName=d.toLocaleDateString('en-PH',{weekday:'short',timeZone:'Asia/Manila'}).toUpperCase();
     const hasItems=evs.length||tasks.length;
     return`<div style="background:${isToday?'rgba(0,255,242,.07)':'var(--navy3)'};border:1px solid ${isToday?'var(--teal)':'var(--border)'};border-radius:10px;padding:7px 5px;cursor:pointer;min-height:72px;transition:all .15s" onclick="openCalEventModalOnDate('${ds}')" onmouseover="this.style.borderColor='var(--teal2)'" onmouseout="this.style.borderColor='${isToday?'var(--teal)':'var(--border)'}'">
@@ -8853,7 +8964,7 @@ function renderBrief(){
   const now=new Date();
   const monthKey=now.toISOString().slice(0,7); // YYYY-MM
   const monthLabel=now.toLocaleDateString('en-PH',{month:'long',year:'numeric'});
-  const monthTxns=(DB.cashflow||[]).filter(t=>(t.date||'').startsWith(monthKey));
+  const monthTxns=DB.cashflow.filter(t=>(t.date||'').startsWith(monthKey));
   const debits=monthTxns.filter(t=>t.type==='Debit');
   const credits=monthTxns.filter(t=>t.type==='Credit');
   const total=debits.reduce((s,t)=>s+(t.amount||0),0);
@@ -8951,8 +9062,8 @@ function renderBrief(){
     </div>`;
 
   // TO DO NOW — full row list style matching screenshot
-  const urgent=(DB.tasks||[]).filter(t=>t.priority==='High'&&t.status!=='Done').slice(0,6);
-  const worldColor=w=>String(w||'').startsWith('WORK-CS')?'var(--red)':w==='VENTURE'?'var(--orange)':w==='BUILD'?'var(--green)':w==='SIDES'?'var(--amber)':'var(--teal)';
+  const urgent=DB.tasks.filter(t=>t.priority==='High'&&t.status!=='Done').slice(0,6);
+  const worldColor=w=>w.startsWith('WORK-CS')?'var(--red)':w==='VENTURE'?'var(--orange)':w==='BUILD'?'var(--green)':w==='SIDES'?'var(--amber)':'var(--teal)';
   document.getElementById('briefToDo').innerHTML=urgent.map(t=>`
     <div style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--navy3);border:1px solid var(--border);border-radius:10px;border-left:3px solid var(--red);cursor:pointer;transition:all .15s" onclick="editTask(${t.id})" onmouseover="this.style.background='rgba(0,255,242,.04)'" onmouseout="this.style.background='var(--navy3)'">
       <div style="width:18px;height:18px;border:1px solid var(--red);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
