@@ -737,15 +737,16 @@ select option{background:var(--navy3)}
 .ai-agent-desc{font-size:var(--text-xs);color:var(--text3);line-height:1.3}
 .ai-chat{display:flex;flex-direction:column;height:100%}
 .ai-msgs{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:12px;display:flex;flex-direction:column;gap:9px}
-.mr-row{display:flex;gap:7px;align-items:flex-start}
-.mr-row.user{flex-direction:row-reverse}
-.mav{width:24px;height:24px;border-radius:10px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:var(--text-xs);font-weight:700}
+.mr-row{display:flex;gap:7px;align-items:flex-end;max-width:100%}
+.mr-row.mr-user{flex-direction:row-reverse}
+.mav{width:22px;height:22px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:var(--text-xs);font-weight:700;margin-bottom:1px}
 .mav.aiv{background:var(--teal3);color:var(--teal);border:1px solid var(--teal2)}
-.mav.usrv{background:var(--orange3);color:var(--orange);border:1px solid var(--orange2)}
-.mbubble{max-width:78%;padding:8px 12px;border-radius:10px;font-size:var(--text-sm);line-height:1.7;white-space:pre-wrap;word-break:break-word}
-.mbubble.ai{background:var(--navy3);border:1px solid var(--border);border-radius:4px 4px 4px 0}
-.mbubble.user{background:var(--teal3);border:1px solid var(--teal2);border-radius:4px 4px 0 4px}
-.mtime{font-size:var(--text-xs);color:var(--text3);margin-top:2px}
+.mav.usrv{display:none}
+.mbubble{max-width:72%;padding:9px 14px;border-radius:18px;font-size:var(--text-sm);line-height:1.5;white-space:pre-wrap;word-break:break-word}
+.mbubble.ai{background:var(--navy3);border:1px solid var(--border);border-bottom-left-radius:5px}
+.mbubble.user{background:var(--teal);color:var(--navy);border:none;border-bottom-right-radius:5px;font-weight:500}
+.mtime{font-size:9px;color:var(--text4);margin-top:3px;padding:0 4px}
+.mr-row.mr-user .mtime{text-align:right}
 
 /* JELIX animated sparkle mark — used as the assistant's identity everywhere */
 .jelix-spark-main.jelix-anim{transform-origin:center;animation:jelixTwinkleMain 3.4s ease-in-out infinite}
@@ -3442,6 +3443,21 @@ select option{background:var(--navy3)}
           <button onclick="runCapture()" style="flex-shrink:0;background:var(--teal);color:var(--navy);border:none;border-radius:8px;padding:4px 10px;font-size:10px;font-weight:800;cursor:pointer;display:flex;align-items:center;gap:4px;white-space:nowrap;font-family:var(--font)"><i class="ti ti-corner-down-left" style="font-size:10px;line-height:1;display:block"></i> Enter</button>
         </div>
 
+        <!-- JELIX IDENTITY — moved here from the Ask JELIX side panel -->
+        <div onclick="setView('ai')" style="cursor:pointer;flex-shrink:0;background:var(--navy3);border:1px solid var(--border);border-radius:12px;padding:12px 14px;display:flex;align-items:center;gap:12px;transition:border-color .15s" onmouseover="this.style.borderColor='var(--teal2)'" onmouseout="this.style.borderColor='var(--border)'">
+          <div style="width:38px;height:38px;border-radius:50%;background:rgba(201,232,92,.1);border:1px solid var(--teal2);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+            <svg viewBox="0 0 32 32" width="20" height="20" style="display:block" xmlns="http://www.w3.org/2000/svg">
+              <path class="jelix-spark-main jelix-anim" d="M14 2 C14.7 8.5 15.2 12.5 16.8 14.1 C18.2 15.5 22 16 28 16.5 C22 17 18.2 17.5 16.8 18.9 C15.2 20.5 14.7 24.5 14 31 C13.3 24.5 12.8 20.5 11.2 18.9 C9.8 17.5 6 17 0 16.5 C6 16 9.8 15.5 11.2 14.1 C12.8 12.5 13.3 8.5 14 2 Z" fill="var(--teal)"/>
+              <path class="jelix-spark-mini jelix-anim" d="M24 0 C24.3 2.2 24.5 3.2 25 3.7 C25.5 4.2 26.5 4.4 28.5 4.7 C26.5 5 25.5 5.2 25 5.7 C24.5 6.2 24.3 7.2 24 9.4 C23.7 7.2 23.5 6.2 23 5.7 C22.5 5.2 21.5 5 19.5 4.7 C21.5 4.4 22.5 4.2 23 3.7 C23.5 3.2 23.7 2.2 24 0 Z" fill="var(--teal)"/>
+            </svg>
+          </div>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:var(--text-sm);font-weight:800;color:var(--text1)">J.E.L.I.X.</div>
+            <div style="font-size:var(--text-xs);color:var(--text3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Ask about tasks, calendar, finance, marketing, or just talk through a decision.</div>
+          </div>
+          <i class="ti ti-chevron-right" style="color:var(--text3);font-size:var(--text-sm);flex-shrink:0"></i>
+        </div>
+
         <!-- ROW 1: TO DO NOW (left) + CASH FLOW (right) -->
         <div id="briefMainRow" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;flex-shrink:0;min-height:200px">
 
@@ -4647,19 +4663,7 @@ select option{background:var(--navy3)}
 
     <!-- ===== AI — Ask JELIX ===== -->
     <div class="view" id="view-ai">
-      <div class="ai-layout">
-        <div class="ai-side" style="align-items:center;justify-content:flex-start;padding-top:28px">
-          <div style="width:64px;height:64px;border-radius:50%;background:rgba(201,232,92,.1);border:1px solid var(--teal2);display:flex;align-items:center;justify-content:center;margin-bottom:14px">
-            <svg viewBox="0 0 32 32" width="28" height="28" style="display:block" xmlns="http://www.w3.org/2000/svg">
-              <path class="jelix-spark-main jelix-anim" d="M14 2 C14.7 8.5 15.2 12.5 16.8 14.1 C18.2 15.5 22 16 28 16.5 C22 17 18.2 17.5 16.8 18.9 C15.2 20.5 14.7 24.5 14 31 C13.3 24.5 12.8 20.5 11.2 18.9 C9.8 17.5 6 17 0 16.5 C6 16 9.8 15.5 11.2 14.1 C12.8 12.5 13.3 8.5 14 2 Z" fill="var(--teal)"/>
-              <path class="jelix-spark-mini jelix-anim" d="M24 0 C24.3 2.2 24.5 3.2 25 3.7 C25.5 4.2 26.5 4.4 28.5 4.7 C26.5 5 25.5 5.2 25 5.7 C24.5 6.2 24.3 7.2 24 9.4 C23.7 7.2 23.5 6.2 23 5.7 C22.5 5.2 21.5 5 19.5 4.7 C21.5 4.4 22.5 4.2 23 3.7 C23.5 3.2 23.7 2.2 24 0 Z" fill="var(--teal)"/>
-            </svg>
-          </div>
-          <div style="font-size:var(--text-md);font-weight:800;color:var(--text1)">J.E.L.I.X.</div>
-          <div style="font-size:var(--text-xs);color:var(--text3);text-align:center;padding:0 14px;margin-top:4px;line-height:1.5">Justine Experiences Life In eXcellence</div>
-          <div style="font-size:var(--text-xs);color:var(--text3);text-align:center;padding:0 18px;margin-top:14px;line-height:1.6">Your Executive Intelligence Partner. Ask about anything across J.O.B Systems — tasks, calendar, finance, marketing, clients, or just talk through a decision.</div>
-          <div style="margin-top:auto;padding:14px 0;width:100%"><button class="btn btn-g" style="width:100%;font-size:var(--text-xs)" onclick="clearChat()">Clear conversation</button></div>
-        </div>
+      <div class="ai-layout" style="grid-template-columns:1fr">
         <div class="ai-chat">
           <div style="padding:9px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
             <div>
@@ -4668,6 +4672,7 @@ select option{background:var(--navy3)}
             </div>
             <div style="display:flex;align-items:center;gap:6px">
               <span id="agentMemBadge" style="font-size:var(--text-xs);background:rgba(128,255,250,.08);border:1px solid var(--border2);border-radius:8px;padding:2px 7px;color:var(--text3);display:flex;align-items:center;gap:4px"><i class="ti ti-brain" style="font-size:var(--text-xs);line-height:1;display:block;color:var(--teal)"></i><span id="agentMemCount">0</span> memories</span>
+              <button class="btn btn-g" style="font-size:var(--text-xs)" onclick="clearChat()"><i class="ti ti-eraser"></i> Clear</button>
               <button class="btn btn-g" style="font-size:var(--text-xs)" onclick="exportChat()"><i class="ti ti-download"></i> Export</button>
             </div>
           </div>
@@ -4959,7 +4964,7 @@ select option{background:var(--navy3)}
             <label class="fl">Google Gemini API Key <span style="font-size:9px;background:rgba(66,133,244,.1);color:#4285F4;padding:1px 7px;border-radius:10px;font-weight:700;letter-spacing:.06em">GEMINI AGENTS</span></label>
             <div style="display:flex;gap:8px">
               <input type="password" id="set-gemini-key" placeholder="AIza..." style="flex:1">
-              <button class="btn btn-t" onclick="saveKey('j-gemini-key','set-gemini-key')">Save</button>
+              <button class="btn btn-t" id="testGeminiKeyBtn" onclick="testAndSaveGeminiKey()">Test & Save</button>
             </div>
             <div style="font-size:9px;color:var(--text3);margin-top:4px">Free key: aistudio.google.com/apikey</div>
           </div>
@@ -5066,7 +5071,7 @@ select option{background:var(--navy3)}
             </div>
             <div class="fg"><label class="fl">AI Provider</label>
               <select id="pref-ai-provider" onchange="savePref('pref-ai-provider')">
-                <option value="claude">Claude (Anthropic)</option><option value="gemini">Gemini (Google)</option>
+                <option value="gemini">Gemini (Google)</option><option value="claude">Claude (Anthropic)</option>
               </select>
             </div>
           </div>
@@ -6427,7 +6432,7 @@ function setOpenAIKey(){const e=localStorage.getItem('jelix-openai-key')||'';con
 // ── Unified AI provider call — routes to Claude or Gemini based on preference ──
 async function callAIProvider(system,msgs,opts){
   opts=opts||{};
-  let provider=opts.provider||getPref('pref-ai-provider')||'claude';
+  let provider=opts.provider||getPref('pref-ai-provider')||'gemini';
   const maxTokens=opts.maxTokens||1024;
   // Fall back to whichever provider actually has a key set — an agent
   // preferring Gemini shouldn't hard-fail the whole pipeline just because
@@ -6935,6 +6940,30 @@ function saveKey(storageKey,inputId){
   }
 }
 
+// Gemini key gets tested live before it's trusted — a typo'd or expired key
+// otherwise fails silently the first time JELIX actually needs it.
+async function testAndSaveGeminiKey(){
+  const input=document.getElementById('set-gemini-key');
+  const btn=document.getElementById('testGeminiKeyBtn');
+  const val=input?.value.trim()||'';
+  if(!val){localStorage.removeItem('j-gemini-key');showToast('Key removed.');return;}
+  if(btn){btn.disabled=true;btn.textContent='Testing...';}
+  try{
+    const res=await fetch('https://generativelanguage.googleapis.com/v1beta/models?key='+val);
+    if(!res.ok){
+      const body=await res.text().catch(()=>'');
+      showToast('✗ Key test failed ('+res.status+') — not saved. '+(body?body.substring(0,120):''));
+      if(btn){btn.disabled=false;btn.textContent='Test & Save';}
+      return;
+    }
+    localStorage.setItem('j-gemini-key',val);
+    showToast('✓ Gemini key verified and saved.');
+  }catch(e){
+    showToast('✗ Could not reach Gemini API — check your connection. Key not saved.');
+  }
+  if(btn){btn.disabled=false;btn.textContent='Test & Save';}
+}
+
 function exportLocalDB(){
   const data={};
   for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);data[k]=localStorage.getItem(k);}
@@ -7078,7 +7107,7 @@ function renderSettingsWorldsList(){
 }
 
 // ── Preferences (persisted, applied at boot) ────────────────────────────
-const PREF_DEFAULTS={'pref-cal-view':'agenda','pref-board-view':'table','pref-landing-view':'dashboard','pref-voice-confirm':'on','pref-ai-provider':'claude'};
+const PREF_DEFAULTS={'pref-cal-view':'agenda','pref-board-view':'table','pref-landing-view':'dashboard','pref-voice-confirm':'on','pref-ai-provider':'gemini'};
 function savePref(id){
   const el=document.getElementById(id);if(!el)return;
   localStorage.setItem('j-'+id,el.value);
@@ -8363,63 +8392,55 @@ function renderBrief(){
   const budgetLimit=(DB.budget&&DB.budget.monthlyLimit)||30000;
   const budgetPct=Math.min(100,Math.round((creditTotal/budgetLimit)*100));
   const budgetColor=budgetPct>=100?'var(--red)':budgetPct>=80?'var(--amber)':'var(--teal)';
-  // Chart: daily spend for every day this month so far — proper-sized bar chart, not a tiny sparkline
+  // Chart: daily spend for every day this month so far — bar chart, one bar per day
   const daysInMonthSoFar=now.getDate();
   const dailySpend=Array.from({length:daysInMonthSoFar},(_,i)=>{
     const dayStr=monthKey+'-'+String(i+1).padStart(2,'0');
     return credits.filter(t=>t.date===dayStr).reduce((s,t)=>s+(t.amount||0),0);
   });
   const chartMax=Math.max(...dailySpend,1);
-  const CH=64,CW=280,TOP_PAD=18; // TOP_PAD reserves headroom so the peak-value label never collides with the peak dot
-  const stepX=dailySpend.length>1?CW/(dailySpend.length-1):CW;
-  const points=dailySpend.map((v,i)=>{
-    const x=i*stepX;
-    const y=CH-Math.max(1,(v/chartMax)*(CH-TOP_PAD-4));
-    return{x,y,v};
-  });
-  const pathD=points.map((p,i)=>(i===0?'M':'L')+p.x.toFixed(1)+','+p.y.toFixed(1)).join(' ');
-  const areaD=pathD+` L${points[points.length-1].x.toFixed(1)},${CH} L0,${CH} Z`;
-  const lastPoint=points[points.length-1];
+  const CH=64,CW=280,TOP_PAD=18; // TOP_PAD reserves headroom so the peak-value label never collides with its bar
   const maxIdx=dailySpend.indexOf(Math.max(...dailySpend));
-  const maxPoint=points[maxIdx];
-  const gridLines=[0,1,2].map(i=>`<line x1="0" y1="${(CH/2)*i}" x2="${CW}" y2="${(CH/2)*i}" stroke="var(--border)" stroke-width="1"/>`).join('');
+  const slotW=CW/dailySpend.length;
+  const barGap=Math.min(2,slotW*.2);
+  const barW=Math.max(1.5,slotW-barGap);
+  const gridLines=[0,1,2].map(i=>`<line x1="0" y1="${16+(CH-16)/2*i}" x2="${CW}" y2="${16+(CH-16)/2*i}" stroke="var(--border)" stroke-width="1"/>`).join('');
+  const bars=dailySpend.map((v,i)=>{
+    const h=Math.max(1.5,(v/chartMax)*(CH-TOP_PAD));
+    const x=i*slotW+barGap/2;
+    const y=CH-h;
+    const isMax=i===maxIdx&&v>0;
+    const isToday=i===dailySpend.length-1;
+    return `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${barW.toFixed(1)}" height="${h.toFixed(1)}" rx="1.5" fill="${isMax?'var(--amber)':isToday?'var(--teal)':'var(--teal3)'}"/>`;
+  }).join('');
+  const maxBarX=maxIdx*slotW+slotW/2;
   const chartSvg=`<svg width="100%" height="${CH+16}" viewBox="0 0 ${CW} ${CH+16}" preserveAspectRatio="none" style="display:block;overflow:visible">
-    <defs><linearGradient id="cfSpendGrad" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="var(--teal)" stop-opacity="0.28"/>
-      <stop offset="100%" stop-color="var(--teal)" stop-opacity="0"/>
-    </linearGradient></defs>
     ${gridLines}
-    <path d="${areaD}" fill="url(#cfSpendGrad)" stroke="none"/>
-    <path d="${pathD}" fill="none" stroke="var(--teal)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/>
-    ${dailySpend.length<=15?points.map((p,i)=>`<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="2" fill="var(--navy3)" stroke="var(--teal)" stroke-width="1.3"/>`).join(''):''}
-    <circle cx="${maxPoint.x.toFixed(1)}" cy="${maxPoint.y.toFixed(1)}" r="3" fill="var(--amber)"/>
-    <text x="${Math.min(Math.max(maxPoint.x,18),CW-18).toFixed(1)}" y="${(maxPoint.y>=17?maxPoint.y-8:maxPoint.y+15).toFixed(1)}" font-size="9" fill="var(--amber)" text-anchor="middle" font-weight="700">₱${Math.round(dailySpend[maxIdx]).toLocaleString()}</text>
-    <circle cx="${lastPoint.x.toFixed(1)}" cy="${lastPoint.y.toFixed(1)}" r="3.5" fill="var(--teal)" stroke="var(--navy2)" stroke-width="1.5"/>
+    ${bars}
+    ${chartMax>1?`<text x="${Math.min(Math.max(maxBarX,14),CW-14).toFixed(1)}" y="10" font-size="7" fill="var(--amber)" text-anchor="middle" font-weight="700">₱${Math.round(dailySpend[maxIdx]).toLocaleString()}</text>`:''}
   </svg>`;
 
   document.getElementById('briefFinances').innerHTML=`
     <div style="font-size:var(--text-xs);color:var(--text3);margin-bottom:8px;letter-spacing:.04em">${monthLabel}</div>
-    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px;gap:10px">
-      <div style="flex:1;min-width:0;overflow:hidden">
-        <div style="display:flex;align-items:baseline;gap:6px;margin-bottom:6px">
-          <span style="font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);flex-shrink:0;width:48px">DEBIT</span>
-          <span style="font-size:clamp(16px,3.5vw,22px);font-weight:800;color:var(--green);letter-spacing:-.02em;line-height:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${fmt(total)}</span>
-        </div>
-        <div style="display:flex;align-items:baseline;gap:6px;margin-bottom:6px">
-          <span style="font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);flex-shrink:0;width:48px">CREDIT</span>
-          <span style="font-size:clamp(16px,3.5vw,22px);font-weight:800;color:var(--amber);letter-spacing:-.02em;line-height:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${fmt(creditTotal)}</span>
-        </div>
-        <div style="display:flex;align-items:baseline;gap:6px">
-          <span style="font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);flex-shrink:0;width:48px">BAL</span>
-          <span style="font-size:clamp(16px,3.5vw,22px);font-weight:800;color:${balance>0?'var(--green)':balance<0?'var(--red)':'var(--text2)'};letter-spacing:-.02em;line-height:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${balance>=0?'+':''}${fmt(balance)}</span>
-        </div>
+    <div style="display:flex;gap:7px;margin-bottom:12px">
+      <div style="flex:1;min-width:0;background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.25);border-radius:12px;padding:7px 10px">
+        <div style="font-size:9px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--text3)">Debit</div>
+        <div style="font-size:clamp(13px,3vw,16px);font-weight:800;color:var(--green);letter-spacing:-.02em;line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${fmt(total)}</div>
+      </div>
+      <div style="flex:1;min-width:0;background:rgba(255,181,71,.08);border:1px solid rgba(255,181,71,.25);border-radius:12px;padding:7px 10px">
+        <div style="font-size:9px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--text3)">Credit</div>
+        <div style="font-size:clamp(13px,3vw,16px);font-weight:800;color:var(--amber);letter-spacing:-.02em;line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${fmt(creditTotal)}</div>
+      </div>
+      <div style="flex:1;min-width:0;background:${balance>=0?'rgba(34,197,94,.08)':'rgba(255,107,127,.08)'};border:1px solid ${balance>=0?'rgba(34,197,94,.25)':'rgba(255,107,127,.25)'};border-radius:12px;padding:7px 10px">
+        <div style="font-size:9px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--text3)">Balance</div>
+        <div style="font-size:clamp(13px,3vw,16px);font-weight:800;color:${balance>0?'var(--green)':balance<0?'var(--red)':'var(--text2)'};letter-spacing:-.02em;line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${balance>=0?'+':''}${fmt(balance)}</div>
       </div>
     </div>
 
-    <!-- Daily spend — line graph tracking expenses across the current month -->
+    <!-- Daily spend — bar chart, one bar per day this month -->
     <div style="background:var(--navy3);border:1px solid var(--border);border-radius:10px;padding:10px 12px;margin-bottom:12px">
       <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px">
-        <span style="font-size:var(--text-xs);color:var(--text3)">Expense trend this month</span>
+        <span style="font-size:var(--text-xs);color:var(--text3)">Daily expense monitoring</span>
         <span style="font-size:var(--text-xs);color:var(--teal);font-weight:700">Today: ₱${Math.round(dailySpend[dailySpend.length-1]).toLocaleString()}</span>
       </div>
       ${chartSvg}
@@ -12390,9 +12411,8 @@ function renderCalTwoWeek(){
         const items=[...dayEvents.map(e=>({label:e.title,world:calWorldById(normaliseType(e.type)),id:e.id})),...dayTasks.map(t=>({label:t.title,world:null,id:t.id}))];
         const shown=items.slice(0,MAX_CHIPS);
         const extra=items.length-shown.length;
-        const primaryDomain=dayEvents.length?calWorldById(normaliseType(dayEvents[0].type)):null;
-        const cellBg=isT?'var(--teal4)':(primaryDomain?primaryDomain.hex+'14':'var(--navy2)');
-        const cellBorder=isT?'var(--teal)':(primaryDomain?primaryDomain.hex+'40':'var(--border)');
+        const cellBg=isT?'var(--teal4)':'var(--navy2)';
+        const cellBorder=isT?'var(--teal)':'var(--border)';
         return `<div onclick="calSelectedDate='${ds}';setCalView('day')" style="border:1px solid ${cellBorder};border-radius:10px;padding:8px;cursor:pointer;background:${cellBg};display:flex;flex-direction:column;gap:4px;overflow:hidden;transition:border-color .15s" onmouseover="this.style.borderColor='var(--teal2)'" onmouseout="this.style.borderColor='${cellBorder}'">
           <div style="font-size:var(--text-sm);font-weight:${isT?800:600};color:${isT?'var(--teal)':'var(--text1)'}">${d.getDate()}</div>
           ${shown.map(it=>{const c=it.world?it.world.hex:'var(--orange)';return`<div style="font-size:var(--text-xs);padding:2px 6px;border-radius:5px;background:${it.world?it.world.hex+'1f':'rgba(255,140,0,.1)'};border-left:2px solid ${c};color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${(it.label||'').replace(/</g,'&lt;')}</div>`;}).join('')}
@@ -12595,11 +12615,7 @@ function renderCalMonth(){
     const isSel=ds===calSelectedDate;
     const evs=getEvs(ds);
     const conts=continuations[ds]||[];
-    // Full-cell domain highlight — uses the first event's domain color as the cell's identity
-    const primaryDomain=evs.length?calWorldById(normaliseType(evs[0].type)):null;
-    const cellBg=primaryDomain?primaryDomain.hex+'14':'';
-    const cellBorder=primaryDomain?primaryDomain.hex+'40':'';
-    html+=`<div class="cday${isToday?' today':''}${isSel?' selected':''}" style="${primaryDomain?`background:${cellBg};border-color:${cellBorder};`:''}" onclick="calSelectedDate='${ds}';renderCalendar()" ondblclick="openCalEventModalOnDate('${ds}')">
+    html+=`<div class="cday${isToday?' today':''}${isSel?' selected':''}" onclick="calSelectedDate='${ds}';renderCalendar()" ondblclick="openCalEventModalOnDate('${ds}')">
       <div class="dn">${day}</div>
       ${conts.map(e=>{const w=calWorldById(normaliseType(e.type));return`<div style="font-size:var(--text-xs);background:${w.hex}15;color:${w.color};border-left:2px dashed ${w.hex};border-radius:6px;padding:1px 5px;margin-bottom:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;opacity:.75" onclick="event.stopPropagation();showCalPopover(event,${e.id||0},'${e._expandedDate||e.date}')" title="${e.title} (continued)">↩ ${e.title} until ${to12h(e.endTime)}</div>`;}).join('')}
       ${evs.slice(0,Math.max(0,3-conts.length)).map(e=>`<div class="${evClass(e)}" onclick="event.stopPropagation();showCalPopover(event,${e.id||0},'${e._expandedDate||e.date}')" title="${e.title}">${e.time?to12h(e.time)+' ':''}${e.title}</div>`).join('')}
