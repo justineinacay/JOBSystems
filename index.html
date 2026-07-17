@@ -746,6 +746,21 @@ select option{background:var(--navy3)}
 .mbubble.ai{background:var(--navy3);border:1px solid var(--border);border-radius:4px 4px 4px 0}
 .mbubble.user{background:var(--teal3);border:1px solid var(--teal2);border-radius:4px 4px 0 4px}
 .mtime{font-size:var(--text-xs);color:var(--text3);margin-top:2px}
+
+/* JELIX animated sparkle mark — used as the assistant's identity everywhere */
+.jelix-spark-main.jelix-anim{transform-origin:center;animation:jelixTwinkleMain 3.4s ease-in-out infinite}
+.jelix-spark-mini.jelix-anim{transform-origin:center;animation:jelixTwinkleMini 3.4s ease-in-out infinite}
+@keyframes jelixTwinkleMain{0%,100%{opacity:1;transform:scale(1) rotate(0deg)}50%{opacity:.82;transform:scale(.92) rotate(-4deg)}}
+@keyframes jelixTwinkleMini{0%,100%{opacity:.55;transform:scale(.8) rotate(0deg)}50%{opacity:1;transform:scale(1.25) rotate(25deg)}}
+
+/* Ask JELIX — ChatGPT-style centered empty state */
+#aiHero{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center;gap:18px}
+#aiHero .hero-greet{font-size:24px;font-weight:700;color:var(--text1);letter-spacing:-.01em}
+#aiHero .hero-greet .hero-accent{color:var(--teal)}
+#aiHero .hero-sub{font-size:var(--text-md);color:var(--text3);margin-top:-8px}
+#aiHero .hero-chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;max-width:480px;margin-top:6px}
+.hero-chip{font-size:var(--text-xs);color:var(--text2);background:var(--navy3);border:1px solid var(--border2);border-radius:100px;padding:8px 16px;cursor:pointer;transition:all .15s}
+.hero-chip:hover{border-color:var(--teal2);color:var(--teal);background:var(--teal4)}
 .ai-input-area{padding:10px 12px;border-top:1px solid var(--border);flex-shrink:0}
 .ai-input-row{display:flex;gap:7px;align-items:flex-end}
 .ai-textarea{flex:1;resize:none;max-height:80px;border-radius:10px;font-size:var(--text-sm);line-height:1.5;padding:7px 9px;background:var(--navy3);border:1px solid var(--border2);color:var(--text1)}
@@ -4635,7 +4650,10 @@ select option{background:var(--navy3)}
       <div class="ai-layout">
         <div class="ai-side" style="align-items:center;justify-content:flex-start;padding-top:28px">
           <div style="width:64px;height:64px;border-radius:50%;background:rgba(201,232,92,.1);border:1px solid var(--teal2);display:flex;align-items:center;justify-content:center;margin-bottom:14px">
-            <i class="ti ti-hexagon-letter-j" style="font-size:28px;color:var(--teal);line-height:1;display:block"></i>
+            <svg viewBox="0 0 32 32" width="28" height="28" style="display:block" xmlns="http://www.w3.org/2000/svg">
+              <path class="jelix-spark-main jelix-anim" d="M14 2 C14.7 8.5 15.2 12.5 16.8 14.1 C18.2 15.5 22 16 28 16.5 C22 17 18.2 17.5 16.8 18.9 C15.2 20.5 14.7 24.5 14 31 C13.3 24.5 12.8 20.5 11.2 18.9 C9.8 17.5 6 17 0 16.5 C6 16 9.8 15.5 11.2 14.1 C12.8 12.5 13.3 8.5 14 2 Z" fill="var(--teal)"/>
+              <path class="jelix-spark-mini jelix-anim" d="M24 0 C24.3 2.2 24.5 3.2 25 3.7 C25.5 4.2 26.5 4.4 28.5 4.7 C26.5 5 25.5 5.2 25 5.7 C24.5 6.2 24.3 7.2 24 9.4 C23.7 7.2 23.5 6.2 23 5.7 C22.5 5.2 21.5 5 19.5 4.7 C21.5 4.4 22.5 4.2 23 3.7 C23.5 3.2 23.7 2.2 24 0 Z" fill="var(--teal)"/>
+            </svg>
           </div>
           <div style="font-size:var(--text-md);font-weight:800;color:var(--text1)">J.E.L.I.X.</div>
           <div style="font-size:var(--text-xs);color:var(--text3);text-align:center;padding:0 14px;margin-top:4px;line-height:1.5">Justine Experiences Life In eXcellence</div>
@@ -4654,15 +4672,22 @@ select option{background:var(--navy3)}
             </div>
           </div>
           <div class="ai-msgs" id="aiMsgs">
-            <div class="mr-row"><div class="mav aiv">J</div><div><div class="mbubble ai">Hello. J.O.B Systems online.\n\nSay "hey jelix" to activate voice. Press Space to push-to-talk.\nAll worlds and Supabase connected. How can I assist?</div><div class="mtime" id="initTime"></div></div></div>
+            <div id="aiHero">
+              <svg viewBox="0 0 32 32" width="48" height="48" style="display:block" xmlns="http://www.w3.org/2000/svg">
+                <path class="jelix-spark-main jelix-anim" d="M14 2 C14.7 8.5 15.2 12.5 16.8 14.1 C18.2 15.5 22 16 28 16.5 C22 17 18.2 17.5 16.8 18.9 C15.2 20.5 14.7 24.5 14 31 C13.3 24.5 12.8 20.5 11.2 18.9 C9.8 17.5 6 17 0 16.5 C6 16 9.8 15.5 11.2 14.1 C12.8 12.5 13.3 8.5 14 2 Z" fill="var(--teal)"/>
+                <path class="jelix-spark-mini jelix-anim" d="M24 0 C24.3 2.2 24.5 3.2 25 3.7 C25.5 4.2 26.5 4.4 28.5 4.7 C26.5 5 25.5 5.2 25 5.7 C24.5 6.2 24.3 7.2 24 9.4 C23.7 7.2 23.5 6.2 23 5.7 C22.5 5.2 21.5 5 19.5 4.7 C21.5 4.4 22.5 4.2 23 3.7 C23.5 3.2 23.7 2.2 24 0 Z" fill="var(--teal)"/>
+              </svg>
+              <div class="hero-greet"><span id="heroGreetTime">Good day</span>, <span class="hero-accent">Justine</span></div>
+              <div class="hero-sub">What's on your mind?</div>
+              <div class="hero-chips">
+                <button class="hero-chip" onclick="qp('Give me a status brief')">Status brief</button>
+                <button class="hero-chip" onclick="qp('What are my high priority tasks today?')">High priority tasks</button>
+                <button class="hero-chip" onclick="qp('What is on my schedule today?')">Today schedule</button>
+                <button class="hero-chip" onclick="qp('Help me draft something')">Draft content</button>
+              </div>
+            </div>
           </div>
           <div class="ai-input-area">
-            <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:7px">
-              <button class="qpchip" onclick="qp('Give me a status brief')">Status brief</button>
-              <button class="qpchip" onclick="qp('What are my high priority tasks today?')">High priority tasks</button>
-              <button class="qpchip" onclick="qp('What is on my schedule today?')">Today schedule</button>
-              <button class="qpchip" onclick="qp('Help me draft something')">Draft content</button>
-            </div>
             <div class="ai-input-row">
               <button class="ai-send" onclick="toggleVoice()" style="background:var(--navy3);color:var(--text2);border:1px solid var(--border2)"><i class="ti ti-microphone" style="font-size:var(--text-xs);line-height:1;display:block"></i></button>
               <textarea class="ai-textarea" id="aiInput" placeholder="Message JELIX..." onkeydown="aiKey(event)" oninput="autoResize(this)" rows="1"></textarea>
@@ -5800,7 +5825,7 @@ const Store={
     memory:()=>{try{renderMemory();}catch(e){}},
     history:()=>{try{renderHistory();}catch(e){}},
     'jarvis-morning':()=>{},
-    ai:()=>{},
+    ai:()=>{try{renderAiHero();}catch(e){}},
     'worlds-settings':()=>{try{renderWorldsSettings();}catch(e){}},
     settings:()=>{try{renderSettingsView();}catch(e){}},
   },
@@ -14289,10 +14314,16 @@ async function dispatchVoiceAction(cmd,rawText){
         speak(result);
         break;
 
-      // ── UNKNOWN ───────────────────────────────────────────────
+      // ── NATURAL CONVERSATION ─────────────────────────────────────
+      // Not a structured command (no "add task", "go to", etc. pattern
+      // matched) — don't scold the user with command syntax. Just talk
+      // to JELIX naturally, the same as typing in the chat would.
       case 'unknown':
       default:{
-        result='Didn\'t catch that as a command — try being more specific, like "add task [title]" or "go to [view]".';
+        setVcState('processing');
+        const agentRes=await askJelixAgent(rawText);
+        result=agentRes.text||'Done.';
+        speak(result.replace(/<[^>]+>/g,''));
         break;
       }
     }
@@ -14344,7 +14375,7 @@ function setVcState(state){
     if(fi)fi.className='ti ti-microphone';
     if(sd)sd.className='hdot';if(st)st.textContent='ONLINE';
     if(state==='processing'){if(label)label.textContent='PROCESSING';if(vst)vst.textContent='PROCESSING';}
-    else if(state==='idle'||state==='executing'){if(label)label.textContent='J.O.B Systems';const vt=document.getElementById('vTranscript');if(vt)vt.textContent='Space to talk...';if(vst)vst.textContent='VOICE · SPACE';}
+    else if(state==='idle'||state==='executing'){if(label)label.textContent='JELIX';const vt=document.getElementById('vTranscript');if(vt)vt.textContent='Space to talk...';if(vst)vst.textContent='VOICE · SPACE';}
     else if(state==='error'){if(label)label.textContent='UNCLEAR';if(vst)vst.textContent='VOICE · SPACE';}
   }
 }
@@ -14518,11 +14549,27 @@ function saveQuickApiKey(){
   showToast('✓ API key saved.');
 }
 
+// JELIX's mark — an animated four-point sparkle with a smaller companion star,
+// used anywhere JELIX's identity appears (chat avatars, hero screen, side panel).
+function jelixSparkIcon(size,animated){
+  size=size||24;
+  const cls=animated===false?'':' jelix-anim';
+  return `<svg viewBox="0 0 32 32" width="${size}" height="${size}" style="display:block" xmlns="http://www.w3.org/2000/svg">
+    <path class="jelix-spark-main${cls}" d="M14 2 C14.7 8.5 15.2 12.5 16.8 14.1 C18.2 15.5 22 16 28 16.5 C22 17 18.2 17.5 16.8 18.9 C15.2 20.5 14.7 24.5 14 31 C13.3 24.5 12.8 20.5 11.2 18.9 C9.8 17.5 6 17 0 16.5 C6 16 9.8 15.5 11.2 14.1 C12.8 12.5 13.3 8.5 14 2 Z" fill="var(--teal)"/>
+    <path class="jelix-spark-mini${cls}" d="M24 0 C24.3 2.2 24.5 3.2 25 3.7 C25.5 4.2 26.5 4.4 28.5 4.7 C26.5 5 25.5 5.2 25 5.7 C24.5 6.2 24.3 7.2 24 9.4 C23.7 7.2 23.5 6.2 23 5.7 C22.5 5.2 21.5 5 19.5 4.7 C21.5 4.4 22.5 4.2 23 3.7 C23.5 3.2 23.7 2.2 24 0 Z" fill="var(--teal)"/>
+  </svg>`;
+}
+function jelixGreeting(){
+  const h=new Date().getHours();
+  return h<12?'Good morning':h<18?'Good afternoon':'Good evening';
+}
+
 function _aits(){return new Date().toLocaleTimeString('en-PH',{hour:'2-digit',minute:'2-digit',hour12:true,timeZone:'Asia/Manila'});}
 
 function _aiAppend(role,html){
   const box=document.getElementById('aiMsgs');if(!box)return;
-  const av=role==='user'?'<div class="mav uv">S</div>':'<div class="mav aiv">J</div>';
+  const heroEl=document.getElementById('aiHero');if(heroEl)heroEl.remove();
+  const av=role==='user'?'<div class="mav uv">S</div>':`<div class="mav aiv">${jelixSparkIcon(15,false)}</div>`;
   const cls=role==='user'?'mbubble user':'mbubble ai';
   const row=document.createElement('div');
   row.className='mr-row'+(role==='user'?' mr-user':'');
@@ -14580,9 +14627,25 @@ async function sendAI(){
 function aiKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendAI();}}
 function qp(t){const i=document.getElementById('aiInput');if(i){i.value=t;sendAI();}}
 
+function renderAiHero(){
+  const t=document.getElementById('heroGreetTime');if(t)t.textContent=jelixGreeting();
+  const memCount=document.getElementById('agentMemCount');
+  if(memCount)memCount.textContent=(DB.memories||[]).length;
+}
+
 function clearChat(){
   const box=document.getElementById('aiMsgs');
-  if(box)box.innerHTML=`<div class="mr-row"><div class="mav aiv">J</div><div><div class="mbubble ai">J.O.B Systems online. <strong>JELIX</strong> standing by.</div><div class="mtime">${_aits()}</div></div></div>`;
+  if(box)box.innerHTML=`<div id="aiHero">
+    ${jelixSparkIcon(48)}
+    <div class="hero-greet"><span id="heroGreetTime">${jelixGreeting()}</span>, <span class="hero-accent">Justine</span></div>
+    <div class="hero-sub">What's on your mind?</div>
+    <div class="hero-chips">
+      <button class="hero-chip" onclick="qp('Give me a status brief')">Status brief</button>
+      <button class="hero-chip" onclick="qp('What are my high priority tasks today?')">High priority tasks</button>
+      <button class="hero-chip" onclick="qp('What is on my schedule today?')">Today schedule</button>
+      <button class="hero-chip" onclick="qp('Help me draft something')">Draft content</button>
+    </div>
+  </div>`;
 }
 
 function exportChat(){
