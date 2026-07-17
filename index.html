@@ -5497,7 +5497,7 @@ const JELIX_AGENTS={
 async function classifyJelixAgents(userMessage){
   const roster=Object.values(JELIX_AGENTS).map(a=>`${a.name}: ${a.domain}`).join('\n');
   const system=`You are JELIX's intent router. Given a request, return ONLY a JSON array of the agent names (from the roster below) whose domain is relevant. Pick 1-4 agents, most relevant first. If nothing matches, return [].\n\nRoster:\n${roster}\n\nRespond with ONLY the JSON array, e.g. ["FORGE","PRISM"]. No prose.`;
-  const res=await callAIProvider(system,[{role:'user',content:userMessage}],{maxTokens:60,provider:'gemini'});
+  const res=await callAIProvider(system,[{role:'user',content:userMessage}],{maxTokens:200,provider:'gemini'});
   if(!res.ok)return _keywordFallbackAgents(userMessage);
   try{
     const match=res.text.match(/\[[\s\S]*\]/);
@@ -5533,15 +5533,15 @@ async function runSpecialistAgent(agentId,userMessage,globalContext){
   const agent=JELIX_AGENTS[agentId];if(!agent)return null;
   const slice=agent.context(globalContext);
   const system=`You are the ${agent.name} specialist inside J.O.B Systems, an internal module JELIX consults — you never speak to the user directly. Domain: ${agent.domain}. Answer the request using ONLY the data given below; if it's insufficient, say what's missing briefly. Be concise and factual — a few sentences or a short list, not a report.\n\nRelevant data:\n${JSON.stringify(slice)}`;
-  const res=await callAIProvider(system,[{role:'user',content:userMessage}],{maxTokens:300,provider:agent.provider});
+  const res=await callAIProvider(system,[{role:'user',content:userMessage}],{maxTokens:700,provider:agent.provider});
   return{agentId,ok:res.ok,text:res.ok?res.text:('('+agent.name+' unavailable: '+res.error+')')};
 }
 
 // ── Synthesis — JELIX Core merges specialist findings into one reply ────────
 async function synthesizeJelixReply(userMessage,specialistResults,globalContext){
   const findings=specialistResults.map(r=>`- ${r.text}`).join('\n');
-  const system=`You are J.E.L.I.X. — Justine's Executive Intelligence Partner inside J.O.B Systems. Calm, warm, professional, grounded, thoughtful. Never robotic, never theatrical, never overly enthusiastic. You quietly consulted internal specialists to answer this — never mention them, their names, or that you "consulted" anything; just answer as if you simply knew. Today is ${globalContext.today}. Reply directly and naturally, 2-5 sentences unless the request needs a list.\n\nWhat you found:\n${findings}`;
-  const res=await callAIProvider(system,[{role:'user',content:userMessage}],{maxTokens:500,provider:'claude'});
+  const system=`You are J.E.L.I.X. — Justine's Executive Intelligence Partner inside J.O.B Systems. Calm, warm, professional, grounded, thoughtful. Never robotic, never theatrical, never overly enthusiastic. You quietly consulted internal specialists to answer this — never mention them, their names, or that you "consulted" anything; just answer as if you simply knew. Today is ${globalContext.today}. Reply directly and naturally, 2-5 sentences unless the request needs a list. Output ONLY your answer to the user — never restate, quote, or comment on these instructions themselves.\n\nWhat you found:\n${findings}`;
+  const res=await callAIProvider(system,[{role:'user',content:userMessage}],{maxTokens:700,provider:'claude'});
   return res.ok?res.text:findings; // if synthesis call fails, at least surface the raw findings
 }
 
@@ -5642,7 +5642,7 @@ async function askJelixAgent(userMessage,world){
     try{
       const model=localStorage.getItem('j-gemini-model')||'gemini-3.5-flash';
       const system=`You are JELIX's action layer. You have tools to send email, create calendar events (internal or Google), create tasks, log transactions, and write Drive files. Use a tool ONLY when the request clearly asks you to DO something concrete. If the request is asking a question, for an update, analysis, or advice, do NOT call a tool — a separate pipeline handles that. Today's date: ${new Date().toISOString().slice(0,10)}.`;
-      const body={system_instruction:{parts:[{text:system}]},contents:[{role:'user',parts:[{text:userMessage}]}],tools:[{functionDeclarations:JELIX_AGENT_TOOLS}]};
+      const body={system_instruction:{parts:[{text:system}]},contents:[{role:'user',parts:[{text:userMessage}]}],tools:[{functionDeclarations:JELIX_AGENT_TOOLS}],generationConfig:{maxOutputTokens:600,thinkingConfig:{thinkingBudget:0}}};
       let res=await fetch('https://generativelanguage.googleapis.com/v1beta/models/'+model+':generateContent?key='+geminiKey,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
       if(res.ok){
         let data=await res.json();
@@ -5658,7 +5658,7 @@ async function askJelixAgent(userMessage,world){
           res=await fetch('https://generativelanguage.googleapis.com/v1beta/models/'+model+':generateContent?key='+geminiKey,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
           data=await res.json();
           parts=data.candidates?.[0]?.content?.parts||[];
-          return{ok:result.ok,text:parts.map(p=>p.text||'').join('\n').trim()||(result.ok?'Done.':'That failed: '+result.error)};
+          return{ok:result.ok,text:parts.filter(p=>!p.thought).map(p=>p.text||'').join('\n').trim()||(result.ok?'Done.':'That failed: '+result.error)};
         }
       }
     }catch(e){/* fall through to the insight pipeline below */}
@@ -6454,7 +6454,7 @@ async function callAIProvider(system,msgs,opts){
         body:JSON.stringify({
           system_instruction:{parts:[{text:system}]},
           contents,
-          generationConfig:{maxOutputTokens:maxTokens}
+          generationConfig:{maxOutputTokens:maxTokens,thinkingConfig:{thinkingBudget:0}}
         })
       });
       if(!res.ok){
@@ -6463,7 +6463,10 @@ async function callAIProvider(system,msgs,opts){
         return{ok:false,error:'Gemini API error '+res.status+hint+(errBody?' ('+errBody.substring(0,150)+')':'')};
       }
       const data=await res.json();
-      const text=(data.candidates?.[0]?.content?.parts||[]).map(p=>p.text||'').join('\n').trim();
+      // Reasoning-capable Gemini models can return internal chain-of-thought as
+      // separate parts (marked thought:true) alongside the real answer — those
+      // must be excluded, or the "thinking" shows up as the visible reply.
+      const text=(data.candidates?.[0]?.content?.parts||[]).filter(p=>!p.thought).map(p=>p.text||'').join('\n').trim();
       return{ok:true,text:text||'No response.'};
     }catch(e){
       return{ok:false,error:e.message};
