@@ -2480,7 +2480,13 @@ select option{background:var(--navy3)}
       <div class="fg"><label class="fl">Domain Name *</label><input id="wm-label" placeholder="e.g. Freelance Hub"></div>
       <div class="fg"><label class="fl">View Slug *</label><input id="wm-id" placeholder="e.g. freelance (no spaces, lowercase)"></div>
       <div class="fr">
-        <div class="fg"><label class="fl">Icon (Tabler class)</label><input id="wm-icon" placeholder="ti-star" value="ti-star"></div>
+        <div class="fg"><label class="fl">Icon</label>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+            <div id="wm-icon-preview" style="width:36px;height:36px;border-radius:10px;background:var(--navy3);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="ti ti-star" style="color:var(--teal);font-size:var(--text-md)"></i></div>
+            <input id="wm-icon" placeholder="ti-star" value="ti-star" oninput="_updateWmIconPreview()" style="flex:1">
+          </div>
+          <div id="wm-icon-grid" style="display:grid;grid-template-columns:repeat(8,1fr);gap:6px;max-height:150px;overflow-y:auto;padding:8px;background:var(--navy3);border:1px solid var(--border);border-radius:10px"></div>
+        </div>
         <div class="fg" style="max-width:110px">
           <label class="fl">Color</label>
           <div style="display:flex;align-items:center;gap:6px">
@@ -3395,14 +3401,16 @@ select option{background:var(--navy3)}
       <div id="navWorldsList"></div>
       <button onclick="openWorldModal()" style="display:flex;align-items:center;gap:7px;padding:4px 14px 7px;cursor:pointer;color:var(--text3);font-size:var(--text-xs);background:transparent;border:none;width:100%;text-align:left;transition:color .15s" onmouseover="this.style.color='var(--teal)'" onmouseout="this.style.color='var(--text3)'"><i class="ti ti-plus" style="font-size:var(--text-xs);line-height:1;display:block"></i> Add Domain</button>
       <div class="ngl" style="margin-top:4px">Intelligence</div>
-      <div class="ni" onclick="setView('jarvis-morning')" data-view="jarvis-morning" title="Morning Intelligence"><i class="ti ti-sun" style="color:var(--amber)"></i>Morning Intelligence</div>
-      <div class="ni" onclick="setView('jarvis-capture')" data-view="jarvis-capture" title="Capture Processor"><i class="ti ti-capture" style="color:var(--teal)"></i>Capture Processor</div>
-      <div class="ni" onclick="setView('jarvis-connect')" data-view="jarvis-connect" title="Connection Finder"><i class="ti ti-link" style="color:var(--purple)"></i>Connection Finder</div>
-      <div class="ni" onclick="setView('jarvis-weekly')" data-view="jarvis-weekly" title="Weekly Synthesis"><i class="ti ti-calendar-week" style="color:var(--green)"></i>Weekly Synthesis</div>
-      <div class="ni" onclick="setView('jarvis-context')" data-view="jarvis-context" title="Context Engine"><i class="ti ti-brain" style="color:var(--teal)"></i>Context Engine</div>
-      <div class="ni" onclick="setView('jarvis-pattern')" data-view="jarvis-pattern" title="Pattern Detector"><i class="ti ti-trending-up" style="color:var(--orange)"></i>Pattern Detector</div>
-      <div class="ni" onclick="setView('jarvis-decision')" data-view="jarvis-decision" title="Decision Intel"><i class="ti ti-scale" style="color:var(--amber)"></i>Decision Intel</div>
-      <div class="ni" onclick="setView('jarvis-claude')" data-view="jarvis-claude" title="CLAUDE.md"><i class="ti ti-id" style="color:var(--pink)"></i>CLAUDE.md</div>
+      <div id="navIntelligenceList">
+        <div class="ni" onclick="setView('jarvis-morning')" data-view="jarvis-morning" title="Morning Intelligence"><i class="ti ti-sun" style="color:var(--amber)"></i>Morning Intelligence</div>
+        <div class="ni" onclick="setView('jarvis-capture')" data-view="jarvis-capture" title="Capture Processor"><i class="ti ti-capture" style="color:var(--teal)"></i>Capture Processor</div>
+        <div class="ni" onclick="setView('jarvis-connect')" data-view="jarvis-connect" title="Connection Finder"><i class="ti ti-link" style="color:var(--purple)"></i>Connection Finder</div>
+        <div class="ni" onclick="setView('jarvis-weekly')" data-view="jarvis-weekly" title="Weekly Synthesis"><i class="ti ti-calendar-week" style="color:var(--green)"></i>Weekly Synthesis</div>
+        <div class="ni" onclick="setView('jarvis-context')" data-view="jarvis-context" title="Context Engine"><i class="ti ti-brain" style="color:var(--teal)"></i>Context Engine</div>
+        <div class="ni" onclick="setView('jarvis-pattern')" data-view="jarvis-pattern" title="Pattern Detector"><i class="ti ti-trending-up" style="color:var(--orange)"></i>Pattern Detector</div>
+        <div class="ni" onclick="setView('jarvis-decision')" data-view="jarvis-decision" title="Decision Intel"><i class="ti ti-scale" style="color:var(--amber)"></i>Decision Intel</div>
+        <div class="ni" onclick="setView('jarvis-claude')" data-view="jarvis-claude" title="CLAUDE.md"><i class="ti ti-id" style="color:var(--pink)"></i>CLAUDE.md</div>
+      </div>
       <div class="ngl" style="margin-top:4px">Quick</div>
       <div class="ni" onclick="openCmd()"><i class="ti ti-command"></i>Command Palette<span style="font-size:var(--text-xs);color:var(--text3);margin-left:auto">⌘K</span></div>
       <div class="ni" onclick="openModal('taskModal')"><i class="ti ti-plus"></i>New Task</div>
@@ -5970,12 +5978,22 @@ const Store={
     const target=view||currentView;
     const fn=this._renderMap[target];
     if(fn)requestAnimationFrame(fn);
+    else if((DB.worlds||[]).some(w=>w.id===target)){
+      // Custom domain — has no entry in the static render map above, since
+      // there's one of these per domain the user creates. Its content
+      // (tasks, kanban, calendar, pipeline, notes) is all rendered by the
+      // one generic function instead.
+      requestAnimationFrame(()=>{try{renderDomainGenericView(target);}catch(e){}});
+    }
     // Always keep brief sidebar counters in sync
     try{renderBrief();}catch(e){}
   },
   // notifyAll — full sync (use sparingly, only on boot/data import)
   notifyAll(){
     Object.values(this._renderMap).forEach(fn=>{try{fn();}catch(e){}});
+    if(currentView&&!this._renderMap[currentView]&&(DB.worlds||[]).some(w=>w.id===currentView)){
+      try{renderDomainGenericView(currentView);}catch(e){}
+    }
   }
 };
 
@@ -6000,7 +6018,13 @@ function renderSideNav(){
     const doneCount=worldTasks.filter(t=>t.status==='Done').length;
     const openCount=worldTasks.length-doneCount;
     const pct=worldTasks.length?Math.round((doneCount/worldTasks.length)*100):0;
-    return '<div class="ni world-ni" data-view="'+w.id+'" data-world-id="'+w.id+'" title="'+w.label+'" style="cursor:pointer;position:relative;--ni-color:'+colorVal+'">'
+    return '<div class="ni world-ni" draggable="true" data-view="'+w.id+'" data-world-id="'+w.id+'" title="'+w.label+'" style="cursor:pointer;position:relative;--ni-color:'+colorVal+'"'
+      +' ondragstart="_navDragId=\''+w.id+'\';event.currentTarget.style.opacity=\'.4\'"'
+      +' ondragend="event.currentTarget.style.opacity=\'1\'"'
+      +' ondragover="event.preventDefault();event.currentTarget.style.background=\'var(--teal4)\'"'
+      +' ondragleave="event.currentTarget.style.background=\'\'"'
+      +' ondrop="event.preventDefault();event.currentTarget.style.background=\'\';reorderWorldNav(\''+w.id+'\')"'
+      +'>'
       +'<i class="ti '+(w.icon||'ti-star')+'" style="color:'+colorVal+'"></i>'
       +'<span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+w.label+'</span>'
       +(openCount?'<span style="font-size:var(--text-xs);color:var(--text3);flex-shrink:0;margin-right:4px">'+openCount+'</span>':'')
@@ -6147,7 +6171,79 @@ function toggleUrgentPopover(){
     },10);
   }
 }
-let editingWorldId=null;
+// ── Curated professional icon set for domains/modules — Tabler Icons only,
+// deliberately no emoji. Covers work, finance, creative, ops, and general use.
+const JELIX_ICON_SET=[
+  'ti-star','ti-briefcase','ti-rocket','ti-code','ti-palette','ti-heart-handshake','ti-leaf',
+  'ti-building','ti-building-store','ti-chart-bar','ti-chart-line','ti-target','ti-flag',
+  'ti-folder','ti-file-text','ti-users','ti-user','ti-calendar','ti-clock-hour-4','ti-bell',
+  'ti-bookmark','ti-tag','ti-shield','ti-lock','ti-key','ti-home','ti-map-pin','ti-phone',
+  'ti-mail','ti-message','ti-camera','ti-video','ti-music','ti-book','ti-school','ti-tool',
+  'ti-settings','ti-database','ti-server','ti-cloud','ti-coffee','ti-truck','ti-shopping-cart',
+  'ti-credit-card','ti-cash','ti-receipt','ti-scale','ti-gavel','ti-stethoscope','ti-plane',
+  'ti-world','ti-language','ti-microphone','ti-broadcast','ti-device-laptop','ti-device-mobile',
+  'ti-wallet','ti-chart-pie','ti-list-check','ti-layout-kanban','ti-git-branch','ti-brain',
+  'ti-bulb','ti-award','ti-trophy','ti-flame','ti-droplet','ti-sun','ti-moon','ti-plant'
+];
+function _updateWmIconPreview(){
+  const val=document.getElementById('wm-icon')?.value.trim()||'ti-star';
+  const prev=document.getElementById('wm-icon-preview');
+  if(prev)prev.innerHTML=`<i class="ti ${val}" style="color:var(--teal);font-size:var(--text-md)"></i>`;
+}
+function _renderWmIconGrid(){
+  const grid=document.getElementById('wm-icon-grid');if(!grid)return;
+  grid.innerHTML=JELIX_ICON_SET.map(ic=>`<div onclick="document.getElementById('wm-icon').value='${ic}';_updateWmIconPreview()" title="${ic}" style="width:100%;aspect-ratio:1;border-radius:8px;background:var(--navy2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:border-color .1s" onmouseover="this.style.borderColor='var(--teal2)'" onmouseout="this.style.borderColor='var(--border)'"><i class="ti ${ic}" style="color:var(--text2);font-size:var(--text-md)"></i></div>`).join('');
+}
+let _navDragId=null;
+function reorderWorldNav(targetId){
+  if(!_navDragId||_navDragId===targetId)return;
+  const worlds=DB.worlds||[];
+  const dragIdx=worlds.findIndex(w=>w.id===_navDragId);
+  const targetIdx=worlds.findIndex(w=>w.id===targetId);
+  if(dragIdx<0||targetIdx<0)return;
+  const [moved]=worlds.splice(dragIdx,1);
+  worlds.splice(worlds.indexOf(worlds.find(w=>w.id===targetId)),0,moved);
+  DB.worlds=worlds;
+  save('worlds');
+  _navDragId=null;
+  renderSideNav();
+}
+// ── Generic drag-reorder for static nav sections (Intelligence, etc.) ──────
+// These items aren't backed by a JS array like Domains — this persists the
+// order as a list of data-view values and re-arranges the real DOM nodes to
+// match, on every boot and after every drop.
+function makeNavSectionSortable(containerId,storageKey){
+  const container=document.getElementById(containerId);if(!container)return;
+  const items=[...container.children];
+  items.forEach(el=>{
+    if(el.dataset.sortableBound)return;
+    el.dataset.sortableBound='1';
+    el.setAttribute('draggable','true');
+    el.addEventListener('dragstart',()=>{_navDragId=el.dataset.view;el.style.opacity='.4';});
+    el.addEventListener('dragend',()=>{el.style.opacity='1';});
+    el.addEventListener('dragover',(e)=>{e.preventDefault();el.style.background='var(--teal4)';});
+    el.addEventListener('dragleave',()=>{el.style.background='';});
+    el.addEventListener('drop',(e)=>{
+      e.preventDefault();el.style.background='';
+      if(!_navDragId||_navDragId===el.dataset.view)return;
+      const dragEl=container.querySelector('[data-view="'+_navDragId+'"]');
+      if(!dragEl)return;
+      container.insertBefore(dragEl,el);
+      const order=[...container.children].map(c=>c.dataset.view);
+      localStorage.setItem(storageKey,JSON.stringify(order));
+      _navDragId=null;
+    });
+  });
+  try{
+    const saved=JSON.parse(localStorage.getItem(storageKey)||'null');
+    if(Array.isArray(saved)){
+      saved.forEach(view=>{
+        const el=container.querySelector('[data-view="'+view+'"]');
+        if(el)container.appendChild(el);
+      });
+    }
+  }catch(e){}
+}
 // ═══════════════════════════════════════════════════════════════════════════
 // GENERIC DOMAIN VIEW — what a custom domain (Add Domain) actually renders.
 // Modules (tasks/kanban/calendar/notes) are toggleable per-domain and stored
@@ -6206,9 +6302,9 @@ const DOMAIN_MODULE_RENDERERS={
       <div style="display:flex;gap:10px;overflow-x:auto;padding-bottom:4px">
         ${statuses.map(s=>{
           const items=tasks.filter(t=>t.status===s);
-          return `<div style="min-width:180px;flex-shrink:0;background:var(--navy2);border:1px solid var(--border);border-top:2px solid ${sc[s]};border-radius:10px;overflow:hidden">
+          return `<div style="min-width:220px;flex-shrink:0;background:var(--navy2);border:1px solid var(--border);border-top:2px solid ${sc[s]};border-radius:10px;overflow:hidden">
             <div style="padding:7px 10px;border-bottom:1px solid var(--border);font-size:9px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:${sc[s]};display:flex;justify-content:space-between"><span>${s}</span><span>${items.length}</span></div>
-            <div style="padding:6px;display:flex;flex-direction:column;gap:5px;max-height:220px;overflow-y:auto">
+            <div style="padding:6px;display:flex;flex-direction:column;gap:5px;max-height:440px;min-height:120px;overflow-y:auto">
               ${items.length?items.map(t=>`<div onclick="editTask(${t.id})" style="background:var(--navy3);border:1px solid var(--border);border-radius:7px;padding:7px 9px;cursor:pointer;font-size:var(--text-xs);color:var(--text1)">${t.title}</div>`).join(''):`<div style="font-size:9px;color:var(--text3);text-align:center;padding:8px">—</div>`}
             </div>
             ${s!=='Done'?`<div onclick="openTaskForStatus('${worldTag}','${s}')" style="padding:6px;text-align:center;font-size:9px;color:var(--text3);cursor:pointer;border-top:1px solid var(--border)"><i class="ti ti-plus"></i> Add</div>`:''}
@@ -6245,9 +6341,9 @@ const DOMAIN_MODULE_RENDERERS={
         ${stages.map(s=>{
           const stageItems=items.filter(p=>p.stage===s);
           const total=stageItems.reduce((sum,p)=>sum+(parseFloat(p.value)||0),0);
-          return`<div style="min-width:170px;flex-shrink:0;background:var(--navy2);border:1px solid var(--border);border-radius:10px;overflow:hidden">
+          return`<div style="min-width:210px;flex-shrink:0;background:var(--navy2);border:1px solid var(--border);border-radius:10px;overflow:hidden">
             <div style="padding:7px 10px;border-bottom:1px solid var(--border);font-size:9px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:${colorVal}">${s} <span style="color:var(--text3);font-weight:600">(${stageItems.length})</span></div>
-            <div style="padding:6px;display:flex;flex-direction:column;gap:5px;max-height:220px;overflow-y:auto">
+            <div style="padding:6px;display:flex;flex-direction:column;gap:5px;max-height:440px;min-height:120px;overflow-y:auto">
               ${stageItems.length?stageItems.map(p=>`<div onclick="_advanceDomainPipelineItem('${worldId}',${p.id})" style="background:var(--navy3);border:1px solid var(--border);border-radius:7px;padding:7px 9px;cursor:pointer">
                 <div style="font-size:var(--text-xs);color:var(--text1);font-weight:600">${p.title}</div>
                 ${p.value?`<div style="font-size:9px;color:var(--text3);margin-top:2px">₱${Number(p.value).toLocaleString()}</div>`:''}
@@ -6562,6 +6658,8 @@ function openWorldModal(id){
   document.getElementById('wm-id').value=w?w.id:'';
   document.getElementById('wm-id').disabled=!!id;
   document.getElementById('wm-icon').value=w?w.icon:'ti-star';
+  _renderWmIconGrid();
+  _updateWmIconPreview();
   const colorVal=w?(w.color&&/^#/.test(w.color)?w.color:'#00d4c8'):'#00d4c8';
   document.getElementById('wm-color').value=colorVal;
   document.getElementById('wm-color-picker').value=colorVal;
@@ -7448,6 +7546,8 @@ async function triggerBiometric(){
 document.addEventListener('DOMContentLoaded',()=>{
   // Render dynamic world navigation
   renderSideNav();
+  // Make the Intelligence nav section drag-reorderable, restoring any saved order
+  makeNavSectionSortable('navIntelligenceList','j-nav-intelligence-order');
   // Restore the floating timer badge if a timer was left running from a previous session
   renderFloatingTimerBadge();
   if(_activeRunningTimerWorld())_ensureDomainTimerTick();
@@ -8631,7 +8731,7 @@ function renderBriefWeekStrip(){
   const days=Array.from({length:7},(_,i)=>{const d=new Date(sun);d.setDate(sun.getDate()+i);return d;});
   const months=['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
   const label=document.getElementById('briefWeekLabel');
-  if(label)label.textContent=months[mon.getMonth()]+' '+mon.getFullYear();
+  if(label)label.textContent=months[sun.getMonth()]+' '+sun.getFullYear();
   const strip=document.getElementById('briefWeekStrip');
   if(!strip)return;
   strip.innerHTML=days.map(d=>{
@@ -13792,6 +13892,7 @@ function saveCalEvent(){
   closeModal('calModal');
   addHistory('add','Added event: '+e.title+(alsoTask?' + task':''),{...e,_dbKey:'calEvents'});
   renderCalendar();renderBrief();
+  if(currentView&&(DB.worlds||[]).some(w=>w.id===currentView))renderDomainGenericView(currentView);
   showToast('✓ Event saved'+(alsoTask?' + Task created':'')+(conflicts.length?' (check conflicts)':''));
 }
 
