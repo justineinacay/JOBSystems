@@ -784,7 +784,22 @@ select option{background:var(--navy3)}
 .bcontent:focus{background:var(--teal4)}
 .bcontent[data-t="h1"]{font-size:var(--text-lg);font-weight:700;color:var(--teal)}
 .bcontent[data-t="h2"]{font-size:var(--text-md);font-weight:600;color:var(--teal2)}
+.bcontent[data-t="h3"]{font-size:var(--text-sm);font-weight:700;color:var(--text1)}
+.bcontent[data-t="h4"]{font-size:var(--text-sm);font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.04em}
 .bcontent[data-t="code"]{font-family:monospace;background:var(--navy3);border:1px solid var(--border);font-size:var(--text-sm);color:var(--teal)}
+.bcontent[data-t="quote"]{font-style:italic;color:var(--text2);border-left:3px solid var(--border2);padding-left:12px}
+.btable{border-collapse:collapse;width:100%;margin:4px 0}
+.btable td{border:1px solid var(--border);padding:6px 9px;font-size:var(--text-sm);color:var(--text1);min-width:60px;outline:none}
+.btable td:focus{background:var(--teal4)}
+.jdb-table{border-collapse:collapse;width:100%;font-size:var(--text-sm)}
+.jdb-table th{background:var(--navy3);border:1px solid var(--border);padding:0;text-align:left}
+.jdb-table td{border:1px solid var(--border);padding:0;color:var(--text1)}
+.jdb-th-name{background:transparent;border:none;color:var(--text1);font-weight:700;font-size:var(--text-xs);padding:7px 8px;width:100%;outline:none}
+.jdb-th-type{background:transparent;border:none;color:var(--text3);font-size:9px;padding:0 8px 5px;width:100%;cursor:pointer}
+.jdb-cell-text{background:transparent;border:none;color:var(--text1);font-size:var(--text-sm);padding:7px 9px;width:100%;outline:none;font-family:inherit}
+.jdb-cell-text:focus{background:var(--teal4)}
+.jdb-select-pill{display:inline-block;padding:2px 9px;border-radius:100px;font-size:var(--text-xs);font-weight:600;margin:5px 7px;cursor:pointer}
+.jdb-checkbox{width:16px;height:16px;accent-color:var(--teal);margin:9px 10px}
 .bcheck{width:13px;height:13px;border:1px solid var(--border2);border-radius:6px;cursor:pointer;flex-shrink:0;margin-top:5px;display:flex;align-items:center;justify-content:center}
 .bcheck.done{background:var(--teal);border-color:var(--teal);color:var(--navy);font-size:var(--text-xs)}
 .bdone .bcontent{text-decoration:line-through;color:var(--text3)}
@@ -4659,17 +4674,27 @@ select option{background:var(--navy3)}
   <div style="font-size:var(--text-xs);font-weight:700;color:var(--text3);letter-spacing:.1em;padding:5px 9px 2px;text-transform:uppercase">Text</div>
   <div class="bmi" onclick="addBlock('h1')"><i class="ti ti-h-1" style="font-size:var(--text-sm);margin-right:6px;line-height:1;display:inline-block"></i>H1 Heading</div>
   <div class="bmi" onclick="addBlock('h2')"><i class="ti ti-h-2" style="font-size:var(--text-sm);margin-right:6px;line-height:1;display:inline-block"></i>H2 Heading</div>
+  <div class="bmi" onclick="addBlock('h3')"><i class="ti ti-h-3" style="font-size:var(--text-sm);margin-right:6px;line-height:1;display:inline-block"></i>H3 Heading</div>
+  <div class="bmi" onclick="addBlock('h4')"><i class="ti ti-h-4" style="font-size:var(--text-sm);margin-right:6px;line-height:1;display:inline-block"></i>H4 Heading</div>
   <div class="bmi" onclick="addBlock('p')"><i class="ti ti-pilcrow" style="font-size:var(--text-sm);margin-right:6px;line-height:1;display:inline-block"></i>Paragraph</div>
   <div style="height:1px;background:var(--border);margin:3px 0"></div>
   <div style="font-size:var(--text-xs);font-weight:700;color:var(--text3);letter-spacing:.1em;padding:5px 9px 2px;text-transform:uppercase">Lists</div>
   <div class="bmi" onclick="addBlock('todo')"><i class="ti ti-checkbox" style="font-size:var(--text-sm);margin-right:6px;line-height:1;display:inline-block"></i>To-do</div>
   <div class="bmi" onclick="addBlock('bullet')"><i class="ti ti-list" style="font-size:var(--text-sm);margin-right:6px;line-height:1;display:inline-block"></i>Bullet List</div>
+  <div class="bmi" onclick="addBlock('numbered')"><i class="ti ti-list-numbers" style="font-size:var(--text-sm);margin-right:6px;line-height:1;display:inline-block"></i>Numbered List</div>
+  <div class="bmi" onclick="addBlock('toggle')"><i class="ti ti-chevron-right" style="font-size:var(--text-sm);margin-right:6px;line-height:1;display:inline-block"></i>Toggle List</div>
   <div style="height:1px;background:var(--border);margin:3px 0"></div>
   <div style="font-size:var(--text-xs);font-weight:700;color:var(--text3);letter-spacing:.1em;padding:5px 9px 2px;text-transform:uppercase">Special</div>
   <div class="bmi" onclick="addBlock('quote')"><i class="ti ti-quote" style="font-size:var(--text-sm);margin-right:6px;line-height:1;display:inline-block"></i>Quote</div>
   <div class="bmi" onclick="addBlock('code')"><i class="ti ti-code" style="font-size:var(--text-sm);margin-right:6px;line-height:1;display:inline-block"></i>Code Block</div>
   <div class="bmi" onclick="addBlock('divider')"><i class="ti ti-minus" style="font-size:var(--text-sm);margin-right:6px;line-height:1;display:inline-block"></i>Divider</div>
   <div class="bmi" onclick="addBlock('callout')"><i class="ti ti-bulb" style="font-size:var(--text-sm);margin-right:6px;line-height:1;display:inline-block"></i>Callout</div>
+  <div class="bmi" onclick="addBlock('table')"><i class="ti ti-table" style="font-size:var(--text-sm);margin-right:6px;line-height:1;display:inline-block"></i>Table</div>
+  <div class="bmi" onclick="addBlock('database')"><i class="ti ti-database" style="font-size:var(--text-sm);margin-right:6px;line-height:1;display:inline-block"></i>Database — Table View</div>
+  <div style="height:1px;background:var(--border);margin:3px 0"></div>
+  <div style="font-size:var(--text-xs);font-weight:700;color:var(--text3);letter-spacing:.1em;padding:5px 9px 2px;text-transform:uppercase">Pages</div>
+  <div class="bmi" onclick="addBlock('page')"><i class="ti ti-file-text" style="font-size:var(--text-sm);margin-right:6px;line-height:1;display:inline-block"></i>New Sub-page</div>
+  <div class="bmi" onclick="addBlock('pagelink')"><i class="ti ti-link" style="font-size:var(--text-sm);margin-right:6px;line-height:1;display:inline-block"></i>Link to Page</div>
 </div>
         </div>
         <div class="mf"><button class="btn btn-d" style="margin-right:auto;font-size:var(--text-xs)" onclick="deleteCurrentNote()"><i class="ti ti-trash"></i> Delete Note</button><button class="btn btn-t" onclick="closeModal('noteEditorModal')">Done</button></div>
@@ -6250,9 +6275,10 @@ function makeNavSectionSortable(containerId,storageKey){
 // on the world object itself (DB.worlds[i].modules), local-only like the
 // rest of the Domains config.
 // ═══════════════════════════════════════════════════════════════════════════
-const DOMAIN_MODULE_ALL_IDS=['timer','tasks','kanban','calendar','pipeline','notes'];
+const DOMAIN_MODULE_ALL_IDS=['timer','tasks','kanban','calendar','pipeline','database','notes'];
 const DOMAIN_MODULE_DEFAULTS=['timer','tasks','kanban','calendar','notes'];
 const DOMAIN_MODULE_LABELS={
+  database:{label:'Database — Table View',icon:'ti-database',desc:'A typed table: text, number, select, date, checkbox columns'},
   timer:{label:'Time Allocation',icon:'ti-clock-hour-4',desc:'Daily hours budget with a start/pause timer'},
   tasks:{label:'Task List',icon:'ti-list-check',desc:'A simple task list scoped to this domain'},
   kanban:{label:'Kanban Board',icon:'ti-layout-kanban',desc:'Todo / In Progress / No Progress / Done'},
@@ -6277,6 +6303,12 @@ function domainModuleOrderFor(worldId){
 
 // ── Per-module renderers — each returns an HTML string for one card ────────
 const DOMAIN_MODULE_RENDERERS={
+  database:(worldId,colorVal)=>{
+    return`<div class="hc">
+      <div style="font-size:var(--text-xs);font-weight:700;color:${colorVal};letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px"><i class="ti ti-database"></i> Database</div>
+      <div id="domainDbHost-${worldId}"></div>
+    </div>`;
+  },
   timer:(worldId)=>domainTimerCardHTML(worldId).replace('margin:12px 18px 0','margin:0'),
   tasks:(worldId,colorVal,worldTag,tasks)=>{
     const open=tasks.filter(t=>t.status!=='Done');
@@ -6391,6 +6423,16 @@ function renderDomainGenericView(worldId){
     </div>`;
   }
   body.innerHTML=html;
+  if(visibleOrder.includes('database')){
+    const host=document.getElementById('domainDbHost-'+worldId);
+    if(host){
+      if(!w.database)w.database=jdbNewDatabase();
+      renderDatabaseBlock(host,w.database,()=>{
+        const idx=(DB.worlds||[]).findIndex(x=>x.id===worldId);
+        if(idx>=0){DB.worlds[idx].database=w.database;save('worlds');}
+      });
+    }
+  }
 }
 function _addDomainPipelineItem(worldId){
   const title=prompt('Deal / opportunity name:');
@@ -14008,10 +14050,72 @@ function deleteNote(i){if(!confirm('Delete this note?'))return;DB.notes.splice(i
 function deleteCurrentNote(){closeModal('noteEditorModal');deleteNote(currentNote);}
 function saveNoteTitle(){if(DB.notes[currentNote]){DB.notes[currentNote].title=document.getElementById('noteTitle').textContent;save('notes');renderNotesList();}}
 function saveBlocks(){if(DB.notes[currentNote]){DB.notes[currentNote].blocks=[...noteBlocks];save('notes');}}
-function renderBlocks(){const c=document.getElementById('blocksContainer');c.innerHTML='';noteBlocks.forEach((b,i)=>{
+function renderBlocks(){const c=document.getElementById('blocksContainer');c.innerHTML='';
+  let numberedRun=0; // tracks consecutive numbered-list position, resets on any other type
+  noteBlocks.forEach((b,i)=>{
+    if(b.type!=='numbered')numberedRun=0;
     if(b.type==='divider'){const row=document.createElement('div');row.innerHTML='<hr style="border:none;border-top:1px solid var(--border);margin:6px 0">';c.appendChild(row);return;}
+    if(b.type==='callout'){const box=document.createElement('div');box.style.cssText='background:var(--teal3);border-left:3px solid var(--teal);border-radius:10px;padding:8px 12px;margin:4px 0;flex:1;font-size:var(--text-sm);color:var(--text1);min-height:32px;outline:none';box.contentEditable='true';box.textContent=b.content;box.oninput=()=>{noteBlocks[i].content=box.textContent;saveBlocks();};const row=document.createElement('div');row.style.cssText='display:flex;align-items:flex-start;gap:5px;padding:1px 0';row.appendChild(box);const del2=document.createElement('button');del2.innerHTML='<i class="ti ti-x" style="font-size:var(--text-xs);line-height:1;display:block"></i>';del2.style.cssText='background:transparent;border:none;color:var(--text3);cursor:pointer;opacity:0;transition:opacity .15s;padding:0 2px;flex-shrink:0;margin-top:3px';del2.onclick=()=>{noteBlocks.splice(i,1);saveBlocks();renderBlocks();};row.addEventListener('mouseenter',()=>del2.style.opacity='1');row.addEventListener('mouseleave',()=>del2.style.opacity='0');row.appendChild(del2);c.appendChild(row);return;}
+    if(b.type==='database'){
+      if(!b.dbData)b.dbData=jdbNewDatabase();
+      const wrap=document.createElement('div');wrap.style.cssText='display:flex;flex-direction:column;gap:6px;margin:6px 0;background:var(--navy3);border:1px solid var(--border);border-radius:10px;padding:10px';
+      const header=document.createElement('div');header.style.cssText='display:flex;align-items:center;justify-content:space-between';
+      header.innerHTML='<span style="font-size:9px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--teal)"><i class="ti ti-database"></i> Database</span>';
+      const del=document.createElement('button');del.innerHTML='<i class="ti ti-x" style="font-size:11px"></i>';del.style.cssText='background:transparent;border:none;color:var(--text3);cursor:pointer';
+      del.onclick=()=>{noteBlocks.splice(i,1);saveBlocks();renderBlocks();};
+      header.appendChild(del);
+      wrap.appendChild(header);
+      const host=document.createElement('div');
+      wrap.appendChild(host);
+      c.appendChild(wrap);
+      renderDatabaseBlock(host,b.dbData,()=>saveBlocks());
+      return;
+    }
+    if(b.type==='table'){
+      if(!b.tableData)b.tableData=[['','',],['','',]];
+      const wrap=document.createElement('div');wrap.style.cssText='display:flex;flex-direction:column;gap:4px;margin:4px 0';
+      const table=document.createElement('table');table.className='btable';
+      b.tableData.forEach((rowData,ri)=>{
+        const tr=document.createElement('tr');
+        rowData.forEach((cell,ci)=>{
+          const td=document.createElement('td');td.contentEditable='true';td.textContent=cell;
+          td.oninput=()=>{noteBlocks[i].tableData[ri][ci]=td.textContent;saveBlocks();};
+          tr.appendChild(td);
+        });
+        table.appendChild(tr);
+      });
+      wrap.appendChild(table);
+      const controls=document.createElement('div');controls.style.cssText='display:flex;gap:6px';
+      const addRowBtn=document.createElement('button');addRowBtn.textContent='+ Row';addRowBtn.style.cssText='background:var(--navy3);border:1px solid var(--border);border-radius:6px;color:var(--text3);font-size:9px;padding:3px 8px;cursor:pointer';
+      addRowBtn.onclick=()=>{noteBlocks[i].tableData.push(new Array(noteBlocks[i].tableData[0].length).fill(''));saveBlocks();renderBlocks();};
+      const addColBtn=document.createElement('button');addColBtn.textContent='+ Col';addColBtn.style.cssText=addRowBtn.style.cssText;
+      addColBtn.onclick=()=>{noteBlocks[i].tableData.forEach(r=>r.push(''));saveBlocks();renderBlocks();};
+      const delBtn=document.createElement('button');delBtn.innerHTML='<i class="ti ti-trash" style="font-size:9px"></i>';delBtn.style.cssText=addRowBtn.style.cssText;
+      delBtn.onclick=()=>{noteBlocks.splice(i,1);saveBlocks();renderBlocks();};
+      controls.appendChild(addRowBtn);controls.appendChild(addColBtn);controls.appendChild(delBtn);
+      wrap.appendChild(controls);
+      c.appendChild(wrap);return;
+    }
+    if(b.type==='page'||b.type==='pagelink'){
+      const row=document.createElement('div');row.style.cssText='display:flex;align-items:center;gap:8px;padding:8px 10px;margin:2px 0;background:var(--navy3);border:1px solid var(--border);border-radius:8px;cursor:pointer';
+      const targetNote=b.linkedNoteId?DB.notes.find(n=>n.id===b.linkedNoteId):null;
+      row.innerHTML=`<i class="ti ti-file-text" style="color:var(--teal)"></i><span style="flex:1;font-size:var(--text-sm);color:var(--text1)">${targetNote?targetNote.title:(b.type==='page'?'Untitled sub-page':'Choose a page to link...')}</span><i class="ti ti-chevron-right" style="color:var(--text3);font-size:12px"></i>`;
+      row.onclick=()=>{
+        if(targetNote){
+          const idx=DB.notes.indexOf(targetNote);
+          currentNote=idx;noteBlocks=[...targetNote.blocks];
+          document.getElementById('noteTitle').textContent=targetNote.title;
+          renderBlocks();
+        }else if(b.type==='pagelink'){
+          _pickNoteForLink(i);
+        }
+      };
+      const del=document.createElement('button');del.innerHTML='<i class="ti ti-x" style="font-size:var(--text-xs)"></i>';del.style.cssText='background:transparent;border:none;color:var(--text3);cursor:pointer;flex-shrink:0';
+      del.onclick=(e)=>{e.stopPropagation();noteBlocks.splice(i,1);saveBlocks();renderBlocks();};
+      row.appendChild(del);
+      c.appendChild(row);return;
+    }
     const row=document.createElement('div');row.style.cssText='display:flex;align-items:flex-start;gap:5px;padding:1px 0';
-    if(b.type==='callout'){const box=document.createElement('div');box.style.cssText='background:var(--teal3);border-left:3px solid var(--teal);border-radius:10px;padding:8px 12px;margin:4px 0;flex:1;font-size:var(--text-sm);color:var(--text1);min-height:32px;outline:none';box.contentEditable='true';box.textContent=b.content;box.oninput=()=>{noteBlocks[i].content=box.textContent;saveBlocks();};row.appendChild(box);const del2=document.createElement('button');del2.innerHTML='<i class="ti ti-x" style="font-size:var(--text-xs);line-height:1;display:block"></i>';del2.style.cssText='background:transparent;border:none;color:var(--text3);cursor:pointer;opacity:0;transition:opacity .15s;padding:0 2px;flex-shrink:0;margin-top:3px';del2.onclick=()=>{noteBlocks.splice(i,1);saveBlocks();renderBlocks();};row.addEventListener('mouseenter',()=>del2.style.opacity='1');row.addEventListener('mouseleave',()=>del2.style.opacity='0');row.appendChild(del2);c.appendChild(row);return;}
     let fmtBtn=null;
     if(b.type==='todo'){
       const ch=document.createElement('div');ch.className='bcheck'+(b.done?' done':'');if(b.done)ch.textContent='✓';
@@ -14030,6 +14134,18 @@ function renderBlocks(){const c=document.getElementById('blocksContainer');c.inn
       toggleBtn.style.cssText='background:transparent;border:none;color:var(--text3);cursor:pointer;padding:0 2px;flex-shrink:0;margin-top:2px;opacity:0;transition:opacity .15s';
       toggleBtn.onclick=(e)=>{e.stopPropagation();noteBlocks[i].type='p';saveBlocks();renderBlocks();};
       fmtBtn=toggleBtn;
+    }else if(b.type==='numbered'){
+      numberedRun++;
+      const num=document.createElement('span');num.textContent=numberedRun+'.';num.style.cssText='color:var(--teal);font-size:var(--text-sm);margin-top:3px;flex-shrink:0;padding:0 3px;min-width:16px';row.appendChild(num);
+      const toggleBtn=document.createElement('button');toggleBtn.innerHTML='<i class="ti ti-align-left" style="font-size:var(--text-xs);line-height:1;display:block"></i>';toggleBtn.title='Switch to paragraph';
+      toggleBtn.style.cssText='background:transparent;border:none;color:var(--text3);cursor:pointer;padding:0 2px;flex-shrink:0;margin-top:2px;opacity:0;transition:opacity .15s';
+      toggleBtn.onclick=(e)=>{e.stopPropagation();noteBlocks[i].type='p';saveBlocks();renderBlocks();};
+      fmtBtn=toggleBtn;
+    }else if(b.type==='toggle'){
+      const arrow=document.createElement('button');arrow.innerHTML=`<i class="ti ti-chevron-${b.collapsed===false?'down':'right'}" style="font-size:var(--text-xs);line-height:1;display:block"></i>`;
+      arrow.style.cssText='background:transparent;border:none;color:var(--text2);cursor:pointer;padding:0 2px;flex-shrink:0;margin-top:3px';
+      arrow.onclick=()=>{noteBlocks[i].collapsed=noteBlocks[i].collapsed===false?true:false;saveBlocks();renderBlocks();};
+      row.appendChild(arrow);
     }else if(b.type==='p'){
       const toggleBtn=document.createElement('button');toggleBtn.innerHTML='<i class="ti ti-list" style="font-size:var(--text-xs);line-height:1;display:block"></i>';toggleBtn.title='Switch to bullet list';
       toggleBtn.style.cssText='background:transparent;border:none;color:var(--text3);cursor:pointer;padding:0 2px;flex-shrink:0;margin-top:2px;opacity:0;transition:opacity .15s';
@@ -14051,12 +14167,311 @@ function renderBlocks(){const c=document.getElementById('blocksContainer');c.inn
       noteBlocks[i].content=val;saveBlocks();
       syncBlockToTask(noteBlocks[i]);
     };
-    content.onkeydown=(e)=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();noteBlocks.splice(i+1,0,{id:Date.now()+'.'+Math.random().toString(36).slice(2,7),type:b.type==='h1'||b.type==='h2'?'p':b.type,content:'',done:false});saveBlocks();renderBlocks();setTimeout(()=>{const els=c.querySelectorAll('.bcontent');if(els[i+1])els[i+1].focus();},10);}if(e.key==='Backspace'&&content.textContent===''&&noteBlocks.length>1){e.preventDefault();unlinkBlockTask(noteBlocks[i]);noteBlocks.splice(i,1);saveBlocks();renderBlocks();}};
+    const headingLike=['h1','h2','h3','h4','quote'];
+    content.onkeydown=(e)=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();noteBlocks.splice(i+1,0,{id:Date.now()+'.'+Math.random().toString(36).slice(2,7),type:headingLike.includes(b.type)?'p':b.type,content:'',done:false});saveBlocks();renderBlocks();setTimeout(()=>{const els=c.querySelectorAll('.bcontent');if(els[i+1])els[i+1].focus();},10);}if(e.key==='Backspace'&&content.textContent===''&&noteBlocks.length>1){e.preventDefault();unlinkBlockTask(noteBlocks[i]);noteBlocks.splice(i,1);saveBlocks();renderBlocks();}};
     row.appendChild(content);
     if(fmtBtn){row.addEventListener('mouseenter',()=>fmtBtn.style.opacity='1');row.addEventListener('mouseleave',()=>fmtBtn.style.opacity=b.type==='todo'?'1':'0');fmtBtn.style.opacity=b.type==='todo'?'1':'0';row.appendChild(fmtBtn);}
     const del=document.createElement('button');del.innerHTML='<i class="ti ti-x" style="font-size:var(--text-xs);line-height:1;display:block"></i>';del.style.cssText='background:transparent;border:none;color:var(--text3);cursor:pointer;opacity:0;transition:opacity .15s;padding:0 2px;flex-shrink:0;margin-top:3px';del.onclick=()=>{unlinkBlockTask(noteBlocks[i]);noteBlocks.splice(i,1);saveBlocks();renderBlocks();};row.addEventListener('mouseenter',()=>del.style.opacity='1');row.addEventListener('mouseleave',()=>del.style.opacity='0');row.appendChild(del);
-    c.appendChild(row);});}
+    c.appendChild(row);
+    if(b.type==='toggle'&&b.collapsed===false){
+      const detail=document.createElement('div');detail.style.cssText='margin-left:22px;padding:4px 10px;border-left:2px solid var(--border);font-size:var(--text-sm);color:var(--text2);min-height:24px;outline:none';
+      detail.contentEditable='true';detail.textContent=b.toggleContent||'';
+      detail.dataset.placeholder='Add details...';
+      detail.oninput=()=>{noteBlocks[i].toggleContent=detail.textContent;saveBlocks();};
+      c.appendChild(detail);
+    }
+  });}
+function _pickNoteForLink(blockIndex){
+  const titles=DB.notes.map((n,idx)=>(idx+1)+'. '+(n.title||'Untitled'));
+  const choice=prompt('Link to which page? Enter the number:\n\n'+titles.join('\n'));
+  if(!choice)return;
+  const idx=parseInt(choice.trim(),10)-1;
+  if(idx>=0&&idx<DB.notes.length){
+    noteBlocks[blockIndex].linkedNoteId=DB.notes[idx].id;
+    saveBlocks();renderBlocks();
+  }
+}
 function placeCaretAtEnd(el){const range=document.createRange();range.selectNodeContents(el);range.collapse(false);const sel=window.getSelection();sel.removeAllRanges();sel.addRange(range);}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// DATABASE (TABLE VIEW) — a real typed table, not just a plain grid: columns
+// have types (Text/Number/Select/Date/Checkbox), select columns get
+// color-coded pills. One engine, used both as a Notes block and a Domain
+// module — the host just supplies where the data lives and how to persist it.
+// ═══════════════════════════════════════════════════════════════════════════
+const JDB_SELECT_COLORS=['var(--teal)','var(--amber)','var(--red)','var(--purple)','var(--green)','#3b82f6','var(--pink)'];
+function jdbNewDatabase(){
+  return{
+    columns:[{id:'c1',name:'Name',type:'text'},{id:'c2',name:'Status',type:'select',options:[{v:'Not started',c:'var(--text3)'},{v:'In progress',c:'var(--amber)'},{v:'Done',c:'var(--green)'}]}],
+    rows:[]
+  };
+}
+function jdbColId(){return 'c'+Date.now()+Math.random().toString(36).slice(2,5);}
+function jdbRowId(){return 'r'+Date.now()+Math.random().toString(36).slice(2,5);}
+// ── View switcher — same columns/rows, five different presentations ────────
+const JDB_VIEWS=[
+  {id:'table',label:'Table',icon:'ti-table'},
+  {id:'board',label:'Board',icon:'ti-layout-kanban'},
+  {id:'gallery',label:'Gallery',icon:'ti-layout-grid'},
+  {id:'list',label:'List',icon:'ti-list'},
+  {id:'feed',label:'Feed',icon:'ti-news'},
+  {id:'dashboard',label:'Dashboard',icon:'ti-chart-bar'}
+];
+function _jdbTitleCol(dbData){return dbData.columns.find(c=>c.type==='text')||dbData.columns[0];}
+function _jdbRowLabel(dbData,row){const tc=_jdbTitleCol(dbData);return(tc&&row.cells[tc.id])||'Untitled';}
+function renderDatabaseBlock(hostEl,dbData,onChange){
+  if(!dbData.columns||!dbData.columns.length){const d=jdbNewDatabase();dbData.columns=d.columns;dbData.rows=dbData.rows||[];}
+  if(!dbData.rows)dbData.rows=[];
+  if(!dbData.view)dbData.view='table';
+  hostEl.innerHTML='';
+  const tabs=document.createElement('div');tabs.style.cssText='display:flex;gap:4px;margin-bottom:8px;flex-wrap:wrap';
+  JDB_VIEWS.forEach(v=>{
+    const tab=document.createElement('button');
+    const active=dbData.view===v.id;
+    tab.innerHTML=`<i class="ti ${v.icon}" style="font-size:11px"></i> ${v.label}`;
+    tab.style.cssText=`background:${active?'var(--teal3)':'var(--navy3)'};color:${active?'var(--teal)':'var(--text3)'};border:1px solid ${active?'var(--teal2)':'var(--border)'};border-radius:7px;font-size:9px;font-weight:700;padding:5px 10px;cursor:pointer`;
+    tab.onclick=()=>{dbData.view=v.id;onChange();renderDatabaseBlock(hostEl,dbData,onChange);};
+    tabs.appendChild(tab);
+  });
+  hostEl.appendChild(tabs);
+  const body=document.createElement('div');
+  hostEl.appendChild(body);
+  const rerender=()=>renderDatabaseBlock(hostEl,dbData,onChange);
+  if(dbData.view==='board')renderDatabaseBoardView(body,dbData,onChange,rerender);
+  else if(dbData.view==='gallery')renderDatabaseGalleryView(body,dbData,onChange,rerender);
+  else if(dbData.view==='list')renderDatabaseListView(body,dbData,onChange,rerender);
+  else if(dbData.view==='feed')renderDatabaseFeedView(body,dbData,onChange,rerender);
+  else if(dbData.view==='dashboard')renderDatabaseDashboardView(body,dbData,onChange,rerender);
+  else renderDatabaseTableView(body,dbData,onChange);
+}
+// ── Board view — groups rows by a select column, Kanban-style ──────────────
+function renderDatabaseBoardView(hostEl,dbData,onChange,rerender){
+  const groupCol=dbData.columns.find(c=>c.type==='select');
+  if(!groupCol){
+    hostEl.innerHTML='<div style="font-size:var(--text-xs);color:var(--text3);padding:16px;text-align:center">Board view needs a Select column to group by — add one in Table view first.</div>';
+    return;
+  }
+  const titleCol=_jdbTitleCol(dbData);
+  const groups=(groupCol.options||[]).map(o=>o.v);
+  groups.push(''); // ungrouped bucket
+  const wrap=document.createElement('div');wrap.style.cssText='display:flex;gap:10px;overflow-x:auto;padding-bottom:4px';
+  groups.forEach(g=>{
+    const opt=(groupCol.options||[]).find(o=>o.v===g);
+    const rowsInGroup=dbData.rows.filter(r=>(r.cells[groupCol.id]||'')===g);
+    const col=document.createElement('div');col.style.cssText='min-width:200px;flex-shrink:0;background:var(--navy2);border:1px solid var(--border);border-top:2px solid '+(opt?opt.c:'var(--text4)')+';border-radius:10px;overflow:hidden';
+    col.innerHTML=`<div style="padding:7px 10px;border-bottom:1px solid var(--border);font-size:9px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:${opt?opt.c:'var(--text3)'}">${g||'No '+groupCol.name} <span style="color:var(--text3);font-weight:600">(${rowsInGroup.length})</span></div>`;
+    const list=document.createElement('div');list.style.cssText='padding:6px;display:flex;flex-direction:column;gap:5px;max-height:400px;overflow-y:auto';
+    rowsInGroup.forEach(row=>{
+      const card=document.createElement('div');card.style.cssText='background:var(--navy3);border:1px solid var(--border);border-radius:7px;padding:8px 9px;font-size:var(--text-xs);color:var(--text1);cursor:pointer';
+      card.textContent=titleCol?(row.cells[titleCol.id]||'Untitled'):'Untitled';
+      card.onclick=()=>{
+        const opts=groups.filter(x=>x!==g);
+        const choice=prompt('Move to which '+groupCol.name+'?\n\n'+opts.map((o,i)=>(i+1)+'. '+(o||'(none)')).join('\n'));
+        if(!choice)return;
+        const idx=parseInt(choice.trim(),10)-1;
+        if(idx>=0&&idx<opts.length){row.cells[groupCol.id]=opts[idx];onChange();rerender();}
+      };
+      list.appendChild(card);
+    });
+    const addBtn=document.createElement('div');addBtn.style.cssText='padding:6px;text-align:center;font-size:9px;color:var(--text3);cursor:pointer;border-top:1px solid var(--border)';
+    addBtn.innerHTML='<i class="ti ti-plus"></i> Add';
+    addBtn.onclick=()=>{
+      const name=prompt('New '+(titleCol?titleCol.name:'item')+':');if(!name)return;
+      const row={id:jdbRowId(),cells:{}};
+      if(titleCol)row.cells[titleCol.id]=name;
+      row.cells[groupCol.id]=g;
+      dbData.rows.push(row);onChange();rerender();
+    };
+    col.appendChild(list);col.appendChild(addBtn);
+    wrap.appendChild(col);
+  });
+  hostEl.appendChild(wrap);
+}
+// ── Gallery view — card grid ─────────────────────────────────────────────
+function renderDatabaseGalleryView(hostEl,dbData,onChange,rerender){
+  const titleCol=_jdbTitleCol(dbData);
+  const otherCols=dbData.columns.filter(c=>c!==titleCol).slice(0,3);
+  const grid=document.createElement('div');grid.style.cssText='display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px';
+  dbData.rows.forEach(row=>{
+    const card=document.createElement('div');card.style.cssText='background:var(--navy3);border:1px solid var(--border);border-radius:10px;padding:10px;display:flex;flex-direction:column;gap:5px;position:relative';
+    const title=document.createElement('div');title.style.cssText='font-size:var(--text-sm);font-weight:700;color:var(--text1)';title.textContent=_jdbRowLabel(dbData,row);
+    card.appendChild(title);
+    otherCols.forEach(col=>{
+      const val=row.cells[col.id];if(val===undefined||val==='')return;
+      const line=document.createElement('div');line.style.cssText='font-size:9px;color:var(--text3)';
+      if(col.type==='select'){const opt=(col.options||[]).find(o=>o.v===val);line.innerHTML=`<span style="background:${opt?opt.c+'22':'var(--navy4)'};color:${opt?opt.c:'var(--text3)'};padding:1px 7px;border-radius:100px;font-weight:600">${val}</span>`;}
+      else if(col.type==='checkbox')line.textContent=val?'✓ '+col.name:'';
+      else line.textContent=col.name+': '+val;
+      if(line.textContent||line.innerHTML)card.appendChild(line);
+    });
+    const del=document.createElement('button');del.innerHTML='<i class="ti ti-x" style="font-size:10px"></i>';del.style.cssText='position:absolute;top:6px;right:6px;background:transparent;border:none;color:var(--text4);cursor:pointer';
+    del.onclick=()=>{dbData.rows=dbData.rows.filter(r=>r.id!==row.id);onChange();rerender();};
+    card.appendChild(del);
+    grid.appendChild(card);
+  });
+  hostEl.appendChild(grid);
+  const addBtn=document.createElement('button');addBtn.innerHTML='<i class="ti ti-plus" style="font-size:10px"></i> New Card';
+  addBtn.style.cssText='background:var(--navy3);border:1px solid var(--border);border-radius:6px;color:var(--text3);font-size:9px;padding:5px 10px;cursor:pointer;margin-top:8px';
+  addBtn.onclick=()=>{dbData.rows.push({id:jdbRowId(),cells:{}});onChange();rerender();};
+  hostEl.appendChild(addBtn);
+}
+// ── List view — compact rows, title + inline fields ─────────────────────
+function renderDatabaseListView(hostEl,dbData,onChange,rerender){
+  const titleCol=_jdbTitleCol(dbData);
+  const list=document.createElement('div');list.style.cssText='display:flex;flex-direction:column;gap:4px';
+  dbData.rows.forEach(row=>{
+    const item=document.createElement('div');item.style.cssText='display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--navy3);border:1px solid var(--border);border-radius:8px';
+    const title=document.createElement('span');title.style.cssText='flex:1;font-size:var(--text-sm);color:var(--text1);overflow:hidden;text-overflow:ellipsis;white-space:nowrap';title.textContent=_jdbRowLabel(dbData,row);
+    item.appendChild(title);
+    dbData.columns.filter(c=>c!==titleCol&&c.type==='select').slice(0,1).forEach(col=>{
+      const val=row.cells[col.id];if(!val)return;
+      const opt=(col.options||[]).find(o=>o.v===val);
+      const pill=document.createElement('span');pill.style.cssText=`font-size:9px;font-weight:600;padding:2px 8px;border-radius:100px;background:${opt?opt.c+'22':'var(--navy4)'};color:${opt?opt.c:'var(--text3)'};flex-shrink:0`;pill.textContent=val;
+      item.appendChild(pill);
+    });
+    const del=document.createElement('button');del.innerHTML='<i class="ti ti-x" style="font-size:10px"></i>';del.style.cssText='background:transparent;border:none;color:var(--text4);cursor:pointer;flex-shrink:0';
+    del.onclick=()=>{dbData.rows=dbData.rows.filter(r=>r.id!==row.id);onChange();rerender();};
+    item.appendChild(del);
+    list.appendChild(item);
+  });
+  hostEl.appendChild(list);
+  const addBtn=document.createElement('button');addBtn.innerHTML='<i class="ti ti-plus" style="font-size:10px"></i> New Item';
+  addBtn.style.cssText='background:var(--navy3);border:1px solid var(--border);border-radius:6px;color:var(--text3);font-size:9px;padding:5px 10px;cursor:pointer;margin-top:6px';
+  addBtn.onclick=()=>{dbData.rows.push({id:jdbRowId(),cells:{}});onChange();rerender();};
+  hostEl.appendChild(addBtn);
+}
+// ── Feed view — chronological cards, newest first if a Date column exists ──
+function renderDatabaseFeedView(hostEl,dbData,onChange,rerender){
+  const titleCol=_jdbTitleCol(dbData);
+  const dateCol=dbData.columns.find(c=>c.type==='date');
+  const rows=dateCol?[...dbData.rows].sort((a,b)=>(b.cells[dateCol.id]||'').localeCompare(a.cells[dateCol.id]||'')):dbData.rows;
+  const feed=document.createElement('div');feed.style.cssText='display:flex;flex-direction:column;gap:8px';
+  rows.forEach(row=>{
+    const card=document.createElement('div');card.style.cssText='background:var(--navy3);border:1px solid var(--border);border-left:3px solid var(--teal);border-radius:8px;padding:10px 12px';
+    const top=document.createElement('div');top.style.cssText='display:flex;justify-content:space-between;align-items:center;margin-bottom:4px';
+    const title=document.createElement('span');title.style.cssText='font-size:var(--text-sm);font-weight:700;color:var(--text1)';title.textContent=_jdbRowLabel(dbData,row);
+    top.appendChild(title);
+    if(dateCol&&row.cells[dateCol.id]){const d=document.createElement('span');d.style.cssText='font-size:9px;color:var(--text3)';d.textContent=row.cells[dateCol.id];top.appendChild(d);}
+    card.appendChild(top);
+    dbData.columns.filter(c=>c!==titleCol&&c!==dateCol).forEach(col=>{
+      const val=row.cells[col.id];if(val===undefined||val==='')return;
+      const line=document.createElement('div');line.style.cssText='font-size:var(--text-xs);color:var(--text3);margin-top:2px';
+      line.textContent=col.name+': '+val;
+      card.appendChild(line);
+    });
+    feed.appendChild(card);
+  });
+  hostEl.appendChild(feed);
+  const addBtn=document.createElement('button');addBtn.innerHTML='<i class="ti ti-plus" style="font-size:10px"></i> New Entry';
+  addBtn.style.cssText='background:var(--navy3);border:1px solid var(--border);border-radius:6px;color:var(--text3);font-size:9px;padding:5px 10px;cursor:pointer;margin-top:8px';
+  addBtn.onclick=()=>{dbData.rows.push({id:jdbRowId(),cells:{}});onChange();rerender();};
+  hostEl.appendChild(addBtn);
+}
+// ── Dashboard view — aggregate stats, not raw rows ──────────────────────
+function renderDatabaseDashboardView(hostEl,dbData,onChange,rerender){
+  const wrap=document.createElement('div');wrap.style.cssText='display:flex;flex-direction:column;gap:12px';
+  const totalCard=document.createElement('div');totalCard.style.cssText='background:var(--navy3);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center';
+  totalCard.innerHTML=`<div style="font-size:24px;font-weight:800;color:var(--teal)">${dbData.rows.length}</div><div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em">Total Rows</div>`;
+  wrap.appendChild(totalCard);
+  dbData.columns.filter(c=>c.type==='select').forEach(col=>{
+    const box=document.createElement('div');box.style.cssText='background:var(--navy3);border:1px solid var(--border);border-radius:10px;padding:10px 12px';
+    box.innerHTML=`<div style="font-size:9px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin-bottom:8px">${col.name}</div>`;
+    (col.options||[]).forEach(opt=>{
+      const count=dbData.rows.filter(r=>r.cells[col.id]===opt.v).length;
+      const pct=dbData.rows.length?Math.round((count/dbData.rows.length)*100):0;
+      const row=document.createElement('div');row.style.cssText='display:flex;align-items:center;gap:8px;margin-bottom:5px';
+      row.innerHTML=`<span style="font-size:var(--text-xs);color:${opt.c};min-width:90px;flex-shrink:0">${opt.v}</span><div style="flex:1;height:6px;background:var(--navy4);border-radius:4px;overflow:hidden"><div style="height:100%;width:${pct}%;background:${opt.c};border-radius:4px"></div></div><span style="font-size:9px;color:var(--text3);flex-shrink:0">${count}</span>`;
+      box.appendChild(row);
+    });
+    wrap.appendChild(box);
+  });
+  dbData.columns.filter(c=>c.type==='checkbox').forEach(col=>{
+    const done=dbData.rows.filter(r=>r.cells[col.id]).length;
+    const box=document.createElement('div');box.style.cssText='background:var(--navy3);border:1px solid var(--border);border-radius:10px;padding:10px 12px;display:flex;justify-content:space-between;align-items:center';
+    box.innerHTML=`<span style="font-size:var(--text-xs);color:var(--text2)">${col.name}</span><span style="font-size:var(--text-sm);font-weight:700;color:var(--teal)">${done} / ${dbData.rows.length}</span>`;
+    wrap.appendChild(box);
+  });
+  hostEl.appendChild(wrap);
+}
+function renderDatabaseTableView(hostEl,dbData,onChange){
+  if(!dbData.columns||!dbData.columns.length){const d=jdbNewDatabase();dbData.columns=d.columns;dbData.rows=dbData.rows||[];}
+  if(!dbData.rows)dbData.rows=[];
+  hostEl.innerHTML='';
+  const wrap=document.createElement('div');wrap.style.cssText='overflow-x:auto';
+  const table=document.createElement('table');table.className='jdb-table';
+  // Header
+  const thead=document.createElement('tr');
+  dbData.columns.forEach(col=>{
+    const th=document.createElement('th');th.style.minWidth='140px';
+    const nameInp=document.createElement('input');nameInp.className='jdb-th-name';nameInp.value=col.name;
+    nameInp.oninput=()=>{col.name=nameInp.value;onChange();};
+    const typeSel=document.createElement('select');typeSel.className='jdb-th-type';
+    ['text','number','select','date','checkbox'].forEach(t=>{
+      const o=document.createElement('option');o.value=t;o.textContent=t[0].toUpperCase()+t.slice(1);o.selected=col.type===t;typeSel.appendChild(o);
+    });
+    typeSel.onchange=()=>{col.type=typeSel.value;if(col.type==='select'&&!col.options)col.options=[];onChange();renderDatabaseTableView(hostEl,dbData,onChange);};
+    th.appendChild(nameInp);th.appendChild(typeSel);
+    thead.appendChild(th);
+  });
+  const thAdd=document.createElement('th');thAdd.style.cssText='width:36px;cursor:pointer;text-align:center';
+  thAdd.innerHTML='<i class="ti ti-plus" style="color:var(--text3);font-size:13px"></i>';
+  thAdd.onclick=()=>{dbData.columns.push({id:jdbColId(),name:'Column',type:'text'});onChange();renderDatabaseTableView(hostEl,dbData,onChange);};
+  thead.appendChild(thAdd);
+  table.appendChild(thead);
+  // Rows
+  dbData.rows.forEach(row=>{
+    const tr=document.createElement('tr');
+    dbData.columns.forEach(col=>{
+      const td=document.createElement('td');
+      const val=row.cells[col.id];
+      if(col.type==='checkbox'){
+        const cb=document.createElement('input');cb.type='checkbox';cb.className='jdb-checkbox';cb.checked=!!val;
+        cb.onchange=()=>{row.cells[col.id]=cb.checked;onChange();};
+        td.appendChild(cb);
+      }else if(col.type==='date'){
+        const d=document.createElement('input');d.type='date';d.value=val||'';d.className='jdb-cell-text';
+        d.onchange=()=>{row.cells[col.id]=d.value;onChange();};
+        td.appendChild(d);
+      }else if(col.type==='select'){
+        const sel=document.createElement('select');sel.className='jdb-cell-text';sel.style.cssText+='background:transparent';
+        const none=document.createElement('option');none.value='';none.textContent='—';sel.appendChild(none);
+        (col.options||[]).forEach(opt=>{const o=document.createElement('option');o.value=opt.v;o.textContent=opt.v;o.selected=val===opt.v;sel.appendChild(o);});
+        const addOpt=document.createElement('option');addOpt.value='__add__';addOpt.textContent='+ Add option...';sel.appendChild(addOpt);
+        sel.onchange=()=>{
+          if(sel.value==='__add__'){
+            const newVal=prompt('New option:');
+            if(newVal){
+              if(!col.options)col.options=[];
+              col.options.push({v:newVal,c:JDB_SELECT_COLORS[col.options.length%JDB_SELECT_COLORS.length]});
+              row.cells[col.id]=newVal;onChange();renderDatabaseTableView(hostEl,dbData,onChange);
+            }else{sel.value=val||'';}
+            return;
+          }
+          row.cells[col.id]=sel.value;onChange();
+        };
+        td.appendChild(sel);
+        if(val){const opt=(col.options||[]).find(o=>o.v===val);if(opt)td.style.background=opt.c+'14';}
+      }else{
+        const inp=document.createElement('input');inp.type=col.type==='number'?'number':'text';inp.className='jdb-cell-text';inp.value=val||'';
+        inp.oninput=()=>{row.cells[col.id]=col.type==='number'?parseFloat(inp.value)||0:inp.value;onChange();};
+        td.appendChild(inp);
+      }
+      tr.appendChild(td);
+    });
+    const tdDel=document.createElement('td');tdDel.style.cssText='text-align:center;cursor:pointer';
+    tdDel.innerHTML='<i class="ti ti-x" style="color:var(--text3);font-size:11px"></i>';
+    tdDel.onclick=()=>{dbData.rows=dbData.rows.filter(r=>r.id!==row.id);onChange();renderDatabaseTableView(hostEl,dbData,onChange);};
+    tr.appendChild(tdDel);
+    table.appendChild(tr);
+  });
+  wrap.appendChild(table);
+  hostEl.appendChild(wrap);
+  const addRowBtn=document.createElement('button');
+  addRowBtn.innerHTML='<i class="ti ti-plus" style="font-size:10px"></i> New Row';
+  addRowBtn.style.cssText='background:var(--navy3);border:1px solid var(--border);border-radius:6px;color:var(--text3);font-size:9px;padding:5px 10px;cursor:pointer;margin-top:6px';
+  addRowBtn.onclick=()=>{dbData.rows.push({id:jdbRowId(),cells:{}});onChange();renderDatabaseTableView(hostEl,dbData,onChange);};
+  hostEl.appendChild(addRowBtn);
+}
 
 // ── Notes ↔ Tasks Dashboard live sync ──────────────────────────────
 function toggleBlockTaskLink(i){
@@ -14106,7 +14521,34 @@ function syncTaskToNoteBlock(t){
   renderNotesList();
 }
 function showBlockMenu(e){e.preventDefault();const m=document.getElementById('blockMenu');m.style.left=e.clientX+'px';m.style.top=e.clientY+'px';m.classList.add('open');document.addEventListener('click',()=>m.classList.remove('open'),{once:true});}
-function addBlock(type){noteBlocks.push({id:Date.now()+'.'+Math.random().toString(36).slice(2,7),type,content:'',done:false});saveBlocks();renderBlocks();setTimeout(()=>{const els=document.querySelectorAll('.bcontent');const last=els[els.length-1];if(last)last.focus();},20);document.getElementById('blockMenu').classList.remove('open');}
+function addBlock(type){
+  document.getElementById('blockMenu').classList.remove('open');
+  const id=Date.now()+'.'+Math.random().toString(36).slice(2,7);
+  if(type==='table'){
+    noteBlocks.push({id,type,content:'',done:false,tableData:[['',''],['','']]});
+    saveBlocks();renderBlocks();return;
+  }
+  if(type==='database'){
+    noteBlocks.push({id,type,content:'',done:false,dbData:jdbNewDatabase()});
+    saveBlocks();renderBlocks();return;
+  }
+  if(type==='page'){
+    const title=prompt('New sub-page title:','Untitled')||'Untitled';
+    const child={id:Date.now()+1,title,worldId:DB.notes[currentNote]?.worldId||null,blocks:[{id:Date.now()+'.c1',type:'h1',content:title,done:false}]};
+    DB.notes.push(child);save('notes');
+    noteBlocks.push({id,type,content:'',done:false,linkedNoteId:child.id});
+    saveBlocks();renderBlocks();renderNotesList();return;
+  }
+  if(type==='pagelink'){
+    noteBlocks.push({id,type,content:'',done:false,linkedNoteId:null});
+    saveBlocks();renderBlocks();
+    _pickNoteForLink(noteBlocks.length-1);
+    return;
+  }
+  noteBlocks.push({id,type,content:'',done:false});
+  saveBlocks();renderBlocks();
+  setTimeout(()=>{const els=document.querySelectorAll('.bcontent');const last=els[els.length-1];if(last)last.focus();},20);
+}
 function ensureBlockId(b){if(!b.id)b.id=Date.now()+'.'+Math.random().toString(36).slice(2,7);return b.id;}
 
 // JOURNAL
