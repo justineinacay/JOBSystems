@@ -266,6 +266,7 @@ select option{background:var(--navy3)}
 .domain-canvas{display:grid;grid-template-columns:repeat(4,1fr);grid-auto-rows:16px;gap:14px;align-content:flex-start;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:20px}
 .dm-resizable{resize:both;overflow-y:auto;overflow-x:hidden;min-height:140px;min-width:200px;max-width:100%;display:flex;flex-direction:column;grid-column:span 4;grid-row:span 15}
 .dm-resizable::-webkit-resizer{background:transparent}
+.dm-resizable:has(>.cl):has(>.cv){justify-content:center;flex:1}
 .dm-shape-btn{width:22px;height:22px;border-radius:5px;background:var(--navy2);border:1px solid var(--border2);color:var(--text3);cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0}
 .dm-shape-btn:hover{border-color:var(--teal2);color:var(--teal)}
 .dm-add-tile{grid-column:span 4;grid-row:span 8;border:1.5px dashed var(--border2);border-radius:var(--radius-card);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text3);font-size:var(--text-sm);gap:6px;transition:border-color .15s,color .15s;background:transparent}
@@ -4671,6 +4672,7 @@ select option{background:var(--navy3)}
       <div class="modal" style="width:min(680px,96vw);max-height:85vh">
         <div class="mh">
           <div id="noteTitle" contenteditable="true" style="font-size:var(--text-sm);font-weight:700;outline:none;color:var(--teal);flex:1;padding:0 4px;min-width:200px" onblur="saveNoteTitle()">Untitled Note</div>
+          <span id="notesEditToggleMount"></span>
           <select id="noteFolderSelect" onchange="setNoteFolder(this.value)" style="font-size:var(--text-xs);width:auto;margin-right:8px" title="Folder"></select>
           <button class="mc" onclick="closeModal('noteEditorModal')">×</button>
         </div>
@@ -4768,6 +4770,7 @@ select option{background:var(--navy3)}
           <div class="vs" id="domainGenericSub">Custom domain</div>
         </div>
         <div class="va">
+          <span id="domainEditToggleMount"></span>
           <button class="btn btn-g" onclick="openDomainModulesModal(currentView)"><i class="ti ti-adjustments"></i> Customize</button>
         </div>
       </div>
@@ -6454,6 +6457,37 @@ function makeStaticCardsResizable(elIds){
     });
     ro.observe(el);
     el._jdbResizeObserver=ro;
+    // Drag-and-drop reorder among sibling cards in the same row/group
+    el.setAttribute('draggable','true');
+    el.style.cursor='grab';
+    el.addEventListener('dragstart',()=>{window._staticDragId=elId;el.style.opacity='.4';});
+    el.addEventListener('dragend',()=>{el.style.opacity='1';});
+    el.addEventListener('dragover',(e)=>{e.preventDefault();el.style.borderColor='var(--teal)';});
+    el.addEventListener('dragleave',()=>{el.style.borderColor='';});
+    el.addEventListener('drop',(e)=>{
+      e.preventDefault();el.style.borderColor='';
+      const dragId=window._staticDragId;
+      if(!dragId||dragId===elId)return;
+      const dragEl=document.getElementById(dragId);
+      if(!dragEl||dragEl.parentElement!==el.parentElement)return; // only reorder within the same card group
+      el.parentElement.insertBefore(dragEl,el);
+      const groupKey='j-staticorder-'+elId.split('-').slice(0,2).join('-');
+      const order=[...el.parentElement.children].map(c=>c.id).filter(Boolean);
+      localStorage.setItem(groupKey,JSON.stringify(order));
+    });
+  });
+  // Restore any previously saved order, once per unique parent group
+  const seenParents=new Set();
+  elIds.forEach(elId=>{
+    const el=document.getElementById(elId);if(!el||!el.parentElement||seenParents.has(el.parentElement))return;
+    seenParents.add(el.parentElement);
+    const groupKey='j-staticorder-'+elId.split('-').slice(0,2).join('-');
+    try{
+      const order=JSON.parse(localStorage.getItem(groupKey)||'null');
+      if(Array.isArray(order)){
+        order.forEach(id=>{const c=document.getElementById(id);if(c&&c.parentElement===el.parentElement)el.parentElement.appendChild(c);});
+      }
+    }catch(e){}
   });
 }
 function _restoreModuleSizes(worldId,moduleIds){
@@ -6522,6 +6556,8 @@ function renderDomainGenericView(worldId){
   if(!w||!body)return;
   const colorVal=(w.color&&/^#/.test(w.color))?w.color:('var('+(w.cssVar||'--teal')+')');
   if(titleEl)titleEl.innerHTML=`<i class="ti ${w.icon||'ti-star'}" style="color:${colorVal}"></i>${w.label}`;
+  const toggleMount=document.getElementById('domainEditToggleMount');
+  if(toggleMount)toggleMount.innerHTML=_editToggleButtonHtml();
   const active=domainModulesFor(worldId);
   const order=domainModuleOrderFor(worldId);
   const worldTag=worldId.toUpperCase();
@@ -6553,25 +6589,31 @@ function renderDomainGenericView(worldId){
     const renderer=DOMAIN_MODULE_RENDERERS[id];
     const out=renderer?renderer(worldId,colorVal,worldTag,tasks,notes):'';
     const shape=_moduleShapeFor(worldId,id);
+    if(!jelixEditMode){
+      // View mode: no drag/resize/shape chrome, just the module content in its saved shape
+      return out.replace('<div class="hc">','<div class="hc" id="domainModule-'+worldId+'-'+id+'" data-module-id="'+id+'" style="grid-column:span '+shape.col+';grid-row:span '+shape.row+'">');
+    }
     // Tag each module's own wrapper div: grid shape, resize/reorder handles
     const handle=`<div style="position:absolute;top:8px;right:8px;display:flex;align-items:center;gap:3px;z-index:2;background:var(--navy2);border-radius:6px;padding:3px">
       ${shapeButtons(worldId,id)}
-      <div draggable="true" ondragstart="_dmDragId='${id}';event.currentTarget.parentElement.parentElement.style.opacity='.5'" ondragend="event.currentTarget.parentElement.parentElement.style.opacity='1'" title="Drag to reorder" style="cursor:grab;color:var(--text4);font-size:14px;padding:3px;line-height:1"><i class="ti ti-grip-vertical" style="display:block"></i></div>
+      <button class="dm-shape-btn" title="Move earlier" onclick="moveDomainModule('${worldId}','${id}',-1)"><i class="ti ti-arrow-up" style="font-size:11px"></i></button>
+      <button class="dm-shape-btn" title="Move later" onclick="moveDomainModule('${worldId}','${id}',1)"><i class="ti ti-arrow-down" style="font-size:11px"></i></button>
+      <div draggable="true" ondragstart="_dmDragId='${id}';event.currentTarget.parentElement.parentElement.style.opacity='.5'" ondragend="event.currentTarget.parentElement.parentElement.style.opacity='1'" title="Drag to reorder (desktop)" style="cursor:grab;color:var(--text4);font-size:14px;padding:3px;line-height:1"><i class="ti ti-grip-vertical" style="display:block"></i></div>
     </div>`;
     return out.replace('<div class="hc">','<div class="hc dm-resizable" id="domainModule-'+worldId+'-'+id+'" data-module-id="'+id+'" style="grid-column:span '+shape.col+';grid-row:span '+shape.row+'" ondragover="event.preventDefault();event.currentTarget.style.borderColor=\'var(--teal)\'" ondragleave="event.currentTarget.style.borderColor=\'var(--border)\'" ondrop="event.preventDefault();event.currentTarget.style.borderColor=\'var(--border)\';reorderDomainModule(\''+worldId+'\',\''+id+'\')">'+handle);
   }).join('');
 
-  const addTile=`<div class="dm-add-tile" onclick="openDomainModulesModal('${worldId}')"><i class="ti ti-plus" style="font-size:16px"></i> Add module</div>`;
+  const addTile=jelixEditMode?`<div class="dm-add-tile" onclick="openDomainModulesModal('${worldId}')"><i class="ti ti-plus" style="font-size:16px"></i> Add module</div>`:'';
 
   if(!visibleOrder.length){
     html=`<div style="grid-column:1/-1;text-align:center;padding:40px 20px;color:var(--text3)">
       <i class="ti ti-layout-grid-add" style="font-size:32px;display:block;margin-bottom:10px;opacity:.5"></i>
       <div style="font-size:var(--text-sm);margin-bottom:10px">${w.tabs&&w.tabs.length&&_activeDomainTab[worldId]&&_activeDomainTab[worldId]!=='all'?'No modules assigned to this tab yet.':'No modules added yet.'}</div>
-      <button class="btn btn-t" onclick="openDomainModulesModal('${worldId}')">${w.tabs&&w.tabs.length?'Manage':'Add'} modules</button>
+      ${jelixEditMode?`<button class="btn btn-t" onclick="openDomainModulesModal('${worldId}')">${w.tabs&&w.tabs.length?'Manage':'Add'} modules</button>`:''}
     </div>`;
   }
   body.innerHTML=tabBarHtml+html+addTile;
-  _restoreModuleSizes(worldId,visibleOrder);
+  if(jelixEditMode)_restoreModuleSizes(worldId,visibleOrder);
   if(visibleOrder.includes('database')){
     const host=document.getElementById('domainDbHost-'+worldId);
     if(host){
@@ -6720,6 +6762,22 @@ function assignModuleToTab(worldId,moduleId,tabId){
   save('worlds');
   if(currentView===worldId)renderDomainGenericView(worldId);
 }
+function moveDomainModule(worldId,moduleId,dir){
+  const i=(DB.worlds||[]).findIndex(w=>w.id===worldId);if(i<0)return;
+  let order=domainModuleOrderFor(worldId).filter(id=>domainModulesFor(worldId).includes(id));
+  const pos=order.indexOf(moduleId);
+  const newPos=pos+dir;
+  if(pos<0||newPos<0||newPos>=order.length)return;
+  [order[pos],order[newPos]]=[order[newPos],order[pos]];
+  // Merge back with the full stored order (including inactive modules) to preserve their relative spots
+  const fullOrder=domainModuleOrderFor(worldId);
+  const activeOnly=order;
+  let ai=0;
+  const merged=fullOrder.map(id=>domainModulesFor(worldId).includes(id)?activeOnly[ai++]:id);
+  DB.worlds[i].moduleOrder=merged;
+  save('worlds');
+  if(currentView===worldId)renderDomainGenericView(worldId);
+}
 function reorderDomainModule(worldId,targetId){
   if(!_dmDragId||_dmDragId===targetId)return;
   const i=(DB.worlds||[]).findIndex(w=>w.id===worldId);if(i<0)return;
@@ -6749,6 +6807,7 @@ function _openDomainEventModal(worldId){
 function _newDomainNote(worldId){
   const n={id:Date.now(),title:'New Note',worldId:worldId,blocks:[{id:Date.now()+'.1',type:'h1',content:'',done:false},{id:Date.now()+'.2',type:'p',content:'',done:false}]};
   DB.notes.push(n);save('notes');
+  SB.upsert('notes',n,'notes').catch(()=>{});
   setView('notes');
   setTimeout(()=>{currentNote=DB.notes.length-1;renderNotesList();openNoteEditor(currentNote);},150);
 }
@@ -14275,20 +14334,109 @@ function setNoteFolder(worldId){
   renderNotesList();
   showToast(worldId?'✓ Moved to folder':'✓ Marked unfiled');
 }
-function openNoteEditor(i){currentNote=i;noteBlocks=[...DB.notes[currentNote].blocks];const t=document.getElementById('noteTitle');if(t)t.textContent=DB.notes[currentNote].title;renderBlocks();populateNoteFolderSelect();openModal('noteEditorModal');}
+function openNoteEditor(i){currentNote=i;noteBlocks=[...DB.notes[currentNote].blocks];const t=document.getElementById('noteTitle');if(t)t.textContent=DB.notes[currentNote].title;const tm=document.getElementById('notesEditToggleMount');if(tm)tm.innerHTML=_editToggleButtonHtml();renderBlocks();populateNoteFolderSelect();openModal('noteEditorModal');}
 function populateNoteFolderSelect(){
   const sel=document.getElementById('noteFolderSelect');if(!sel)return;
   const n=DB.notes[currentNote];
   sel.innerHTML='<option value="">Unfiled</option>'+(DB.worlds||[]).map(w=>`<option value="${w.id}">${w.label}</option>`).join('');
   sel.value=n?.worldId||'';
 }
-function newNote(){const assignWorld=notesActiveFolder!=='all'&&notesActiveFolder!=='unfiled'?notesActiveFolder:null;const n={id:Date.now(),title:'New Note',worldId:assignWorld,blocks:[{id:Date.now()+'.1',type:'h1',content:'',done:false},{id:Date.now()+'.2',type:'p',content:'',done:false}]};DB.notes.push(n);save('notes');currentNote=DB.notes.length-1;renderNotesList();openNoteEditor(currentNote);}
+function newNote(){const assignWorld=notesActiveFolder!=='all'&&notesActiveFolder!=='unfiled'?notesActiveFolder:null;const n={id:Date.now(),title:'New Note',worldId:assignWorld,blocks:[{id:Date.now()+'.1',type:'h1',content:'',done:false},{id:Date.now()+'.2',type:'p',content:'',done:false}]};DB.notes.push(n);save('notes');SB.upsert('notes',n,'notes').catch(()=>{});currentNote=DB.notes.length-1;renderNotesList();openNoteEditor(currentNote);}
 function switchNote(){openNoteEditor(currentNote);}
 
-function deleteNote(i){if(!confirm('Delete this note?'))return;DB.notes.splice(i,1);save('notes');currentNote=Math.max(0,currentNote-1);renderNotesList();}
+function deleteNote(i){if(!confirm('Delete this note?'))return;const n=DB.notes[i];DB.notes.splice(i,1);save('notes');if(n)sbFetch('notes','DELETE',null,`id=eq.${n.id}`).catch(()=>{});currentNote=Math.max(0,currentNote-1);renderNotesList();}
 function deleteCurrentNote(){closeModal('noteEditorModal');deleteNote(currentNote);}
-function saveNoteTitle(){if(DB.notes[currentNote]){DB.notes[currentNote].title=document.getElementById('noteTitle').textContent;save('notes');renderNotesList();}}
-function saveBlocks(){if(DB.notes[currentNote]){DB.notes[currentNote].blocks=[...noteBlocks];save('notes');}}
+function saveNoteTitle(){if(DB.notes[currentNote]){DB.notes[currentNote].title=document.getElementById('noteTitle').textContent;save('notes');SB.update('notes',DB.notes[currentNote].id,DB.notes[currentNote],'notes').catch(()=>{});renderNotesList();}}
+// ═══════════════════════════════════════════════════════════════════════════
+// EDIT / VIEW MODE — global toggle. Edit mode shows drag handles, delete
+// buttons, shape presets, resize handles, and the slash/+ block menus, and
+// makes text genuinely editable. View mode hides all of that and makes
+// everything read-only — but links, checkboxes-as-state, and buttons
+// (task click-to-open, etc.) stay fully functional either way.
+// ═══════════════════════════════════════════════════════════════════════════
+let jelixEditMode=localStorage.getItem('j-edit-mode')!=='off';
+function toggleEditMode(){
+  jelixEditMode=!jelixEditMode;
+  localStorage.setItem('j-edit-mode',jelixEditMode?'on':'off');
+  document.querySelectorAll('.jelix-edit-toggle').forEach(btn=>{
+    btn.innerHTML=jelixEditMode?'<i class="ti ti-edit"></i> Editing':'<i class="ti ti-eye"></i> Viewing';
+    btn.style.color=jelixEditMode?'var(--teal)':'var(--text3)';
+    btn.style.borderColor=jelixEditMode?'var(--teal2)':'var(--border)';
+  });
+  if(document.getElementById('view-notes')?.classList.contains('active'))renderBlocks();
+  if(document.getElementById('view-domain-generic')?.classList.contains('active'))renderDomainGenericView(currentView);
+}
+function _editToggleButtonHtml(){
+  return`<button class="jelix-edit-toggle btn btn-g" onclick="toggleEditMode()" style="font-size:var(--text-xs);color:${jelixEditMode?'var(--teal)':'var(--text3)'};border-color:${jelixEditMode?'var(--teal2)':'var(--border)'}"><i class="ti ti-${jelixEditMode?'edit':'eye'}"></i> ${jelixEditMode?'Editing':'Viewing'}</button>`;
+}
+function saveBlocks(){
+  if(DB.notes[currentNote]){
+    DB.notes[currentNote].blocks=[...noteBlocks];
+    save('notes');
+    SB.update('notes',DB.notes[currentNote].id,DB.notes[currentNote],'notes').catch(()=>{});
+  }
+}
+let _saveBlocksTimer=null;
+function saveBlocksDebounced(){
+  clearTimeout(_saveBlocksTimer);
+  _saveBlocksTimer=setTimeout(saveBlocks,1000);
+}
+// Generic debounce for other frequent-write paths (Database cell typing, etc.)
+function debounce(fn,ms){
+  let t=null;
+  return function(...args){clearTimeout(t);t=setTimeout(()=>fn.apply(this,args),ms||1000);};
+}
+const _dbChangeDebounceMap=new WeakMap();
+function _dbCellChangeDebounced(onChange){
+  if(!_dbChangeDebounceMap.has(onChange))_dbChangeDebounceMap.set(onChange,debounce(onChange,800));
+  _dbChangeDebounceMap.get(onChange)();
+}
+const SLASH_COMMAND_TYPES=[
+  {t:'h1',label:'Heading 1',icon:'ti-h-1'},
+  {t:'h2',label:'Heading 2',icon:'ti-h-2'},
+  {t:'h3',label:'Heading 3',icon:'ti-h-3'},
+  {t:'h4',label:'Heading 4',icon:'ti-h-4'},
+  {t:'p',label:'Paragraph',icon:'ti-pilcrow'},
+  {t:'todo',label:'To-do',icon:'ti-checkbox'},
+  {t:'bullet',label:'Bullet List',icon:'ti-list'},
+  {t:'numbered',label:'Numbered List',icon:'ti-list-numbers'},
+  {t:'toggle',label:'Toggle List',icon:'ti-chevron-right'},
+  {t:'switch',label:'Toggle (Switch)',icon:'ti-toggle-left'},
+  {t:'quote',label:'Quote',icon:'ti-quote'},
+  {t:'code',label:'Code Block',icon:'ti-code'},
+  {t:'callout',label:'Callout',icon:'ti-bulb'},
+  {t:'divider',label:'Divider',icon:'ti-minus'},
+  {t:'table',label:'Table',icon:'ti-table'},
+  {t:'database',label:'Database',icon:'ti-database'}
+];
+function _showSlashMenu(blockIndex,contentEl){
+  let menu=document.getElementById('jelixSlashMenu');
+  if(!menu){
+    menu=document.createElement('div');
+    menu.id='jelixSlashMenu';
+    menu.style.cssText='position:fixed;z-index:9999;background:var(--navy1);border:1px solid var(--border2);border-radius:10px;padding:6px;box-shadow:0 6px 20px rgba(0,0,0,.45);max-height:280px;overflow-y:auto;min-width:190px';
+    document.body.appendChild(menu);
+    document.addEventListener('mousedown',(e)=>{if(!menu.contains(e.target))_hideSlashMenu();});
+  }
+  menu.innerHTML=SLASH_COMMAND_TYPES.map(x=>`<div onmousedown="event.preventDefault();_applySlashCommand(${blockIndex},'${x.t}')" style="padding:6px 9px;cursor:pointer;border-radius:6px;display:flex;align-items:center;gap:7px;font-size:var(--text-sm);color:var(--text1)" onmouseover="this.style.background='var(--navy3)'" onmouseout="this.style.background='transparent'"><i class="ti ${x.icon}" style="font-size:13px;color:var(--teal);width:16px;flex-shrink:0"></i>${x.label}</div>`).join('');
+  const r=contentEl.getBoundingClientRect();
+  menu.style.display='block';
+  const menuH=menu.offsetHeight||280;
+  menu.style.left=Math.max(8,Math.min(window.innerWidth-210,r.left))+'px';
+  menu.style.top=(r.bottom+window.innerHeight-r.bottom<menuH+20?r.top-menuH-6:r.bottom+4)+'px';
+}
+function _hideSlashMenu(){const m=document.getElementById('jelixSlashMenu');if(m)m.style.display='none';}
+function _applySlashCommand(blockIndex,type){
+  if(!noteBlocks[blockIndex])return;
+  noteBlocks[blockIndex].type=type;
+  noteBlocks[blockIndex].content='';
+  if(type==='table')noteBlocks[blockIndex].tableData=[['',''],['','']];
+  if(type==='database')noteBlocks[blockIndex].dbData=jdbNewDatabase();
+  saveBlocks();
+  _hideSlashMenu();
+  renderBlocks();
+  setTimeout(()=>{const els=document.querySelectorAll('.bcontent');if(els[blockIndex])els[blockIndex].focus();},20);
+}
 function renderBlocks(){const c=document.getElementById('blocksContainer');c.innerHTML='';
   let numberedRun=0; // tracks consecutive numbered-list position, resets on any other type
   noteBlocks.forEach((b,i)=>{
@@ -14409,6 +14557,8 @@ function renderBlocks(){const c=document.getElementById('blocksContainer');c.inn
     if(richTextEligible)content.innerHTML=b.content||''; else content.textContent=b.content||'';
     content.oninput=()=>{
       let val=content.textContent; // plain-text check, used only for bullet auto-detect below
+      // "/" as the entire content of an empty block opens the slash command menu
+      if(val==='/'){_showSlashMenu(i,content);}else{_hideSlashMenu();}
       // Auto-detect bullet formatting: "- " or "* " at the start of a paragraph
       if(noteBlocks[i].type==='p'&&/^([-*])\s/.test(val)){
         val=val.replace(/^([-*])\s/,'');
@@ -14418,8 +14568,8 @@ function renderBlocks(){const c=document.getElementById('blocksContainer');c.inn
         setTimeout(()=>{const els=c.querySelectorAll('.bcontent');if(els[i]){els[i].focus();placeCaretAtEnd(els[i]);}},10);
         return;
       }
-      noteBlocks[i].content=richTextEligible?content.innerHTML:val;saveBlocks();
-      syncBlockToTask(noteBlocks[i]);
+      noteBlocks[i].content=richTextEligible?content.innerHTML:val;saveBlocksDebounced();
+      syncBlockToTaskDebounced(noteBlocks[i]);
     };
     const headingLike=['h1','h2','h3','h4','quote'];
     content.onkeydown=(e)=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();noteBlocks.splice(i+1,0,{id:Date.now()+'.'+Math.random().toString(36).slice(2,7),type:headingLike.includes(b.type)?'p':b.type,content:'',done:false});saveBlocks();renderBlocks();setTimeout(()=>{const els=c.querySelectorAll('.bcontent');if(els[i+1])els[i+1].focus();},10);}if(e.key==='Backspace'&&content.textContent===''&&noteBlocks.length>1){e.preventDefault();unlinkBlockTask(noteBlocks[i]);noteBlocks.splice(i,1);saveBlocks();renderBlocks();}};
@@ -14428,13 +14578,56 @@ function renderBlocks(){const c=document.getElementById('blocksContainer');c.inn
     const del=document.createElement('button');del.innerHTML='<i class="ti ti-x" style="font-size:var(--text-xs);line-height:1;display:block"></i>';del.style.cssText='background:transparent;border:none;color:var(--text3);cursor:pointer;opacity:0;transition:opacity .15s;padding:0 2px;flex-shrink:0;margin-top:3px';del.onclick=()=>{unlinkBlockTask(noteBlocks[i]);noteBlocks.splice(i,1);saveBlocks();renderBlocks();};row.addEventListener('mouseenter',()=>del.style.opacity='1');row.addEventListener('mouseleave',()=>del.style.opacity='0');row.appendChild(del);
     c.appendChild(row);
     if(b.type==='toggle'&&b.collapsed===false){
-      const detail=document.createElement('div');detail.style.cssText='margin-left:22px;padding:4px 10px;border-left:2px solid var(--border);font-size:var(--text-sm);color:var(--text2);min-height:24px;outline:none';
+      const detail=document.createElement('div');detail.dataset.toggleDetail='1';detail.style.cssText='margin-left:22px;padding:4px 10px;border-left:2px solid var(--border);font-size:var(--text-sm);color:var(--text2);min-height:24px;outline:none';
       detail.contentEditable='true';detail.textContent=b.toggleContent||'';
       detail.dataset.placeholder='Add details...';
       detail.oninput=()=>{noteBlocks[i].toggleContent=detail.textContent;saveBlocks();};
       c.appendChild(detail);
     }
-  });}
+  });
+  // Drag-reorder blocks within the note (Edit mode only) — maps container
+  // children to noteBlocks by position, skipping toggle-detail divs (which
+  // are extra content under a toggle, not blocks of their own).
+  if(jelixEditMode){
+    const blockEls=[...c.children].filter(el=>!el.dataset.toggleDetail);
+    blockEls.forEach((el,pos)=>{
+      el.draggable=true;
+      el.style.cursor='grab';
+      el.style.position=el.style.position||'relative';
+      el.addEventListener('dragstart',()=>{window._blockDragPos=pos;el.style.opacity='.4';});
+      el.addEventListener('dragend',()=>{el.style.opacity='1';});
+      el.addEventListener('dragover',(e)=>{e.preventDefault();el.style.outline='1px solid var(--teal)';});
+      el.addEventListener('dragleave',()=>{el.style.outline='';});
+      el.addEventListener('drop',(e)=>{
+        e.preventDefault();el.style.outline='';
+        const from=window._blockDragPos;
+        if(from===undefined||from===pos)return;
+        const [moved]=noteBlocks.splice(from,1);
+        noteBlocks.splice(pos,0,moved);
+        saveBlocks();renderBlocks();
+      });
+      // Touch-device fallback — HTML5 drag doesn't work reliably on mobile
+      const updown=document.createElement('div');
+      updown.style.cssText='position:absolute;left:-24px;top:2px;display:flex;flex-direction:column;gap:1px;opacity:0;transition:opacity .15s';
+      updown.innerHTML=`<button onmousedown="event.preventDefault()" onclick="moveNoteBlock(${pos},-1)" style="background:transparent;border:none;color:var(--text4);cursor:pointer;padding:0;line-height:1"><i class="ti ti-chevron-up" style="font-size:11px;display:block"></i></button><button onmousedown="event.preventDefault()" onclick="moveNoteBlock(${pos},1)" style="background:transparent;border:none;color:var(--text4);cursor:pointer;padding:0;line-height:1"><i class="ti ti-chevron-down" style="font-size:11px;display:block"></i></button>`;
+      el.appendChild(updown);
+      el.addEventListener('mouseenter',()=>updown.style.opacity='1');
+      el.addEventListener('mouseleave',()=>updown.style.opacity='0');
+    });
+  }
+  const addBtn=document.querySelector('.addbl');
+  if(!jelixEditMode){
+    c.querySelectorAll('[contenteditable="true"]').forEach(el=>el.contentEditable='false');
+    c.querySelectorAll('button').forEach(btn=>{if(btn.innerHTML.includes('ti-x')||btn.innerHTML.includes('ti-trash')||btn.innerHTML.includes('ti-pencil'))btn.style.display='none';});
+    if(addBtn)addBtn.style.display='none';
+  }else if(addBtn){addBtn.style.display='';}
+}
+function moveNoteBlock(pos,dir){
+  const newPos=pos+dir;
+  if(newPos<0||newPos>=noteBlocks.length)return;
+  [noteBlocks[pos],noteBlocks[newPos]]=[noteBlocks[newPos],noteBlocks[pos]];
+  saveBlocks();renderBlocks();
+}
 function _pickNoteForLink(blockIndex){
   const titles=DB.notes.map((n,idx)=>(idx+1)+'. '+(n.title||'Untitled'));
   const choice=prompt('Link to which page? Enter the number:\n\n'+titles.join('\n'));
@@ -14463,6 +14656,7 @@ function _initTextSelectionToolbar(){
   });
 }
 function _maybeShowSelToolbar(){
+  if(!jelixEditMode){const tb=document.getElementById('jelixSelToolbar');if(tb)tb.style.display='none';return;}
   const sel=window.getSelection();
   if(!sel||sel.isCollapsed||!sel.toString().trim()){const tb=document.getElementById('jelixSelToolbar');if(tb)tb.style.display='none';return;}
   const range=sel.getRangeAt(0);
@@ -14886,7 +15080,7 @@ function renderDatabaseTableView(hostEl,dbData,onChange){
   dbData.columns.forEach(col=>{
     const th=document.createElement('th');th.style.minWidth='140px';
     const nameInp=document.createElement('input');nameInp.className='jdb-th-name';nameInp.value=col.name;
-    nameInp.oninput=()=>{col.name=nameInp.value;onChange();};
+    nameInp.oninput=()=>{col.name=nameInp.value;_dbCellChangeDebounced(onChange);};
     const typeSel=document.createElement('select');typeSel.className='jdb-th-type';
     ['text','number','select','date','checkbox'].forEach(t=>{
       const o=document.createElement('option');o.value=t;o.textContent=t[0].toUpperCase()+t.slice(1);o.selected=col.type===t;typeSel.appendChild(o);
@@ -14935,7 +15129,7 @@ function renderDatabaseTableView(hostEl,dbData,onChange){
         if(val){const opt=(col.options||[]).find(o=>o.v===val);if(opt)td.style.background=opt.c+'14';}
       }else{
         const inp=document.createElement('input');inp.type=col.type==='number'?'number':'text';inp.className='jdb-cell-text';inp.value=val||'';
-        inp.oninput=()=>{row.cells[col.id]=col.type==='number'?parseFloat(inp.value)||0:inp.value;onChange();};
+        inp.oninput=()=>{row.cells[col.id]=col.type==='number'?parseFloat(inp.value)||0:inp.value;_dbCellChangeDebounced(onChange);};
         td.appendChild(inp);
       }
       tr.appendChild(td);
@@ -14985,6 +15179,7 @@ function syncBlockToTask(b){
   SB.update('tasks',t.id,t,'tasks');
   if(typeof renderTasks==='function')renderTasks();
 }
+const syncBlockToTaskDebounced=debounce((b)=>syncBlockToTask(b),1000);
 function unlinkBlockTask(b){
   if(!b||!b.taskId)return;
   const t=DB.tasks.find(x=>x.id===b.taskId);
