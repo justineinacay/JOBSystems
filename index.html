@@ -6519,57 +6519,133 @@ function _moduleSizeKey(worldId,moduleId){return 'j-modsize-'+worldId+'-'+module
 // that persist for the whole session — unlike the custom-domain generic view,
 // they're never rebuilt from scratch, so this only needs to run once at boot.
 function makeStaticCardsResizable(elIds){
+  // Give each shared parent (a group of stat cards, e.g. Faith's Total/
+  // Approved/Submitted/Pending) the same explicit 4-column grid custom
+  // domains use — this is what actually enables true side-by-side placement.
+  // The old .mr auto-fit grid computes column width FROM content, so one
+  // card with a leftover bad width (from before yesterday's fix) could
+  // squeeze the whole row into a single narrow column — exactly the bug
+  // in the screenshot.
+  const seenParents=new Set();
+  elIds.forEach(elId=>{
+    const el=document.getElementById(elId);if(!el)return;
+    if(el.parentElement&&!seenParents.has(el.parentElement)){
+      seenParents.add(el.parentElement);
+      el.parentElement.classList.add('domain-canvas');
+      el.parentElement.style.marginBottom='18px';
+    }
+  });
   elIds.forEach(elId=>{
     const el=document.getElementById(elId);if(!el||el._jdbResizeObserver)return;
     el.classList.add('dm-resizable');
-    const key='j-modsize-static-'+elId;
-    try{
-      const saved=JSON.parse(localStorage.getItem(key)||'null');
-      if(saved){if(saved.h)el.style.height=saved.h+'px';if(saved.w)el.style.width=saved.w+'px';}
-    }catch(e){}
+    el.style.width='';el.style.height=''; // clear any leftover bad px size from before
+    const groupKey='j-staticgroup-'+elId.split('-').slice(0,2).join('-');
+    const shapeKey='j-modsize-static-'+elId;
+    let shape={col:4,row:15};
+    try{const saved=JSON.parse(localStorage.getItem(shapeKey)||'null');if(saved&&saved.col)shape=saved;}catch(e){}
+    el.style.gridColumn='span '+shape.col;el.style.gridRow='span '+shape.row;
+
+    // Shape-preset + reorder toolbar — same visual language as custom domains
+    const toolbar=document.createElement('div');
+    toolbar.style.cssText='display:flex;align-items:center;justify-content:flex-end;gap:3px;margin-bottom:6px;flex-shrink:0';
+    toolbar.innerHTML=Object.entries(DM_SHAPE_PRESETS).map(([name,p])=>
+      `<button class="dm-shape-btn" title="${p.title}" onclick="_setStaticCardShape('${elId}','${name}')"><i class="ti ${p.icon}" style="font-size:11px"></i></button>`
+    ).join('')+
+      `<button class="dm-shape-btn" title="Move earlier" onclick="_moveStaticCard('${elId}',-1)"><i class="ti ti-arrow-up" style="font-size:11px"></i></button>
+       <button class="dm-shape-btn" title="Move later" onclick="_moveStaticCard('${elId}',1)"><i class="ti ti-arrow-down" style="font-size:11px"></i></button>
+       <span draggable="true" title="Drag to reorder (desktop)" style="cursor:grab;color:var(--text4);font-size:14px;padding:3px;line-height:1"><i class="ti ti-grip-vertical" style="display:block"></i></span>`;
+    el.insertBefore(toolbar,el.firstChild);
+
+    el.setAttribute('draggable','true');
+    el.addEventListener('dragstart',()=>{window._staticDragId=elId;el.style.opacity='.5';el.style.transform='scale(.97)';});
+    el.addEventListener('dragend',()=>{el.style.opacity='1';el.style.transform='';});
+    el.addEventListener('dragover',(e)=>{e.preventDefault();el.style.borderColor='var(--teal)';el.style.boxShadow='0 0 0 2px var(--teal2)';});
+    el.addEventListener('dragleave',()=>{el.style.borderColor='';el.style.boxShadow='';});
+    el.addEventListener('drop',(e)=>{
+      e.preventDefault();el.style.borderColor='';el.style.boxShadow='';
+      const dragId=window._staticDragId;
+      if(!dragId||dragId===elId)return;
+      const dragEl=document.getElementById(dragId);
+      if(!dragEl||dragEl.parentElement!==el.parentElement)return; // only reorder within the same card group
+      const before=new Map();
+      [...el.parentElement.children].forEach(c=>{if(c.id)before.set(c.id,c.getBoundingClientRect());});
+      el.parentElement.insertBefore(dragEl,el);
+      const order=[...el.parentElement.children].map(c=>c.id).filter(Boolean);
+      localStorage.setItem(groupKey,JSON.stringify(order));
+      [...el.parentElement.children].forEach(c=>{
+        if(!c.id)return;
+        const oldRect=before.get(c.id);if(!oldRect)return;
+        const newRect=c.getBoundingClientRect();
+        const dx=oldRect.left-newRect.left,dy=oldRect.top-newRect.top;
+        if(Math.abs(dx)<1&&Math.abs(dy)<1)return;
+        c.style.transition='none';c.style.transform=`translate(${dx}px,${dy}px)`;
+        requestAnimationFrame(()=>{c.style.transition='transform 280ms cubic-bezier(.2,0,0,1)';c.style.transform='';});
+      });
+    });
+
     let saveTimer=null;
     let firstFire=true;
     const ro=new ResizeObserver(entries=>{
       if(firstFire){firstFire=false;return;}
       clearTimeout(saveTimer);
       saveTimer=setTimeout(()=>{
-        const h=Math.round(entries[0].contentRect.height),w=Math.round(entries[0].contentRect.width);
-        if(h>0&&w>0)localStorage.setItem(key,JSON.stringify({h,w}));
-      },300);
+        const rect=entries[0].contentRect;
+        const container=el.parentElement;if(!container)return;
+        const gap=14,cols=4;
+        const colWidth=(container.clientWidth-gap*(cols-1))/cols;
+        const rowUnit=16;
+        const colSpan=Math.max(1,Math.min(cols,Math.round((rect.width+gap)/(colWidth+gap))));
+        const rowSpan=Math.max(6,Math.round((rect.height+gap)/(rowUnit+gap/10)));
+        localStorage.setItem(shapeKey,JSON.stringify({col:colSpan,row:rowSpan}));
+        el.style.width='';el.style.height='';
+        el.style.gridColumn='span '+colSpan;el.style.gridRow='span '+rowSpan;
+      },400);
     });
     ro.observe(el);
     el._jdbResizeObserver=ro;
-    // Drag-and-drop reorder among sibling cards in the same row/group
-    el.setAttribute('draggable','true');
-    el.style.cursor='grab';
-    el.addEventListener('dragstart',()=>{window._staticDragId=elId;el.style.opacity='.4';});
-    el.addEventListener('dragend',()=>{el.style.opacity='1';});
-    el.addEventListener('dragover',(e)=>{e.preventDefault();el.style.borderColor='var(--teal)';});
-    el.addEventListener('dragleave',()=>{el.style.borderColor='';});
-    el.addEventListener('drop',(e)=>{
-      e.preventDefault();el.style.borderColor='';
-      const dragId=window._staticDragId;
-      if(!dragId||dragId===elId)return;
-      const dragEl=document.getElementById(dragId);
-      if(!dragEl||dragEl.parentElement!==el.parentElement)return; // only reorder within the same card group
-      el.parentElement.insertBefore(dragEl,el);
-      const groupKey='j-staticorder-'+elId.split('-').slice(0,2).join('-');
-      const order=[...el.parentElement.children].map(c=>c.id).filter(Boolean);
-      localStorage.setItem(groupKey,JSON.stringify(order));
-    });
   });
   // Restore any previously saved order, once per unique parent group
-  const seenParents=new Set();
+  const seenParents2=new Set();
   elIds.forEach(elId=>{
-    const el=document.getElementById(elId);if(!el||!el.parentElement||seenParents.has(el.parentElement))return;
-    seenParents.add(el.parentElement);
-    const groupKey='j-staticorder-'+elId.split('-').slice(0,2).join('-');
+    const el=document.getElementById(elId);if(!el||!el.parentElement||seenParents2.has(el.parentElement))return;
+    seenParents2.add(el.parentElement);
+    const groupKey='j-staticgroup-'+elId.split('-').slice(0,2).join('-');
     try{
       const order=JSON.parse(localStorage.getItem(groupKey)||'null');
       if(Array.isArray(order)){
         order.forEach(id=>{const c=document.getElementById(id);if(c&&c.parentElement===el.parentElement)el.parentElement.appendChild(c);});
       }
     }catch(e){}
+  });
+}
+function _setStaticCardShape(elId,shapeName){
+  const preset=DM_SHAPE_PRESETS[shapeName];if(!preset)return;
+  const el=document.getElementById(elId);if(!el)return;
+  localStorage.setItem('j-modsize-static-'+elId,JSON.stringify({col:preset.col,row:preset.row}));
+  el.style.width='';el.style.height='';
+  el.style.gridColumn='span '+preset.col;el.style.gridRow='span '+preset.row;
+}
+function _moveStaticCard(elId,dir){
+  const el=document.getElementById(elId);if(!el||!el.parentElement)return;
+  const siblings=[...el.parentElement.children].filter(c=>c.id);
+  const pos=siblings.indexOf(el);
+  const newPos=pos+dir;
+  if(newPos<0||newPos>=siblings.length)return;
+  const before=new Map();
+  siblings.forEach(c=>before.set(c.id,c.getBoundingClientRect()));
+  if(dir>0)el.parentElement.insertBefore(siblings[newPos],el);
+  else el.parentElement.insertBefore(el,siblings[newPos]);
+  const groupKey='j-staticgroup-'+elId.split('-').slice(0,2).join('-');
+  const order=[...el.parentElement.children].map(c=>c.id).filter(Boolean);
+  localStorage.setItem(groupKey,JSON.stringify(order));
+  [...el.parentElement.children].forEach(c=>{
+    if(!c.id)return;
+    const oldRect=before.get(c.id);if(!oldRect)return;
+    const newRect=c.getBoundingClientRect();
+    const dx=oldRect.left-newRect.left,dy=oldRect.top-newRect.top;
+    if(Math.abs(dx)<1&&Math.abs(dy)<1)return;
+    c.style.transition='none';c.style.transform=`translate(${dx}px,${dy}px)`;
+    requestAnimationFrame(()=>{c.style.transition='transform 280ms cubic-bezier(.2,0,0,1)';c.style.transform='';});
   });
 }
 function _restoreModuleSizes(worldId,moduleIds){
@@ -6644,13 +6720,13 @@ function resetDomainLayout(worldId){
 function resetAllCardLayouts(){
   if(!confirm('Reset ALL card sizes and positions across every domain back to default? Your tasks, events, and other data are untouched — this only clears saved layout sizes.'))return;
   Object.keys(localStorage).forEach(k=>{
-    if(k.startsWith('j-modsize-static-')||k.startsWith('j-staticorder-'))localStorage.removeItem(k);
+    if(k.startsWith('j-modsize-static-')||k.startsWith('j-staticorder-')||k.startsWith('j-staticgroup-'))localStorage.removeItem(k);
   });
   (DB.worlds||[]).forEach(w=>{delete w.moduleShapes;delete w.moduleOrder;});
   save('worlds');
   document.querySelectorAll('.dm-resizable').forEach(el=>{
     if(el._jdbResizeObserver){el._jdbResizeObserver.disconnect();delete el._jdbResizeObserver;}
-    el.style.width='';el.style.height='';
+    el.style.width='';el.style.height='';el.style.gridColumn='';el.style.gridRow='';
   });
   showToast('✓ All card layouts reset — reopen the domain to see it clean.');
   if(currentView&&(DB.worlds||[]).some(w=>w.id===currentView))renderDomainGenericView(currentView);
