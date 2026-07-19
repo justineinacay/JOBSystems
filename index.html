@@ -6717,9 +6717,9 @@ function renderDomainGenericView(worldId){
       ${shapeButtons(worldId,id)}
       <button class="dm-shape-btn" title="Move earlier" onclick="moveDomainModule('${worldId}','${id}',-1)"><i class="ti ti-arrow-up" style="font-size:11px"></i></button>
       <button class="dm-shape-btn" title="Move later" onclick="moveDomainModule('${worldId}','${id}',1)"><i class="ti ti-arrow-down" style="font-size:11px"></i></button>
-      <div draggable="true" ondragstart="_dmDragId='${id}';event.currentTarget.parentElement.parentElement.style.opacity='.5'" ondragend="event.currentTarget.parentElement.parentElement.style.opacity='1'" title="Drag to reorder (desktop)" style="cursor:grab;color:var(--text4);font-size:14px;padding:3px;line-height:1"><i class="ti ti-grip-vertical" style="display:block"></i></div>
+      <div draggable="true" ondragstart="_dmDragId='${id}';const m=event.currentTarget.parentElement.parentElement;m.style.opacity='.5';m.style.transform='scale(.97)'" ondragend="const m=event.currentTarget.parentElement.parentElement;m.style.opacity='1';m.style.transform=''" title="Drag to reorder (desktop)" style="cursor:grab;color:var(--text4);font-size:14px;padding:3px;line-height:1"><i class="ti ti-grip-vertical" style="display:block"></i></div>
     </div>`;
-    return out.replace('<div class="hc">','<div class="hc dm-resizable" id="domainModule-'+worldId+'-'+id+'" data-module-id="'+id+'" style="grid-column:span '+shape.col+';grid-row:span '+shape.row+'" ondragover="event.preventDefault();event.currentTarget.style.borderColor=\'var(--teal)\'" ondragleave="event.currentTarget.style.borderColor=\'var(--border)\'" ondrop="event.preventDefault();event.currentTarget.style.borderColor=\'var(--border)\';reorderDomainModule(\''+worldId+'\',\''+id+'\')">'+handle);
+    return out.replace('<div class="hc">','<div class="hc dm-resizable" id="domainModule-'+worldId+'-'+id+'" data-module-id="'+id+'" style="grid-column:span '+shape.col+';grid-row:span '+shape.row+';transition:border-color .15s,box-shadow .15s,transform .15s" ondragover="event.preventDefault();event.currentTarget.style.borderColor=\'var(--teal)\';event.currentTarget.style.boxShadow=\'0 0 0 2px var(--teal2)\';event.currentTarget.style.transform=\'scale(1.01)\'" ondragleave="event.currentTarget.style.borderColor=\'var(--border)\';event.currentTarget.style.boxShadow=\'\';event.currentTarget.style.transform=\'\'" ondrop="event.preventDefault();event.currentTarget.style.borderColor=\'var(--border)\';event.currentTarget.style.boxShadow=\'\';event.currentTarget.style.transform=\'\';reorderDomainModule(\''+worldId+'\',\''+id+'\')">'+handle);
   }).join('');
 
   const addTile=jelixEditMode?`<div class="dm-add-tile" onclick="openDomainModulesModal('${worldId}')"><i class="ti ti-plus" style="font-size:16px"></i> Add module</div>`:'';
@@ -6930,6 +6930,35 @@ function assignModuleToTab(worldId,moduleId,tabId){
   save('worlds');
   if(currentView===worldId)renderDomainGenericView(worldId);
 }
+// ═══════════════════════════════════════════════════════════════════════════
+// SMOOTH REORDER — FLIP technique (First-Last-Invert-Play), the same
+// approach real drag-and-drop libraries use for that "slides into place"
+// feel. No animation library needed: capture where things are, let the
+// reorder happen instantly, then animate from old position to new.
+// ═══════════════════════════════════════════════════════════════════════════
+function _flipCapture(containerId){
+  const container=document.getElementById(containerId);if(!container)return new Map();
+  const positions=new Map();
+  [...container.children].forEach(el=>{if(el.id)positions.set(el.id,el.getBoundingClientRect());});
+  return positions;
+}
+function _flipPlay(containerId,oldPositions){
+  const container=document.getElementById(containerId);if(!container)return;
+  [...container.children].forEach(el=>{
+    if(!el.id)return;
+    const oldRect=oldPositions.get(el.id);if(!oldRect)return;
+    const newRect=el.getBoundingClientRect();
+    const dx=oldRect.left-newRect.left,dy=oldRect.top-newRect.top;
+    if(Math.abs(dx)<1&&Math.abs(dy)<1)return;
+    el.style.transition='none';
+    el.style.transform=`translate(${dx}px,${dy}px)`;
+    requestAnimationFrame(()=>{
+      el.style.transition='transform 280ms cubic-bezier(.2,0,0,1)';
+      el.style.transform='';
+      el.addEventListener('transitionend',()=>{el.style.transition='';},{once:true});
+    });
+  });
+}
 function moveDomainModule(worldId,moduleId,dir){
   const i=(DB.worlds||[]).findIndex(w=>w.id===worldId);if(i<0)return;
   let order=domainModuleOrderFor(worldId).filter(id=>domainModulesFor(worldId).includes(id));
@@ -6944,7 +6973,11 @@ function moveDomainModule(worldId,moduleId,dir){
   const merged=fullOrder.map(id=>domainModulesFor(worldId).includes(id)?activeOnly[ai++]:id);
   DB.worlds[i].moduleOrder=merged;
   save('worlds');
-  if(currentView===worldId)renderDomainGenericView(worldId);
+  if(currentView===worldId){
+    const before=_flipCapture('domainGenericBody');
+    renderDomainGenericView(worldId);
+    _flipPlay('domainGenericBody',before);
+  }
 }
 function reorderDomainModule(worldId,targetId){
   if(!_dmDragId||_dmDragId===targetId)return;
@@ -6957,7 +6990,11 @@ function reorderDomainModule(worldId,targetId){
   save('worlds');
   _dmDragId=null;
   _renderDomainModulesList(worldId);
-  if(currentView===worldId)renderDomainGenericView(worldId);
+  if(currentView===worldId){
+    const before=_flipCapture('domainGenericBody');
+    renderDomainGenericView(worldId);
+    _flipPlay('domainGenericBody',before);
+  }
 }
 function toggleDomainModule(worldId,moduleId,checked){
   const i=(DB.worlds||[]).findIndex(w=>w.id===worldId);if(i<0)return;
