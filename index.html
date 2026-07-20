@@ -3938,7 +3938,7 @@ select option{background:var(--navy3)}
 
           <!-- DIGITAL PRODUCTS TAB (existing — RaketPH / Etsy shop) -->
           <div id="cc-products" style="display:none">
-            <div class="mr" style="margin-bottom:12px"><div class="hc dm-resizable" id="hc-sides-1"><div class="cl">Total Products</div><div class="cv" id="sidesCount">0</div></div><div class="hc dm-resizable" id="hc-sides-2"><div class="cl">Active Listings</div><div class="cv" id="sidesActive" style="color:var(--green)">0</div></div><div class="hc oc"><div class="cl">Total Revenue</div><div class="cv oc" id="sidesRevenue">₱0</div></div></div>
+            <div class="mr" style="margin-bottom:12px"><div class="hc dm-resizable" id="hc-sides-1"><div class="cl">Total Products</div><div class="cv" id="sidesCount">0</div></div><div class="hc dm-resizable" id="hc-sides-2"><div class="cl">Active Listings</div><div class="cv" id="sidesActive" style="color:var(--green)">0</div></div><div class="hc dm-resizable" id="hc-sides-3"><div class="cl">Total Revenue</div><div class="cv oc" id="sidesRevenue">₱0</div></div></div>
             <div id="sidesProductGrid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px"></div>
           </div>
 
@@ -4209,7 +4209,7 @@ select option{background:var(--navy3)}
             </div>
             <div class="mr" style="grid-template-columns:repeat(4,1fr);margin-bottom:14px">
               <div class="hc dm-resizable" id="hc-life-1"><div class="cl">Income</div><div class="cv" id="cf-income" style="font-size:24px;font-weight:800;margin-top:4px;color:var(--green);line-height:1.1">₱0.00</div><div class="csub">Debit this month</div></div>
-              <div class="hc oc"><div class="cl">Expenses</div><div class="cv oc" id="cf-expense" style="font-size:24px;font-weight:800;margin-top:4px;line-height:1.1">₱0.00</div><div class="csub">Credit this month</div></div>
+              <div class="hc dm-resizable" id="hc-life-7"><div class="cl">Expenses</div><div class="cv oc" id="cf-expense" style="font-size:24px;font-weight:800;margin-top:4px;line-height:1.1">₱0.00</div><div class="csub">Credit this month</div></div>
               <div class="hc dm-resizable" id="hc-life-2"><div class="cl">Net This Month</div><div class="cv" id="cf-net" style="font-size:24px;font-weight:800;margin-top:4px;line-height:1.1">₱0.00</div><div class="csub" id="cf-net-label">Income − Expenses</div></div>
               <div class="hc dm-resizable" id="hc-life-3"><div class="cl">Carried Balance</div><div class="cv" id="cf-carried" style="font-size:24px;font-weight:800;margin-top:4px;color:var(--teal);line-height:1.1">₱0.00</div><div class="csub">From previous months</div></div>
             </div>
@@ -6756,34 +6756,47 @@ function _restoreModuleSizes(worldId,moduleIds){
     let saveTimer=null;
     let firstFire=true; // ResizeObserver always fires once immediately on .observe() —
                          // that's not a user resize, just it reporting the starting size.
+    let pendingEntry=null;
+    const doSave=()=>{
+      if(!pendingEntry)return;
+      const rect=pendingEntry;pendingEntry=null;
+      const container=document.getElementById('domainGenericBody');
+      if(!container)return;
+      const gap=14,cols=4;
+      const containerWidth=container.clientWidth;
+      const colWidth=(containerWidth-gap*(cols-1))/cols;
+      const rowUnit=16;
+      let colSpan=Math.max(1,Math.min(cols,Math.round((rect.width+gap)/(colWidth+gap))));
+      let rowSpan=Math.max(6,Math.round((rect.height+gap)/(rowUnit+gap/10)));
+      const i=(DB.worlds||[]).findIndex(w=>w.id===worldId);
+      if(i>=0){
+        if(!DB.worlds[i].moduleShapes)DB.worlds[i].moduleShapes={};
+        DB.worlds[i].moduleShapes[id]={col:colSpan,row:rowSpan};
+        save('worlds');
+      }
+      // Hand control back to the grid now that the span is persisted —
+      // leaving explicit width/height would fight the grid on next render.
+      el.style.width='';el.style.height='';
+        el.style.gridColumn='span '+colSpan;el.style.gridRow='span '+rowSpan;
+    };
     const ro=new ResizeObserver(entries=>{
       if(firstFire){firstFire=false;return;}
+      pendingEntry=entries[0].contentRect;
       clearTimeout(saveTimer);
-      saveTimer=setTimeout(()=>{
-        const rect=entries[0].contentRect;
-        const container=document.getElementById('domainGenericBody');
-        if(!container)return;
-        const gap=14,cols=4;
-        const containerWidth=container.clientWidth;
-        const colWidth=(containerWidth-gap*(cols-1))/cols;
-        const rowUnit=16;
-        let colSpan=Math.max(1,Math.min(cols,Math.round((rect.width+gap)/(colWidth+gap))));
-        let rowSpan=Math.max(6,Math.round((rect.height+gap)/(rowUnit+gap/10)));
-        const i=(DB.worlds||[]).findIndex(w=>w.id===worldId);
-        if(i>=0){
-          if(!DB.worlds[i].moduleShapes)DB.worlds[i].moduleShapes={};
-          DB.worlds[i].moduleShapes[id]={col:colSpan,row:rowSpan};
-          save('worlds');
-        }
-        // Hand control back to the grid now that the span is persisted —
-        // leaving explicit width/height would fight the grid on next render.
-        el.style.width='';el.style.height='';
-        el.style.gridColumn='span '+colSpan;el.style.gridRow='span '+rowSpan;
-      },400);
+      saveTimer=setTimeout(doSave,400);
     });
     ro.observe(el);
     el._jdbResizeObserver=ro;
+    // Register so a mode switch (or anything else) can force this through
+    // immediately instead of losing it to the debounce window.
+    window._pendingShapeFlushes=window._pendingShapeFlushes||new Map();
+    window._pendingShapeFlushes.set(el.id,()=>{clearTimeout(saveTimer);doSave();});
   });
+}
+function _flushPendingShapeSaves(){
+  if(!window._pendingShapeFlushes)return;
+  window._pendingShapeFlushes.forEach(fn=>{try{fn();}catch(e){}});
+  window._pendingShapeFlushes.clear();
 }
 let _activeDomainTab={};
 const DM_SHAPE_PRESETS={
@@ -7383,11 +7396,15 @@ function _allRunningTimerWorlds(){
 }
 function renderFloatingTimerBadge(){
   const running=_allRunningTimerWorlds();
-  const runningIds=running.map(w=>w.id);
-  // Remove badges for timers that are no longer running
+  // Remove badges only for timers that are genuinely no longer running —
+  // checked directly against timer state (localStorage), not by looking the
+  // world up in DB.worlds. That array lookup was the actual bug: if
+  // DB.worlds was ever momentarily out of sync, a truly-running timer's
+  // badge would get wrongly removed even though nothing had actually
+  // stopped it.
   document.querySelectorAll('[id^="floatingTimerBadge-"]').forEach(el=>{
     const wid=el.id.replace('floatingTimerBadge-','');
-    if(!runningIds.includes(wid))el.remove();
+    if(!_timerState(wid).running)el.remove();
   });
   running.forEach((w,idx)=>{
     const hidden=localStorage.getItem('j-timer-badge-hidden-'+w.id)==='1';
@@ -8397,9 +8414,9 @@ document.addEventListener('DOMContentLoaded',()=>{
   // tab layout with nothing meaningful to resize; Build has no static cards)
   makeStaticCardsResizable([
     'hc-venture-1','hc-venture-2','hc-venture-3','hc-venture-4',
-    'hc-sides-1','hc-sides-2',
+    'hc-sides-1','hc-sides-2','hc-sides-3',
     'hc-faith-1','hc-faith-2','hc-faith-3','hc-faith-4',
-    'hc-life-1','hc-life-2','hc-life-3','hc-life-4','hc-life-5','hc-life-6'
+    'hc-life-1','hc-life-2','hc-life-3','hc-life-4','hc-life-5','hc-life-6','hc-life-7'
   ]);
   ['ventureEditToggleMount','sidesEditToggleMount','faithEditToggleMount','lifeEditToggleMount'].forEach(mountId=>{
     const m=document.getElementById(mountId);if(m)m.innerHTML=_editToggleButtonHtml();
@@ -14932,6 +14949,11 @@ function saveNoteTitle(){if(DB.notes[currentNote]){DB.notes[currentNote].title=d
 // ═══════════════════════════════════════════════════════════════════════════
 let jelixEditMode=localStorage.getItem('j-edit-mode')!=='off';
 function toggleEditMode(){
+  // Flush any pending debounced resize save FIRST — if the mode switch's
+  // re-render happens before a resize-in-progress finishes its 400ms
+  // debounce, the render reads the old (pre-resize) shape and the resize
+  // is lost. Forcing it through now closes that race.
+  _flushPendingShapeSaves();
   jelixEditMode=!jelixEditMode;
   localStorage.setItem('j-edit-mode',jelixEditMode?'on':'off');
   document.querySelectorAll('.jelix-edit-toggle').forEach(btn=>{
