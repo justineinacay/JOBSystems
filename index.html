@@ -264,7 +264,7 @@ select option{background:var(--navy3)}
 
 /* CARDS */
 .hc{background:var(--navy2);border:1px solid var(--border);border-radius:var(--radius-card);padding:24px;position:relative;overflow:hidden;transition:border-color .2s,box-shadow .2s,transform .15s;box-shadow:none}
-.domain-canvas{display:grid;grid-template-columns:repeat(4,1fr);grid-auto-rows:16px;grid-auto-flow:dense;gap:14px;align-content:flex-start;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:20px}
+.domain-canvas{display:grid;grid-template-columns:repeat(4,1fr);grid-auto-rows:16px;grid-auto-flow:dense;gap:14px;align-content:flex-start;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:20px;background-image:radial-gradient(circle,var(--border2) 1px,transparent 1px);background-size:24px 24px;background-position:-8px -8px}
 .dm-resizable{resize:both;overflow-y:auto;overflow-x:hidden;min-height:140px;min-width:200px;max-width:100%;display:flex;flex-direction:column;grid-column:span 4;grid-row:span 15;align-self:start}
 .dm-resizable::-webkit-resizer{background:transparent}
 .dm-resizable:has(>.cl):has(>.cv){justify-content:center;flex:1}
@@ -6902,10 +6902,10 @@ function renderDomainGenericView(worldId){
     );
   }).join('');
 
-  const addTile=jelixEditMode?`<div class="dm-add-tile" onclick="openDomainModulesModal('${worldId}')"><i class="ti ti-plus" style="font-size:16px"></i> Add module</div>`:'';
+  const addTile=(jelixEditMode&&visibleOrder.length)?`<div class="dm-add-tile" onclick="openDomainModulesModal('${worldId}')"><i class="ti ti-plus" style="font-size:16px"></i> Add module</div>`:'';
 
   if(!visibleOrder.length){
-    html=`<div style="grid-column:1/-1;text-align:center;padding:40px 20px;color:var(--text3)">
+    html=`<div style="grid-column:1/-1;grid-row:span 14;align-self:start;text-align:center;padding:40px 20px;color:var(--text3)">
       <i class="ti ti-layout-grid-add" style="font-size:32px;display:block;margin-bottom:10px;opacity:.5"></i>
       <div style="font-size:var(--text-sm);margin-bottom:10px">${w.tabs&&w.tabs.length&&_activeDomainTab[worldId]&&_activeDomainTab[worldId]!=='all'?'No modules assigned to this tab yet.':'No modules added yet.'}</div>
       ${jelixEditMode?`<button class="btn btn-t" onclick="openDomainModulesModal('${worldId}')">${w.tabs&&w.tabs.length?'Manage':'Add'} modules</button>`:''}
@@ -7250,6 +7250,8 @@ function toggleDomainModule(worldId,moduleId,checked){
   if(!checked)mods=mods.filter(m=>m!==moduleId);
   DB.worlds[i].modules=mods;
   save('worlds');
+  const label=DOMAIN_MODULE_LABELS[moduleId]?.label||moduleId;
+  showToast(checked?'✓ '+label+' added':'✓ '+label+' removed');
   _renderDomainModulesList(worldId);
   if(currentView===worldId)renderDomainGenericView(worldId);
 }
@@ -7401,7 +7403,7 @@ function renderFloatingTimerBadge(){
     const colorVal=(w.color&&/^#/.test(w.color))?w.color:('var('+(w.cssVar||'--teal')+')');
     const elapsedSec=_timerElapsedSec(w.id);
     const fmtHMS=sec=>{const h=Math.floor(sec/3600),m=Math.floor((sec%3600)/60),s=Math.floor(sec%60);return String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');};
-    badge.style.cssText='position:fixed;z-index:500;display:flex;align-items:center;gap:8px;background:var(--navy2);border:1px solid var(--border2);border-left:3px solid '+colorVal+';border-radius:12px;padding:10px 10px 10px 14px;box-shadow:0 2px 16px rgba(0,0,0,.4);cursor:grab;user-select:none';
+    badge.style.cssText='position:fixed;z-index:9000;display:flex;align-items:center;gap:8px;background:var(--navy2);border:1px solid var(--border2);border-left:3px solid '+colorVal+';border-radius:12px;padding:10px 10px 10px 14px;box-shadow:0 2px 16px rgba(0,0,0,.4);cursor:grab;user-select:none';
     // Position: restore a saved drag position, otherwise stack down the right edge by index
     if(isNew){
       let pos=null;
