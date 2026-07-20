@@ -2496,6 +2496,26 @@ select option{background:var(--navy3)}
 </div>
 
 <!-- WORLD MODAL -->
+<div class="mov" id="jelixPromptModal">
+  <div class="modal" style="width:min(360px,92vw)">
+    <div class="mh"><div class="mt" id="jelixPromptTitle">Add</div><button class="mc" onclick="_jelixPromptResolve(null)">×</button></div>
+    <div class="mb" id="jelixPromptFields" style="display:flex;flex-direction:column;gap:12px"></div>
+    <div class="mf">
+      <button class="btn btn-g" onclick="_jelixPromptResolve(null)">Cancel</button>
+      <button class="btn btn-t" id="jelixPromptOkBtn" onclick="_jelixPromptSubmit()">Add</button>
+    </div>
+  </div>
+</div>
+<div class="mov" id="jelixConfirmModal">
+  <div class="modal" style="width:min(340px,92vw)">
+    <div class="mh"><div class="mt">Confirm</div></div>
+    <div class="mb"><div id="jelixConfirmMessage" style="font-size:var(--text-sm);color:var(--text2);line-height:1.5"></div></div>
+    <div class="mf">
+      <button class="btn btn-g" onclick="_jelixConfirmResolve(false)">Cancel</button>
+      <button class="btn btn-d" id="jelixConfirmOkBtn" onclick="_jelixConfirmResolve(true)">Confirm</button>
+    </div>
+  </div>
+</div>
 <div class="mov" id="worldModal">
   <div class="modal" style="max-width:420px">
     <div class="mh"><div class="mt" id="worldModalTitle">Add Domain</div><button class="mc" onclick="closeModal('worldModal')">×</button></div>
@@ -6857,7 +6877,7 @@ function renderDomainGenericView(worldId){
     const shape=_moduleShapeFor(worldId,id);
     if(!jelixEditMode){
       // View mode: no drag/resize/shape chrome, just the module content in its saved shape
-      return out.replace('<div class="hc">','<div class="hc" id="domainModule-'+worldId+'-'+id+'" data-module-id="'+id+'" style="grid-column:span '+shape.col+';grid-row:span '+shape.row+'">');
+      return _wrapModuleOuterDiv(out,'id="domainModule-'+worldId+'-'+id+'" data-module-id="'+id+'"','grid-column:span '+shape.col+';grid-row:span '+shape.row+';');
     }
     // Tag each module's own wrapper div: grid shape, resize/reorder handles.
     // This renders as a normal top toolbar row (not an absolute overlay) —
@@ -6870,7 +6890,15 @@ function renderDomainGenericView(worldId){
       <button class="dm-shape-btn" title="Move later" onclick="moveDomainModule('${worldId}','${id}',1)"><i class="ti ti-arrow-down" style="font-size:11px"></i></button>
       <div draggable="true" ondragstart="_dmDragId='${id}';const m=event.currentTarget.parentElement.parentElement;m.style.opacity='.5';m.style.transform='scale(.97)'" ondragend="const m=event.currentTarget.parentElement.parentElement;m.style.opacity='1';m.style.transform=''" title="Drag to reorder (desktop)" style="cursor:grab;color:var(--text4);font-size:14px;padding:3px;line-height:1"><i class="ti ti-grip-vertical" style="display:block"></i></div>
     </div>`;
-    return out.replace('<div class="hc">','<div class="hc dm-resizable" id="domainModule-'+worldId+'-'+id+'" data-module-id="'+id+'" style="grid-column:span '+shape.col+';grid-row:span '+shape.row+';transition:border-color .15s,box-shadow .15s,transform .15s" ondragover="event.preventDefault();event.currentTarget.style.borderColor=\'var(--teal)\';event.currentTarget.style.boxShadow=\'0 0 0 2px var(--teal2)\';event.currentTarget.style.transform=\'scale(1.01)\'" ondragleave="event.currentTarget.style.borderColor=\'var(--border)\';event.currentTarget.style.boxShadow=\'\';event.currentTarget.style.transform=\'\'" ondrop="event.preventDefault();event.currentTarget.style.borderColor=\'var(--border)\';event.currentTarget.style.boxShadow=\'\';event.currentTarget.style.transform=\'\';reorderDomainModule(\''+worldId+'\',\''+id+'\')">'+handle);
+    return _wrapModuleOuterDiv(out,
+      'id="domainModule-'+worldId+'-'+id+'" data-module-id="'+id+'" '+
+      'ondragover="event.preventDefault();event.currentTarget.style.borderColor=\'var(--teal)\';event.currentTarget.style.boxShadow=\'0 0 0 2px var(--teal2)\';event.currentTarget.style.transform=\'scale(1.01)\'" '+
+      'ondragleave="event.currentTarget.style.borderColor=\'var(--border)\';event.currentTarget.style.boxShadow=\'\';event.currentTarget.style.transform=\'\'" '+
+      'ondrop="event.preventDefault();event.currentTarget.style.borderColor=\'var(--border)\';event.currentTarget.style.boxShadow=\'\';event.currentTarget.style.transform=\'\';reorderDomainModule(\''+worldId+'\',\''+id+'\')"',
+      'resize:both;overflow-y:auto;overflow-x:hidden;min-height:140px;min-width:200px;max-width:100%;display:flex;flex-direction:column;align-self:start;grid-column:span '+shape.col+';grid-row:span '+shape.row+';transition:border-color .15s,box-shadow .15s,transform .15s;',
+      handle,
+      true
+    );
   }).join('');
 
   const addTile=jelixEditMode?`<div class="dm-add-tile" onclick="openDomainModulesModal('${worldId}')"><i class="ti ti-plus" style="font-size:16px"></i> Add module</div>`:'';
@@ -6895,8 +6923,9 @@ function renderDomainGenericView(worldId){
     }
   }
 }
-function _addDomainHabit(worldId){
-  const name=prompt('Habit name:');if(!name)return;
+async function _addDomainHabit(worldId){
+  const [name]=await jelixPrompt('Add Habit',[{key:'name',label:'Habit name',placeholder:'e.g. Drink water'}]);
+  if(!name)return;
   const i=(DB.worlds||[]).findIndex(w=>w.id===worldId);if(i<0)return;
   if(!DB.worlds[i].habits)DB.worlds[i].habits=[];
   DB.worlds[i].habits.push({id:'h'+Date.now(),name,completedDates:[]});
@@ -6919,20 +6948,24 @@ function _removeDomainHabit(worldId,habitId){
   save('worlds');
   if(currentView===worldId)renderDomainGenericView(worldId);
 }
-function _addDomainGoal(worldId){
-  const name=prompt('Goal name:');if(!name)return;
-  const target=parseFloat(prompt('Target number (e.g. 10):','10'))||10;
+async function _addDomainGoal(worldId){
+  const [name,targetStr]=await jelixPrompt('Add Goal',[
+    {key:'name',label:'Goal name',placeholder:'e.g. Read 10 books'},
+    {key:'target',label:'Target number',placeholder:'10',type:'number',default:'10'}
+  ]);
+  if(!name)return;
+  const target=parseFloat(targetStr)||10;
   const i=(DB.worlds||[]).findIndex(w=>w.id===worldId);if(i<0)return;
   if(!DB.worlds[i].goals)DB.worlds[i].goals=[];
   DB.worlds[i].goals.push({id:'g'+Date.now(),name,progress:0,target});
   save('worlds');
   if(currentView===worldId)renderDomainGenericView(worldId);
 }
-function _updateDomainGoalProgress(worldId,goalId){
+async function _updateDomainGoalProgress(worldId,goalId){
   const i=(DB.worlds||[]).findIndex(w=>w.id===worldId);if(i<0)return;
   const g=(DB.worlds[i].goals||[]).find(x=>x.id===goalId);if(!g)return;
-  const val=prompt('Update progress for "'+g.name+'":',g.progress);
-  if(val===null)return;
+  const [val]=await jelixPrompt('Update Progress',[{key:'progress',label:'Progress toward "'+g.name+'"',type:'number',default:String(g.progress)}],'Update');
+  if(val===''||val===undefined)return;
   g.progress=parseFloat(val)||0;
   save('worlds');
   if(currentView===worldId)renderDomainGenericView(worldId);
@@ -6942,11 +6975,14 @@ const _saveDomainScratchpad=debounce((worldId,text)=>{
   DB.worlds[i].scratchpad=text;
   save('worlds');
 },800);
-function _addDomainContact(worldId){
-  const name=prompt('Contact name:');if(!name)return;
-  const role=prompt('Role (optional):','')||'';
-  const email=prompt('Email (optional):','')||'';
-  const phone=prompt('Phone (optional):','')||'';
+async function _addDomainContact(worldId){
+  const [name,role,email,phone]=await jelixPrompt('Add Contact',[
+    {key:'name',label:'Name',placeholder:'e.g. Alex Rivera'},
+    {key:'role',label:'Role (optional)',placeholder:'e.g. Client'},
+    {key:'email',label:'Email (optional)',placeholder:'name@example.com'},
+    {key:'phone',label:'Phone (optional)',placeholder:'+63 900 000 0000'}
+  ]);
+  if(!name)return;
   const i=(DB.worlds||[]).findIndex(w=>w.id===worldId);if(i<0)return;
   if(!DB.worlds[i].contacts)DB.worlds[i].contacts=[];
   DB.worlds[i].contacts.push({id:'p'+Date.now(),name,role,email,phone});
@@ -6959,9 +6995,12 @@ function _removeDomainContact(worldId,contactId){
   save('worlds');
   if(currentView===worldId)renderDomainGenericView(worldId);
 }
-function _addDomainCountdown(worldId){
-  const name=prompt('What are you counting down to?');if(!name)return;
-  const date=prompt('Date (YYYY-MM-DD):',localDateStr(new Date()));if(!date)return;
+async function _addDomainCountdown(worldId){
+  const [name,date]=await jelixPrompt('Add Countdown',[
+    {key:'name',label:'What are you counting down to?',placeholder:'e.g. Launch Day'},
+    {key:'date',label:'Date',type:'date',default:localDateStr(new Date())}
+  ]);
+  if(!name||!date)return;
   const i=(DB.worlds||[]).findIndex(w=>w.id===worldId);if(i<0)return;
   if(!DB.worlds[i].countdowns)DB.worlds[i].countdowns=[];
   DB.worlds[i].countdowns.push({id:'cd'+Date.now(),name,date});
@@ -6974,10 +7013,13 @@ function _removeDomainCountdown(worldId,countdownId){
   save('worlds');
   if(currentView===worldId)renderDomainGenericView(worldId);
 }
-function _addDomainLink(worldId){
-  const label=prompt('Link name:');if(!label)return;
-  let url=prompt('URL:');if(!url)return;
-  if(!/^https?:\/\//i.test(url))url='https://'+url;
+async function _addDomainLink(worldId){
+  const [label,urlRaw]=await jelixPrompt('Add Link',[
+    {key:'label',label:'Link name',placeholder:'e.g. Client Portal'},
+    {key:'url',label:'URL',placeholder:'example.com'}
+  ]);
+  if(!label||!urlRaw)return;
+  const url=/^https?:\/\//i.test(urlRaw)?urlRaw:'https://'+urlRaw;
   const i=(DB.worlds||[]).findIndex(w=>w.id===worldId);if(i<0)return;
   if(!DB.worlds[i].links)DB.worlds[i].links=[];
   DB.worlds[i].links.push({label,url});
@@ -6990,10 +7032,12 @@ function _removeDomainLink(worldId,idx){
   save('worlds');
   if(currentView===worldId)renderDomainGenericView(worldId);
 }
-function _addDomainPipelineItem(worldId){
-  const title=prompt('Deal / opportunity name:');
+async function _addDomainPipelineItem(worldId){
+  const [title,valStr]=await jelixPrompt('Add Deal',[
+    {key:'title',label:'Deal / opportunity name',placeholder:'e.g. Acme Corp — retainer'},
+    {key:'value',label:'Estimated value (optional)',type:'number',placeholder:'0'}
+  ]);
   if(!title)return;
-  const valStr=prompt('Estimated value (optional, numbers only):','');
   const p={id:Date.now(),worldId,title,stage:'Lead',value:valStr?parseFloat(valStr)||0:0};
   if(!DB.pipeline)DB.pipeline=[];
   DB.pipeline.unshift(p);save('pipeline');
@@ -7142,6 +7186,25 @@ function _flipPlay(containerId,oldPositions){
     });
   });
 }
+function _wrapModuleOuterDiv(out,extraAttrs,mergeStyle,innerPrefixHtml,addResizableClass){
+  // Matches the module's own outer <div class="hc" ...> regardless of what
+  // attributes it already carries (a style="" attribute broke the old exact-
+  // string match entirely — Timer's card has one, which is why it silently
+  // never got wrapped at all). Merges rather than requires an exact string.
+  const re=/^<div class="hc"([^>]*)>/;
+  const m=out.match(re);
+  if(!m)return out; // truly no match — leave untouched rather than corrupt the HTML
+  const existingAttrs=m[1];
+  const styleMatch=existingAttrs.match(/style="([^"]*)"/);
+  const existingStyle=styleMatch?styleMatch[1].replace(/;?\s*$/,';'):'';
+  const attrsWithoutStyle=existingAttrs.replace(/\s*style="[^"]*"/,'');
+  const newTag=`<div class="hc${addResizableClass?' dm-resizable':''}"${attrsWithoutStyle} ${extraAttrs} style="${existingStyle}${mergeStyle}">`;
+  // innerPrefixHtml (the shape/drag toolbar) goes INSIDE, right after the
+  // opening tag — not appended after the whole closing div, which was the
+  // actual bug: the toolbar was rendering as an unattached sibling, not a
+  // child, even though it visually looked nested.
+  return newTag+(innerPrefixHtml||'')+out.slice(m[0].length);
+}
 function moveDomainModule(worldId,moduleId,dir){
   const i=(DB.worlds||[]).findIndex(w=>w.id===worldId);if(i<0)return;
   let order=domainModuleOrderFor(worldId).filter(id=>domainModulesFor(worldId).includes(id));
@@ -7226,7 +7289,7 @@ function toggleDomainTimer(worldId){
     s.running=false;s.startedAt=null;
   }else{
     s.running=true;s.startedAt=Date.now();
-    localStorage.removeItem('j-timer-badge-hidden'); // starting a fresh session always surfaces the badge again
+    localStorage.removeItem('j-timer-badge-hidden-'+worldId); // starting this timer always surfaces its badge again
   }
   _timerSaveState(worldId,s);
   refreshDomainTimerDisplay(worldId);
@@ -7312,36 +7375,97 @@ function domainTimerCardHTML(worldId){
 function _activeRunningTimerWorld(){
   return (DB.worlds||[]).find(w=>_timerState(w.id).running);
 }
-function renderFloatingTimerBadge(){
-  let badge=document.getElementById('floatingTimerBadge');
-  const activeWorld=_activeRunningTimerWorld();
-  const hidden=localStorage.getItem('j-timer-badge-hidden')==='1';
-  if(!activeWorld||hidden){
-    if(badge)badge.style.display='none';
-    return;
-  }
-  if(!badge){
-    badge=document.createElement('div');
-    badge.id='floatingTimerBadge';
-    document.body.appendChild(badge);
-  }
-  const w=activeWorld;
-  const colorVal=(w.color&&/^#/.test(w.color))?w.color:('var('+(w.cssVar||'--teal')+')');
-  const elapsedSec=_timerElapsedSec(w.id);
-  const fmtHM=sec=>{const h=Math.floor(sec/3600),m=Math.floor((sec%3600)/60);return String(h).padStart(2,'0')+':'+String(m).padStart(2,'0');};
-  badge.style.cssText='position:fixed;top:50%;right:0;transform:translateY(-50%);z-index:500;display:flex;align-items:center;gap:8px;background:var(--navy2);border:1px solid var(--border2);border-left:3px solid '+colorVal+';border-radius:12px 0 0 12px;padding:10px 10px 10px 14px;box-shadow:-2px 0 16px rgba(0,0,0,.4)';
-  badge.innerHTML=`
-    <div onclick="setView('${w.id}')" style="display:flex;flex-direction:column;align-items:flex-start;cursor:pointer">
-      <span style="font-size:9px;color:var(--text3);font-weight:700;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap;max-width:90px;overflow:hidden;text-overflow:ellipsis">${w.label}</span>
-      <span style="font-size:15px;font-weight:800;color:var(--text1);font-variant-numeric:tabular-nums">${fmtHM(elapsedSec)}</span>
-    </div>
-    <button onclick="event.stopPropagation();toggleDomainTimer('${w.id}')" style="background:transparent;border:none;color:${colorVal};cursor:pointer;padding:4px;flex-shrink:0"><i class="ti ti-player-pause" style="font-size:18px;display:block"></i></button>
-    <button onclick="event.stopPropagation();hideFloatingTimerBadge()" style="background:transparent;border:none;color:var(--text3);cursor:pointer;padding:2px;flex-shrink:0" title="Hide"><i class="ti ti-x" style="font-size:13px;display:block"></i></button>
-  `;
-  badge.style.display='flex';
+function _allRunningTimerWorlds(){
+  return (DB.worlds||[]).filter(w=>_timerState(w.id).running);
 }
-function hideFloatingTimerBadge(){
-  localStorage.setItem('j-timer-badge-hidden','1');
+function renderFloatingTimerBadge(){
+  const running=_allRunningTimerWorlds();
+  const runningIds=running.map(w=>w.id);
+  // Remove badges for timers that are no longer running
+  document.querySelectorAll('[id^="floatingTimerBadge-"]').forEach(el=>{
+    const wid=el.id.replace('floatingTimerBadge-','');
+    if(!runningIds.includes(wid))el.remove();
+  });
+  running.forEach((w,idx)=>{
+    const hidden=localStorage.getItem('j-timer-badge-hidden-'+w.id)==='1';
+    let badge=document.getElementById('floatingTimerBadge-'+w.id);
+    if(hidden){if(badge)badge.style.display='none';return;}
+    const isNew=!badge;
+    if(isNew){
+      badge=document.createElement('div');
+      badge.id='floatingTimerBadge-'+w.id;
+      document.body.appendChild(badge);
+      _makeTimerBadgeDraggable(badge,w.id);
+    }
+    const colorVal=(w.color&&/^#/.test(w.color))?w.color:('var('+(w.cssVar||'--teal')+')');
+    const elapsedSec=_timerElapsedSec(w.id);
+    const fmtHMS=sec=>{const h=Math.floor(sec/3600),m=Math.floor((sec%3600)/60),s=Math.floor(sec%60);return String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');};
+    badge.style.cssText='position:fixed;z-index:500;display:flex;align-items:center;gap:8px;background:var(--navy2);border:1px solid var(--border2);border-left:3px solid '+colorVal+';border-radius:12px;padding:10px 10px 10px 14px;box-shadow:0 2px 16px rgba(0,0,0,.4);cursor:grab;user-select:none';
+    // Position: restore a saved drag position, otherwise stack down the right edge by index
+    if(isNew){
+      let pos=null;
+      try{pos=JSON.parse(localStorage.getItem('j-timer-badge-pos-'+w.id)||'null');}catch(e){}
+      if(pos){badge.style.left=pos.x+'px';badge.style.top=pos.y+'px';}
+      else{badge.style.right='0px';badge.style.top=(120+idx*68)+'px';badge.style.borderRadius='12px 0 0 12px';}
+    }
+    badge.innerHTML=`
+      <div onclick="setView('${w.id}')" style="display:flex;flex-direction:column;align-items:flex-start;cursor:pointer">
+        <span style="font-size:9px;color:var(--text3);font-weight:700;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap;max-width:90px;overflow:hidden;text-overflow:ellipsis">${w.label}</span>
+        <span style="font-size:15px;font-weight:800;color:var(--text1);font-variant-numeric:tabular-nums;white-space:nowrap">${fmtHMS(elapsedSec)}</span>
+      </div>
+      <button onclick="event.stopPropagation();toggleDomainTimer('${w.id}')" style="background:transparent;border:none;color:${colorVal};cursor:pointer;padding:4px;flex-shrink:0"><i class="ti ti-player-pause" style="font-size:18px;display:block"></i></button>
+      <button onclick="event.stopPropagation();stopDomainTimer('${w.id}')" title="Stop" style="background:transparent;border:none;color:var(--red);cursor:pointer;padding:4px;flex-shrink:0"><i class="ti ti-player-stop" style="font-size:16px;display:block"></i></button>
+      <button onclick="event.stopPropagation();hideFloatingTimerBadge('${w.id}')" style="background:transparent;border:none;color:var(--text3);cursor:pointer;padding:2px;flex-shrink:0" title="Hide"><i class="ti ti-x" style="font-size:13px;display:block"></i></button>
+    `;
+    badge.style.display='flex';
+  });
+}
+function _makeTimerBadgeDraggable(el,worldId){
+  let dragging=false,startX=0,startY=0,origX=0,origY=0,moved=false;
+  const onDown=(e)=>{
+    // Don't start a drag from the buttons — let their own clicks fire normally
+    if(e.target.closest('button'))return;
+    dragging=true;moved=false;
+    const p=e.touches?e.touches[0]:e;
+    startX=p.clientX;startY=p.clientY;
+    const rect=el.getBoundingClientRect();
+    origX=rect.left;origY=rect.top;
+    el.style.cursor='grabbing';
+    document.addEventListener('mousemove',onMove);document.addEventListener('touchmove',onMove,{passive:false});
+    document.addEventListener('mouseup',onUp);document.addEventListener('touchend',onUp);
+  };
+  const onMove=(e)=>{
+    if(!dragging)return;
+    const p=e.touches?e.touches[0]:e;
+    const dx=p.clientX-startX,dy=p.clientY-startY;
+    if(Math.abs(dx)>3||Math.abs(dy)>3)moved=true;
+    if(moved){
+      if(e.cancelable)e.preventDefault();
+      const newX=Math.max(4,Math.min(window.innerWidth-el.offsetWidth-4,origX+dx));
+      const newY=Math.max(4,Math.min(window.innerHeight-el.offsetHeight-4,origY+dy));
+      el.style.left=newX+'px';el.style.top=newY+'px';el.style.right='';el.style.borderRadius='12px';
+    }
+  };
+  const onUp=()=>{
+    if(!dragging)return;
+    dragging=false;el.style.cursor='grab';
+    document.removeEventListener('mousemove',onMove);document.removeEventListener('touchmove',onMove);
+    document.removeEventListener('mouseup',onUp);document.removeEventListener('touchend',onUp);
+    if(moved){
+      const rect=el.getBoundingClientRect();
+      localStorage.setItem('j-timer-badge-pos-'+worldId,JSON.stringify({x:rect.left,y:rect.top}));
+    }
+  };
+  el.addEventListener('mousedown',onDown);
+  el.addEventListener('touchstart',onDown,{passive:true});
+}
+function stopDomainTimer(worldId){
+  if(!confirm('Stop the timer for '+((DB.worlds||[]).find(w=>w.id===worldId)?.label||worldId)+'? This resets today\'s elapsed time to zero.'))return;
+  resetDomainTimer(worldId);
+  renderFloatingTimerBadge();
+}
+function hideFloatingTimerBadge(worldId){
+  localStorage.setItem('j-timer-badge-hidden-'+worldId,'1');
   renderFloatingTimerBadge();
 }
 function mountDomainTimer(worldId){
@@ -10730,6 +10854,63 @@ function renderCSList(tasks,cfg){
 
 
 // ===== MODALS =====
+// ═══════════════════════════════════════════════════════════════════════════
+// IN-APP PROMPT / CONFIRM — replaces browser-native prompt()/confirm() with
+// modals styled to match the rest of the app, so "adding elements" never
+// pops a raw OS/Chrome dialog. Promise-based so call sites can just
+// `await jelixPrompt(...)`.
+// ═══════════════════════════════════════════════════════════════════════════
+let _jelixPromptResolveFn=null;
+function jelixPrompt(title,fields,okLabel){
+  // fields: [{key, label, placeholder, default, type}] — type: 'text'|'date'|'number' (default 'text')
+  return new Promise(resolve=>{
+    _jelixPromptResolveFn=resolve;
+    document.getElementById('jelixPromptTitle').textContent=title;
+    document.getElementById('jelixPromptOkBtn').textContent=okLabel||'Add';
+    const body=document.getElementById('jelixPromptFields');
+    body.innerHTML=fields.map((f,i)=>`
+      <div class="fg" style="margin:0">
+        <label class="fl">${f.label}</label>
+        <input id="jelixPromptField-${i}" type="${f.type||'text'}" placeholder="${f.placeholder||''}" value="${f.default||''}" ${f.type==='date'?'':''}>
+      </div>
+    `).join('');
+    openModal('jelixPromptModal');
+    setTimeout(()=>{const first=document.getElementById('jelixPromptField-0');if(first){first.focus();first.select?.();}},50);
+    // Enter key on the last field submits
+    const inputs=body.querySelectorAll('input');
+    inputs.forEach((inp,i)=>{
+      inp.onkeydown=(e)=>{
+        if(e.key==='Enter'){
+          e.preventDefault();
+          if(i<inputs.length-1)inputs[i+1].focus();
+          else _jelixPromptSubmit();
+        }
+      };
+    });
+  });
+}
+function _jelixPromptSubmit(){
+  const inputs=[...document.querySelectorAll('#jelixPromptFields input')];
+  const values=inputs.map(inp=>inp.value.trim());
+  _jelixPromptResolve(values);
+}
+function _jelixPromptResolve(result){
+  closeModal('jelixPromptModal');
+  if(_jelixPromptResolveFn){_jelixPromptResolveFn(result);_jelixPromptResolveFn=null;}
+}
+let _jelixConfirmResolveFn=null;
+function jelixConfirm(message,okLabel){
+  return new Promise(resolve=>{
+    _jelixConfirmResolveFn=resolve;
+    document.getElementById('jelixConfirmMessage').textContent=message;
+    document.getElementById('jelixConfirmOkBtn').textContent=okLabel||'Confirm';
+    openModal('jelixConfirmModal');
+  });
+}
+function _jelixConfirmResolve(result){
+  closeModal('jelixConfirmModal');
+  if(_jelixConfirmResolveFn){_jelixConfirmResolveFn(result);_jelixConfirmResolveFn=null;}
+}
 function openModal(id){document.getElementById(id).classList.add('open')}
 function closeModal(id){document.getElementById(id).classList.remove('open');editingTaskId=null;editingClientId=null;editingFaithId=null;editingVentureId=null;editingJournalId=null;editingCashId=null;}
 function openTaskFor(world){document.getElementById('tf-world').value=world;document.getElementById('taskModalTitle').textContent='New Task';openModal('taskModal');}
