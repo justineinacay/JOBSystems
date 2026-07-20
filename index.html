@@ -6681,23 +6681,33 @@ function makeStaticCardsResizable(elIds){
 
     let saveTimer=null;
     let firstFire=true;
+    let pendingRect=null;
+    const doSave=()=>{
+      if(!pendingRect)return;
+      const rect=pendingRect;pendingRect=null;
+      const container=el.parentElement;if(!container)return;
+      const gap=14,cols=4;
+      const colWidth=(container.clientWidth-gap*(cols-1))/cols;
+      const rowUnit=16;
+      const colSpan=Math.max(1,Math.min(cols,Math.round((rect.width+gap)/(colWidth+gap))));
+      const rowSpan=Math.max(6,Math.round((rect.height+gap)/(rowUnit+gap/10)));
+      localStorage.setItem(shapeKey,JSON.stringify({col:colSpan,row:rowSpan}));
+      el.style.width='';el.style.height='';
+      el.style.gridColumn='span '+colSpan;el.style.gridRow='span '+rowSpan;
+    };
     const ro=new ResizeObserver(entries=>{
       if(firstFire){firstFire=false;return;}
+      pendingRect=entries[0].contentRect;
       clearTimeout(saveTimer);
-      saveTimer=setTimeout(()=>{
-        const rect=entries[0].contentRect;
-        const container=el.parentElement;if(!container)return;
-        const gap=14,cols=4;
-        const colWidth=(container.clientWidth-gap*(cols-1))/cols;
-        const rowUnit=16;
-        const colSpan=Math.max(1,Math.min(cols,Math.round((rect.width+gap)/(colWidth+gap))));
-        const rowSpan=Math.max(6,Math.round((rect.height+gap)/(rowUnit+gap/10)));
-        localStorage.setItem(shapeKey,JSON.stringify({col:colSpan,row:rowSpan}));
-        el.style.width='';el.style.height='';
-        el.style.gridColumn='span '+colSpan;el.style.gridRow='span '+rowSpan;
-      },400);
+      saveTimer=setTimeout(doSave,400);
     });
     ro.observe(el);
+    // Same fix as the custom-domain module system: register so a mode switch
+    // or navigation can force this through immediately instead of losing it
+    // to the debounce window. This was the actual bug — static cards had
+    // their own separate debounce that was never wired into the flush.
+    window._pendingShapeFlushes=window._pendingShapeFlushes||new Map();
+    window._pendingShapeFlushes.set(el.id,()=>{clearTimeout(saveTimer);doSave();});
     el._jdbResizeObserver=ro;
   });
   // Restore any previously saved order, once per unique parent group
@@ -7425,12 +7435,34 @@ function renderFloatingTimerBadge(){
     const elapsedSec=_timerElapsedSec(w.id);
     const isRunning=_timerState(w.id).running;
     const fmtHMS=sec=>{const h=Math.floor(sec/3600),m=Math.floor((sec%3600)/60),s=Math.floor(sec%60);return String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');};
-    badge.style.cssText='position:fixed;z-index:9000;display:flex;align-items:center;gap:8px;background:var(--navy2);border:1px solid var(--border2);border-left:3px solid '+colorVal+(isRunning?'':';opacity:.75')+';border-radius:12px;padding:10px 10px 10px 14px;box-shadow:0 2px 16px rgba(0,0,0,.4);cursor:grab;user-select:none';
+    // Structural styling only — deliberately NOT using cssText here, because
+    // cssText replaces the entire style attribute at once. That was the
+    // actual bug: this function runs every second via the tick, and cssText
+    // was silently wiping out left/top on every single call — position is
+    // only ever set once, inside the isNew block below, so after the very
+    // first tick the badge had no position left at all. Using individual
+    // property assignment here only touches what's listed, leaving position
+    // (and anything the user set by dragging) completely untouched.
+    if(isNew){
+      badge.style.position='fixed';
+      badge.style.zIndex='9000';
+      badge.style.display='flex';
+      badge.style.alignItems='center';
+      badge.style.gap='8px';
+      badge.style.padding='10px 10px 10px 14px';
+      badge.style.boxShadow='0 2px 16px rgba(0,0,0,.4)';
+      badge.style.cursor='grab';
+      badge.style.userSelect='none';
+      badge.style.border='1px solid var(--border2)';
+    }
+    badge.style.background='var(--navy2)';
+    badge.style.borderLeft='3px solid '+colorVal;
+    badge.style.opacity=isRunning?'1':'.75';
     // Position: restore a saved drag position, otherwise stack down the right edge by index
     if(isNew){
       let pos=null;
       try{pos=JSON.parse(localStorage.getItem('j-timer-badge-pos-'+w.id)||'null');}catch(e){}
-      if(pos){badge.style.left=pos.x+'px';badge.style.top=pos.y+'px';}
+      if(pos){badge.style.left=pos.x+'px';badge.style.top=pos.y+'px';badge.style.borderRadius='12px';}
       else{badge.style.right='0px';badge.style.top=(120+idx*68)+'px';badge.style.borderRadius='12px 0 0 12px';}
     }
     badge.innerHTML=`
