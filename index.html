@@ -7391,22 +7391,26 @@ function domainTimerCardHTML(worldId){
 function _activeRunningTimerWorld(){
   return (DB.worlds||[]).find(w=>_timerState(w.id).running);
 }
-function _allRunningTimerWorlds(){
-  return (DB.worlds||[]).filter(w=>_timerState(w.id).running);
+function _activeTimerWorlds(){
+  // "Active" = has something worth showing a badge for: currently running,
+  // OR paused mid-session with time already on the clock. Only genuinely
+  // reset-to-zero timers (or ones you've explicitly hidden) have no badge.
+  return (DB.worlds||[]).filter(w=>{
+    const s=_timerState(w.id);
+    return s.running||(s.accumSec||0)>0;
+  });
 }
 function renderFloatingTimerBadge(){
-  const running=_allRunningTimerWorlds();
-  // Remove badges only for timers that are genuinely no longer running —
-  // checked directly against timer state (localStorage), not by looking the
-  // world up in DB.worlds. That array lookup was the actual bug: if
-  // DB.worlds was ever momentarily out of sync, a truly-running timer's
-  // badge would get wrongly removed even though nothing had actually
-  // stopped it.
+  const active=_activeTimerWorlds();
+  // Remove badges only for timers that are truly done (reset to zero and
+  // not running) — checked directly against timer state, not by looking
+  // the world up in DB.worlds, which was the earlier bug.
   document.querySelectorAll('[id^="floatingTimerBadge-"]').forEach(el=>{
     const wid=el.id.replace('floatingTimerBadge-','');
-    if(!_timerState(wid).running)el.remove();
+    const s=_timerState(wid);
+    if(!s.running&&(s.accumSec||0)<=0)el.remove();
   });
-  running.forEach((w,idx)=>{
+  active.forEach((w,idx)=>{
     const hidden=localStorage.getItem('j-timer-badge-hidden-'+w.id)==='1';
     let badge=document.getElementById('floatingTimerBadge-'+w.id);
     if(hidden){if(badge)badge.style.display='none';return;}
@@ -7419,8 +7423,9 @@ function renderFloatingTimerBadge(){
     }
     const colorVal=(w.color&&/^#/.test(w.color))?w.color:('var('+(w.cssVar||'--teal')+')');
     const elapsedSec=_timerElapsedSec(w.id);
+    const isRunning=_timerState(w.id).running;
     const fmtHMS=sec=>{const h=Math.floor(sec/3600),m=Math.floor((sec%3600)/60),s=Math.floor(sec%60);return String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');};
-    badge.style.cssText='position:fixed;z-index:9000;display:flex;align-items:center;gap:8px;background:var(--navy2);border:1px solid var(--border2);border-left:3px solid '+colorVal+';border-radius:12px;padding:10px 10px 10px 14px;box-shadow:0 2px 16px rgba(0,0,0,.4);cursor:grab;user-select:none';
+    badge.style.cssText='position:fixed;z-index:9000;display:flex;align-items:center;gap:8px;background:var(--navy2);border:1px solid var(--border2);border-left:3px solid '+colorVal+(isRunning?'':';opacity:.75')+';border-radius:12px;padding:10px 10px 10px 14px;box-shadow:0 2px 16px rgba(0,0,0,.4);cursor:grab;user-select:none';
     // Position: restore a saved drag position, otherwise stack down the right edge by index
     if(isNew){
       let pos=null;
@@ -7430,10 +7435,10 @@ function renderFloatingTimerBadge(){
     }
     badge.innerHTML=`
       <div onclick="setView('${w.id}')" style="display:flex;flex-direction:column;align-items:flex-start;cursor:pointer">
-        <span style="font-size:9px;color:var(--text3);font-weight:700;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap;max-width:90px;overflow:hidden;text-overflow:ellipsis">${w.label}</span>
+        <span style="font-size:9px;color:var(--text3);font-weight:700;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap;max-width:90px;overflow:hidden;text-overflow:ellipsis">${w.label}${isRunning?'':' · Paused'}</span>
         <span style="font-size:15px;font-weight:800;color:var(--text1);font-variant-numeric:tabular-nums;white-space:nowrap">${fmtHMS(elapsedSec)}</span>
       </div>
-      <button onclick="event.stopPropagation();toggleDomainTimer('${w.id}')" style="background:transparent;border:none;color:${colorVal};cursor:pointer;padding:4px;flex-shrink:0"><i class="ti ti-player-pause" style="font-size:18px;display:block"></i></button>
+      <button onclick="event.stopPropagation();toggleDomainTimer('${w.id}')" title="${isRunning?'Pause':'Resume'}" style="background:transparent;border:none;color:${colorVal};cursor:pointer;padding:4px;flex-shrink:0"><i class="ti ${isRunning?'ti-player-pause':'ti-player-play'}" style="font-size:18px;display:block"></i></button>
       <button onclick="event.stopPropagation();stopDomainTimer('${w.id}')" title="Stop" style="background:transparent;border:none;color:var(--red);cursor:pointer;padding:4px;flex-shrink:0"><i class="ti ti-player-stop" style="font-size:16px;display:block"></i></button>
       <button onclick="event.stopPropagation();hideFloatingTimerBadge('${w.id}')" style="background:transparent;border:none;color:var(--text3);cursor:pointer;padding:2px;flex-shrink:0" title="Hide"><i class="ti ti-x" style="font-size:13px;display:block"></i></button>
     `;
@@ -8426,7 +8431,10 @@ document.addEventListener('DOMContentLoaded',()=>{
   makeNavSectionSortable('navIntelligenceList','j-nav-intelligence-order');
   // Restore the floating timer badge if a timer was left running from a previous session
   renderFloatingTimerBadge();
-  if(_activeRunningTimerWorld())_ensureDomainTimerTick();
+  // Start the watchdog unconditionally — it's a no-op when nothing's running,
+  // but guarantees the badge gets re-asserted every second regardless of any
+  // edge case, rather than only watching once a timer happens to be active.
+  _ensureDomainTimerTick();
   // Auto-trigger biometric on lock screen (first thing shown)
   if(localStorage.getItem('j-bio-enabled')==='true'){
     setTimeout(triggerBiometric,1000);
@@ -9048,6 +9056,10 @@ fetchWeather();setInterval(fetchWeather,600000);
 // ===== VIEWS =====
 let currentView='dashboard';
 function setView(v){
+  // Same fix as the Edit/View toggle: a resize's save is debounced 400ms, so
+  // navigating away right after resizing (before that timer fires) would
+  // otherwise lose it — the next visit reads the old pre-resize shape.
+  _flushPendingShapeSaves();
   document.querySelectorAll('.view').forEach(el=>el.classList.remove('active'));
   document.querySelectorAll('[data-view]').forEach(el=>el.classList.toggle('active',el.dataset.view===v));
   let el=document.getElementById('view-'+v);
