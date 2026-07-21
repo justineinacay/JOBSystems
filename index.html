@@ -14993,6 +14993,27 @@ function saveNoteTitle(){if(DB.notes[currentNote]){DB.notes[currentNote].title=d
 // (task click-to-open, etc.) stay fully functional either way.
 // ═══════════════════════════════════════════════════════════════════════════
 let jelixEditMode=localStorage.getItem('j-edit-mode')!=='off';
+// Cross-tab sync — if this app is open in more than one browser tab, each
+// tab only reads jelixEditMode from storage once, at load. Without this,
+// toggling Edit/View in one tab does nothing to any other tab that's
+// already open, so it can look like the change "didn't save" when you
+// switch to a different tab that's just showing its own stale state.
+window.addEventListener('storage',(e)=>{
+  if(e.key==='j-edit-mode'){
+    const newMode=e.newValue!=='off';
+    if(newMode!==jelixEditMode){
+      jelixEditMode=newMode;
+      document.querySelectorAll('.jelix-edit-toggle').forEach(btn=>{
+        btn.innerHTML=jelixEditMode?'<i class="ti ti-edit"></i> Editing':'<i class="ti ti-eye"></i> Viewing';
+        btn.style.color=jelixEditMode?'var(--teal)':'var(--text3)';
+        btn.style.borderColor=jelixEditMode?'var(--teal2)':'var(--border)';
+      });
+      if(document.getElementById('view-notes')?.classList.contains('active'))renderBlocks();
+      if(document.getElementById('view-domain-generic')?.classList.contains('active'))renderDomainGenericView(currentView);
+      if(typeof _refreshStaticCardToolbars==='function')_refreshStaticCardToolbars();
+    }
+  }
+});
 function toggleEditMode(){
   // Flush any pending debounced resize save FIRST — if the mode switch's
   // re-render happens before a resize-in-progress finishes its 400ms
