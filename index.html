@@ -4343,12 +4343,12 @@ select option{background:var(--navy3)}
           <!-- BIO MONITOR TAB (moved from standalone Health view) -->
           <div id="cf-biomonitor" style="display:none">
             <div class="mr" style="grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px">
-              <div class="hc" style="padding:14px 12px"><div class="cl" style="font-size:10px">Heart Rate</div><div style="font-size:22px;font-weight:800;color:var(--w-faith);line-height:1" id="h-hr">—</div><div class="csub" id="h-hr-sub">bpm</div></div>
-              <div class="hc" style="padding:14px 12px"><div class="cl" style="font-size:10px">Blood Pressure</div><div style="font-size:22px;font-weight:800;color:var(--w-faith);line-height:1" id="h-bp">—</div><div class="csub" id="h-bp-sub">mmHg</div></div>
-              <div class="hc" style="padding:14px 12px"><div class="cl" style="font-size:10px">Steps</div><div style="font-size:22px;font-weight:800;color:var(--w-build);line-height:1" id="h-steps">—</div><div class="csub" id="h-steps-sub">/ 10,000</div></div>
-              <div class="hc" style="padding:14px 12px"><div class="cl" style="font-size:10px">Sleep</div><div style="font-size:22px;font-weight:800;color:var(--w-life);line-height:1" id="h-sleep">—</div><div class="csub" id="h-sleep-sub">hrs last night</div></div>
-              <div class="hc" style="padding:14px 12px"><div class="cl" style="font-size:10px">Weight</div><div style="font-size:22px;font-weight:800;color:var(--teal);line-height:1" id="h-weight">—</div><div class="csub" id="h-weight-sub">kg</div></div>
-              <div class="hc" style="padding:14px 12px"><div class="cl" style="font-size:10px">Water</div><div style="font-size:22px;font-weight:800;color:#38bdf8;line-height:1" id="h-water">0</div><div class="csub" id="h-water-sub">/ 8 glasses</div></div>
+              <div class="hc dm-resizable" id="hc-life-8" style="padding:14px 12px"><div class="cl" style="font-size:10px">Heart Rate</div><div style="font-size:22px;font-weight:800;color:var(--w-faith);line-height:1" id="h-hr">—</div><div class="csub" id="h-hr-sub">bpm</div></div>
+              <div class="hc dm-resizable" id="hc-life-9" style="padding:14px 12px"><div class="cl" style="font-size:10px">Blood Pressure</div><div style="font-size:22px;font-weight:800;color:var(--w-faith);line-height:1" id="h-bp">—</div><div class="csub" id="h-bp-sub">mmHg</div></div>
+              <div class="hc dm-resizable" id="hc-life-10" style="padding:14px 12px"><div class="cl" style="font-size:10px">Steps</div><div style="font-size:22px;font-weight:800;color:var(--w-build);line-height:1" id="h-steps">—</div><div class="csub" id="h-steps-sub">/ 10,000</div></div>
+              <div class="hc dm-resizable" id="hc-life-11" style="padding:14px 12px"><div class="cl" style="font-size:10px">Sleep</div><div style="font-size:22px;font-weight:800;color:var(--w-life);line-height:1" id="h-sleep">—</div><div class="csub" id="h-sleep-sub">hrs last night</div></div>
+              <div class="hc dm-resizable" id="hc-life-12" style="padding:14px 12px"><div class="cl" style="font-size:10px">Weight</div><div style="font-size:22px;font-weight:800;color:var(--teal);line-height:1" id="h-weight">—</div><div class="csub" id="h-weight-sub">kg</div></div>
+              <div class="hc dm-resizable" id="hc-life-13" style="padding:14px 12px"><div class="cl" style="font-size:10px">Water</div><div style="font-size:22px;font-weight:800;color:#38bdf8;line-height:1" id="h-water">0</div><div class="csub" id="h-water-sub">/ 8 glasses</div></div>
             </div>
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
               <div style="font-size:var(--text-xs);font-weight:700;color:var(--text3);letter-spacing:.1em;text-transform:uppercase">⚡ Quick Log</div>
@@ -8453,7 +8453,8 @@ document.addEventListener('DOMContentLoaded',()=>{
     'hc-venture-1','hc-venture-2','hc-venture-3','hc-venture-4',
     'hc-sides-1','hc-sides-2','hc-sides-3',
     'hc-faith-1','hc-faith-2','hc-faith-3','hc-faith-4',
-    'hc-life-1','hc-life-2','hc-life-3','hc-life-4','hc-life-5','hc-life-6','hc-life-7'
+    'hc-life-1','hc-life-2','hc-life-3','hc-life-4','hc-life-5','hc-life-6','hc-life-7',
+    'hc-life-8','hc-life-9','hc-life-10','hc-life-11','hc-life-12','hc-life-13'
   ]);
   ['ventureEditToggleMount','sidesEditToggleMount','faithEditToggleMount','lifeEditToggleMount'].forEach(mountId=>{
     const m=document.getElementById(mountId);if(m)m.innerHTML=_editToggleButtonHtml();
