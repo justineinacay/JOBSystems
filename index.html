@@ -3735,9 +3735,9 @@ select option{background:var(--navy3)}
 
         <!-- METRICS STRIP -->
         <div class="mr" style="grid-template-columns:repeat(4,1fr);flex-shrink:0;gap:12px">
-          <div class="hc dm-resizable" id="hc-venture-1"><div class="cl">Stage</div><div class="cv" style="font-size:var(--text-card-title);margin-top:2px;color:var(--blue)">Discovery</div></div>
-          <div class="hc dm-resizable" id="hc-venture-2"><div class="cl">Clients</div><div class="cv" id="vtClientCount">0</div></div>
-          <div class="hc dm-resizable" id="hc-venture-3"><div class="cl">Partners/VAs</div><div class="cv" id="vtPartnerCount">0</div></div>
+          <div class="hc" id="hc-venture-1"><div class="cl">Stage</div><div class="cv" style="font-size:var(--text-card-title);margin-top:2px;color:var(--blue)">Discovery</div></div>
+          <div class="hc" id="hc-venture-2"><div class="cl">Clients</div><div class="cv" id="vtClientCount">0</div></div>
+          <div class="hc" id="hc-venture-3"><div class="cl">Partners/VAs</div><div class="cv" id="vtPartnerCount">0</div></div>
           <div class="hc" id="hc-venture-4" style="cursor:pointer" onclick="window.open('https://jobcollectives.github.io/jobcollectives/','_blank')">
             <div class="cl">TJC Revenue <span style="font-size:var(--text-xs);color:var(--teal2)">· live</span></div>
             <div class="cv" style="font-size:var(--text-card-title);margin-top:2px" id="vtRevenue">$0</div>
@@ -3938,7 +3938,7 @@ select option{background:var(--navy3)}
 
           <!-- DIGITAL PRODUCTS TAB (existing — RaketPH / Etsy shop) -->
           <div id="cc-products" style="display:none">
-            <div class="mr" style="margin-bottom:12px"><div class="hc dm-resizable" id="hc-sides-1"><div class="cl">Total Products</div><div class="cv" id="sidesCount">0</div></div><div class="hc dm-resizable" id="hc-sides-2"><div class="cl">Active Listings</div><div class="cv" id="sidesActive" style="color:var(--green)">0</div></div><div class="hc dm-resizable" id="hc-sides-3"><div class="cl">Total Revenue</div><div class="cv oc" id="sidesRevenue">₱0</div></div></div>
+            <div class="mr" style="margin-bottom:12px"><div class="hc" id="hc-sides-1"><div class="cl">Total Products</div><div class="cv" id="sidesCount">0</div></div><div class="hc" id="hc-sides-2"><div class="cl">Active Listings</div><div class="cv" id="sidesActive" style="color:var(--green)">0</div></div><div class="hc" id="hc-sides-3"><div class="cl">Total Revenue</div><div class="cv oc" id="sidesRevenue">₱0</div></div></div>
             <div id="sidesProductGrid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px"></div>
           </div>
 
@@ -3988,10 +3988,10 @@ select option{background:var(--navy3)}
           <!-- ACTIVITIES TAB -->
           <div id="faith-activities">
             <div class="mr" style="grid-template-columns:repeat(4,1fr);margin-bottom:14px">
-              <div class="hc dm-resizable" id="hc-faith-1"><div class="cl">Total</div><div class="cv" id="faithTotal">0</div></div>
-              <div class="hc dm-resizable" id="hc-faith-2"><div class="cl">Approved</div><div class="cv" id="faithApproved" style="color:var(--green)">0</div></div>
-              <div class="hc dm-resizable" id="hc-faith-3"><div class="cl">Submitted</div><div class="cv" id="faithSubmitted" style="color:var(--teal)">0</div></div>
-              <div class="hc dm-resizable" id="hc-faith-4"><div class="cl">Pending</div><div class="cv" id="faithPending" style="color:var(--amber)">0</div></div>
+              <div class="hc" id="hc-faith-1"><div class="cl">Total</div><div class="cv" id="faithTotal">0</div></div>
+              <div class="hc" id="hc-faith-2"><div class="cl">Approved</div><div class="cv" id="faithApproved" style="color:var(--green)">0</div></div>
+              <div class="hc" id="hc-faith-3"><div class="cl">Submitted</div><div class="cv" id="faithSubmitted" style="color:var(--teal)">0</div></div>
+              <div class="hc" id="hc-faith-4"><div class="cl">Pending</div><div class="cv" id="faithPending" style="color:var(--amber)">0</div></div>
             </div>
             <table class="ht"><thead><tr><th>Group</th><th>Activity</th><th>Date</th><th>Submitted</th><th>CFO #</th><th>AEVM #</th><th>Status</th><th>Assigned</th><th>Drive</th><th></th></tr></thead><tbody id="faithTbody"></tbody></table>
             <div class="faith-empty" id="faithEmpty">No activities yet. Click "Activity" to begin.</div>
@@ -4208,10 +4208,10 @@ select option{background:var(--navy3)}
               <button onclick="setOverviewMonthToday()" style="font-size:var(--text-xs);background:var(--teal3);border:1px solid var(--teal2);color:var(--teal);border-radius:12px;padding:4px 10px;cursor:pointer">This Month</button>
             </div>
             <div class="mr" style="grid-template-columns:repeat(4,1fr);margin-bottom:14px">
-              <div class="hc dm-resizable" id="hc-life-1"><div class="cl">Income</div><div class="cv" id="cf-income" style="font-size:24px;font-weight:800;margin-top:4px;color:var(--green);line-height:1.1">₱0.00</div><div class="csub">Debit this month</div></div>
-              <div class="hc dm-resizable" id="hc-life-7"><div class="cl">Expenses</div><div class="cv oc" id="cf-expense" style="font-size:24px;font-weight:800;margin-top:4px;line-height:1.1">₱0.00</div><div class="csub">Credit this month</div></div>
-              <div class="hc dm-resizable" id="hc-life-2"><div class="cl">Net This Month</div><div class="cv" id="cf-net" style="font-size:24px;font-weight:800;margin-top:4px;line-height:1.1">₱0.00</div><div class="csub" id="cf-net-label">Income − Expenses</div></div>
-              <div class="hc dm-resizable" id="hc-life-3"><div class="cl">Carried Balance</div><div class="cv" id="cf-carried" style="font-size:24px;font-weight:800;margin-top:4px;color:var(--teal);line-height:1.1">₱0.00</div><div class="csub">From previous months</div></div>
+              <div class="hc" id="hc-life-1"><div class="cl">Income</div><div class="cv" id="cf-income" style="font-size:24px;font-weight:800;margin-top:4px;color:var(--green);line-height:1.1">₱0.00</div><div class="csub">Debit this month</div></div>
+              <div class="hc" id="hc-life-7"><div class="cl">Expenses</div><div class="cv oc" id="cf-expense" style="font-size:24px;font-weight:800;margin-top:4px;line-height:1.1">₱0.00</div><div class="csub">Credit this month</div></div>
+              <div class="hc" id="hc-life-2"><div class="cl">Net This Month</div><div class="cv" id="cf-net" style="font-size:24px;font-weight:800;margin-top:4px;line-height:1.1">₱0.00</div><div class="csub" id="cf-net-label">Income − Expenses</div></div>
+              <div class="hc" id="hc-life-3"><div class="cl">Carried Balance</div><div class="cv" id="cf-carried" style="font-size:24px;font-weight:800;margin-top:4px;color:var(--teal);line-height:1.1">₱0.00</div><div class="csub">From previous months</div></div>
             </div>
             <!-- Account balances strip -->
             <div id="cf-account-strip" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin-bottom:14px"></div>
@@ -4330,9 +4330,9 @@ select option{background:var(--navy3)}
             </div>
             <!-- Summary bar -->
             <div class="mr" style="grid-template-columns:repeat(3,1fr);margin-bottom:14px" id="loan-summary-cards">
-              <div class="hc dm-resizable" id="hc-life-4"><div class="cl">Total Debt</div><div id="loan-total" style="font-size:var(--text-lg);font-weight:800;color:var(--red);margin-top:4px">₱0.00</div></div>
-              <div class="hc dm-resizable" id="hc-life-5"><div class="cl">Payments Made</div><div id="loan-paid" style="font-size:var(--text-lg);font-weight:800;color:var(--green);margin-top:4px">₱0.00</div></div>
-              <div class="hc dm-resizable" id="hc-life-6"><div class="cl">Loans Active</div><div id="loan-count" style="font-size:var(--text-lg);font-weight:800;color:var(--teal);margin-top:4px">0</div></div>
+              <div class="hc" id="hc-life-4"><div class="cl">Total Debt</div><div id="loan-total" style="font-size:var(--text-lg);font-weight:800;color:var(--red);margin-top:4px">₱0.00</div></div>
+              <div class="hc" id="hc-life-5"><div class="cl">Payments Made</div><div id="loan-paid" style="font-size:var(--text-lg);font-weight:800;color:var(--green);margin-top:4px">₱0.00</div></div>
+              <div class="hc" id="hc-life-6"><div class="cl">Loans Active</div><div id="loan-count" style="font-size:var(--text-lg);font-weight:800;color:var(--teal);margin-top:4px">0</div></div>
             </div>
             <div id="loan-list"></div>
 
@@ -4343,12 +4343,12 @@ select option{background:var(--navy3)}
           <!-- BIO MONITOR TAB (moved from standalone Health view) -->
           <div id="cf-biomonitor" style="display:none">
             <div class="mr" style="grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px">
-              <div class="hc dm-resizable" id="hc-life-8" style="padding:14px 12px"><div class="cl" style="font-size:10px">Heart Rate</div><div style="font-size:22px;font-weight:800;color:var(--w-faith);line-height:1" id="h-hr">—</div><div class="csub" id="h-hr-sub">bpm</div></div>
-              <div class="hc dm-resizable" id="hc-life-9" style="padding:14px 12px"><div class="cl" style="font-size:10px">Blood Pressure</div><div style="font-size:22px;font-weight:800;color:var(--w-faith);line-height:1" id="h-bp">—</div><div class="csub" id="h-bp-sub">mmHg</div></div>
-              <div class="hc dm-resizable" id="hc-life-10" style="padding:14px 12px"><div class="cl" style="font-size:10px">Steps</div><div style="font-size:22px;font-weight:800;color:var(--w-build);line-height:1" id="h-steps">—</div><div class="csub" id="h-steps-sub">/ 10,000</div></div>
-              <div class="hc dm-resizable" id="hc-life-11" style="padding:14px 12px"><div class="cl" style="font-size:10px">Sleep</div><div style="font-size:22px;font-weight:800;color:var(--w-life);line-height:1" id="h-sleep">—</div><div class="csub" id="h-sleep-sub">hrs last night</div></div>
-              <div class="hc dm-resizable" id="hc-life-12" style="padding:14px 12px"><div class="cl" style="font-size:10px">Weight</div><div style="font-size:22px;font-weight:800;color:var(--teal);line-height:1" id="h-weight">—</div><div class="csub" id="h-weight-sub">kg</div></div>
-              <div class="hc dm-resizable" id="hc-life-13" style="padding:14px 12px"><div class="cl" style="font-size:10px">Water</div><div style="font-size:22px;font-weight:800;color:#38bdf8;line-height:1" id="h-water">0</div><div class="csub" id="h-water-sub">/ 8 glasses</div></div>
+              <div class="hc" id="hc-life-8" style="padding:14px 12px"><div class="cl" style="font-size:10px">Heart Rate</div><div style="font-size:22px;font-weight:800;color:var(--w-faith);line-height:1" id="h-hr">—</div><div class="csub" id="h-hr-sub">bpm</div></div>
+              <div class="hc" id="hc-life-9" style="padding:14px 12px"><div class="cl" style="font-size:10px">Blood Pressure</div><div style="font-size:22px;font-weight:800;color:var(--w-faith);line-height:1" id="h-bp">—</div><div class="csub" id="h-bp-sub">mmHg</div></div>
+              <div class="hc" id="hc-life-10" style="padding:14px 12px"><div class="cl" style="font-size:10px">Steps</div><div style="font-size:22px;font-weight:800;color:var(--w-build);line-height:1" id="h-steps">—</div><div class="csub" id="h-steps-sub">/ 10,000</div></div>
+              <div class="hc" id="hc-life-11" style="padding:14px 12px"><div class="cl" style="font-size:10px">Sleep</div><div style="font-size:22px;font-weight:800;color:var(--w-life);line-height:1" id="h-sleep">—</div><div class="csub" id="h-sleep-sub">hrs last night</div></div>
+              <div class="hc" id="hc-life-12" style="padding:14px 12px"><div class="cl" style="font-size:10px">Weight</div><div style="font-size:22px;font-weight:800;color:var(--teal);line-height:1" id="h-weight">—</div><div class="csub" id="h-weight-sub">kg</div></div>
+              <div class="hc" id="hc-life-13" style="padding:14px 12px"><div class="cl" style="font-size:10px">Water</div><div style="font-size:22px;font-weight:800;color:#38bdf8;line-height:1" id="h-water">0</div><div class="csub" id="h-water-sub">/ 8 glasses</div></div>
             </div>
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
               <div style="font-size:var(--text-xs);font-weight:700;color:var(--text3);letter-spacing:.1em;text-transform:uppercase">⚡ Quick Log</div>
@@ -8447,17 +8447,12 @@ async function triggerBiometric(){
 document.addEventListener('DOMContentLoaded',()=>{
   // Render dynamic world navigation
   renderSideNav();
-  // Make built-in domain cards resizable (Ideahub/Chainsmoker use a single-panel
-  // tab layout with nothing meaningful to resize; Build has no static cards)
-  makeStaticCardsResizable([
-    'hc-venture-1','hc-venture-2','hc-venture-3','hc-venture-4',
-    'hc-sides-1','hc-sides-2','hc-sides-3',
-    'hc-faith-1','hc-faith-2','hc-faith-3','hc-faith-4',
-    'hc-life-1','hc-life-2','hc-life-3','hc-life-4','hc-life-5','hc-life-6','hc-life-7',
-    'hc-life-8','hc-life-9','hc-life-10','hc-life-11','hc-life-12','hc-life-13'
-  ]);
-  ['ventureEditToggleMount','sidesEditToggleMount','faithEditToggleMount','lifeEditToggleMount'].forEach(mountId=>{
-    const m=document.getElementById(mountId);if(m)m.innerHTML=_editToggleButtonHtml();
+  // Built-in domain cards (Ideahub, Job Collectives, Creative Collectives,
+  // FAITH, LIFE) are locked to their original fixed layout — no resize,
+  // no drag, no shape presets. Clearing any leftover customization data
+  // from when this was interactive, so nothing lingers half-applied.
+  Object.keys(localStorage).forEach(k=>{
+    if(k.startsWith('j-modsize-static-')||k.startsWith('j-staticorder-')||k.startsWith('j-staticgroup-'))localStorage.removeItem(k);
   });
   _initTextSelectionToolbar();
   // Make the Intelligence nav section drag-reorderable, restoring any saved order
