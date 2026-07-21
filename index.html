@@ -6644,7 +6644,7 @@ function makeStaticCardsResizable(elIds){
     el.style.width='';el.style.height=''; // clear any leftover bad px size from before
     const groupKey='j-staticgroup-'+elId.split('-').slice(0,2).join('-');
     const shapeKey='j-modsize-static-'+elId;
-    let shape={col:4,row:15};
+    let shape={col:2,row:14};
     try{const saved=JSON.parse(localStorage.getItem(shapeKey)||'null');if(saved&&saved.col)shape=saved;}catch(e){}
     el.style.gridColumn='span '+shape.col;el.style.gridRow='span '+shape.row;
 
