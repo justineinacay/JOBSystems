@@ -997,7 +997,7 @@ select option{background:var(--navy3)}
   /* Scrollable body — leave room for bottom nav + safe area */
   .vb{
     padding:10px 12px;
-    padding-bottom:calc(72px + env(safe-area-inset-bottom));
+    padding-bottom:calc(140px + env(safe-area-inset-bottom));
     -webkit-overflow-scrolling:touch;
     overflow-y:auto;
   }
@@ -1279,7 +1279,7 @@ select option{background:var(--navy3)}
   #view-life .vb > div:nth-child(2){margin-bottom:16px !important}
 
   /* ── Settings view panels ── */
-  #view-settings .vb{padding:12px !important;padding-bottom:calc(72px + env(safe-area-inset-bottom)) !important}
+  #view-settings .vb{padding:12px !important;padding-bottom:calc(140px + env(safe-area-inset-bottom)) !important}
   #view-settings .hc{padding:12px !important}
 
   /* ── Scoreboard tiles: balance text size ── */
@@ -1301,8 +1301,9 @@ select option{background:var(--navy3)}
   /* ── World views: hide some columns on mobile ── */
   .mobile-hide{display:none !important}
 
-  /* ── Universal: every view body clears the bottom nav ── */
-  .vb{padding-bottom:calc(72px + env(safe-area-inset-bottom)) !important}
+  /* ── Universal: every view body clears the bottom nav AND the floating
+     +/mic buttons that float above it (46px + 10px gap) ── */
+  .vb{padding-bottom:calc(140px + env(safe-area-inset-bottom)) !important}
 
   /* ── Mobile topbar: hide ONYX/KEY/wake/mute/history/desktop-voice ── */
   #onyxBtn,#apiKeyBtn,#wakeToggleBtn,#muteBtn,#historyBtn,#voiceFab{display:none !important}
@@ -8679,9 +8680,9 @@ function renderWorldsSettings(){
   const worlds=DB.worlds||[];
   const makeCard=(w)=>{
     const c=(w.color&&/^#/.test(w.color))?w.color:('var('+(w.cssVar||'--teal')+')');
-    return`<div onclick="setView('${w.id}')" style="background:var(--navy2);border:1px solid var(--border);border-top:2px solid ${c};border-radius:12px;padding:16px 10px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;text-align:center;transition:all .15s;aspect-ratio:1/0.85" onmouseover="this.style.boxShadow='0 4px 20px rgba(0,0,0,.4)'" onmouseout="this.style.boxShadow=''">
-      <i class="ti ${w.icon||'ti-star'}" style="font-size:24px;color:${c};line-height:1;display:block"></i>
-      <div style="font-size:11px;font-weight:800;color:var(--text1);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%">${w.label}</div>
+    return`<div onclick="setView('${w.id}')" style="background:var(--navy2);border:1px solid var(--border);border-top:2px solid ${c};border-radius:12px;padding:14px 8px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;text-align:center;transition:all .15s;height:100px" onmouseover="this.style.boxShadow='0 4px 20px rgba(0,0,0,.4)'" onmouseout="this.style.boxShadow=''">
+      <i class="ti ${w.icon||'ti-star'}" style="font-size:22px;color:${c};line-height:1;display:block;flex-shrink:0"></i>
+      <div style="font-size:10px;font-weight:800;color:var(--text1);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%">${w.label}</div>
     </div>`;
   };
   grid.innerHTML=worlds.map(w=>makeCard(w)).join('');
