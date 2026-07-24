@@ -5589,7 +5589,7 @@ const SB={
   async upsert(table,row,key){
     let r=this._sanitizeDates(row);
     if(table==='cashflow'){r.description=row.desc;delete r.desc;delete r._fromAccount;delete r._toAccount;delete r._runBal;}
-    if(table==='cal_events'){delete r.allDay;delete r.overnight;delete r.remindMin;delete r.recurN;delete r.recurEnd;delete r.endDate;delete r.recurUnit;delete r.recurCount;delete r.recur;delete r.reminder;delete r.recurDays;delete r._expandedDate;delete r._recurring;}
+    if(table==='cal_events'){delete r.allDay;delete r.overnight;delete r.remindMin;delete r.recurN;delete r.recurEnd;delete r.endDate;delete r.recurUnit;delete r.recurCount;delete r.recur;delete r.reminder;delete r.recurDays;delete r._expandedDate;delete r._recurring;delete r._taskId;delete r._isTask;delete r._billId;delete r._isBill;}
     if(table==='memories'){delete r.source;}
     delete r._dbKey;
     const uid=getAuthUserId();
@@ -5610,7 +5610,7 @@ const SB={
   async update(table,id,changes,key){
     let c=this._sanitizeDates(changes);
     if(table==='cashflow'){if(c.desc){c.description=c.desc;delete c.desc;}delete c._fromAccount;delete c._toAccount;delete c._runBal;}
-    if(table==='cal_events'){delete c.allDay;delete c.overnight;delete c.remindMin;delete c.recurN;delete c.recurEnd;delete c.endDate;delete c.recurUnit;delete c.recurCount;delete c.recur;delete c.reminder;delete c.recurDays;delete c._expandedDate;delete c._recurring;}
+    if(table==='cal_events'){delete c.allDay;delete c.overnight;delete c.remindMin;delete c.recurN;delete c.recurEnd;delete c.endDate;delete c.recurUnit;delete c.recurCount;delete c.recur;delete c.reminder;delete c.recurDays;delete c._expandedDate;delete c._recurring;delete c._taskId;delete c._isTask;delete c._billId;delete c._isBill;}
     if(table==='memories'){delete c.source;}
     try{
       await sbFetch(table,'PATCH',c,`id=eq.${id}`);
