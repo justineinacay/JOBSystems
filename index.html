@@ -7776,6 +7776,7 @@ function saveWorld(){
   closeModal('worldModal');
   renderSideNav();
   if(typeof renderNotesFolderRail==='function')renderNotesFolderRail();
+  if(typeof populateTaskWorldDropdown==='function')populateTaskWorldDropdown();
   if(typeof syncCalWorldColors==='function'){
     syncCalWorldColors();
     if(typeof renderCalendar==='function'&&document.getElementById('view-calendar')?.classList.contains('active'))renderCalendar();
@@ -7796,6 +7797,7 @@ function deleteWorld(id){
   renderSideNav();
   if(typeof renderNotesFolderRail==='function')renderNotesFolderRail();
   if(typeof renderNotesList==='function')renderNotesList();
+  if(typeof populateTaskWorldDropdown==='function')populateTaskWorldDropdown();
   closeModal('worldModal');
   showToast('Domain deleted');
 }
@@ -8646,6 +8648,7 @@ async function triggerBiometric(){
 document.addEventListener('DOMContentLoaded',()=>{
   // Render dynamic world navigation
   renderSideNav();
+  if(typeof populateTaskWorldDropdown==='function')populateTaskWorldDropdown();
   // Built-in domain cards (Ideahub, Job Collectives, Creative Collectives,
   // FAITH, LIFE) are locked to their original fixed layout — no resize,
   // no drag, no shape presets. Clearing any leftover customization data
@@ -10332,6 +10335,26 @@ function getBoards(){
   });
 }
 
+// The New/Edit Task modal's Domain <select> uses fixed option VALUES
+// (WORK-IH, VENTURE, BUILD, SIDES, FAITH, LIFE, WORK-CS) because those exact
+// strings are compared against t.world all over the codebase — so they must
+// stay put. But the option TEXT was hardcoded too, which is why renaming a
+// domain (e.g. VENTURE → "Job Collectives") via Edit Domain updated the
+// sidebar and kanban boards but not this dropdown. This keeps the text in
+// sync with DB.worlds[i].label, the same source everything else reads from.
+const TASK_WORLD_TO_DOMAIN_ID={'WORK-IH':'work-ih','VENTURE':'venture','BUILD':'build','SIDES':'sides','FAITH':'faith','LIFE':'life'};
+function populateTaskWorldDropdown(){
+  const sel=document.getElementById('tf-world');
+  if(!sel)return;
+  const cur=sel.value;
+  [...sel.options].forEach(opt=>{
+    const domainId=TASK_WORLD_TO_DOMAIN_ID[opt.value];
+    const domain=domainId&&(DB.worlds||[]).find(w=>w.id===domainId);
+    if(domain&&domain.label)opt.textContent=domain.label;
+  });
+  if(cur)sel.value=cur;
+}
+
 // ── Column visibility state ──────────────────────────────────────────────
 const boardColVis={timeline:false,conn:false,time:true};
 function toggleBoardCol(col,btn){
@@ -10506,9 +10529,10 @@ function connChip(t){
 
 // ── World pill helper ──────────────────────────────────────────────────────
 function worldPill(t){
-  const cls=t.world.startsWith('WORK')?'pt':t.world==='VENTURE'?'po':t.world==='BUILD'?'pg':t.world==='FAITH'?'ppu':'pgr';
-  const b=getBoards().find(b=>b.id===t.world);
-  return`<span class="pill ${cls}" style="font-size:var(--text-xs)">${b?b.name:t.world}</span>`;
+  const b=getBoards().find(bd=>bd.id===t.world);
+  const color=b?b.color:'var(--text3)';
+  const stripe=b?b.stripe:'var(--border)';
+  return`<span class="pill" style="font-size:var(--text-xs);color:${color};background:var(--navy3);border:1px solid ${stripe}">${b?b.name:t.world}</span>`;
 }
 
 // ── Subitem rows ───────────────────────────────────────────────────────────
