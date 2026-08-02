@@ -1,13 +1,21 @@
 // J.O.B Systems — Service Worker
-// Strategy: Cache-first for app assets, network-first for Supabase API calls.
-// Cache name is versioned — bump CACHE_VERSION on every meaningful deploy so
-// old caches are automatically discarded instead of serving stale content.
-
-const CACHE_VERSION = 'jobsystems-v1';
+// Strategy: Network-first for the app shell (index.html) and Supabase API
+// calls — always try to fetch the latest deploy, only fall back to cache if
+// genuinely offline. Cache-first for static assets that don't change on
+// every deploy (fonts, icons).
+//
+// v1 used cache-first for the app shell, which meant a fixed/updated
+// index.html could sit correctly on GitHub Pages while every device kept
+// silently serving an old cached copy forever, because the SW's own file
+// hadn't changed and CACHE_VERSION was never bumped to force a purge. That's
+// what caused an already-fixed bug (the driveLink Supabase column error) to
+// keep reappearing on-device after the source was already correct.
+const CACHE_VERSION = 'jobsystems-v2';
 const APP_SHELL = [
   './',
   './index.html',
 ];
+const APP_SHELL_PATHS = new Set(APP_SHELL.map((p) => new URL(p, self.location.href).href));
 
 // Supabase requests should always try the network first — cached financial/task
 // data going stale silently would be worse than a failed offline request.
@@ -41,10 +49,13 @@ self.addEventListener('fetch', (event) => {
   if (request.method !== 'GET') return; // never cache writes
 
   const url = new URL(request.url);
-  const isNetworkFirst = NETWORK_FIRST_HOSTS.some((host) => url.hostname.includes(host));
+  const isNetworkFirst =
+    NETWORK_FIRST_HOSTS.some((host) => url.hostname.includes(host)) ||
+    APP_SHELL_PATHS.has(request.url) ||
+    request.mode === 'navigate'; // any page-load navigation gets the freshest shell
 
   if (isNetworkFirst) {
-    // Network-first: try live data, fall back to cache only if genuinely offline
+    // Network-first: try the live deploy, fall back to cache only if genuinely offline
     event.respondWith(
       fetch(request)
         .then((response) => {
@@ -52,12 +63,13 @@ self.addEventListener('fetch', (event) => {
           caches.open(CACHE_VERSION).then((cache) => cache.put(request, clone));
           return response;
         })
-        .catch(() => caches.match(request))
+        .catch(() => caches.match(request).then((cached) => cached || caches.match('./index.html')))
     );
     return;
   }
 
-  // Cache-first for everything else (the app shell itself, fonts, icons)
+  // Cache-first for everything else (fonts, icons, static assets that don't
+  // change on every deploy)
   event.respondWith(
     caches.match(request).then((cached) => {
       if (cached) return cached;
