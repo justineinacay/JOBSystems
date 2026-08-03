@@ -14299,11 +14299,28 @@ const CAL_TYPE_MAP = {pt:'ih',oc:'cs',po:'ven',pg:'bld',pam:'sid',pu:'fth',pgr:'
 const CAL_WORLDS_DEFAULTS=CAL_WORLDS.map(w=>({id:w.id,color:w.color,hex:w.hex}));
 const CAL_TO_DOMAIN_ID={ih:'work-ih',ven:'venture',bld:'build',sid:'sides',fth:'faith',lif:'life'};
 function syncCalWorldColors(){
+  const rootStyle=getComputedStyle(document.documentElement);
   CAL_WORLDS.forEach((w,i)=>{
     const domainId=CAL_TO_DOMAIN_ID[w.id];
     const domain=domainId&&(DB.worlds||[]).find(x=>x.id===domainId);
-    if(domain&&domain.color&&/^#/.test(domain.color)){
-      w.color=domain.color;w.hex=domain.color;
+    let resolvedHex=null;
+    if(domain&&domain.color){
+      if(/^#/.test(domain.color)){
+        // User picked a literal custom color via Edit Domain
+        resolvedHex=domain.color;
+      }else{
+        // Default/unedited state — color is a CSS var() reference (e.g.
+        // 'var(--w-faith)'). Resolve it to its actual current value so the
+        // calendar matches even domains nobody has manually recolored.
+        const varName=domain.cssVar||(domain.color.match(/var\((--[\w-]+)\)/)||[])[1];
+        if(varName){
+          const v=rootStyle.getPropertyValue(varName).trim();
+          if(v)resolvedHex=v;
+        }
+      }
+    }
+    if(resolvedHex){
+      w.color=resolvedHex;w.hex=resolvedHex;
     }else{
       const def=CAL_WORLDS_DEFAULTS[i];
       w.color=def.color;w.hex=def.hex;
