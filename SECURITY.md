@@ -8,6 +8,11 @@ Read it before assuming anything here is "handled."
 
 ## 1. Repository Access — ACTION REQUIRED (you, not me)
 
+**Confirmed via the GitHub API on 2026-08-05: this repo is still public.**
+Combined with §2 below (RLS policies are `true`), this means the data is
+reachable by anyone right now, not just theoretically. This is the highest-
+priority item in this file.
+
 This repo must be **private**. If it isn't already:
 
 1. `github.com/justineinacay/JOBSystems` → **Settings** → scroll to **Danger Zone**
@@ -44,14 +49,24 @@ the key (below) is what actually closes that door, not the visibility toggle alo
    security-setting change — deliberately not something done on your
    behalf even with tool access. It invalidates the old key immediately.
 2. Send me the new anon key → I drop it into `index.html` in one line.
-3. **Rebuild the RLS policies around real auth**, not `true`. This means:
-   - Add Supabase Auth (email/password or magic link — your call)
-   - Every table's policies become `auth.uid() = user_id` (or equivalent)
-     instead of blanket `true`
+3. **Rebuild the RLS policies around real auth**, not `true`. `RLS_MIGRATION.sql`
+   in this repo does this — copy-paste it into the Supabase SQL Editor and
+   run it. It's idempotent (safe to re-run) and:
+   - Adds a `user_id uuid references auth.users(id)` column to every table
+     that doesn't already have one
+   - Drops every existing policy, whatever it's named
+   - Recreates select/insert/update/delete policies scoped to
+     `auth.uid() = user_id`, granted only to the `authenticated` role —
+     `anon` gets nothing
    - Your PIN-lock screen stays as the *app-level* lock it already is;
      Supabase Auth becomes the *data-level* lock underneath it — the two
      aren't the same thing, and only the second one actually stops someone
      with just the anon key
+   - **Read the NOTE at the bottom of that file before running it** —
+     every row written under the old `true` policies has `user_id = NULL`,
+     which becomes invisible to everyone (including you) once the new
+     policies are live. There's a commented-out backfill block to claim
+     existing rows as yours; it needs your real `auth.users.id` filled in.
 
 Until step 3 is done, step 1 is a stopgap, not a fix — a new leaked key
 would be exactly as exposed as the old one, just newer.
@@ -99,6 +114,46 @@ this project, just worth knowing.
 | Someone has the anon key from any past version | No — only key rotation fixes this |
 | Someone accesses your Supabase data directly | No — only real RLS policies fix this |
 | Someone opens your deployed GitHub Pages site | Depends — Pages sites can be public even if the repo is private, depending on your Pages settings. Check Settings → Pages if you don't want the *live app* reachable by URL either, separately from the repo. |
+
+---
+
+## 6. Client-side fixes applied 2026-08-05
+
+These were done directly in code (no account credentials needed), separate
+from the account-level actions in §1 and §2 above which are still pending:
+
+- **Broken web app manifest** — was an inline `data:` URI with malformed
+  JSON (`fetch().json()` threw `Unterminated string`), which meant "Add to
+  Home Screen" could silently fail to register the app as installable.
+  Replaced with a real `manifest.json` file plus generated `icons/icon-192.png`,
+  `icons/icon-512.png`, and `icons/apple-touch-icon.png` from `logo.png`.
+- **Clickjacking** — GitHub Pages can't serve `X-Frame-Options` or a
+  `frame-ancestors` CSP header, and `frame-ancestors` is ignored when set
+  via a `<meta>` tag, so a JS-level frame-buster was added at the top of
+  `<head>` as the only available defense-in-depth on this host. A CSP
+  `<meta>` tag was also added covering `object-src`, `base-uri`, and
+  `form-action` (the directives that *do* work via meta). `script-src` /
+  `connect-src` were deliberately left unrestricted — this app calls
+  Supabase, four different AI providers, and Google Workspace, and a wrong
+  CSP there would silently break those integrations without a full
+  authenticated test pass. **Real protection against framing still requires
+  moving off GitHub Pages** (e.g. Cloudflare Pages, which does let you set
+  real response headers) — the JS check is a stopgap, not equivalent.
+- **AI provider key fields** — added `autocomplete="off"` (so browsers stop
+  offering to save these through the password-manager UI) and an inline
+  warning in Settings stating plainly that these keys sit in this browser's
+  localStorage unencrypted. This doesn't change the exposure model in §4,
+  it just makes it visible to you in the UI instead of only in this file.
+- **Stray console warning fixed** — `tp-date`'s default value was a
+  template-literal string (`${localDateStr(new Date())}`) pasted directly
+  into static HTML instead of being evaluated, so the browser rejected it
+  as an invalid date format on every load. The JS that opens this field's
+  modal already sets the real value correctly, so the static attribute was
+  simply dead weight — removed.
+
+None of this touches §1 (repo visibility) or §2 (RLS policies / key
+rotation) — those still require you, specifically because they're account-
+security actions on services only you can authenticate to.
 
 ---
 
