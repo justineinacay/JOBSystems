@@ -5374,7 +5374,7 @@ select option{background:var(--navy3)}
 <script>
 // ===== SUPABASE =====
 const SB_URL='https://ddxkmidantqgnxfxsrrz.supabase.co';
-const SB_KEY='sb_publishable_fQmv9bGFhbrZW0aSEjib7Q_3B3IVqEA';
+const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRkeGttaWRhbnRxZ254ZnhzcnJ6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEzNTIyNTYsImV4cCI6MjA5NjkyODI1Nn0.V4O2QN00wuiKI4xcP0J0oxVHnfHfRPShLxXdAoZxfwc';
 async function sbFetch(table,method='GET',body=null,match=null){
   let url=`${SB_URL}/rest/v1/${table}`;
   const qs=[];if(match)qs.push(match);if(method==='GET')qs.push('order=created_at.desc');
