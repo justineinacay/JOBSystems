@@ -8222,7 +8222,7 @@ async function callAIProvider(system,msgs,opts){
   const antKey=localStorage.getItem('job-api-key')||localStorage.getItem('j-jelix-api-key')||localStorage.getItem('j-anthropic-key');
   if(!antKey)return{ok:false,error:'No Anthropic API key configured. Add one in Settings.'};
   try{
-    const body={model:'claude-sonnet-4-6',max_tokens:maxTokens,system,messages:msgs};
+    const body={model:'claude-sonnet-5',max_tokens:maxTokens,system,messages:msgs};
     if(opts.tools)body.tools=opts.tools;
     const res=await fetch('https://api.anthropic.com/v1/messages',{
       method:'POST',
