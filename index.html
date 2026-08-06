@@ -8446,6 +8446,79 @@ async function sendGoogleGmail(to,subject,body){
   }
 }
 
+// ── Gmail: starred messages — the Gmail↔task sync source list ───────────────
+// Reuses searchGoogleGmail's metadata-fetch approach but keeps the message id
+// on each result (searchGoogleGmail drops it), since the id is what a task
+// needs to remember to later archive/unstar the source email.
+async function fetchStarredGmailMessages(maxResults){
+  const token=await ensureGoogleToken();
+  if(!token)return{ok:false,error:'Google Workspace not connected'};
+  try{
+    const params=new URLSearchParams({q:'is:starred',maxResults:String(maxResults||20)});
+    const listRes=await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages?'+params.toString(),{headers:{'Authorization':'Bearer '+token}});
+    if(!listRes.ok)return{ok:false,error:'Gmail search failed '+listRes.status};
+    const listData=await listRes.json();
+    const ids=(listData.messages||[]).map(m=>m.id);
+    const msgs=await Promise.all(ids.map(async id=>{
+      const r=await fetch(`https://gmail.googleapis.com/gmail/v1/users/me/messages/${id}?format=metadata&metadataHeaders=From&metadataHeaders=Subject`,{headers:{'Authorization':'Bearer '+token}});
+      if(!r.ok)return null;
+      const d=await r.json();
+      const h=(d.payload?.headers||[]).reduce((o,x)=>{o[x.name]=x.value;return o;},{});
+      return{id,from:h.From||'',subject:h.Subject||'(no subject)',snippet:d.snippet||''};
+    }));
+    return{ok:true,messages:msgs.filter(Boolean)};
+  }catch(e){return{ok:false,error:e.message};}
+}
+// Removes STARRED and INBOX (archives it) — idempotent, safe to call even if
+// already archived/unstarred, so no extra "already handled" state is needed
+// beyond gmail_message_id itself.
+async function archiveAndUnstarGmailMessage(messageId){
+  const token=await ensureGoogleToken();
+  if(!token)return{ok:false,error:'Google Workspace not connected'};
+  try{
+    const res=await fetch(`https://gmail.googleapis.com/gmail/v1/users/me/messages/${messageId}/modify`,{
+      method:'POST',
+      headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json'},
+      body:JSON.stringify({removeLabelIds:['STARRED','INBOX']})
+    });
+    if(!res.ok&&res.status!==404)return{ok:false,error:'Gmail archive failed '+res.status};
+    return{ok:true};
+  }catch(e){
+    return{ok:false,error:e.message};
+  }
+}
+async function pullStarredGmailTasks(){
+  if(!isGoogleWorkspaceConnected())return;
+  const r=await fetchStarredGmailMessages(20);
+  if(!r.ok){_markGoogleSyncError('Gmail',r.error);return;}
+  const uid=getAuthUserId();
+  if(!uid)return;
+  let changed=false;
+  for(const msg of r.messages){
+    if(DB.tasks.some(t=>t.gmail_message_id===msg.id))continue;
+    const fromName=(msg.from.match(/^([^<]+)/)||[])[1]?.trim()||msg.from;
+    const task={id:Date.now()+Math.floor(Math.random()*1000),title:msg.subject,world:'LIFE',priority:'Medium',
+      status:'Todo',due:'',platform:'Gmail',client:fromName,notes:msg.snippet,subitems:[],
+      timelineS:'',timelineE:'',numValue:null,connBoard:null,connItemId:null,groupId:null,gmail_message_id:msg.id};
+    DB.tasks.unshift(task);
+    _jelixSyncingFromGoogle=true;
+    try{await SB.upsert('tasks',task,'tasks');}finally{_jelixSyncingFromGoogle=false;}
+    changed=true;
+  }
+  _markGoogleSyncOk();
+  if(changed){save('tasks');try{renderTasks();renderBrief();}catch(e){}}
+}
+// Completing a task that came from a starred email archives + unstars the
+// email — this is the "PWA → Gmail" half. Runs alongside the normal Google
+// Tasks push in _pushTaskToGoogle rather than needing its own SB hook.
+async function _syncGmailTaskCompletion(task){
+  if(_jelixSyncingFromGoogle||!isGoogleWorkspaceConnected()||!task.gmail_message_id||task.status!=='Done')return;
+  try{
+    const r=await archiveAndUnstarGmailMessage(task.gmail_message_id);
+    if(!r.ok)showToast('⚠ Couldn\'t archive the source email for "'+task.title+'": '+r.error);
+  }catch(e){console.error('[Gmail sync] archive failed',e);}
+}
+
 // ── Calendar: create event ──────────────────────────────────────────────────
 // startISO/endISO: full ISO datetimes, e.g. '2026-07-20T14:00:00+08:00'
 async function createGoogleCalendarEvent(calendarId,title,startISO,endISO,notes){
@@ -8507,44 +8580,64 @@ async function deleteGoogleCalendarEvent(eventId){
 // ── Google Tasks — list/create/update/delete ─────────────────────────────────
 // Uses the default task list ("@default") — this app doesn't manage multiple
 // Google task lists, just the one the user sees in the Google Tasks app.
-async function fetchGoogleTasks(){
+async function fetchGoogleTaskLists(){
   const token=await ensureGoogleToken();
   if(!token)return{ok:false,error:'Google Workspace not connected'};
   try{
-    const params=new URLSearchParams({showCompleted:'true',showHidden:'true',maxResults:'100'});
-    const res=await fetch('https://tasks.googleapis.com/tasks/v1/lists/@default/tasks?'+params.toString(),{
+    const res=await fetch('https://tasks.googleapis.com/tasks/v1/users/@me/lists?maxResults=100',{
       headers:{'Authorization':'Bearer '+token}
     });
-    if(!res.ok)return{ok:false,error:'Google Tasks API error '+res.status};
+    if(!res.ok)return{ok:false,error:'Google Task lists API error '+res.status};
     const data=await res.json();
-    return{ok:true,tasks:data.items||[]};
+    return{ok:true,lists:data.items||[]};
   }catch(e){
     return{ok:false,error:e.message};
   }
 }
-async function createGoogleTask(title,notes,dueDate){
+async function fetchGoogleTasks(){
+  const listsRes=await fetchGoogleTaskLists();
+  if(!listsRes.ok)return listsRes;
+  const token=await ensureGoogleToken();
+  if(!token)return{ok:false,error:'Google Workspace not connected'};
+  try{
+    const lists=listsRes.lists.length?listsRes.lists:[{id:'@default'}];
+    const perList=await Promise.all(lists.map(async list=>{
+      const params=new URLSearchParams({showCompleted:'true',showHidden:'true',maxResults:'100'});
+      const res=await fetch(`https://tasks.googleapis.com/tasks/v1/lists/${encodeURIComponent(list.id)}/tasks?`+params.toString(),{
+        headers:{'Authorization':'Bearer '+token}
+      });
+      if(!res.ok)return[];
+      const data=await res.json();
+      return(data.items||[]).map(t=>({...t,_listId:list.id}));
+    }));
+    return{ok:true,tasks:perList.flat()};
+  }catch(e){
+    return{ok:false,error:e.message};
+  }
+}
+async function createGoogleTask(title,notes,dueDate,listId){
   const token=await ensureGoogleToken();
   if(!token)return{ok:false,error:'Google Workspace not connected'};
   try{
     const body={title:title||'Untitled task',notes:notes||''};
     if(dueDate)body.due=new Date(dueDate+'T00:00:00Z').toISOString();
-    const res=await fetch('https://tasks.googleapis.com/tasks/v1/lists/@default/tasks',{
+    const res=await fetch(`https://tasks.googleapis.com/tasks/v1/lists/${encodeURIComponent(listId||'@default')}/tasks`,{
       method:'POST',
       headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json'},
       body:JSON.stringify(body)
     });
     if(!res.ok){const errBody=await res.text().catch(()=>'');return{ok:false,error:'Google Task create failed '+res.status+(errBody?': '+errBody.substring(0,200):'')};}
     const data=await res.json();
-    return{ok:true,taskId:data.id};
+    return{ok:true,taskId:data.id,listId:listId||'@default'};
   }catch(e){
     return{ok:false,error:e.message};
   }
 }
-async function updateGoogleTask(googleTaskId,changes){
+async function updateGoogleTask(googleTaskId,changes,listId){
   const token=await ensureGoogleToken();
   if(!token)return{ok:false,error:'Google Workspace not connected'};
   try{
-    const res=await fetch(`https://tasks.googleapis.com/tasks/v1/lists/@default/tasks/${encodeURIComponent(googleTaskId)}`,{
+    const res=await fetch(`https://tasks.googleapis.com/tasks/v1/lists/${encodeURIComponent(listId||'@default')}/tasks/${encodeURIComponent(googleTaskId)}`,{
       method:'PATCH',
       headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json'},
       body:JSON.stringify(changes)
@@ -8559,11 +8652,11 @@ async function updateGoogleTask(googleTaskId,changes){
     return{ok:false,error:e.message};
   }
 }
-async function deleteGoogleTask(googleTaskId){
+async function deleteGoogleTask(googleTaskId,listId){
   const token=await ensureGoogleToken();
   if(!token)return{ok:false,error:'Google Workspace not connected'};
   try{
-    const res=await fetch(`https://tasks.googleapis.com/tasks/v1/lists/@default/tasks/${encodeURIComponent(googleTaskId)}`,{
+    const res=await fetch(`https://tasks.googleapis.com/tasks/v1/lists/${encodeURIComponent(listId||'@default')}/tasks/${encodeURIComponent(googleTaskId)}`,{
       method:'DELETE',
       headers:{'Authorization':'Bearer '+token}
     });
@@ -8596,35 +8689,45 @@ let _jelixSyncingFromGoogle=false;
 
 async function _pushTaskToGoogle(task){
   if(_jelixSyncingFromGoogle||!isGoogleWorkspaceConnected())return;
+  _syncGmailTaskCompletion(task);
   try{
     if(!task.google_task_id){
-      const r=await createGoogleTask(task.title,task.notes,task.due);
+      const r=await createGoogleTask(task.title,task.notes,task.due,task.google_task_list_id);
       if(r.ok){
         task.google_task_id=r.taskId;
+        task.google_task_list_id=r.listId;
         _jelixSyncingFromGoogle=true;
-        try{await SB.update('tasks',task.id,{google_task_id:r.taskId},'tasks');}finally{_jelixSyncingFromGoogle=false;}
+        try{await SB.update('tasks',task.id,{google_task_id:r.taskId,google_task_list_id:r.listId},'tasks');}finally{_jelixSyncingFromGoogle=false;}
+      }else{
+        showToast('⚠ Couldn\'t push "'+task.title+'" to Google Tasks: '+r.error);
       }
     }else{
       const changes={title:task.title,notes:task.notes||'',status:task.status==='Done'?'needsAction':'needsAction'};
       if(task.status==='Done')changes.status='completed';
       if(task.due)changes.due=new Date(task.due+'T00:00:00Z').toISOString();
-      const r=await updateGoogleTask(task.google_task_id,changes);
+      const r=await updateGoogleTask(task.google_task_id,changes,task.google_task_list_id);
       if(!r.ok&&r.error==='not_found'){
         // Was deleted on Google's side between syncs — recreate it rather than
         // silently dropping the local task from sync forever.
-        const r2=await createGoogleTask(task.title,task.notes,task.due);
+        const r2=await createGoogleTask(task.title,task.notes,task.due,task.google_task_list_id);
         if(r2.ok){
           task.google_task_id=r2.taskId;
+          task.google_task_list_id=r2.listId;
           _jelixSyncingFromGoogle=true;
-          try{await SB.update('tasks',task.id,{google_task_id:r2.taskId},'tasks');}finally{_jelixSyncingFromGoogle=false;}
+          try{await SB.update('tasks',task.id,{google_task_id:r2.taskId,google_task_list_id:r2.listId},'tasks');}finally{_jelixSyncingFromGoogle=false;}
         }
+      }else if(!r.ok){
+        showToast('⚠ Couldn\'t update "'+task.title+'" on Google Tasks: '+r.error);
       }
     }
   }catch(e){console.error('[Google Tasks sync] push failed',e);}
 }
 async function _deleteGoogleTaskFor(task){
   if(_jelixSyncingFromGoogle||!isGoogleWorkspaceConnected()||!task||!task.google_task_id)return;
-  try{await deleteGoogleTask(task.google_task_id);}catch(e){console.error('[Google Tasks sync] delete push failed',e);}
+  try{
+    const r=await deleteGoogleTask(task.google_task_id,task.google_task_list_id);
+    if(!r.ok)showToast('⚠ Couldn\'t remove the linked task from Google Tasks: '+r.error);
+  }catch(e){console.error('[Google Tasks sync] delete push failed',e);}
 }
 
 const CAL_SYNC_EXCLUDE=new Set(['_sourceFaithId','_billId','_isBill','_taskId','_isTask','_recurring']);
@@ -8656,21 +8759,61 @@ async function _pushCalEventToGoogle(ev){
         ev.google_event_id=r.eventId;
         _jelixSyncingFromGoogle=true;
         try{await SB.update('cal_events',ev.id,{google_event_id:r.eventId},'calEvents');}finally{_jelixSyncingFromGoogle=false;}
+      }else{
+        showToast('⚠ Couldn\'t push "'+ev.title+'" to Google Calendar: '+r.error);
       }
     }else{
-      await updateGoogleCalendarEvent(ev.google_event_id,_calEventToGoogle(ev));
+      const r=await updateGoogleCalendarEvent(ev.google_event_id,_calEventToGoogle(ev));
+      if(!r.ok)showToast('⚠ Couldn\'t update "'+ev.title+'" on Google Calendar: '+r.error);
     }
   }catch(e){console.error('[Google Calendar sync] push failed',e);}
 }
 async function _deleteGoogleCalEventFor(ev){
   if(_jelixSyncingFromGoogle||!isGoogleWorkspaceConnected()||!ev||!ev.google_event_id)return;
-  try{await deleteGoogleCalendarEvent(ev.google_event_id);}catch(e){console.error('[Google Calendar sync] delete push failed',e);}
+  try{
+    const r=await deleteGoogleCalendarEvent(ev.google_event_id);
+    if(!r.ok)showToast('⚠ Couldn\'t remove the linked event from Google Calendar: '+r.error);
+  }catch(e){console.error('[Google Calendar sync] delete push failed',e);}
+}
+
+// ── Sync visibility ───────────────────────────────────────────────────────
+// A background poll failing (expired token, network blip, revoked access)
+// used to be invisible unless someone read the console — surface it once
+// per failure streak instead of every 90s, and always show the last time
+// a full cycle actually succeeded so "is this even working" has an answer.
+let _googleSyncErrorShown=false;
+function _markGoogleSyncOk(){
+  localStorage.setItem('j-google-last-sync',String(Date.now()));
+  _googleSyncErrorShown=false;
+  try{if(typeof renderGoogleSyncStatus==='function')renderGoogleSyncStatus();}catch(e){}
+}
+function _markGoogleSyncError(context,error){
+  console.error('[Google sync] '+context,error);
+  if(!_googleSyncErrorShown){
+    _googleSyncErrorShown=true;
+    showToast('⚠ Google sync ('+context+') failed: '+error+' — will keep retrying.');
+  }
+}
+function getGoogleLastSyncText(){
+  const raw=localStorage.getItem('j-google-last-sync');
+  if(!raw)return isGoogleWorkspaceConnected()?'Not synced yet':'Not connected';
+  const secs=Math.floor((Date.now()-parseInt(raw,10))/1000);
+  if(secs<10)return'Synced just now';
+  if(secs<60)return'Synced '+secs+'s ago';
+  const mins=Math.floor(secs/60);
+  if(mins<60)return'Synced '+mins+'m ago';
+  const hrs=Math.floor(mins/60);
+  return'Synced '+hrs+'h ago';
+}
+function renderGoogleSyncStatus(){
+  const el=document.getElementById('googleSyncLastText');
+  if(el)el.textContent=getGoogleLastSyncText();
 }
 
 async function pullGoogleTasks(){
   if(!isGoogleWorkspaceConnected())return;
   const r=await fetchGoogleTasks();
-  if(!r.ok)return;
+  if(!r.ok){_markGoogleSyncError('Tasks',r.error);return;}
   const uid=getAuthUserId();
   if(!uid)return;
   let changed=false;
@@ -8692,7 +8835,8 @@ async function pullGoogleTasks(){
     }else{
       const task={id:Date.now()+Math.floor(Math.random()*1000),title:gt.title||'Untitled task',world:'LIFE',priority:'Medium',
         status:wantStatus||'Todo',due:gt.due?gt.due.slice(0,10):'',platform:'',client:'',notes:gt.notes||'',subitems:[],
-        timelineS:'',timelineE:'',numValue:null,connBoard:null,connItemId:null,groupId:null,google_task_id:gt.id};
+        timelineS:'',timelineE:'',numValue:null,connBoard:null,connItemId:null,groupId:null,
+        google_task_id:gt.id,google_task_list_id:gt._listId||'@default'};
       DB.tasks.unshift(task);
       _jelixSyncingFromGoogle=true;
       try{await SB.upsert('tasks',task,'tasks');}finally{_jelixSyncingFromGoogle=false;}
@@ -8707,13 +8851,14 @@ async function pullGoogleTasks(){
     try{await SB.remove('tasks',t.id,'tasks');}finally{_jelixSyncingFromGoogle=false;}
     changed=true;
   }
+  _markGoogleSyncOk();
   if(changed){save('tasks');try{renderTasks();renderBrief();}catch(e){}}
 }
 
 async function pullGoogleCalendarEvents(){
   if(!isGoogleWorkspaceConnected())return;
   const r=await fetchGoogleCalendarEvents(100);
-  if(!r.ok)return;
+  if(!r.ok){_markGoogleSyncError('Calendar',r.error);return;}
   const uid=getAuthUserId();
   if(!uid)return;
   let changed=false;
@@ -8754,6 +8899,7 @@ async function pullGoogleCalendarEvents(){
     try{await SB.remove('cal_events',e.id,'calEvents');}finally{_jelixSyncingFromGoogle=false;}
     changed=true;
   }
+  _markGoogleSyncOk();
   if(changed){save('calEvents');try{renderCalendar();}catch(e){}}
 }
 
@@ -8763,15 +8909,27 @@ function startGoogleSyncLoop(){
   if(!isGoogleWorkspaceConnected())return;
   pullGoogleTasks();
   pullGoogleCalendarEvents();
+  pullStarredGmailTasks();
   _googleSyncInterval=setInterval(()=>{
     if(!isGoogleWorkspaceConnected())return;
     pullGoogleTasks();
     pullGoogleCalendarEvents();
+    pullStarredGmailTasks();
   },90000);
 }
 document.addEventListener('DOMContentLoaded',()=>{
   if(isGoogleWorkspaceConnected())startGoogleSyncLoop();
 });
+// The full slash-command cheat sheet is genuinely useful as a placeholder on
+// desktop, but it truncates mid-command on a phone-width input — swap to a
+// short hint below that width instead of showing a cut-off command.
+function _updateCaptureInputPlaceholder(){
+  const el=document.getElementById('captureInput');
+  if(!el)return;
+  el.placeholder=window.innerWidth<480?'Type / for commands':'/cs /ih /build /faith /venture /debit 500 · /credit 1000';
+}
+document.addEventListener('DOMContentLoaded',_updateCaptureInputPlaceholder);
+window.addEventListener('resize',_updateCaptureInputPlaceholder);
 
 // ── Drive: write a file ─────────────────────────────────────────────────────
 // Uses drive.file scope — this app can only see/manage files it creates itself,
@@ -9150,7 +9308,10 @@ async function renderSettingsView(){
     if(isGoogleWorkspaceConnected()){
       gwsStatusEl.innerHTML=`<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(0,255,136,.06);border:1px solid rgba(0,255,136,.25);border-radius:10px;margin-bottom:10px">
         <i class="ti ti-circle-check" style="color:var(--green);font-size:16px"></i>
-        <span style="flex:1;font-size:var(--text-sm);color:var(--text1)">Connected — Calendar, Gmail, Drive, Tasks</span>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:var(--text-sm);color:var(--text1)">Connected — Calendar, Gmail, Drive, Tasks</div>
+          <div id="googleSyncLastText" style="font-size:var(--text-xs);color:var(--text3);margin-top:2px">${getGoogleLastSyncText()}</div>
+        </div>
         <button class="btn btn-d" style="font-size:var(--text-xs)" onclick="disconnectGoogleWorkspace()">Disconnect</button>
       </div>`;
     }else{
@@ -10279,9 +10440,9 @@ function renderOverheadScoreboard(){
     <div onclick="${t.onclick}" style="background:var(--navy2);border:1px solid var(--border);border-radius:var(--radius-card);padding:16px 18px;cursor:pointer;transition:transform .15s,border-color .2s;position:relative;overflow:hidden"
       onmouseover="this.style.borderColor='var(--border2)';this.style.transform='translateY(-2px)'"
       onmouseout="this.style.borderColor='var(--border)';this.style.transform='translateY(0)'">
-      <div style="display:flex;align-items:center;gap:6px;margin-bottom:10px">
-        <i class="ti ${t.icon}" style="font-size:var(--text-sm);color:${t.color};line-height:1;display:block"></i>
-        <span style="font-size:var(--text-xs);font-weight:600;letter-spacing:.04em;color:var(--text3);text-transform:uppercase">${t.label}</span>
+      <div style="display:flex;align-items:flex-start;gap:6px;margin-bottom:10px;min-height:30px">
+        <i class="ti ${t.icon}" style="font-size:var(--text-sm);color:${t.color};line-height:1.3;display:block;flex-shrink:0"></i>
+        <span style="font-size:var(--text-xs);font-weight:600;letter-spacing:.04em;color:var(--text3);text-transform:uppercase;line-height:1.3">${t.label}</span>
       </div>
       <div style="font-size:var(--text-lg);font-weight:700;color:var(--text1);line-height:1;font-variant-numeric:tabular-nums">${t.val}</div>
     </div>`;
@@ -10600,7 +10761,7 @@ function renderBrief(){
   const urgent=DB.tasks.filter(t=>t.priority==='High'&&t.status!=='Done').slice(0,6);
   const worldColor=w=>w.startsWith('WORK-CS')?'var(--red)':w==='VENTURE'?'var(--orange)':w==='BUILD'?'var(--green)':w==='SIDES'?'var(--amber)':'var(--teal)';
   document.getElementById('briefToDo').innerHTML=urgent.map(t=>`
-    <div style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--navy3);border:1px solid var(--border);border-radius:10px;border-left:3px solid var(--red);cursor:pointer;transition:all .15s" onclick="editTask(${t.id})" onmouseover="this.style.background='rgba(0,255,242,.04)'" onmouseout="this.style.background='var(--navy3)'">
+    <div style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--navy3);border:1px solid var(--border);border-radius:10px;cursor:pointer;transition:all .15s" onclick="editTask(${t.id})" onmouseover="this.style.background='rgba(0,255,242,.04)'" onmouseout="this.style.background='var(--navy3)'">
       <div style="width:18px;height:18px;border:1px solid var(--red);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
         <span style="color:var(--red);font-size:var(--text-xs);font-weight:900;line-height:1">!</span>
       </div>
@@ -20789,6 +20950,7 @@ window.addEventListener('appinstalled', () => {
   #jelix-container.jelix-drawer-open{ transform:scale(.82); opacity:.55; }
   @media (max-width:768px){
     #jelix-container{width:52px;height:52px;bottom:78px;right:12px;z-index:50}
+    #jelix-bubble{max-width:min(160px,calc(100vw - 88px));font-size:11px;padding:9px 11px}
   }
   @keyframes jelix-float{
     0%,100%{ transform:translateY(0px); }
@@ -20890,7 +21052,7 @@ window.addEventListener('appinstalled', () => {
     position:absolute;
     bottom:calc(100% + 14px);
     right:-6px;
-    max-width:220px;
+    max-width:min(220px,calc(100vw - 88px));
     background:rgba(16,23,32,.55);
     backdrop-filter:blur(16px) saturate(160%);
     -webkit-backdrop-filter:blur(16px) saturate(160%);
