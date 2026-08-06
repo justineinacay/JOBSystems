@@ -5613,19 +5613,22 @@ const SB={
     if(table==='cal_events'){const full=(DB[key]||[]).find(x=>x.id===id);if(full)_pushCalEventToGoogle(full);}
   },
   async remove(table,id,key){
-    let googleId=null;
+    let googleId=null,googleListId=null;
     if(table==='tasks'||table==='cal_events'){
       try{
         const prev=JSON.parse(localStorage.getItem('j-'+key)||'[]');
         const rec=prev.find(x=>x.id===id);
-        if(rec)googleId=table==='tasks'?rec.google_task_id:rec.google_event_id;
+        if(rec){
+          googleId=table==='tasks'?rec.google_task_id:rec.google_event_id;
+          if(table==='tasks')googleListId=rec.google_task_list_id;
+        }
       }catch(e){}
     }
     try{
       await sbFetch(table,'DELETE',null,`id=eq.${id}`);
       save(key);
       if(googleId){
-        if(table==='tasks')_deleteGoogleTaskFor({google_task_id:googleId});
+        if(table==='tasks')_deleteGoogleTaskFor({google_task_id:googleId,google_task_list_id:googleListId});
         if(table==='cal_events')_deleteGoogleCalEventFor({google_event_id:googleId});
       }
     }catch(err){
