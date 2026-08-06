@@ -8451,6 +8451,10 @@ async function sendGoogleGmail(to,subject,body){
 async function createGoogleCalendarEvent(calendarId,title,startISO,endISO,notes){
   const token=await ensureGoogleToken();
   if(!token)return{ok:false,error:'Google Workspace not connected'};
+  // A bare "YYYY-MM-DD" (all-day event, no time component) must go in Google's
+  // `date` field, not `dateTime` — `dateTime` requires a full RFC3339 timestamp
+  // and Google's API rejects a plain date passed there.
+  const isDateOnly=s=>typeof s==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(s);
   try{
     const res=await fetch(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId||'primary')}/events`,{
       method:'POST',
@@ -8458,8 +8462,8 @@ async function createGoogleCalendarEvent(calendarId,title,startISO,endISO,notes)
       body:JSON.stringify({
         summary:title,
         description:notes||'',
-        start:{dateTime:startISO},
-        end:{dateTime:endISO}
+        start:isDateOnly(startISO)?{date:startISO}:{dateTime:startISO},
+        end:isDateOnly(endISO)?{date:endISO}:{dateTime:endISO}
       })
     });
     if(!res.ok){const errBody=await res.text().catch(()=>'');return{ok:false,error:'Calendar create failed '+res.status+(errBody?': '+errBody.substring(0,200):'')};}
@@ -8623,10 +8627,14 @@ async function _deleteGoogleTaskFor(task){
   try{await deleteGoogleTask(task.google_task_id);}catch(e){console.error('[Google Tasks sync] delete push failed',e);}
 }
 
-const CAL_SYNC_EXCLUDE=new Set(['_sourceFaithId','_billId','_isBill','_taskId','_isTask','_recurring','recur']);
+const CAL_SYNC_EXCLUDE=new Set(['_sourceFaithId','_billId','_isBill','_taskId','_isTask','_recurring']);
 function _isSyncableCalEvent(ev){
   if(!ev)return false;
   for(const k of CAL_SYNC_EXCLUDE)if(ev[k])return false;
+  // The real "Add Event" form always sets recur to the literal string 'none'
+  // when no recurrence is picked (not '' or undefined) — checking truthiness
+  // alone would exclude every normal one-off event, since 'none' is truthy.
+  if(ev.recur&&ev.recur!=='none')return false;
   return true;
 }
 function _calEventToGoogle(ev){
