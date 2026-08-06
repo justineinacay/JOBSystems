@@ -5590,6 +5590,8 @@ const SB={
       showToast('\u26a0 Save failed ('+table+'): '+err.message);
       console.error('SB.upsert error',table,err);
     }
+    if(table==='tasks')_pushTaskToGoogle(row);
+    if(table==='cal_events')_pushCalEventToGoogle(row);
   },
   async update(table,id,changes,key){
     let c=this._sanitizeDates(changes);
@@ -5604,11 +5606,28 @@ const SB={
       showToast('\u26a0 Update failed ('+table+'): '+err.message);
       console.error('SB.update error',table,err);
     }
+    // Push the full current record (not just this partial patch) so a Google
+    // sync triggered by e.g. a status-only change still has title/notes/due \u2014
+    // `changes` alone may omit fields Google's API needs on every call.
+    if(table==='tasks'){const full=(DB[key]||[]).find(x=>x.id===id);if(full)_pushTaskToGoogle(full);}
+    if(table==='cal_events'){const full=(DB[key]||[]).find(x=>x.id===id);if(full)_pushCalEventToGoogle(full);}
   },
   async remove(table,id,key){
+    let googleId=null;
+    if(table==='tasks'||table==='cal_events'){
+      try{
+        const prev=JSON.parse(localStorage.getItem('j-'+key)||'[]');
+        const rec=prev.find(x=>x.id===id);
+        if(rec)googleId=table==='tasks'?rec.google_task_id:rec.google_event_id;
+      }catch(e){}
+    }
     try{
       await sbFetch(table,'DELETE',null,`id=eq.${id}`);
       save(key);
+      if(googleId){
+        if(table==='tasks')_deleteGoogleTaskFor({google_task_id:googleId});
+        if(table==='cal_events')_deleteGoogleCalEventFor({google_event_id:googleId});
+      }
     }catch(err){
       showToast('\u26a0 Delete failed ('+table+'): '+err.message);
       console.error('SB.remove error',table,err);
@@ -8320,6 +8339,7 @@ async function _handleGoogleOAuthCallback(){
       localStorage.setItem('j-google-token-expiry',String(expiry));
       if(data.refresh_token)localStorage.setItem('j-google-refresh-token',data.refresh_token);
       showToast('✓ Google Workspace connected.');
+      if(typeof startGoogleSyncLoop==='function')startGoogleSyncLoop();
     }else{
       showToast('⚠ Google connection failed: '+(data.error_description||data.error||'unknown error'));
       console.error('Google OAuth token exchange failed',data);
@@ -8449,6 +8469,301 @@ async function createGoogleCalendarEvent(calendarId,title,startISO,endISO,notes)
     return{ok:false,error:e.message};
   }
 }
+
+async function updateGoogleCalendarEvent(eventId,changes){
+  const token=await ensureGoogleToken();
+  if(!token)return{ok:false,error:'Google Workspace not connected'};
+  try{
+    const res=await fetch(`https://www.googleapis.com/calendar/v3/calendars/primary/events/${encodeURIComponent(eventId)}`,{
+      method:'PATCH',
+      headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json'},
+      body:JSON.stringify(changes)
+    });
+    if(!res.ok){const errBody=await res.text().catch(()=>'');return{ok:false,error:'Calendar update failed '+res.status+(errBody?': '+errBody.substring(0,200):'')};}
+    return{ok:true};
+  }catch(e){
+    return{ok:false,error:e.message};
+  }
+}
+async function deleteGoogleCalendarEvent(eventId){
+  const token=await ensureGoogleToken();
+  if(!token)return{ok:false,error:'Google Workspace not connected'};
+  try{
+    const res=await fetch(`https://www.googleapis.com/calendar/v3/calendars/primary/events/${encodeURIComponent(eventId)}`,{
+      method:'DELETE',
+      headers:{'Authorization':'Bearer '+token}
+    });
+    if(!res.ok&&res.status!==404&&res.status!==410){const errBody=await res.text().catch(()=>'');return{ok:false,error:'Calendar delete failed '+res.status+(errBody?': '+errBody.substring(0,200):'')};}
+    return{ok:true};
+  }catch(e){
+    return{ok:false,error:e.message};
+  }
+}
+
+// ── Google Tasks — list/create/update/delete ─────────────────────────────────
+// Uses the default task list ("@default") — this app doesn't manage multiple
+// Google task lists, just the one the user sees in the Google Tasks app.
+async function fetchGoogleTasks(){
+  const token=await ensureGoogleToken();
+  if(!token)return{ok:false,error:'Google Workspace not connected'};
+  try{
+    const params=new URLSearchParams({showCompleted:'true',showHidden:'true',maxResults:'100'});
+    const res=await fetch('https://tasks.googleapis.com/tasks/v1/lists/@default/tasks?'+params.toString(),{
+      headers:{'Authorization':'Bearer '+token}
+    });
+    if(!res.ok)return{ok:false,error:'Google Tasks API error '+res.status};
+    const data=await res.json();
+    return{ok:true,tasks:data.items||[]};
+  }catch(e){
+    return{ok:false,error:e.message};
+  }
+}
+async function createGoogleTask(title,notes,dueDate){
+  const token=await ensureGoogleToken();
+  if(!token)return{ok:false,error:'Google Workspace not connected'};
+  try{
+    const body={title:title||'Untitled task',notes:notes||''};
+    if(dueDate)body.due=new Date(dueDate+'T00:00:00Z').toISOString();
+    const res=await fetch('https://tasks.googleapis.com/tasks/v1/lists/@default/tasks',{
+      method:'POST',
+      headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json'},
+      body:JSON.stringify(body)
+    });
+    if(!res.ok){const errBody=await res.text().catch(()=>'');return{ok:false,error:'Google Task create failed '+res.status+(errBody?': '+errBody.substring(0,200):'')};}
+    const data=await res.json();
+    return{ok:true,taskId:data.id};
+  }catch(e){
+    return{ok:false,error:e.message};
+  }
+}
+async function updateGoogleTask(googleTaskId,changes){
+  const token=await ensureGoogleToken();
+  if(!token)return{ok:false,error:'Google Workspace not connected'};
+  try{
+    const res=await fetch(`https://tasks.googleapis.com/tasks/v1/lists/@default/tasks/${encodeURIComponent(googleTaskId)}`,{
+      method:'PATCH',
+      headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json'},
+      body:JSON.stringify(changes)
+    });
+    if(!res.ok){
+      if(res.status===404)return{ok:false,error:'not_found'};
+      const errBody=await res.text().catch(()=>'');
+      return{ok:false,error:'Google Task update failed '+res.status+(errBody?': '+errBody.substring(0,200):'')};
+    }
+    return{ok:true};
+  }catch(e){
+    return{ok:false,error:e.message};
+  }
+}
+async function deleteGoogleTask(googleTaskId){
+  const token=await ensureGoogleToken();
+  if(!token)return{ok:false,error:'Google Workspace not connected'};
+  try{
+    const res=await fetch(`https://tasks.googleapis.com/tasks/v1/lists/@default/tasks/${encodeURIComponent(googleTaskId)}`,{
+      method:'DELETE',
+      headers:{'Authorization':'Bearer '+token}
+    });
+    if(!res.ok&&res.status!==404)return{ok:false,error:'Google Task delete failed '+res.status};
+    return{ok:true};
+  }catch(e){
+    return{ok:false,error:e.message};
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// GOOGLE TASKS / CALENDAR TWO-WAY SYNC
+// Push: hooked into SB.upsert/update/remove for the 'tasks' and 'cal_events'
+// tables (see SB object above) — every local create/edit/delete already
+// funnels through those three methods regardless of which view triggered it,
+// so this is the one place that needs to know about Google instead of the
+// 11+ call sites that create/edit tasks throughout the app.
+// Pull: polled on an interval while the app is open (see startGoogleSyncLoop)
+// plus once right after connecting. No server-side webhook exists for this
+// app (it's a static site), so "vice versa" means "within ~90s", not instant.
+//
+// Calendar scope is intentionally narrower than Tasks: only plain events
+// (no google_task_id-linked recurrence, and not events auto-generated by
+// syncFaithToCalendar/_syncBillToCalendar/syncTaskToNoteBlock, which already
+// have their own source-of-truth elsewhere) are pushed/pulled, so this
+// doesn't fight with that existing derived-event system or send malformed
+// recurrence data to Google.
+// ═══════════════════════════════════════════════════════════════════════════
+let _jelixSyncingFromGoogle=false;
+
+async function _pushTaskToGoogle(task){
+  if(_jelixSyncingFromGoogle||!isGoogleWorkspaceConnected())return;
+  try{
+    if(!task.google_task_id){
+      const r=await createGoogleTask(task.title,task.notes,task.due);
+      if(r.ok){
+        task.google_task_id=r.taskId;
+        _jelixSyncingFromGoogle=true;
+        try{await SB.update('tasks',task.id,{google_task_id:r.taskId},'tasks');}finally{_jelixSyncingFromGoogle=false;}
+      }
+    }else{
+      const changes={title:task.title,notes:task.notes||'',status:task.status==='Done'?'needsAction':'needsAction'};
+      if(task.status==='Done')changes.status='completed';
+      if(task.due)changes.due=new Date(task.due+'T00:00:00Z').toISOString();
+      const r=await updateGoogleTask(task.google_task_id,changes);
+      if(!r.ok&&r.error==='not_found'){
+        // Was deleted on Google's side between syncs — recreate it rather than
+        // silently dropping the local task from sync forever.
+        const r2=await createGoogleTask(task.title,task.notes,task.due);
+        if(r2.ok){
+          task.google_task_id=r2.taskId;
+          _jelixSyncingFromGoogle=true;
+          try{await SB.update('tasks',task.id,{google_task_id:r2.taskId},'tasks');}finally{_jelixSyncingFromGoogle=false;}
+        }
+      }
+    }
+  }catch(e){console.error('[Google Tasks sync] push failed',e);}
+}
+async function _deleteGoogleTaskFor(task){
+  if(_jelixSyncingFromGoogle||!isGoogleWorkspaceConnected()||!task||!task.google_task_id)return;
+  try{await deleteGoogleTask(task.google_task_id);}catch(e){console.error('[Google Tasks sync] delete push failed',e);}
+}
+
+const CAL_SYNC_EXCLUDE=new Set(['_sourceFaithId','_billId','_isBill','_taskId','_isTask','_recurring','recur']);
+function _isSyncableCalEvent(ev){
+  if(!ev)return false;
+  for(const k of CAL_SYNC_EXCLUDE)if(ev[k])return false;
+  return true;
+}
+function _calEventToGoogle(ev){
+  const notes=ev.notes||'';
+  if(ev.time){
+    const start=`${ev.date}T${ev.time}:00`;
+    const end=ev.endTime?`${ev.date}T${ev.endTime}:00`:start;
+    return{summary:ev.title,description:notes,start:{dateTime:start},end:{dateTime:end}};
+  }
+  return{summary:ev.title,description:notes,start:{date:ev.date},end:{date:ev.date}};
+}
+async function _pushCalEventToGoogle(ev){
+  if(_jelixSyncingFromGoogle||!isGoogleWorkspaceConnected()||!_isSyncableCalEvent(ev))return;
+  try{
+    if(!ev.google_event_id){
+      const g=_calEventToGoogle(ev);
+      const r=await createGoogleCalendarEvent('primary',g.summary,g.start.dateTime||g.start.date,g.end.dateTime||g.end.date,g.description);
+      if(r.ok){
+        ev.google_event_id=r.eventId;
+        _jelixSyncingFromGoogle=true;
+        try{await SB.update('cal_events',ev.id,{google_event_id:r.eventId},'calEvents');}finally{_jelixSyncingFromGoogle=false;}
+      }
+    }else{
+      await updateGoogleCalendarEvent(ev.google_event_id,_calEventToGoogle(ev));
+    }
+  }catch(e){console.error('[Google Calendar sync] push failed',e);}
+}
+async function _deleteGoogleCalEventFor(ev){
+  if(_jelixSyncingFromGoogle||!isGoogleWorkspaceConnected()||!ev||!ev.google_event_id)return;
+  try{await deleteGoogleCalendarEvent(ev.google_event_id);}catch(e){console.error('[Google Calendar sync] delete push failed',e);}
+}
+
+async function pullGoogleTasks(){
+  if(!isGoogleWorkspaceConnected())return;
+  const r=await fetchGoogleTasks();
+  if(!r.ok)return;
+  const uid=getAuthUserId();
+  if(!uid)return;
+  let changed=false;
+  const seenGoogleIds=new Set();
+  for(const gt of r.tasks){
+    seenGoogleIds.add(gt.id);
+    const local=DB.tasks.find(t=>t.google_task_id===gt.id);
+    const wantStatus=gt.status==='completed'?'Done':null;
+    if(local){
+      const patch={};
+      if(local.title!==gt.title)patch.title=gt.title;
+      if(wantStatus&&local.status!==wantStatus)patch.status=wantStatus;
+      if(Object.keys(patch).length){
+        Object.assign(local,patch);
+        _jelixSyncingFromGoogle=true;
+        try{await SB.update('tasks',local.id,patch,'tasks');}finally{_jelixSyncingFromGoogle=false;}
+        changed=true;
+      }
+    }else{
+      const task={id:Date.now()+Math.floor(Math.random()*1000),title:gt.title||'Untitled task',world:'LIFE',priority:'Medium',
+        status:wantStatus||'Todo',due:gt.due?gt.due.slice(0,10):'',platform:'',client:'',notes:gt.notes||'',subitems:[],
+        timelineS:'',timelineE:'',numValue:null,connBoard:null,connItemId:null,groupId:null,google_task_id:gt.id};
+      DB.tasks.unshift(task);
+      _jelixSyncingFromGoogle=true;
+      try{await SB.upsert('tasks',task,'tasks');}finally{_jelixSyncingFromGoogle=false;}
+      changed=true;
+    }
+  }
+  // Deleted on Google's side since the last poll → remove locally too.
+  const toRemove=DB.tasks.filter(t=>t.google_task_id&&!seenGoogleIds.has(t.google_task_id));
+  for(const t of toRemove){
+    DB.tasks=DB.tasks.filter(x=>x.id!==t.id);
+    _jelixSyncingFromGoogle=true;
+    try{await SB.remove('tasks',t.id,'tasks');}finally{_jelixSyncingFromGoogle=false;}
+    changed=true;
+  }
+  if(changed){save('tasks');try{renderTasks();renderBrief();}catch(e){}}
+}
+
+async function pullGoogleCalendarEvents(){
+  if(!isGoogleWorkspaceConnected())return;
+  const r=await fetchGoogleCalendarEvents(100);
+  if(!r.ok)return;
+  const uid=getAuthUserId();
+  if(!uid)return;
+  let changed=false;
+  const seenGoogleIds=new Set();
+  for(const ge of r.events){
+    if(ge.status==='cancelled')continue;
+    seenGoogleIds.add(ge.id);
+    const local=DB.calEvents.find(e=>e.google_event_id===ge.id);
+    const start=ge.start&&(ge.start.dateTime||ge.start.date);
+    if(!start)continue;
+    const date=start.slice(0,10);
+    const time=ge.start.dateTime?start.slice(11,16):'';
+    const endTime=ge.end&&ge.end.dateTime?ge.end.dateTime.slice(11,16):'';
+    if(local){
+      const patch={};
+      if(local.title!==ge.summary)patch.title=ge.summary||local.title;
+      if(local.date!==date)patch.date=date;
+      if(local.time!==time)patch.time=time;
+      if(Object.keys(patch).length){
+        Object.assign(local,patch);
+        _jelixSyncingFromGoogle=true;
+        try{await SB.update('cal_events',local.id,patch,'calEvents');}finally{_jelixSyncingFromGoogle=false;}
+        changed=true;
+      }
+    }else{
+      const ev={id:Date.now()+Math.floor(Math.random()*1000),title:ge.summary||'Untitled event',date,time,endTime,
+        type:'life',loc:ge.location||'',notes:ge.description||'',google_event_id:ge.id};
+      DB.calEvents.unshift(ev);
+      _jelixSyncingFromGoogle=true;
+      try{await SB.upsert('cal_events',ev,'calEvents');}finally{_jelixSyncingFromGoogle=false;}
+      changed=true;
+    }
+  }
+  const toRemove=DB.calEvents.filter(e=>e.google_event_id&&!seenGoogleIds.has(e.google_event_id));
+  for(const e of toRemove){
+    DB.calEvents=DB.calEvents.filter(x=>x.id!==e.id);
+    _jelixSyncingFromGoogle=true;
+    try{await SB.remove('cal_events',e.id,'calEvents');}finally{_jelixSyncingFromGoogle=false;}
+    changed=true;
+  }
+  if(changed){save('calEvents');try{renderCalendar();}catch(e){}}
+}
+
+let _googleSyncInterval=null;
+function startGoogleSyncLoop(){
+  if(_googleSyncInterval)return;
+  if(!isGoogleWorkspaceConnected())return;
+  pullGoogleTasks();
+  pullGoogleCalendarEvents();
+  _googleSyncInterval=setInterval(()=>{
+    if(!isGoogleWorkspaceConnected())return;
+    pullGoogleTasks();
+    pullGoogleCalendarEvents();
+  },90000);
+}
+document.addEventListener('DOMContentLoaded',()=>{
+  if(isGoogleWorkspaceConnected())startGoogleSyncLoop();
+});
 
 // ── Drive: write a file ─────────────────────────────────────────────────────
 // Uses drive.file scope — this app can only see/manage files it creates itself,
