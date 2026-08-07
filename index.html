@@ -2049,6 +2049,33 @@ select option{background:var(--navy3)}
   }
   #notesFolderRail>div{flex-shrink:0;margin-bottom:0 !important;margin-top:0 !important;white-space:nowrap}
 }
+/* Normalize "normal" text on mobile — labels, captions, dates, helper
+   text, etc. were scattered across raw inline font-size:9px/10px/11px/
+   12px/13px/14px throughout the app (136 instances of 9px alone), no
+   consistent pattern, just whatever each section happened to be written
+   with. Collapsing this range to one size makes the app read as one
+   coherent system on a small screen instead of a patchwork of slightly
+   different label sizes. Deliberately excludes:
+   - font-size:8px, which is already its own reserved "micro badge" tier
+     (bill-tracker chips, floating timer badges) with its own more
+     specific #id/.class rules elsewhere that already win on specificity
+     regardless of this rule's position, so those stay exactly as small
+     as they're meant to be.
+   - Everything >=15px: stat values, card titles, section headers, and
+     hero numbers are the "must be bigger" side of the ask and are
+     untouched here on purpose. */
+@media (max-width:768px){
+  body.os-active [style*="font-size:9px"],
+  body.os-active [style*="font-size:10px"],
+  body.os-active [style*="font-size:11px"],
+  body.os-active [style*="font-size:12px"],
+  body.os-active [style*="font-size:13px"],
+  body.os-active [style*="font-size:14px"],
+  body.os-active [style*="font-size:var(--text-xs)"],
+  body.os-active [style*="font-size:var(--text-sm)"]{
+    font-size:12px !important;
+  }
+}
 @media(max-width:768px){
   /* Bill Tracker — these grids have inline column counts set for desktop,
      need !important to actually override on mobile */
