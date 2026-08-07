@@ -1999,6 +1999,21 @@ select option{background:var(--navy3)}
      bottom and visually ballooned from a compact block to something
      that read as three separate stacked rows. */
   #briefFinances,#briefToDo{padding-bottom:0 !important}
+  /* Debit/Credit/Balance values: clamp(17px,4.5vw,24px) has a 17px floor,
+     which is too wide for real peso amounts (e.g. "P125,430.50") in a
+     ~90px-wide column (3 equal flex boxes minus padding/gaps on a 375px
+     screen) — the number itself wrapped to 2 lines inside its own cell,
+     which is what read as the card "becoming 3 liners" again even though
+     the padding fix above was still correctly in place. Reproduced with
+     realistic amounts (placeholder P0.00 never triggers it, which is why
+     this wasn't caught visually before). Measured precisely rather than
+     guessed: "P125,430.50" needs 75px natural width at 12px vs the box's
+     78px available — 13px (81px natural) already overflows, so 12px is
+     the actual safe ceiling here, not just "a bit smaller". Genuinely
+     7-figure balances may still wrap, which the existing word-break:
+     break-word already handles gracefully without breaking the row
+     layout itself. */
+  #briefFinances [style*="font-size:clamp(17px,4.5vw,24px)"]{font-size:12px !important}
 }
 /* Ask JELIX header: title+subtitle on the left and the memories/Clear/Export
    button group on the right don't both fit on a narrow screen — was
