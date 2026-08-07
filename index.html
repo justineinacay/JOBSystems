@@ -1093,6 +1093,16 @@ select option{background:var(--navy3)}
   [style*="grid-template-columns:repeat(4"],[style*="grid-template-columns:repeat(3"],[style*="grid-template-columns:1fr 1fr 1fr"],[style*="grid-template-columns:1fr 1fr"]{grid-template-columns:1fr !important}
   /* Exceptions: keep 2-col for mood/stress/energy rows */
   #moodBtns,#energyBtns,#stressBtns{display:flex !important;grid-template-columns:unset !important}
+  /* Domains grid is a mobile-only view to begin with (no desktop
+     equivalent needs collapsing) — its cards were purpose-built as
+     100px-tall squares for a 3-col layout; the generic collapse rule
+     above was flattening it to one full-width row per domain instead. */
+  #mobileWorldsGrid{grid-template-columns:repeat(3,1fr) !important}
+  /* Life/cashflow budget summary (Total Budget / Spent This Month / Over
+     Budget): 3 short stat cards one-per-row wastes a lot of vertical
+     space on a screen this narrow. 2 columns keeps the app shorter to
+     scroll while each card still has enough width for its value. */
+  #cf-budget-summary{grid-template-columns:repeat(2,1fr) !important}
   /* Flex column for wins/losses brief section */
   #briefWinsLosses{flex-direction:column !important}
   #briefWinsLosses>div{width:100% !important;min-width:0 !important}
@@ -1689,8 +1699,12 @@ select option{background:var(--navy3)}
     min-height:40px !important;
   }
 
-  /* ── 3. CASHFLOW — vertical full-width summary cards ──────── */
-  #cf-overview .mr{grid-template-columns:1fr !important;gap:8px !important}
+  /* ── 3. CASHFLOW — 2-col summary cards (was full-width; this rule was
+     silently overriding an earlier #cf-overview .mr 2-col rule above
+     since both are equal specificity and this one is later in the
+     cascade — made it explicit here instead of leaving two conflicting
+     declarations for the same selector) ──────── */
+  #cf-overview .mr{grid-template-columns:1fr 1fr !important;gap:8px !important}
   #cf-overview .hc{width:100% !important;min-width:0 !important}
 
   /* Wallet grid — 2-col, 48px tap target */
@@ -1975,6 +1989,16 @@ select option{background:var(--navy3)}
    which are top-level siblings, not descendants of any view. */
 @media (max-width:768px){
   body.os-active .view.active [style*="overflow-y:auto"]{padding-bottom:150px !important}
+  /* Exceptions: cards that scroll WITHIN an already-padded outer page
+     container (Dashboard's own outer scroll div already gets the 150px
+     above) don't need their own separate reservation — the rule above
+     was matching every overflow-y:auto element indiscriminately,
+     including small nested cards, not just the one outer container per
+     view that actually meets the bottom nav. Confirmed regression: the
+     Key Metrics Cash Flow card gained 150px of dead space at its own
+     bottom and visually ballooned from a compact block to something
+     that read as three separate stacked rows. */
+  #briefFinances,#briefToDo{padding-bottom:0 !important}
 }
 /* Ask JELIX header: title+subtitle on the left and the memories/Clear/Export
    button group on the right don't both fit on a narrow screen — was
@@ -3521,7 +3545,6 @@ select option{background:var(--navy3)}
           <span id="topNotifSummary" style="font-size:var(--text-sm);font-weight:700;color:var(--text2);white-space:nowrap">All clear</span>
           <span id="topNotifBadge" style="display:none;width:8px;height:8px;border-radius:50%;background:var(--red);flex-shrink:0"></span>
         </button>
-        <div id="topNotifPanel" onmouseenter="cancelHideNotifPreview()" onmouseleave="scheduleHideNotifPreview()" style="display:none;position:absolute;top:calc(100% + 10px);right:0;width:340px;background:var(--navy2);border:1px solid var(--border);border-radius:16px;box-shadow:var(--card-shadow),0 12px 32px rgba(20,20,30,.12);z-index:500;overflow:hidden"></div>
       </div>
 
       <!-- Account dropdown itself stays — the sidebar profile card triggers it now -->
@@ -3552,6 +3575,17 @@ select option{background:var(--navy3)}
       <button class="tb-btn mobile-only-btn" onclick="setView('settings')" id="mobileSettingsBtn" title="Settings"><i class="ti ti-settings"></i></button>
     </div>
   </header>
+  <!-- Lives outside <header> deliberately — the header is display:none on
+       mobile (the mobile bell button in #mobileTopBar is a separate
+       element that also calls toggleTopNotif()), and this panel was
+       previously nested inside it. It always renders correctly regardless
+       because toggleTopNotif() sets position:fixed with coordinates
+       computed from the trigger button's own bounding rect, not from
+       anything relative to this element's place in the DOM — being
+       display:none'd along with its old header parent on mobile is what
+       silently broke every tap on the bell there, with no visible error;
+       the JS ran, the panel was "open", it just could never paint. -->
+  <div id="topNotifPanel" onmouseenter="cancelHideNotifPreview()" onmouseleave="scheduleHideNotifPreview()" style="display:none;position:absolute;top:calc(100% + 10px);right:0;width:340px;background:var(--navy2);border:1px solid var(--border);border-radius:16px;box-shadow:var(--card-shadow),0 12px 32px rgba(20,20,30,.12);z-index:99991;overflow:hidden"></div>
 
   <!-- SIDE PANEL -->
   <div class="side-panel" id="sidePanel">
