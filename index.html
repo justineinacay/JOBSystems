@@ -1740,7 +1740,14 @@ select option{background:var(--navy3)}
   }
 
   /* CF tabs — 2-row wrap */
-  .cftab{flex-wrap:wrap !important;gap:4px !important}
+  /* Was flex-wrap:wrap — 8 tabs (Overview/Transactions/Budget/Accounts/
+     Property/Loans/Bill Tracker/Bio Monitor) wrapped to 3 full rows on a
+     375px screen, a big chunk of the "header takes 30% of the screen"
+     complaint. .cfbt already had flex-shrink:0/white-space:nowrap from an
+     earlier mobile rule, so it was already built to support this — the
+     container just needed to scroll horizontally instead of wrapping,
+     matching the pattern Calendar's mobile view-tabs already uses. */
+  .cftab{flex-wrap:nowrap !important;gap:4px !important;overflow-x:auto;-webkit-overflow-scrolling:touch}
   .cfbt{font-size:var(--text-xs) !important;padding:5px 8px !important}
 
   /* ── Build view — horizontal scroll cards ── */
@@ -2089,6 +2096,31 @@ select option{background:var(--navy3)}
   body.os-active [style*="font-size:var(--text-xs)"],
   body.os-active [style*="font-size:var(--text-sm)"]{
     font-size:12px !important;
+  }
+}
+/* The rule above only reaches INLINE style="font-size:...". It turns out
+   most of the app doesn't set font-size inline at all — it's set on
+   shared classes instead (.btn, .cfbt, input/select, .vs, .ni, dozens
+   more), each referencing var(--text-xs) (12px) or var(--text-sm) (13px)
+   directly in the stylesheet, which an attribute selector can never
+   match. That 1px gap between the two tokens, spread across every button/
+   input/label in the app built with the "correct" class-based approach,
+   was the second half of "texts don't have the same size" — buttons and
+   form inputs (--text-sm, 13px) read as a hair bigger than the captions
+   next to them (--text-xs, 12px) everywhere, all at once, not just in
+   one card. Redefining the custom properties themselves on mobile fixes
+   every current AND future var(--text-xs)/var(--text-sm) usage in one
+   place instead of chasing individual class selectors.
+   Deliberately NOT touching --text-md here even though it's nominally
+   "Body" (15px) — checked its 23 usages first and it's mixed: .vt (every
+   page's big title — SYSTEM SETTINGS, DOMAINS, NOTES) uses it, and so
+   does at least one real money value (a bill amount row). Flattening it
+   to 12px would have shrunk page headers and a highlighted number, the
+   opposite of what was asked for. */
+@media (max-width:768px){
+  body.os-active{
+    --text-xs:12px;
+    --text-sm:12px;
   }
 }
 @media(max-width:768px){
@@ -7616,7 +7648,17 @@ function _ensureDomainTimerTick(){
 }
 // Per-domain in-page card: full vs. a slim one-line minimized state.
 function _timerCardStateKey(worldId){return 'j-timer-cardstate-'+worldId;}
-function timerCardIsMini(worldId){return localStorage.getItem(_timerCardStateKey(worldId))==='mini';}
+function timerCardIsMini(worldId){
+  const stored=localStorage.getItem(_timerCardStateKey(worldId));
+  if(stored)return stored==='mini';
+  // No explicit preference yet — the full card (timer + progress bar +
+  // Start/Reset) is a big chunk of vertical space to default to on a
+  // phone screen before any real content is visible. Default compact on
+  // mobile, full on desktop where there's room to spare; whichever state
+  // the user explicitly picks via the expand/collapse chevron sticks
+  // after that, on both.
+  return window.innerWidth<=768;
+}
 function toggleTimerCardState(worldId){
   localStorage.setItem(_timerCardStateKey(worldId),timerCardIsMini(worldId)?'full':'mini');
   refreshDomainTimerDisplay(worldId);
