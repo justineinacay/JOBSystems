@@ -35,5 +35,37 @@
     }
   ],
   "categories": ["productivity", "utilities"],
-  "lang": "en-PH"
+  "lang": "en-PH",
+  "share_target": {
+    "action": "./",
+    "method": "GET",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url"
+    }
+  },
+  "shortcuts": [
+    {
+      "name": "New Task",
+      "short_name": "New Task",
+      "description": "Add a new task",
+      "url": "./?action=new-task",
+      "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Log Expense",
+      "short_name": "Log Expense",
+      "description": "Add a debit transaction",
+      "url": "./?action=log-expense",
+      "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "New Event",
+      "short_name": "New Event",
+      "description": "Schedule a calendar event",
+      "url": "./?action=new-event",
+      "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }]
+    }
+  ]
 }
