@@ -2678,7 +2678,7 @@ select option{background:var(--navy3)}
         </div>
       </div>
       <div class="fg"><label class="fl">Note</label><textarea id="tf-notes" rows="2" placeholder="Additional notes..."></textarea></div>
-      <div class="fg"><label class="fl"><i class="ti ti-brand-google-drive" style="font-size:var(--text-sm);color:#4285F4"></i> Google Drive Link</label><input id="tf-drive-link" placeholder="https://drive.google.com/..."></div>
+      <div class="fg"><label class="fl"><i class="ti ti-brand-google-drive" style="font-size:var(--text-sm);color:#4285F4"></i> Google Drive Link</label><div style="display:flex;gap:8px"><input id="tf-drive-link" placeholder="https://drive.google.com/..." style="flex:1"><button type="button" class="btn btn-g" onclick="openDrivePicker(f=>{document.getElementById('tf-drive-link').value=f.webViewLink;})" style="flex-shrink:0"><i class="ti ti-search"></i> Browse</button></div></div>
     </div>
     <div class="mf"><button class="btn btn-g" onclick="closeModal('taskModal')">Cancel</button><button class="btn btn-t" onclick="saveTask()">Save Task</button></div>
   </div>
@@ -2704,7 +2704,7 @@ select option{background:var(--navy3)}
         </div>
       </div>
       <div class="fg"><label class="fl">Contact</label><input id="cf-contact" placeholder="Email or name"></div>
-      <div class="fg"><label class="fl">Google Drive Link</label><input id="cf-drive" placeholder="https://drive.google.com/..."></div>
+      <div class="fg"><label class="fl">Google Drive Link</label><div style="display:flex;gap:8px"><input id="cf-drive" placeholder="https://drive.google.com/..." style="flex:1"><button type="button" class="btn btn-g" onclick="openDrivePicker(f=>{document.getElementById('cf-drive').value=f.webViewLink;})" style="flex-shrink:0"><i class="ti ti-search"></i> Browse</button></div></div>
     </div>
     <div class="mf"><button class="btn btn-g" onclick="closeModal('clientModal')">Cancel</button><button class="btn btn-t" onclick="saveClient()">Save</button></div>
   </div>
@@ -2787,6 +2787,41 @@ select option{background:var(--navy3)}
         <button class="btn btn-g" onclick="closeModal('worldModal')">Cancel</button>
         <button class="btn btn-t" onclick="saveWorld()"><i class="ti ti-check"></i> Save</button>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- DRIVE FILE PICKER — shared by tasks, clients, and notes -->
+<div class="mov" id="drivePickerModal">
+  <div class="modal" style="max-width:460px">
+    <div class="mh"><div class="mt"><i class="ti ti-brand-google-drive" style="color:#4285F4"></i> Attach Drive File</div><button class="mc" onclick="closeModal('drivePickerModal')">×</button></div>
+    <div class="mb">
+      <input id="drivePickerQuery" placeholder="Search your Google Drive..." oninput="runDrivePickerSearch(this.value)" style="margin-bottom:10px">
+      <div id="drivePickerResults" style="max-height:320px;overflow-y:auto"></div>
+    </div>
+  </div>
+</div>
+
+<!-- SYNC CONFLICT — shared by every table via SB.update() -->
+<div class="mov" id="conflictModal">
+  <div class="modal" style="max-width:560px">
+    <div class="mh"><div class="mt"><i class="ti ti-git-merge" style="color:var(--amber)"></i> Sync Conflict</div></div>
+    <div class="mb">
+      <div style="font-size:var(--text-xs);color:var(--text3);margin-bottom:14px">This was changed on another device since you last loaded it here. Pick which version to keep — the other one will be discarded.</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div style="border:1px solid var(--border);border-radius:10px;padding:10px;min-width:0">
+          <div style="font-size:var(--text-xs);font-weight:700;color:var(--teal);margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em">This Device</div>
+          <div id="conflictMineContent" style="font-size:var(--text-xs);color:var(--text2);white-space:pre-wrap;max-height:260px;overflow-y:auto;word-break:break-word"></div>
+        </div>
+        <div style="border:1px solid var(--border);border-radius:10px;padding:10px;min-width:0">
+          <div style="font-size:var(--text-xs);font-weight:700;color:var(--amber);margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em">Other Device</div>
+          <div id="conflictTheirsContent" style="font-size:var(--text-xs);color:var(--text2);white-space:pre-wrap;max-height:260px;overflow-y:auto;word-break:break-word"></div>
+        </div>
+      </div>
+    </div>
+    <div class="mf">
+      <button class="btn btn-g" id="conflictKeepTheirsBtn">Keep Other Device's Version</button>
+      <button class="btn btn-t" id="conflictKeepMineBtn">Keep This Device's Version</button>
     </div>
   </div>
 </div>
@@ -3152,6 +3187,9 @@ select option{background:var(--navy3)}
         </label>
         <label style="display:flex;align-items:center;gap:6px;cursor:pointer;color:var(--text2)">
           <input type="checkbox" id="ce-also-task" onchange="toggleCalEntryType()" style="width:auto;accent-color:var(--purple,#a855f7)"> Also add as Task
+        </label>
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;color:var(--text2)" title="Needs Google Workspace connected in Settings">
+          <input type="checkbox" id="ce-add-meet" style="width:auto;accent-color:#4285F4"> <i class="ti ti-video" style="color:#4285F4"></i> Add Google Meet
         </label>
       </div>
 
@@ -4995,6 +5033,9 @@ select option{background:var(--navy3)}
   <div style="font-size:var(--text-xs);font-weight:700;color:var(--text3);letter-spacing:.1em;padding:5px 9px 2px;text-transform:uppercase">Pages</div>
   <div class="bmi" onclick="addBlock('page')"><i class="ti ti-file-text" style="font-size:var(--text-sm);margin-right:6px;line-height:1;display:inline-block"></i>New Sub-page</div>
   <div class="bmi" onclick="addBlock('pagelink')"><i class="ti ti-link" style="font-size:var(--text-sm);margin-right:6px;line-height:1;display:inline-block"></i>Link to Page</div>
+  <div style="height:1px;background:var(--border);margin:3px 0"></div>
+  <div style="font-size:var(--text-xs);font-weight:700;color:var(--text3);letter-spacing:.1em;padding:5px 9px 2px;text-transform:uppercase">Attach</div>
+  <div class="bmi" onclick="document.getElementById('blockMenu').classList.remove('open');openDrivePicker(f=>addNoteDriveBlock(f))"><i class="ti ti-brand-google-drive" style="font-size:var(--text-sm);margin-right:6px;line-height:1;display:inline-block;color:#4285F4"></i>Drive File</div>
 </div>
         </div>
         <div class="mf"><button class="btn btn-d" style="margin-right:auto;font-size:var(--text-xs)" onclick="deleteCurrentNote()"><i class="ti ti-trash"></i> Delete Note</button><button class="btn btn-t" onclick="closeModal('noteEditorModal')">Done</button></div>
@@ -5333,7 +5374,7 @@ select option{background:var(--navy3)}
             <button class="btn btn-t" onclick="enableNotifications()" id="notifEnableBtn"><i class="ti ti-bell" style="font-size:var(--text-sm);line-height:1;display:inline-block;margin-right:5px"></i>Enable Notifications</button>
             <span style="font-size:var(--text-xs);color:var(--text3)" id="notifPermStatus"></span>
           </div>
-          <div style="font-size:var(--text-xs);color:var(--text3);margin-top:10px;line-height:1.5">Nudges you when a task or bill is due today/tomorrow, and for calendar events with a reminder set. Works while the app is open or installed and running in the background — not when it's been fully closed for a while (that needs a server-side push service, which this static site doesn't have).</div>
+          <div style="font-size:var(--text-xs);color:var(--text3);margin-top:10px;line-height:1.5">Nudges you when a task or bill is due today/tomorrow, and for calendar events with a reminder set — works even with the app fully closed, via a scheduled server check every 15 minutes. That server check only sees tasks due today and events starting within 30 minutes (the only two things that actually sync to the cloud) — bill reminders and each event's custom reminder timing still only fire while this device has the app open or running in the background.</div>
         </div>
 
         <!-- AI INTEGRATIONS -->
@@ -5603,7 +5644,7 @@ async function sbFetch(table,method='GET',body=null,match=null){
   try{
     const session=await getAuthSession();
     const authToken=session?session.access_token:SB_KEY;
-    const opts={method,headers:{'apikey':SB_KEY,'Authorization':'Bearer '+authToken,'Content-Type':'application/json','Prefer':method==='POST'?'return=representation':''}};
+    const opts={method,headers:{'apikey':SB_KEY,'Authorization':'Bearer '+authToken,'Content-Type':'application/json','Prefer':(method==='POST'||method==='PATCH')?'return=representation':''}};
     if(body)opts.body=JSON.stringify(body);
     const res=await fetch(url,opts);
     if(!res.ok){
@@ -5824,9 +5865,25 @@ const SB={
     if(table==='cal_events'){delete c.allDay;delete c.overnight;delete c.remindMin;delete c.recurN;delete c.recurEnd;delete c.endDate;delete c.recurUnit;delete c.recurCount;delete c.recur;delete c.reminder;delete c.recurDays;delete c._expandedDate;delete c._recurring;delete c._taskId;delete c._isTask;delete c._billId;delete c._isBill;}
     if(table==='memories'){delete c.source;}
     if(table==='tasks'){if(c.driveLink!==undefined){c.link=c.driveLink;delete c.driveLink;}}
+    // Conflict check -- only when this record has a remembered updated_at
+    // baseline (set on load/last successful write). A mismatch means
+    // another device changed this row since we last saw it; last-write-wins
+    // would silently drop that change, so ask instead of guessing.
+    const localRec=(DB[key]||[]).find(x=>x.id===id);
+    if(localRec&&localRec.updated_at){
+      try{
+        const check=await sbFetch(table,'GET',null,`id=eq.${id}&select=updated_at`);
+        const serverUpdatedAt=Array.isArray(check)&&check[0]?check[0].updated_at:null;
+        if(serverUpdatedAt&&serverUpdatedAt!==localRec.updated_at){
+          const resolution=await _showConflictModal(table,key,id,localRec,c);
+          if(resolution==='theirs')return;
+        }
+      }catch(e){}
+    }
     save(key); // persist locally first — a cloud failure below must never cost the local edit
     try{
-      await sbFetch(table,'PATCH',c,`id=eq.${id}`);
+      const updated=await sbFetch(table,'PATCH',c,`id=eq.${id}`);
+      if(Array.isArray(updated)&&updated[0]&&localRec)localRec.updated_at=updated[0].updated_at;
     }catch(err){
       showToast('\u26a0 Update failed ('+table+'): '+err.message);
       console.error('SB.update error',table,err);
@@ -5865,6 +5922,49 @@ const SB={
     try{await sbFetch('history','POST',e);}catch(err){/* silent */}
   }
 };
+
+// -- Conflict resolution -- shared by every table via SB.update() above.
+// Keeps the summary generic (key: value lines, skipping housekeeping
+// columns) rather than a bespoke diff view per table -- with ~20 different
+// schemas, a real field-by-field diff view per table isn't worth building
+// right now; a plain-text side-by-side is enough to make an informed choice.
+function _summarizeRecordForConflict(rec){
+  if(!rec)return '(deleted on the other device)';
+  const skip=new Set(['id','user_id','created_at','updated_at']);
+  const lines=Object.entries(rec).filter(([k,v])=>!skip.has(k)&&v!==''&&v!=null&&!k.startsWith('_'));
+  if(!lines.length)return '(no visible fields)';
+  return lines.map(([k,v])=>k+': '+(typeof v==='object'?JSON.stringify(v):v)).join('\n');
+}
+function _showConflictModal(table,key,id,localRec,pendingChanges){
+  return new Promise(resolve=>{
+    const merged={...localRec,...pendingChanges};
+    document.getElementById('conflictMineContent').textContent=_summarizeRecordForConflict(merged);
+    document.getElementById('conflictTheirsContent').textContent='Loading...';
+    openModal('conflictModal');
+    sbFetch(table,'GET',null,`id=eq.${id}`).then(rows=>{
+      const serverRec=Array.isArray(rows)?rows[0]:null;
+      document.getElementById('conflictTheirsContent').textContent=_summarizeRecordForConflict(serverRec);
+      const mineBtn=document.getElementById('conflictKeepMineBtn');
+      const theirsBtn=document.getElementById('conflictKeepTheirsBtn');
+      const cleanup=()=>{mineBtn.onclick=null;theirsBtn.onclick=null;closeModal('conflictModal');};
+      mineBtn.onclick=()=>{cleanup();resolve('mine');};
+      theirsBtn.onclick=()=>{
+        cleanup();
+        if(serverRec){
+          const idx=(DB[key]||[]).findIndex(x=>x.id===id);
+          if(idx>-1)DB[key][idx]=serverRec;else DB[key].push(serverRec);
+          save(key);
+          try{reRenderAll();}catch(e){}
+        }
+        resolve('theirs');
+      };
+    }).catch(()=>{
+      // Couldn't even load "theirs" -- safest default is to not silently
+      // overwrite, so let the user retry rather than force a blind choice.
+      document.getElementById('conflictTheirsContent').textContent='Could not load the other version -- try again.';
+    });
+  });
+}
 
 // ═══════════════════════════════════════════════════════════════════════════
 // J.E.L.I.X. ORCHESTRATION LAYER
@@ -6056,6 +6156,35 @@ async function searchGoogleDrive(query){
     const data=await res.json();
     return{ok:true,files:data.files||[]};
   }catch(e){return{ok:false,error:e.message};}
+}
+// ── Drive file picker — shared modal used from task/client forms and the
+// notes block menu, wrapping the searchGoogleDrive() the AI assistant
+// already used, instead of building a separate search path per caller.
+let _drivePickerCallback=null,_drivePickerFiles=[],_drivePickerDebounce=null;
+function openDrivePicker(onSelect){
+  _drivePickerCallback=onSelect;
+  const q=document.getElementById('drivePickerQuery');if(q)q.value='';
+  document.getElementById('drivePickerResults').innerHTML='<div style="padding:16px;color:var(--text3);font-size:var(--text-xs)">Type to search your Drive...</div>';
+  openModal('drivePickerModal');
+  setTimeout(()=>q?.focus(),80);
+}
+function runDrivePickerSearch(q){
+  clearTimeout(_drivePickerDebounce);
+  const results=document.getElementById('drivePickerResults');
+  if(!q||q.length<2){results.innerHTML='<div style="padding:16px;color:var(--text3);font-size:var(--text-xs)">Type to search your Drive...</div>';return;}
+  _drivePickerDebounce=setTimeout(async()=>{
+    results.innerHTML='<div style="padding:16px;color:var(--text3);font-size:var(--text-xs)">Searching...</div>';
+    const r=await searchGoogleDrive(q);
+    if(!r.ok){results.innerHTML='<div style="padding:16px;color:var(--red);font-size:var(--text-xs)">'+(r.error||'Search failed — connect Google Workspace in Settings first')+'</div>';return;}
+    if(!r.files.length){results.innerHTML='<div style="padding:16px;color:var(--text3);font-size:var(--text-xs)">No files found</div>';return;}
+    _drivePickerFiles=r.files;
+    results.innerHTML=r.files.map((f,i)=>`<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;cursor:pointer" onmouseover="this.style.background='var(--navy3)'" onmouseout="this.style.background='transparent'" onclick="selectDriveFile(${i})"><i class="ti ti-file" style="color:#4285F4;font-size:16px;flex-shrink:0"></i><div style="min-width:0;flex:1"><div style="font-size:var(--text-sm);color:var(--text1);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${f.name}</div></div></div>`).join('');
+  },350);
+}
+function selectDriveFile(i){
+  const f=_drivePickerFiles[i];
+  if(f&&_drivePickerCallback)_drivePickerCallback(f);
+  closeModal('drivePickerModal');
 }
 
 function jelixCreateInternalTask(f){
@@ -8772,7 +8901,7 @@ async function _syncGmailTaskCompletion(task){
 
 // ── Calendar: create event ──────────────────────────────────────────────────
 // startISO/endISO: full ISO datetimes, e.g. '2026-07-20T14:00:00+08:00'
-async function createGoogleCalendarEvent(calendarId,title,startISO,endISO,notes){
+async function createGoogleCalendarEvent(calendarId,title,startISO,endISO,notes,wantMeet){
   const token=await ensureGoogleToken();
   if(!token)return{ok:false,error:'Google Workspace not connected'};
   // A bare "YYYY-MM-DD" (all-day event, no time component) must go in Google's
@@ -8780,19 +8909,29 @@ async function createGoogleCalendarEvent(calendarId,title,startISO,endISO,notes)
   // and Google's API rejects a plain date passed there.
   const isDateOnly=s=>typeof s==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(s);
   try{
-    const res=await fetch(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId||'primary')}/events`,{
+    const body={
+      summary:title,
+      description:notes||'',
+      start:isDateOnly(startISO)?{date:startISO}:{dateTime:startISO},
+      end:isDateOnly(endISO)?{date:endISO}:{dateTime:endISO}
+    };
+    // conferenceDataVersion=1 on the URL is required for Google to actually
+    // honor conferenceData.createRequest — without it the field is silently
+    // ignored and no Meet link comes back.
+    let url=`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId||'primary')}/events`;
+    if(wantMeet){
+      url+='?conferenceDataVersion=1';
+      body.conferenceData={createRequest:{requestId:'jelix-'+Date.now(),conferenceSolutionKey:{type:'hangoutsMeet'}}};
+    }
+    const res=await fetch(url,{
       method:'POST',
       headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json'},
-      body:JSON.stringify({
-        summary:title,
-        description:notes||'',
-        start:isDateOnly(startISO)?{date:startISO}:{dateTime:startISO},
-        end:isDateOnly(endISO)?{date:endISO}:{dateTime:endISO}
-      })
+      body:JSON.stringify(body)
     });
     if(!res.ok){const errBody=await res.text().catch(()=>'');return{ok:false,error:'Calendar create failed '+res.status+(errBody?': '+errBody.substring(0,200):'')};}
     const data=await res.json();
-    return{ok:true,eventId:data.id,htmlLink:data.htmlLink};
+    const meetLink=(data.conferenceData?.entryPoints||[]).find(p=>p.entryPointType==='video')?.uri||'';
+    return{ok:true,eventId:data.id,htmlLink:data.htmlLink,meetLink};
   }catch(e){
     return{ok:false,error:e.message};
   }
@@ -9000,16 +9139,29 @@ function _calEventToGoogle(ev){
   }
   return{summary:ev.title,description:notes,start:{date:ev.date},end:{date:ev.date}};
 }
+let _pendingMeetRequests=new Set();
 async function _pushCalEventToGoogle(ev){
   if(_jelixSyncingFromGoogle||!isGoogleWorkspaceConnected()||!_isSyncableCalEvent(ev))return;
   try{
     if(!ev.google_event_id){
+      const wantMeet=_pendingMeetRequests.has(ev.id);
+      _pendingMeetRequests.delete(ev.id);
       const g=_calEventToGoogle(ev);
-      const r=await createGoogleCalendarEvent('primary',g.summary,g.start.dateTime||g.start.date,g.end.dateTime||g.end.date,g.description);
+      const r=await createGoogleCalendarEvent('primary',g.summary,g.start.dateTime||g.start.date,g.end.dateTime||g.end.date,g.description,wantMeet);
       if(r.ok){
         ev.google_event_id=r.eventId;
+        const patch={google_event_id:r.eventId};
+        // Store the Meet link in whichever of loc/notes is free rather than
+        // adding a new Supabase column just for this — loc is usually empty
+        // for a video-only meeting anyway, so it reads naturally as "where".
+        if(r.meetLink){
+          if(!ev.loc){ev.loc=r.meetLink;patch.loc=r.meetLink;}
+          else{ev.notes=(ev.notes?ev.notes+'\n\n':'')+'🎥 Google Meet: '+r.meetLink;patch.notes=ev.notes;}
+          showToast('✓ Google Meet link added');
+        }
         _jelixSyncingFromGoogle=true;
-        try{await SB.update('cal_events',ev.id,{google_event_id:r.eventId},'calEvents');}finally{_jelixSyncingFromGoogle=false;}
+        try{await SB.update('cal_events',ev.id,patch,'calEvents');}finally{_jelixSyncingFromGoogle=false;}
+        if(typeof renderCalendar==='function'&&currentView==='calendar')renderCalendar();
       }else{
         showToast('⚠ Couldn\'t push "'+ev.title+'" to Google Calendar: '+r.error);
       }
@@ -15292,7 +15444,37 @@ function enableNotifications(){
   Notification.requestPermission().then(p=>{
     updateNotifPermStatus();
     showToast(p==='granted'?'✓ Notifications enabled':'Notifications not enabled');
+    if(p==='granted')subscribeToPush();
   });
+}
+// Web Push — VAPID public key is safe to ship client-side (that's the whole
+// point of the public/private split); only the private key, held by the
+// send-due-notifications Edge Function, can actually sign push messages.
+const VAPID_PUBLIC_KEY='BO9SfQ9ESDyX1XQHLkOuDFEblIF6MzyNMf6Dkf1M5t45Y1J0Rh2a9EQ2ejmmdQePKjTKYPWZILV0rbv21_kEgc0';
+function _urlBase64ToUint8Array(base64String){
+  const padding='='.repeat((4-base64String.length%4)%4);
+  const base64=(base64String+padding).replace(/-/g,'+').replace(/_/g,'/');
+  const rawData=atob(base64);
+  return Uint8Array.from([...rawData].map(c=>c.charCodeAt(0)));
+}
+async function subscribeToPush(){
+  if(!('serviceWorker' in navigator)||!('PushManager' in window))return;
+  if(Notification.permission!=='granted')return;
+  const uid=getAuthUserId();
+  if(!uid)return; // subscribing without a signed-in user has nowhere to attach the row to
+  try{
+    const reg=await navigator.serviceWorker.ready;
+    let sub=await reg.pushManager.getSubscription();
+    if(!sub)sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:_urlBase64ToUint8Array(VAPID_PUBLIC_KEY)});
+    const j=sub.toJSON();
+    // Check first — re-subscribing on a device that's already registered
+    // would otherwise 409 on the (user_id, endpoint) unique constraint.
+    const existing=await sbFetch('push_subscriptions','GET',null,`user_id=eq.${uid}&endpoint=eq.${encodeURIComponent(j.endpoint)}&select=id`);
+    if(Array.isArray(existing)&&existing.length)return;
+    await sbFetch('push_subscriptions','POST',{user_id:uid,endpoint:j.endpoint,p256dh:j.keys.p256dh,auth:j.keys.auth});
+  }catch(e){
+    console.error('subscribeToPush error',e);
+  }
 }
 function _fireReminder(title,body){
   if(!('Notification' in window)||Notification.permission!=='granted')return;
@@ -16206,6 +16388,7 @@ function saveCalEvent(){
   }
   const remMin=parseInt(document.getElementById('ce-remind-min')?.value||30,10);
   const alsoTask=document.getElementById('ce-also-task')?.checked||false;
+  const addMeet=document.getElementById('ce-add-meet')?.checked||false;
   const recurEndMode=document.querySelector('input[name="recur-end"]:checked')?.value||'never';
   const recurCount=recurEndMode==='after'?parseInt(document.getElementById('ce-recur-count')?.value||10,10):null;
   const e={
@@ -16228,6 +16411,7 @@ function saveCalEvent(){
     recurDays:Array.from(document.querySelectorAll('#ce-custom-days-wrap input[type="checkbox"]:checked')).map(c=>c.value),
   };
   const wasEdit=!!calEditingId;
+  if(addMeet)_pendingMeetRequests.add(e.id);
   if(calEditingId){
     const i=DB.calEvents.findIndex(x=>x.id===calEditingId);
     if(i>=0)DB.calEvents[i]=e;
@@ -16250,7 +16434,7 @@ function saveCalEvent(){
   document.querySelectorAll('#ce-custom-days-wrap input[type="checkbox"]').forEach(c=>c.checked=false);
   const custUnitEl=document.getElementById('ce-custom-unit');if(custUnitEl)custUnitEl.value='week';
   const custNEl=document.getElementById('ce-custom-n');if(custNEl)custNEl.value='1';
-  ['ce-overnight','ce-also-task','ce-reminder'].forEach(id=>{const el=document.getElementById(id);if(el)el.checked=false;});
+  ['ce-overnight','ce-also-task','ce-reminder','ce-add-meet'].forEach(id=>{const el=document.getElementById(id);if(el)el.checked=false;});
   toggleReminderInput();toggleRecurOptions();
   closeModal('calModal');
   addHistory(wasEdit?'edit':'add',(wasEdit?'Edited event: ':'Added event: ')+e.title+(alsoTask?' + task':''),{...e,_dbKey:'calEvents'});
@@ -16283,7 +16467,7 @@ function openCalEventModalOnDate(date){
   document.querySelectorAll('#ce-custom-days-wrap input[type="checkbox"]').forEach(c=>c.checked=false);
   const cuResetEl=document.getElementById('ce-custom-unit');if(cuResetEl)cuResetEl.value='week';
   const cnResetEl=document.getElementById('ce-custom-n');if(cnResetEl)cnResetEl.value='1';
-  ['ce-allday','ce-overnight','ce-also-task','ce-reminder'].forEach(id=>{const el=document.getElementById(id);if(el)el.checked=false;});
+  ['ce-allday','ce-overnight','ce-also-task','ce-reminder','ce-add-meet'].forEach(id=>{const el=document.getElementById(id);if(el)el.checked=false;});
   const reEl=document.getElementById('ce-recur-end');if(reEl)reEl.value='';
   const rmMinEl=document.getElementById('ce-remind-min');if(rmMinEl)rmMinEl.value=30;
   toggleReminderInput();
@@ -17279,6 +17463,11 @@ function syncTaskToNoteBlock(t){
   renderNotesList();
 }
 function showBlockMenu(e){e.preventDefault();const m=document.getElementById('blockMenu');m.style.left=e.clientX+'px';m.style.top=e.clientY+'px';m.classList.add('open');document.addEventListener('click',()=>m.classList.remove('open'),{once:true});}
+function addNoteDriveBlock(f){
+  const id=Date.now()+'.'+Math.random().toString(36).slice(2,7);
+  noteBlocks.push({id,type:'p',content:'📎 '+f.name+' — '+f.webViewLink,done:false});
+  saveBlocks();renderBlocks();
+}
 function addBlock(type){
   document.getElementById('blockMenu').classList.remove('open');
   const id=Date.now()+'.'+Math.random().toString(36).slice(2,7);
@@ -18915,6 +19104,10 @@ function loadOS(){
   }catch(e){console.warn('landing view pref:',e);}
   setTimeout(_handleShortcutAction,400);
   setTimeout(_handleShareTarget,400);
+  // Opportunistic re-subscribe for anyone who granted notification
+  // permission before push existed — otherwise they'd never get pushed to
+  // until they happen to revisit Settings and click Enable again.
+  if('Notification' in window&&Notification.permission==='granted')setTimeout(subscribeToPush,1500);
   loadAllFromSupabase();
   // Wake word listener is OFF by default — user must enable via topbar toggle
   // Triggered only by: spacebar, voice button, or user-enabled wake word
