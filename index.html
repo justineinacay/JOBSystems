@@ -506,6 +506,8 @@ select option{background:var(--navy3)}
 .cal-now-line::before{content:'';position:absolute;left:-4px;top:-4px;width:10px;height:10px;border-radius:50%;background:var(--red);box-shadow:0 0 6px var(--red)}
 .cal-event-block{position:absolute;left:3px;right:3px;border-radius:10px;padding:3px 6px;font-size:var(--text-xs);cursor:pointer;overflow:hidden;z-index:2;transition:opacity .1s,box-shadow .1s;min-height:20px}
 .cal-event-block:hover{opacity:.9;box-shadow:0 2px 12px rgba(0,0,0,.4);z-index:3}
+.cal-event-block[draggable="true"]{cursor:grab}
+.cal-event-block.cal-dragging{opacity:.35;cursor:grabbing}
 .cal-event-block .ceb-title{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .cal-event-block .ceb-time{font-size:var(--text-xs);opacity:.7;margin-top:1px}
 
@@ -6318,7 +6320,7 @@ function initRealtime(){
 
 async function loadAllFromSupabase(){
   showToast('↻ Syncing with Supabase...');
-  await Promise.all([SB.load('tasks','tasks'),SB.load('clients','clients'),SB.load('venture','venture'),SB.load('faith','faith'),SB.load('cashflow','cashflow'),SB.load('cal_events','calEvents'),SB.load('journal','journal'),SB.load('notes','notes'),SB.load('memories','memories'),SB.load('sides','sides'),SB.load('history','history'),SB.load('loans','loans'),SB.load('accounts','accounts'),SB.load('collateral','collateral'),SB.load('social_posts','socialPosts'),SB.load('creative_projects','creativeProjects'),SB.load('pipeline','pipeline'),SB.load('campaigns','campaigns'),SB.load('influencers','influencers'),SB.load('pricing','pricing'),SB.load('credentials','credentials')]);
+  await Promise.all([SB.load('tasks','tasks'),SB.load('clients','clients'),SB.load('venture','venture'),SB.load('faith','faith'),SB.load('cashflow','cashflow'),SB.load('cal_events','calEvents'),SB.load('journal','journal'),SB.load('notes','notes'),SB.load('memories','memories'),SB.load('sides','sides'),SB.load('history','history'),SB.load('loans','loans'),SB.load('accounts','accounts'),SB.load('collateral','collateral'),SB.load('social_posts','socialPosts'),SB.load('creative_projects','creativeProjects'),SB.load('pipeline','pipeline'),SB.load('campaigns','campaigns'),SB.load('influencers','influencers'),SB.load('pricing','pricing'),SB.load('credentials','credentials'),_pullWorldsFromCloud()]);
   reRenderAll();showToast('✓ Supabase synced');speak('All systems synced.');
 }
 // ═══════════════════════════════════════════════════════════════════════════
@@ -7989,6 +7991,19 @@ function deleteWorld(id){
   // Unfile any notes that were in this folder rather than orphaning them
   (DB.notes||[]).forEach(n=>{if(n.worldId===id)n.worldId=null;});
   save('notes');
+  // Unfile any tasks assigned to this domain too — previously only notes were
+  // handled here, so a deleted domain's tasks kept a dangling t.world value
+  // that matched nothing, silently vanishing from every board/filter that
+  // grouped by domain instead of showing up as unfiled like notes do.
+  // t.world is case-inconsistent across the codebase (built-in domains store
+  // it uppercased, custom ones match w.id verbatim) so compare lowercased.
+  const idLower=id.toLowerCase();
+  (DB.tasks||[]).forEach(t=>{
+    if((t.world||'').toLowerCase()===idLower){
+      t.world=null;
+      SB.update('tasks',t.id,{world:null},'tasks');
+    }
+  });
   if(notesActiveFolder===id)notesActiveFolder='all';
   renderSideNav();
   if(typeof renderNotesFolderRail==='function')renderNotesFolderRail();
@@ -9671,7 +9686,47 @@ const DB={
     {id:'life',     label:'LIFE',                    icon:'ti-leaf',           color:'var(--w-life)',       cssVar:'--w-life',      core:true},
   ],
 };
-function save(k){localStorage.setItem('j-'+k,JSON.stringify(DB[k]))}
+function save(k){
+  localStorage.setItem('j-'+k,JSON.stringify(DB[k]));
+  if(k==='worlds')_syncWorldsToCloud();
+}
+// ── Domains (Worlds) cloud sync ───────────────────────────────────────────
+// Was 100% local-only across all 29 save('worlds') call sites — nothing
+// here ever reached Supabase. Domains are a small, human-paced-edit list
+// (not thousands of rows like tasks), and each one can carry an open-ended
+// bag of custom module data, so rather than diff/upsert per-field like the
+// higher-volume tables, this does a full delete-and-reinsert of the whole
+// list on every change: simplest correct way to guarantee the cloud copy
+// exactly mirrors local state (including deletions) without needing to
+// track per-row dirty state, at a scale where that's cheap to do.
+let _worldsSyncInFlight=false;
+async function _syncWorldsToCloud(){
+  if(_worldsSyncInFlight)return; // last write wins; overlapping saves would race the delete+reinsert
+  const uid=getAuthUserId();
+  if(!uid)return; // not signed in — stays local-only until they are, same as everything else
+  _worldsSyncInFlight=true;
+  try{
+    await sbFetch('worlds','DELETE',null,`user_id=eq.${uid}`);
+    const rows=(DB.worlds||[]).map(w=>({id:w.id,user_id:uid,data:w}));
+    if(rows.length)await sbFetch('worlds','POST',rows);
+  }catch(err){
+    showToast('⚠ Domains sync failed: '+err.message);
+    console.error('_syncWorldsToCloud error',err);
+  }finally{
+    _worldsSyncInFlight=false;
+  }
+}
+async function _pullWorldsFromCloud(){
+  try{
+    const rows=await sbFetch('worlds');
+    if(rows&&rows.length){
+      DB.worlds=rows.map(r=>r.data);
+      localStorage.setItem('j-worlds',JSON.stringify(DB.worlds)); // skip save()'s own re-push, we just pulled this exact state
+    }
+  }catch(err){
+    // Silent — same fallback-to-local pattern SB.load uses for every other table
+  }
+}
 // One-time migration: your existing browser already has a saved worlds list
 // (the seed array above only applies to a brand-new install) — this removes
 // Chainsmoker from that saved list too, once, so it actually disappears from
@@ -14959,7 +15014,17 @@ const CAL_TYPE_MAP = {pt:'ih',oc:'cs',po:'ven',pg:'bld',pam:'sid',pu:'fth',pgr:'
 // mirrors any custom hex onto CAL_WORLDS so every calendar view (event
 // blocks, legend, pills, dots, agenda) reflects the same color everywhere.
 const CAL_WORLDS_DEFAULTS=CAL_WORLDS.map(w=>({id:w.id,color:w.color,hex:w.hex}));
-const CAL_TO_DOMAIN_ID={ih:'work-ih',ven:'venture',bld:'build',sid:'sides',fth:'faith',lif:'life'};
+const CAL_TO_DOMAIN_ID={ih:'work-ih',cs:'work-cs',ven:'venture',bld:'build',sid:'sides',fth:'faith',lif:'life'};
+// Reverse of the above (real DB.worlds slug -> calendar short code) — was
+// missing entirely, which is a real, separate bug from the missing 'cs'
+// forward mapping: normaliseType() had no way to resolve a stored type of
+// 'life' or 'venture' (the full slug — what bill-due reminders, Google
+// Calendar sync, and task-due-date auto-entries all actually write) back
+// to the short code ('lif'/'ven') that calContextFilter and calWorldById
+// actually key on. Any calendar entry written with a full-slug type was
+// silently invisible, filtered out with no error — not a rare edge case,
+// three different features write full-slug types today.
+const DOMAIN_ID_TO_CAL=Object.fromEntries(Object.entries(CAL_TO_DOMAIN_ID).map(([k,v])=>[v,k]));
 function syncCalWorldColors(){
   const rootStyle=getComputedStyle(document.documentElement);
   CAL_WORLDS.forEach((w,i)=>{
@@ -15001,7 +15066,15 @@ function calWorldById(id){
   }
   return CAL_WORLDS[0];
 }
-function normaliseType(t){return CAL_TYPE_MAP[t]||t||'lif';}
+function normaliseType(t){
+  if(!t)return'lif';
+  if(CAL_TYPE_MAP[t])return CAL_TYPE_MAP[t]; // old legacy 3-letter codes (oc/pu/pt etc)
+  const lower=String(t).toLowerCase();
+  if(CAL_WORLDS.some(w=>w.id===lower))return lower; // already a valid short code
+  if(DOMAIN_ID_TO_CAL[lower])return DOMAIN_ID_TO_CAL[lower]; // full slug -> short code
+  if((DB.worlds||[]).some(w=>w.id===lower))return lower; // custom domain beyond the original 7 — no short code exists, its own id passes straight through
+  return'lif';
+}
 function evColor(e){
   if(e._isTask)return 'var(--amber)';
   const w=calWorldById(normaliseType(e.type));
@@ -15016,7 +15089,11 @@ function evClass(e){
 let calView=(typeof getPref==='function'&&getPref('pref-cal-view'))||'agenda';
 let calYear=new Date().getFullYear(),calMonth=new Date().getMonth();
 let calSelectedDate=localDateStr(new Date());
-let calContextFilter=new Set(CAL_WORLDS.map(w=>w.id)); // all on by default
+// Was CAL_WORLDS ids only (the 7 built-ins) — any custom domain added since
+// resolves via normaliseType() to its own raw id (see above), which this
+// Set needs to already contain or its events stay filtered out even though
+// normaliseType now resolves them correctly. All on by default either way.
+let calContextFilter=new Set([...CAL_WORLDS.map(w=>w.id),...(DB.worlds||[]).map(w=>w.id)]);
 let calEditingId=null;
 
 // ── Utility: expand recurring events for a date range ─────────────
@@ -15456,6 +15533,56 @@ function renderCalMonth(){
 }
 
 // ── WEEK view ────────────────────────────────────────────────────
+// ── Calendar drag-and-drop ───────────────────────────────────────────────
+// Repositions an event block by dropping it elsewhere in the day/week grid —
+// new date comes from which column it lands in, new time from the vertical
+// offset (snapped to 15min). Task-derived blocks (_isTask) also write back
+// to the underlying task's due/startTime/endTime, not just the calendar
+// entry, so the two stay in sync instead of the task silently reverting it
+// on its next save. Recurring occurrences are excluded (not made draggable)
+// since "move this one instance vs. the whole series" needs its own UI this
+// doesn't have yet — they stay click-to-edit like before.
+let _calDrag=null;
+function calDragStart(ev,id,taskId){
+  ev.stopPropagation();
+  _calDrag={id,taskId:taskId||null};
+  ev.dataTransfer.effectAllowed='move';
+  ev.dataTransfer.setData('text/plain',String(id));
+  if(ev.target.classList)ev.target.classList.add('cal-dragging');
+}
+function calDragEnd(ev){
+  if(ev.target.classList)ev.target.classList.remove('cal-dragging');
+}
+function calSnapMins(mins){return Math.min(1425,Math.max(0,Math.round(mins/15)*15));}
+function calMinsToHHMM(mins){mins=((mins%1440)+1440)%1440;return String(Math.floor(mins/60)).padStart(2,'0')+':'+String(mins%60).padStart(2,'0');}
+function calDrop(ev,dateStr,pxPerHour){
+  ev.preventDefault();
+  if(!_calDrag)return;
+  const{id,taskId}=_calDrag;_calDrag=null;
+  const rect=ev.currentTarget.getBoundingClientRect();
+  const startMins=calSnapMins(((ev.clientY-rect.top)/pxPerHour)*60);
+  const cal=(DB.calEvents||[]).find(e=>e.id===id);
+  if(!cal)return;
+  let durMins=60;
+  if(cal.time&&cal.endTime){
+    const[sh,sm]=cal.time.split(':').map(Number);const[eh,em]=cal.endTime.split(':').map(Number);
+    const d=(eh*60+em)-(sh*60+sm);
+    if(d>0)durMins=d;
+  }
+  const newStart=calMinsToHHMM(startMins);
+  const newEnd=calMinsToHHMM(startMins+durMins);
+  cal.date=dateStr;cal.time=newStart;cal.endTime=newEnd;
+  SB.update('cal_events',cal.id,{date:dateStr,time:newStart,endTime:newEnd},'calEvents');
+  if(taskId){
+    const t=(DB.tasks||[]).find(x=>x.id===taskId);
+    if(t){
+      t.due=dateStr;t.startTime=newStart;t.endTime=newEnd;
+      SB.update('tasks',t.id,{due:dateStr,startTime:newStart,endTime:newEnd},'tasks');
+    }
+  }
+  renderCalendar();
+  showToast('Moved to '+dateStr+' '+to12h(newStart));
+}
 function renderCalWeek(){
   const el=document.getElementById('calMainArea');
   const DAYS=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
@@ -15510,7 +15637,7 @@ function renderCalWeek(){
   // Day columns
   dates.forEach((ds,di)=>{
     const isT=ds===today;
-    html+=`<div class="cal-day-col" onclick="openCalEventModalOnDate('${ds}')">`;
+    html+=`<div class="cal-day-col" onclick="openCalEventModalOnDate('${ds}')" ondragover="event.preventDefault()" ondrop="calDrop(event,'${ds}',48)">`;
     // Hour lines — plus quarter-hour (15/30/45 min) gridlines
     hours.forEach(h=>{
       html+=`<div class="cal-hour-line" style="top:${h*48}px">
@@ -15537,7 +15664,8 @@ function renderCalWeek(){
       } else {
         const bot=e.endTime?t2px(e.endTime):top+48;
         const h=Math.max(bot-top,20);
-        html+=`<div class="cal-event-block" style="top:${top}px;height:${h}px;background:${w.hex}22;border-left:3px solid ${w.hex};color:${w.color}" onclick="event.stopPropagation();showCalPopover(event,${e.id||0},'${e._expandedDate||e.date}')">
+        const draggable=!e._recurring;
+        html+=`<div class="cal-event-block" ${draggable?`draggable="true" ondragstart="calDragStart(event,${e.id||0},${e._taskId?e._taskId:'null'})" ondragend="calDragEnd(event)"`:''} style="top:${top}px;height:${h}px;background:${w.hex}22;border-left:3px solid ${w.hex};color:${w.color}" onclick="event.stopPropagation();showCalPopover(event,${e.id||0},'${e._expandedDate||e.date}')">
           <div class="ceb-title">${e.title}</div>
           <div class="ceb-time">${to12h(e.time)}${e.endTime?'–'+to12h(e.endTime):''}</div>
         </div>`;
@@ -15597,10 +15725,11 @@ function renderCalDay(){
   hours.forEach(h=>{
     const label=h===0?'12:00 am':h<12?h+':00 am':h===12?'12:00 pm':(h-12)+':00 pm';
     html+=`<div style="position:absolute;top:${h*60}px;right:6px;font-size:var(--text-xs);color:var(--text3);white-space:nowrap;transform:translateY(-50%)">${label}</div>`;
+    html+=`<div style="position:absolute;top:${h*60+30}px;right:6px;font-size:var(--text-xs);color:var(--text3);opacity:.5;white-space:nowrap;transform:translateY(-50%)">:30</div>`;
   });
   html+='</div>';
   // Day column
-  html+=`<div style="flex:1;position:relative;min-height:${24*60}px;border-left:1px solid var(--border)" onclick="openCalEventModalOnDate('${calSelectedDate}')">`;
+  html+=`<div style="flex:1;position:relative;min-height:${24*60}px;border-left:1px solid var(--border)" onclick="openCalEventModalOnDate('${calSelectedDate}')" ondragover="event.preventDefault()" ondrop="calDrop(event,'${calSelectedDate}',60)">`;
   hours.forEach(h=>{
     html+=`<div style="position:absolute;top:${h*60}px;left:0;right:0;border-top:1px solid var(--border);height:60px">
       <div style="position:absolute;top:15px;left:0;right:0;border-top:1px dashed rgba(255,255,255,.03)"></div>
@@ -15625,7 +15754,8 @@ function renderCalDay(){
     } else {
       const bot=e.endTime?t2px(e.endTime):top+60;
       const h=Math.max(bot-top,24);
-      html+=`<div class="cal-event-block" style="top:${top}px;height:${h}px;background:${w.hex}22;border-left:3px solid ${w.hex};color:${w.color}" onclick="event.stopPropagation();showCalPopover(event,${e.id||0},'${e._expandedDate||e.date}')">
+      const draggable=!e._recurring;
+      html+=`<div class="cal-event-block" ${draggable?`draggable="true" ondragstart="calDragStart(event,${e.id||0},${e._taskId?e._taskId:'null'})" ondragend="calDragEnd(event)"`:''} style="top:${top}px;height:${h}px;background:${w.hex}22;border-left:3px solid ${w.hex};color:${w.color}" onclick="event.stopPropagation();showCalPopover(event,${e.id||0},'${e._expandedDate||e.date}')">
         <div class="ceb-title">${e.title}</div>
         <div class="ceb-time">${to12h(e.time)}${e.endTime?' – '+to12h(e.endTime):''}</div>
         ${e.loc?`<div class="ceb-time"><i class="ti ti-map-pin"></i> ${e.loc}</div>`:''}
