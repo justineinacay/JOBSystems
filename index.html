@@ -226,6 +226,7 @@ select option{background:var(--navy3)}
 .tb-r{display:flex;align-items:center;gap:8px}
 .hpill{font-size:var(--text-sm);color:var(--teal2);background:var(--teal4);border:1px solid var(--border2);padding:4px 10px;border-radius:8px;display:flex;align-items:center;gap:6px;white-space:nowrap}
 @keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+.smart-view-pill.active{background:rgba(128,255,250,.12);border-color:var(--teal);color:var(--teal)}
 .sync-badge{display:flex;align-items:center;gap:6px;padding:8px 14px;border-radius:100px;background:var(--navy3);border:1px solid var(--border2);font-size:var(--text-xs);font-weight:600;flex-shrink:0;cursor:default}
 .sync-badge.idle{color:var(--text3)}
 .sync-badge.syncing{color:var(--teal)}
@@ -2590,6 +2591,7 @@ select option{background:var(--navy3)}
 .board-table tr.item-row{cursor:pointer;transition:background .1s}
 .board-table tr.item-row:hover td{background:var(--teal4)}
 .board-table tr.item-row.selected td{background:rgba(128,255,250,.06);outline:1px solid var(--teal2)}
+.board-table tr.item-row.kbd-focus td{outline:2px solid var(--teal);outline-offset:-2px}
 /* Group aggregate footer */
 .board-table tr.group-footer td{font-size:var(--text-xs);color:var(--text3);border-top:1px solid var(--border2);border-bottom:none;padding:4px 10px;background:var(--navy3)}
 .board-table td .inline-edit{background:transparent;border:none;color:var(--text1);font-size:var(--text-sm);font-family:var(--font);outline:none;width:100%;cursor:pointer}
@@ -2670,6 +2672,10 @@ select option{background:var(--navy3)}
         <div class="fg"><label class="fl">End Time</label><input type="time" id="tf-end-time"></div>
       </div>
       <div class="fr">
+        <div class="fg"><label class="fl">Repeat</label><select id="tf-recur"><option value="none">Does not repeat</option><option value="daily">Daily</option><option value="weekly">Weekly</option><option value="biweekly">Every 2 weeks</option><option value="monthly">Monthly</option><option value="yearly">Yearly</option></select></div>
+        <div class="fg" style="display:flex;align-items:flex-end;font-size:var(--text-xs);color:var(--text3);padding-bottom:9px" id="tf-recur-hint"></div>
+      </div>
+      <div class="fr">
         <div class="fg"><label class="fl">Platform</label><input id="tf-platform" placeholder="e.g. Instagram, Facebook..."></div>
         <div class="fg" id="tf-client-wrap">
           <label class="fl" id="tf-client-label">Person</label>
@@ -2680,7 +2686,13 @@ select option{background:var(--navy3)}
       <div class="fg"><label class="fl">Note</label><textarea id="tf-notes" rows="2" placeholder="Additional notes..."></textarea></div>
       <div class="fg"><label class="fl"><i class="ti ti-brand-google-drive" style="font-size:var(--text-sm);color:#4285F4"></i> Google Drive Link</label><div style="display:flex;gap:8px"><input id="tf-drive-link" placeholder="https://drive.google.com/..." style="flex:1"><button type="button" class="btn btn-g" onclick="openDrivePicker(f=>{document.getElementById('tf-drive-link').value=f.webViewLink;})" style="flex-shrink:0"><i class="ti ti-search"></i> Browse</button></div></div>
     </div>
-    <div class="mf"><button class="btn btn-g" onclick="closeModal('taskModal')">Cancel</button><button class="btn btn-t" onclick="saveTask()">Save Task</button></div>
+    <div class="mf" style="justify-content:space-between">
+      <button class="btn btn-g" id="tf-focus-btn" style="display:none" onclick="startFocusTimer(editingTaskId)"><i class="ti ti-clock-play"></i> Start Focus Timer</button>
+      <div style="display:flex;gap:8px;margin-left:auto">
+        <button class="btn btn-g" onclick="closeModal('taskModal')">Cancel</button>
+        <button class="btn btn-t" onclick="saveTask()">Save Task</button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -2824,6 +2836,17 @@ select option{background:var(--navy3)}
       <button class="btn btn-t" id="conflictKeepMineBtn">Keep This Device's Version</button>
     </div>
   </div>
+</div>
+
+<!-- FOCUS TIMER — floating widget, only visible while a session is running -->
+<div id="focusTimerWidget" style="display:none;position:fixed;bottom:20px;left:20px;z-index:9000;background:var(--navy2);border:1px solid var(--teal);border-radius:14px;padding:10px 14px;box-shadow:0 4px 20px rgba(0,0,0,.4);align-items:center;gap:12px;min-width:230px">
+  <div style="font-size:20px;font-weight:800;color:var(--teal);font-variant-numeric:tabular-nums" id="focusTimerClock">25:00</div>
+  <div style="flex:1;min-width:0">
+    <div style="font-size:9px;color:var(--text3);letter-spacing:.08em;text-transform:uppercase">Focus Session</div>
+    <div style="font-size:var(--text-xs);color:var(--text1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis" id="focusTimerTaskTitle"></div>
+  </div>
+  <button onclick="toggleFocusTimerPause()" id="focusTimerPauseBtn" title="Pause" style="background:none;border:none;color:var(--text2);cursor:pointer;font-size:17px;flex-shrink:0"><i class="ti ti-player-pause"></i></button>
+  <button onclick="stopFocusTimer()" title="Stop" style="background:none;border:none;color:var(--red);cursor:pointer;font-size:17px;flex-shrink:0"><i class="ti ti-player-stop"></i></button>
 </div>
 
 <!-- APP MODAL -->
@@ -4848,6 +4871,20 @@ select option{background:var(--navy3)}
         <!-- BOARD TOOLBAR -->
         <div class="board-toolbar" style="flex-direction:column;align-items:stretch;gap:0;padding:0">
 
+          <!-- SMART VIEWS: one-click cross-domain filters. The filtering
+               itself already existed as a "Deadline" dropdown option
+               (buried in row 2 below) -- these just surface the same
+               filters as prominent, always-visible shortcuts instead of
+               requiring opening a dropdown to find them. -->
+          <div style="display:flex;align-items:center;gap:6px;padding:8px 14px;flex-wrap:wrap;border-bottom:1px solid var(--border)" id="smartViewRow">
+            <button class="btn btn-g smart-view-pill" data-sv="today" onclick="applySmartView('today')" style="font-size:var(--text-xs);padding:5px 12px"><i class="ti ti-sun"></i> Today</button>
+            <button class="btn btn-g smart-view-pill" data-sv="overdue" onclick="applySmartView('overdue')" style="font-size:var(--text-xs);padding:5px 12px"><i class="ti ti-alert-triangle"></i> Overdue</button>
+            <button class="btn btn-g smart-view-pill" data-sv="week" onclick="applySmartView('week')" style="font-size:var(--text-xs);padding:5px 12px"><i class="ti ti-calendar-week"></i> This Week</button>
+            <button class="btn btn-g smart-view-pill" data-sv="none" onclick="applySmartView('none')" style="font-size:var(--text-xs);padding:5px 12px"><i class="ti ti-calendar-off"></i> No Due Date</button>
+            <button class="btn btn-g smart-view-pill" data-sv="all" onclick="applySmartView('all')" style="font-size:var(--text-xs);padding:5px 12px;opacity:.6"><i class="ti ti-x"></i> Clear</button>
+            <span style="margin-left:auto;font-size:var(--text-xs);color:var(--text3)" class="filter-hide-mobile"><kbd style="background:var(--navy2);border:1px solid var(--border2);border-radius:4px;padding:1px 5px">j</kbd>/<kbd style="background:var(--navy2);border:1px solid var(--border2);border-radius:4px;padding:1px 5px">k</kbd> navigate · <kbd style="background:var(--navy2);border:1px solid var(--border2);border-radius:4px;padding:1px 5px">↵</kbd> open · <kbd style="background:var(--navy2);border:1px solid var(--border2);border-radius:4px;padding:1px 5px">d</kbd> done · <kbd style="background:var(--navy2);border:1px solid var(--border2);border-radius:4px;padding:1px 5px">x</kbd> delete</span>
+          </div>
+
           <!-- ROW 1: View tabs + search + add button -->
           <div style="display:flex;align-items:center;gap:8px;padding:8px 14px;border-bottom:1px solid var(--border);flex-wrap:wrap">
             <div class="board-view-tabs" id="taskViewToggle">
@@ -5891,7 +5928,17 @@ const SB={
     // Push the full current record (not just this partial patch) so a Google
     // sync triggered by e.g. a status-only change still has title/notes/due \u2014
     // `changes` alone may omit fields Google's API needs on every call.
-    if(table==='tasks'){const full=(DB[key]||[]).find(x=>x.id===id);if(full)_pushTaskToGoogle(full);}
+    if(table==='tasks'){
+      const full=(DB[key]||[]).find(x=>x.id===id);
+      if(full)_pushTaskToGoogle(full);
+      // Level-triggered, not edge-triggered: callers already mutate the
+      // local object to status='Done' in place before calling SB.update,
+      // so there's no "previous status" left to compare against here.
+      // Runs every time a Done recurring task is saved, but
+      // _maybeGenerateNextTaskOccurrence dedupes against an existing
+      // next occurrence, so repeat calls are harmless no-ops.
+      if(full&&full.status==='Done'&&typeof _maybeGenerateNextTaskOccurrence==='function')_maybeGenerateNextTaskOccurrence(full);
+    }
     if(table==='cal_events'){const full=(DB[key]||[]).find(x=>x.id===id);if(full)_pushCalEventToGoogle(full);}
   },
   async remove(table,id,key){
@@ -8218,6 +8265,78 @@ checkAuthGate();
 
 // ── Quick Capture NLP Router ─────────────────────────────────────────────────
 async function processCapture(){runCapture();}
+// Natural-language due date/time — "Call John tomorrow 3pm" becomes title
+// "Call John" with due=tomorrow, time=15:00, instead of the whole phrase
+// landing as a literal task title. Deliberately covers only common,
+// unambiguous phrasings (today/tomorrow/next <day>/<day>/in N days/M-D
+// dates, plus a clock time) rather than a full NLP date library — good
+// enough for a quick-add bar, and safe: anything it doesn't recognize is
+// just left in the title untouched rather than guessed wrong.
+function _parseNaturalDateTime(text){
+  let clean=text;
+  let due=null,time=null;
+  const now=new Date();
+  const WEEKDAYS=['sunday','monday','tuesday','wednesday','thursday','friday','saturday'];
+
+  const timeMatch=clean.match(/\b(\d{1,2})(:(\d{2}))?\s*(am|pm)\b/i)||clean.match(/\b([01]?\d|2[0-3]):([0-5]\d)\b/);
+  if(timeMatch){
+    if(timeMatch[4]){
+      let h=parseInt(timeMatch[1],10);
+      const min=timeMatch[3]?parseInt(timeMatch[3],10):0;
+      const ap=timeMatch[4].toLowerCase();
+      if(ap==='pm'&&h<12)h+=12;
+      if(ap==='am'&&h===12)h=0;
+      time=String(h).padStart(2,'0')+':'+String(min).padStart(2,'0');
+    }else{
+      time=String(parseInt(timeMatch[1],10)).padStart(2,'0')+':'+timeMatch[2];
+    }
+    clean=clean.replace(timeMatch[0],'').trim();
+  }
+
+  const lower=clean.toLowerCase();
+  if(/\btoday\b/.test(lower)){
+    due=localDateStr(now);
+    clean=clean.replace(/\btoday\b/i,'').trim();
+  }else if(/\btomorrow\b/.test(lower)){
+    const d=new Date(now);d.setDate(d.getDate()+1);
+    due=localDateStr(d);
+    clean=clean.replace(/\btomorrow\b/i,'').trim();
+  }else{
+    const wdMatch=lower.match(/\b(next\s+)?(sunday|monday|tuesday|wednesday|thursday|friday|saturday)\b/);
+    if(wdMatch){
+      const targetDow=WEEKDAYS.indexOf(wdMatch[2]);
+      const d=new Date(now);
+      let diff=(targetDow-d.getDay()+7)%7;
+      if(diff===0)diff=7; // "monday" said on a Monday means next Monday, not today
+      d.setDate(d.getDate()+diff);
+      due=localDateStr(d);
+      clean=clean.replace(new RegExp('\\b(next\\s+)?'+wdMatch[2]+'\\b','i'),'').trim();
+    }else{
+      const inMatch=lower.match(/\bin\s+(\d+)\s+(day|days|week|weeks)\b/);
+      if(inMatch){
+        const n=parseInt(inMatch[1],10);
+        const d=new Date(now);
+        d.setDate(d.getDate()+(inMatch[2].startsWith('week')?n*7:n));
+        due=localDateStr(d);
+        clean=clean.replace(/\bin\s+\d+\s+(day|days|week|weeks)\b/i,'').trim();
+      }else{
+        const dateMatch=clean.match(/\b(\d{1,2})\/(\d{1,2})(?:\/(\d{2,4}))?\b/);
+        if(dateMatch){
+          const mo=parseInt(dateMatch[1],10)-1;
+          const da=parseInt(dateMatch[2],10);
+          let yr=dateMatch[3]?parseInt(dateMatch[3],10):now.getFullYear();
+          if(yr<100)yr+=2000;
+          due=localDateStr(new Date(yr,mo,da));
+          clean=clean.replace(dateMatch[0],'').trim();
+        }
+      }
+    }
+  }
+  // Strip a preposition left dangling once the date/time it referred to is gone
+  // (e.g. "Meeting at 3pm tomorrow" -> "Meeting at" once both are removed).
+  clean=clean.replace(/\s{2,}/g,' ').replace(/\b(at|on|by|for)\s*$/i,'').replace(/^[,\s]+|[,\s]+$/g,'').trim();
+  return{cleanText:clean,due,time};
+}
 function runCapture(){
   const input=document.getElementById('captureInput');if(!input)return;
   const raw=input.value.trim();if(!raw)return;input.value='';
@@ -8245,13 +8364,16 @@ function runCapture(){
   if(!m){try{if(typeof executeVoiceCommand==='function')executeVoiceCommand(raw);}catch(e){}return;}
   const prefix=m[1].toLowerCase();const body=(m[2]||'').trim();
   if(WM[prefix]){
-    const world=WM[prefix];const title=body||'New task';
-    const task={id:Date.now(),title,world,priority:'Medium',status:'Todo',due:'',platform:'',client:'',notes:'',subitems:[],timelineS:'',timelineE:'',numValue:null,connBoard:null,connItemId:null,groupId:null};
+    const world=WM[prefix];
+    const parsed=_parseNaturalDateTime(body||'New task');
+    const title=parsed.cleanText||body||'New task';
+    const task={id:Date.now(),title,world,priority:'Medium',status:'Todo',due:parsed.due||'',startTime:parsed.time||'',platform:'',client:'',notes:'',subitems:[],timelineS:'',timelineE:parsed.due||'',numValue:null,connBoard:null,connItemId:null,groupId:null};
     DB.tasks.unshift(task);save('tasks');
     try{SB.upsert('tasks',task,'tasks');}catch(e){}
     try{addHistory('add','Quick capture \u2192 '+world+': '+title,{...task,_dbKey:'tasks'});}catch(e){}
     try{renderTasks();renderBrief();}catch(e){}
-    showToast('\u2713 Task \u2192 '+world+': '+title.substring(0,35));
+    const when=[parsed.due,parsed.time].filter(Boolean).join(' ');
+    showToast('\u2713 Task \u2192 '+world+': '+title.substring(0,35)+(when?' \u00b7 '+when:''));
     setTimeout(()=>{try{setView(VM[world]||'tasks');}catch(e){}},350);return;
   }
   if(prefix==='debit'||prefix==='credit'){
@@ -11571,6 +11693,7 @@ function renderBoardTable(tasks){
               <div style="display:flex;align-items:center;gap:6px;overflow:hidden">
                 ${hasSubs?`<button class="subitem-toggle-btn" onclick="event.stopPropagation();toggleSubitems(${t.id})">${expanded?'▾':'▸'}</button>`:'<span style="width:14px;display:inline-block;flex-shrink:0"></span>'}
                 <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1">${t.title}</span>
+                ${t.recur&&t.recur!=='none'?`<i class="ti ti-repeat" title="Repeats: ${t.recur}" style="color:var(--text3);font-size:11px;flex-shrink:0"></i>`:''}
                 ${t.priority==='High'?'<span style="color:var(--red);font-size:11px;flex-shrink:0">!</span>':''}
               </div>
             </td>
@@ -11775,10 +11898,66 @@ function autoFlywheelLink(t){
   }
 }
 
+// ── Keyboard-first navigation (Tasks table view) ────────────────────────
+// j/k move a focus cursor between rows, Enter/o opens it, d toggles
+// Done, x deletes (recoverable via the existing delete-undo toast).
+// Scoped to the Tasks view, and bails whenever a text input, select, or
+// any modal is active so it never hijacks normal typing.
+let _kbdFocusTaskId=null;
+function _getVisibleTaskRowIds(){
+  return[...document.querySelectorAll('#view-tasks .item-row')].map(r=>parseInt(r.dataset.id,10)).filter(id=>!isNaN(id));
+}
+function _kbdRenderFocus(){
+  document.querySelectorAll('#view-tasks .item-row').forEach(r=>r.classList.toggle('kbd-focus',parseInt(r.dataset.id,10)===_kbdFocusTaskId));
+  const el=document.querySelector('#view-tasks .item-row.kbd-focus');
+  if(el)el.scrollIntoView({block:'nearest'});
+}
+function _kbdMoveFocus(dir){
+  const ids=_getVisibleTaskRowIds();
+  if(!ids.length)return;
+  const idx=ids.indexOf(_kbdFocusTaskId);
+  const next=idx<0?(dir>0?0:ids.length-1):Math.min(Math.max(idx+dir,0),ids.length-1);
+  _kbdFocusTaskId=ids[next];
+  _kbdRenderFocus();
+}
+document.addEventListener('keydown',e=>{
+  if(currentView!=='tasks')return;
+  const tag=(document.activeElement||{}).tagName;
+  if(tag==='INPUT'||tag==='TEXTAREA'||tag==='SELECT'||document.activeElement?.isContentEditable)return;
+  if(document.querySelector('.mov.open'))return; // any modal open
+  if(e.key==='j'||e.key==='ArrowDown'){e.preventDefault();_kbdMoveFocus(1);}
+  else if(e.key==='k'||e.key==='ArrowUp'){e.preventDefault();_kbdMoveFocus(-1);}
+  else if((e.key==='Enter'||e.key==='o')&&_kbdFocusTaskId){e.preventDefault();editTask(_kbdFocusTaskId);}
+  else if(e.key==='d'&&_kbdFocusTaskId){
+    e.preventDefault();
+    const t=DB.tasks.find(x=>x.id===_kbdFocusTaskId);
+    if(t){t.status=t.status==='Done'?'Todo':'Done';SB.update('tasks',t.id,{status:t.status},'tasks');renderTasks();_kbdRenderFocus();showToast(t.status==='Done'?'✓ Marked Done':'Reopened');}
+  }
+  else if((e.key==='x'||e.key==='Backspace')&&_kbdFocusTaskId){
+    e.preventDefault();
+    const id=_kbdFocusTaskId;_kbdFocusTaskId=null;
+    deleteTask({stopPropagation(){}},id);
+  }
+},true);
+// ── Smart views ──────────────────────────────────────────────────────────
+function applySmartView(view){
+  const wf=document.getElementById('taskFilter'),sf=document.getElementById('taskSF'),
+    prio=document.getElementById('filterPriority'),dl=document.getElementById('filterDeadline');
+  if(wf)wf.value='all';
+  if(prio)prio.value='all';
+  if(sf)sf.value='all';
+  if(dl)dl.value=view;
+  renderTasks();
+  document.querySelectorAll('.smart-view-pill').forEach(b=>b.classList.toggle('active',b.dataset.sv===view));
+}
 // ── Main renderTasks ──────────────────────────────────────────────────────
 function renderTasks(){
   if(typeof renderUrgentPanel==='function')renderUrgentPanel();
   populateDynamicFilters();
+  // Keep smart-view pill highlight in sync if the deadline filter changed
+  // via the dropdown directly rather than a pill click.
+  const dlNow=document.getElementById('filterDeadline')?.value||'all';
+  document.querySelectorAll('.smart-view-pill').forEach(b=>b.classList.toggle('active',b.dataset.sv===dlNow));
   const tasks=getFilteredTasks();
   document.getElementById('taskBadge').textContent=DB.tasks.filter(t=>t.status!=='Done').length;
   // Always populate mobile container (CSS decides visibility)
@@ -12166,7 +12345,7 @@ function openModal(id){
   }
   document.getElementById(id).classList.add('open');
 }
-function closeModal(id){document.getElementById(id).classList.remove('open');editingTaskId=null;editingClientId=null;editingFaithId=null;editingVentureId=null;editingJournalId=null;editingCashId=null;_flushPendingShapeSaves();}
+function closeModal(id){document.getElementById(id).classList.remove('open');editingTaskId=null;editingClientId=null;editingFaithId=null;editingVentureId=null;editingJournalId=null;editingCashId=null;_flushPendingShapeSaves();const focusBtn=document.getElementById('tf-focus-btn');if(focusBtn)focusBtn.style.display='none';}
 function openTaskFor(world){document.getElementById('tf-world').value=world;document.getElementById('taskModalTitle').textContent='New Task';openModal('taskModal');}
 function openTaskForStatus(world,status){document.getElementById('tf-world').value=world;document.getElementById('tf-status').value=status;document.getElementById('taskModalTitle').textContent='New Task';openModal('taskModal');}
 let pendingTaskSourceEventId=null;
@@ -12190,6 +12369,7 @@ function saveTask(){
   const startDate=document.getElementById('tf-start-date')?.value||'';
   const existing=editingTaskId?DB.tasks.find(x=>x.id===editingTaskId):{};
   const t={id:editingTaskId||Date.now(),title:document.getElementById('tf-title').value.trim()||'Untitled Task',world:document.getElementById('tf-world').value,priority:document.getElementById('tf-prio').value,status:document.getElementById('tf-status').value,startDate,due:document.getElementById('tf-due').value,platform:document.getElementById('tf-platform').value.trim(),client:document.getElementById('tf-client').value.trim(),notes:document.getElementById('tf-notes').value,driveLink:document.getElementById('tf-drive-link')?.value.trim()||'',startTime,endTime,
+    recur:      document.getElementById('tf-recur')?.value||'none',
     groupId:    existing.groupId    || null,
     subitems:   existing.subitems   || [],
     timelineS:  startDate || existing.timelineS || '',
@@ -12225,6 +12405,7 @@ function saveTask(){
   // Operational Flywheel auto-link
   autoFlywheelLink(t);
   closeModal('taskModal');['tf-title','tf-notes','tf-platform','tf-drive-link','tf-client'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  const recurEl=document.getElementById('tf-recur');if(recurEl)recurEl.value='none';
   reRenderAll();showToast('✓ Task saved'+(t.due?' + added to calendar':''));
 }
 function editTask(id){
@@ -12242,6 +12423,9 @@ function editTask(id){
   const driveEl=document.getElementById('tf-drive-link');if(driveEl)driveEl.value=t.driveLink||'';
   const stEl=document.getElementById('tf-start-time');if(stEl)stEl.value=t.startTime||'';
   const etEl=document.getElementById('tf-end-time');if(etEl)etEl.value=t.endTime||'';
+  const recurEl=document.getElementById('tf-recur');if(recurEl)recurEl.value=t.recur||'none';
+  const focusBtn=document.getElementById('tf-focus-btn');
+  if(focusBtn){focusBtn.style.display='inline-flex';focusBtn.innerHTML='<i class="ti ti-clock-play"></i> Start Focus Timer'+(t.focusMinutes?' <span style="opacity:.6;margin-left:4px">('+t.focusMinutes+'m logged)</span>':'');}
   const tsEl=document.getElementById('tf-timeline-s');if(tsEl)tsEl.value=t.timelineS||'';
   const teEl=document.getElementById('tf-timeline-e');if(teEl)teEl.value=t.timelineE||'';
   const numEl=document.getElementById('tf-num');if(numEl)numEl.value=t.numValue!=null?t.numValue:'';
@@ -15366,6 +15550,45 @@ function localDateStr(d){
   const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),day=String(d.getDate()).padStart(2,'0');
   return y+'-'+m+'-'+day;
 }
+// ── Recurring tasks ──────────────────────────────────────────────────────
+// Deliberately computes the next date from the CURRENT due date, not from
+// whenever you actually complete it — matches Apple Reminders/Things'
+// default ("strict" recurrence). Completing a weekly task 3 days late
+// still schedules the next one exactly 7 days after the original due
+// date, not 7 days after you got to it, so a slip doesn't compound.
+function _computeNextRecurDate(dueDateStr,recur){
+  if(!dueDateStr)return null;
+  const d=new Date(dueDateStr+'T00:00:00');
+  if(recur==='daily')d.setDate(d.getDate()+1);
+  else if(recur==='weekly')d.setDate(d.getDate()+7);
+  else if(recur==='biweekly')d.setDate(d.getDate()+14);
+  else if(recur==='monthly')d.setMonth(d.getMonth()+1);
+  else if(recur==='yearly')d.setFullYear(d.getFullYear()+1);
+  else return null;
+  return localDateStr(d);
+}
+function _maybeGenerateNextTaskOccurrence(task){
+  if(!task||!task.recur||task.recur==='none'||!task.due)return;
+  const nextDue=_computeNextRecurDate(task.due,task.recur);
+  if(!nextDue)return;
+  // Avoid double-generating if this fires more than once for the same
+  // completion (e.g. a conflict-resolution re-save) — check for an
+  // already-existing next occurrence from this parent at this due date.
+  if(DB.tasks.some(t=>t.recurParentId===task.id&&t.due===nextDue))return;
+  const next={
+    id:Date.now(),title:task.title,world:task.world,priority:task.priority,status:'Todo',
+    due:nextDue,platform:task.platform||'',client:task.client||'',notes:task.notes||'',
+    driveLink:task.driveLink||'',startTime:task.startTime||'',endTime:task.endTime||'',
+    recur:task.recur,groupId:null,
+    subitems:(task.subitems||[]).map(s=>({...s,status:'Todo'})),
+    timelineS:'',timelineE:nextDue,numValue:null,connBoard:null,connItemId:null,
+    sourceNoteId:null,sourceBlockId:null,sourceEventId:null,recurParentId:task.id,
+  };
+  DB.tasks.unshift(next);
+  SB.upsert('tasks',next,'tasks');
+  addHistory('add','Recurring task: '+next.title+' (due '+nextDue+')',{...next,_dbKey:'tasks'});
+  try{reRenderAll();}catch(e){}
+}
 const RECUR_DOW_MAP={SU:0,MO:1,TU:2,WE:3,TH:4,FR:5,SA:6};
 function expandRecurring(events,fromDate,toDate){
   const from=new Date(fromDate);from.setHours(0,0,0,0);
@@ -15531,6 +15754,110 @@ function _fireReminder(title,body){
 // so reloading the page the same day doesn't re-spam it either.
 const _dueNudged=new Set(JSON.parse(localStorage.getItem('j-due-nudged')||'[]'));
 function _markNudged(key){_dueNudged.add(key);localStorage.setItem('j-due-nudged',JSON.stringify([..._dueNudged].slice(-500)));}
+// ── Focus timer ──────────────────────────────────────────────────────────
+// Pomodoro-style, tied to a specific task. State persists across reloads
+// (localStorage) using an absolute endsAt timestamp rather than a
+// countdown that would drift or reset on refresh -- reopening the tab
+// mid-session picks up the real remaining time, not a stale one.
+let _focusTimer={taskId:null,taskTitle:'',endsAt:null,remainingMs:null,paused:false,intervalId:null,durationMin:25};
+function _saveFocusTimerState(){
+  if(_focusTimer.taskId){
+    localStorage.setItem('j-focus-timer',JSON.stringify({taskId:_focusTimer.taskId,taskTitle:_focusTimer.taskTitle,endsAt:_focusTimer.endsAt,remainingMs:_focusTimer.remainingMs,paused:_focusTimer.paused,durationMin:_focusTimer.durationMin}));
+  }else{
+    localStorage.removeItem('j-focus-timer');
+  }
+}
+function startFocusTimer(taskId,durationMin){
+  durationMin=durationMin||25;
+  const t=DB.tasks.find(x=>x.id===taskId);
+  _focusTimer={taskId,taskTitle:t?t.title:'Focus session',endsAt:Date.now()+durationMin*60000,remainingMs:null,paused:false,intervalId:_focusTimer.intervalId,durationMin};
+  _saveFocusTimerState();
+  const w=document.getElementById('focusTimerWidget');if(w)w.style.display='flex';
+  const btn=document.getElementById('focusTimerPauseBtn');if(btn)btn.innerHTML='<i class="ti ti-player-pause"></i>';
+  _startFocusTimerTick();
+  showToast('▶ Focus timer started — '+durationMin+' min');
+}
+function _startFocusTimerTick(){
+  clearInterval(_focusTimer.intervalId);
+  _focusTimer.intervalId=setInterval(_tickFocusTimer,1000);
+  _tickFocusTimer();
+}
+function _tickFocusTimer(){
+  if(!_focusTimer.taskId||_focusTimer.paused)return;
+  const remaining=_focusTimer.endsAt-Date.now();
+  if(remaining<=0){_completeFocusTimer();return;}
+  const totalSec=Math.ceil(remaining/1000);
+  const clockEl=document.getElementById('focusTimerClock');
+  if(clockEl)clockEl.textContent=String(Math.floor(totalSec/60)).padStart(2,'0')+':'+String(totalSec%60).padStart(2,'0');
+  const titleEl=document.getElementById('focusTimerTaskTitle');
+  if(titleEl)titleEl.textContent=_focusTimer.taskTitle;
+}
+function toggleFocusTimerPause(){
+  if(!_focusTimer.taskId)return;
+  if(_focusTimer.paused){
+    _focusTimer.endsAt=Date.now()+_focusTimer.remainingMs;
+    _focusTimer.paused=false;
+  }else{
+    _focusTimer.remainingMs=Math.max(0,_focusTimer.endsAt-Date.now());
+    _focusTimer.paused=true;
+  }
+  _saveFocusTimerState();
+  const btn=document.getElementById('focusTimerPauseBtn');
+  if(btn)btn.innerHTML=_focusTimer.paused?'<i class="ti ti-player-play"></i>':'<i class="ti ti-player-pause"></i>';
+}
+function stopFocusTimer(){
+  if(!_focusTimer.taskId)return;
+  if(!_focusTimer.paused){
+    const elapsedMin=Math.round((_focusTimer.durationMin*60000-Math.max(0,_focusTimer.endsAt-Date.now()))/60000);
+    if(elapsedMin>0)_logFocusTime(_focusTimer.taskId,elapsedMin);
+  }
+  clearInterval(_focusTimer.intervalId);
+  _focusTimer={taskId:null,taskTitle:'',endsAt:null,remainingMs:null,paused:false,intervalId:null,durationMin:25};
+  _saveFocusTimerState();
+  const w=document.getElementById('focusTimerWidget');if(w)w.style.display='none';
+}
+function _completeFocusTimer(){
+  const taskId=_focusTimer.taskId,taskTitle=_focusTimer.taskTitle,durationMin=_focusTimer.durationMin;
+  _logFocusTime(taskId,durationMin);
+  _fireReminder('Focus session complete','Nice work — '+durationMin+' min on "'+taskTitle+'"');
+  showToast('✓ Focus session complete!');
+  clearInterval(_focusTimer.intervalId);
+  _focusTimer={taskId:null,taskTitle:'',endsAt:null,remainingMs:null,paused:false,intervalId:null,durationMin:25};
+  _saveFocusTimerState();
+  const w=document.getElementById('focusTimerWidget');if(w)w.style.display='none';
+}
+function _logFocusTime(taskId,minutes){
+  const t=DB.tasks.find(x=>x.id===taskId);
+  if(!t)return;
+  t.focusMinutes=(t.focusMinutes||0)+minutes;
+  SB.update('tasks',t.id,{focusMinutes:t.focusMinutes},'tasks');
+  try{renderTasks();}catch(e){}
+}
+function _restoreFocusTimerOnBoot(){
+  try{
+    const raw=localStorage.getItem('j-focus-timer');
+    if(!raw)return;
+    const saved=JSON.parse(raw);
+    if(!saved.taskId)return;
+    if(!saved.paused&&saved.endsAt<=Date.now()){
+      // Session finished while the app was closed -- log it silently
+      // rather than firing a stale "complete" notification on reopen.
+      _logFocusTime(saved.taskId,saved.durationMin);
+      localStorage.removeItem('j-focus-timer');
+      return;
+    }
+    _focusTimer={taskId:saved.taskId,taskTitle:saved.taskTitle,endsAt:saved.endsAt,remainingMs:saved.remainingMs,paused:saved.paused,intervalId:null,durationMin:saved.durationMin};
+    const w=document.getElementById('focusTimerWidget');if(w)w.style.display='flex';
+    if(!saved.paused){
+      _startFocusTimerTick();
+    }else{
+      const totalSec=Math.ceil(saved.remainingMs/1000);
+      const clockEl=document.getElementById('focusTimerClock');if(clockEl)clockEl.textContent=String(Math.floor(totalSec/60)).padStart(2,'0')+':'+String(totalSec%60).padStart(2,'0');
+      const titleEl=document.getElementById('focusTimerTaskTitle');if(titleEl)titleEl.textContent=saved.taskTitle;
+      const btn=document.getElementById('focusTimerPauseBtn');if(btn)btn.innerHTML='<i class="ti ti-player-play"></i>';
+    }
+  }catch(e){}
+}
 function checkReminders(){
   if(!('Notification' in window))return;
   const now=new Date();
@@ -19160,6 +19487,7 @@ function loadOS(){
   }catch(e){console.warn('landing view pref:',e);}
   setTimeout(_handleShortcutAction,400);
   setTimeout(_handleShareTarget,400);
+  setTimeout(_restoreFocusTimerOnBoot,400);
   // Opportunistic re-subscribe for anyone who granted notification
   // permission before push existed — otherwise they'd never get pushed to
   // until they happen to revisit Settings and click Enable again.
