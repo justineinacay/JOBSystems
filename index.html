@@ -316,6 +316,15 @@ select option{background:var(--navy3)}
 .pgr{background:var(--warning-bg);color:var(--warning-text)}
 .ppu{background:rgba(168,85,247,.08);color:var(--purple);border:1px solid rgba(168,85,247,.2)}
 .pam{background:var(--warning-bg);color:var(--warning-text)}
+/* Task status — dedicated classes, not shared with client/venture/pipeline
+   status pills (.pt/.po/.pgr/.pam all alias to the same warning color,
+   which is correct for THOSE but would collide if reused here). A real
+   red-to-green spread across all 4 states instead of 3 of them
+   collapsing to the same amber. */
+.pts-noprogress{background:var(--danger-bg);color:var(--danger-text)}
+.pts-todo{background:var(--warning-bg);color:var(--warning-text)}
+.pts-progress{background:var(--info-bg);color:var(--info-text)}
+.pts-done{background:var(--success-bg);color:var(--success-text)}
 .pdot{width:7px;height:7px;border-radius:50%;flex-shrink:0;display:inline-block}
 .ph{background:var(--red);box-shadow:0 0 4px var(--red)}.pm{background:var(--amber)}.pl{background:var(--green)}
 
@@ -351,14 +360,14 @@ select option{background:var(--navy3)}
 .kc{display:flex;flex-direction:column;background:var(--navy2);border:1px solid var(--border);border-radius:12px;overflow:hidden;height:100%}
 .kch{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--border);flex-shrink:0}
 .kch-title{font-size:var(--text-xs);font-weight:700;letter-spacing:.1em;text-transform:uppercase}
-.kch.todo .kch-title{color:var(--text2)}
-.kch.prog .kch-title{color:var(--teal)}
-.kch.noprog .kch-title{color:var(--amber)}
-.kch.done .kch-title{color:var(--green)}
-.kch.todo{border-top:2px solid var(--text3)}
-.kch.prog{border-top:2px solid var(--teal)}
-.kch.noprog{border-top:2px solid var(--amber)}
-.kch.done{border-top:2px solid var(--green)}
+.kch.todo .kch-title{color:var(--warning-text)}
+.kch.prog .kch-title{color:var(--info-text)}
+.kch.noprog .kch-title{color:var(--danger-text)}
+.kch.done .kch-title{color:var(--success-text)}
+.kch.todo{border-top:2px solid var(--warning-text)}
+.kch.prog{border-top:2px solid var(--info-text)}
+.kch.noprog{border-top:2px solid var(--danger-text)}
+.kch.done{border-top:2px solid var(--success-text)}
 .kc-body{flex:1;overflow-y:auto;overflow-x:hidden;padding:8px;-webkit-overflow-scrolling:touch;min-height:0}
 .kcard{background:var(--navy3);border:1px solid var(--border);border-radius:8px;padding:9px 11px;margin-bottom:7px;cursor:pointer;transition:all .2s;position:relative}
 .kcard:hover{border-color:var(--teal);transform:translateY(-1px);box-shadow:0 4px 16px rgba(0,255,242,.15)}
@@ -4592,7 +4601,7 @@ select option{background:var(--navy3)}
           <!-- TRANSACTIONS TAB -->
           <div id="cf-transactions" style="display:none">
             <div id="cashFilterRow" style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap">
-              <select id="cf-filter-type" onchange="renderCashTable()" style="font-size:var(--text-xs);width:120px;padding:5px 8px"><option value="all">All Types</option><option value="Debit">Debit (Income)</option><option value="Credit">Credit (Expense)</option><option value="Payment">Payment</option><option value="Transfer">Transfer</option></select>
+              <select id="cf-filter-type" onchange="renderCashTable()" style="font-size:var(--text-xs);width:120px;padding:5px 8px"><option value="all">All Types</option><option value="Debit">Debit (Income)</option><option value="Credit">Credit (Expense)</option><option value="Transfer">Transfer</option></select>
               <select id="cf-filter-account" onchange="renderCashTable()" style="font-size:var(--text-xs);width:130px;padding:5px 8px"><option value="all">All Accounts</option></select>
               <select id="cf-filter-cat" onchange="renderCashTable()" style="font-size:var(--text-xs);width:130px;padding:5px 8px"><option value="all">All Categories</option></select>
               <input type="month" id="cf-filter-month" onchange="renderCashTable()" style="font-size:var(--text-xs);padding:5px 8px;width:140px">
@@ -6895,6 +6904,20 @@ function domainModuleOrderFor(worldId){
 }
 
 // ── Per-module renderers — each returns an HTML string for one card ────────
+// ── Task status color coding — single source of truth ───────────────────
+// Every view (kanban, table, domain modules, client cards, Venture/Build
+// boards...) used to define its own local copy of "status -> color".
+// They'd drifted apart: some mapped No Progress to amber, one mapped it
+// to red; the shared .pt/.pam/.pgr pill classes all alias to the exact
+// same warning color, so 3 of the 4 statuses were visually identical
+// pretty much everywhere. This is the one place that decides the
+// mapping now — a real red-to-green spread across all 4 states.
+function taskStatusPillClass(status){
+  return status==='Done'?'pts-done':status==='In Progress'?'pts-progress':status==='No Progress'?'pts-noprogress':'pts-todo';
+}
+function taskStatusColor(status){
+  return status==='Done'?'var(--success-text)':status==='In Progress'?'var(--info-text)':status==='No Progress'?'var(--danger-text)':'var(--warning-text)';
+}
 const DOMAIN_MODULE_RENDERERS={
   contacts:(worldId,colorVal)=>{
     const w=(DB.worlds||[]).find(x=>x.id===worldId);
@@ -7037,7 +7060,7 @@ const DOMAIN_MODULE_RENDERERS={
   tasks:(worldId,colorVal,worldTag,tasks)=>{
     const open=tasks.filter(t=>t.status!=='Done').slice(0,25);
     const priColor=p=>p==='High'?'var(--red)':p==='Medium'?'var(--amber)':'var(--text3)';
-    const statColor=s=>s==='Done'?'var(--green)':s==='In Progress'?'var(--teal)':s==='No Progress'?'var(--amber)':'var(--text3)';
+    const statColor=taskStatusColor;
     return`<div class="hc">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-shrink:0">
         <span style="font-size:var(--text-xs);font-weight:700;color:${colorVal};letter-spacing:.08em;text-transform:uppercase"><i class="ti ti-list-check"></i> Tasks</span>
@@ -7059,7 +7082,7 @@ const DOMAIN_MODULE_RENDERERS={
   },
   kanban:(worldId,colorVal,worldTag,tasks)=>{
     const statuses=['Todo','In Progress','No Progress','Done'];
-    const sc={'Todo':'var(--text3)','In Progress':'var(--teal)','No Progress':'var(--amber)','Done':'var(--green)'};
+    const sc=Object.fromEntries(statuses.map(s=>[s,taskStatusColor(s)]));
     return`<div class="hc">
       <div style="font-size:var(--text-xs);font-weight:700;color:${colorVal};letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px;flex-shrink:0"><i class="ti ti-layout-kanban"></i> Kanban</div>
       <div style="display:flex;gap:10px;overflow-x:auto;padding-bottom:4px;flex:1;min-height:0">
@@ -10931,7 +10954,7 @@ function renderMobileTaskCards(tasks,container){
           // Row 1: title + status pill
           '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:7px">'+
             '<div style="font-size:var(--text-sm);font-weight:700;color:var(--text1);line-height:1.35;flex:1">'+t.title+'</div>'+
-            '<span class="pill '+(t.status==='Done'?'pg':t.status==='In Progress'?'pt':t.status==='No Progress'?'pam':'pgr')+'" style="font-size:10px;flex-shrink:0;white-space:nowrap">'+(t.status||'Todo')+'</span>'+
+            '<span class="pill '+(taskStatusPillClass(t.status))+'" style="font-size:10px;flex-shrink:0;white-space:nowrap">'+(t.status||'Todo')+'</span>'+
           '</div>'+
 
           // Tags row: world + priority dot
@@ -11090,7 +11113,7 @@ function renderBriefWorldTasks(){
     {k:'FAITH',l:'Faith',c:'var(--purple)',icon:'ti-heart-handshake'},
     {k:'LIFE',l:'Life',c:'var(--teal2)',icon:'ti-leaf'}
   ];
-  const sc={'Todo':'var(--text3)','In Progress':'var(--teal)','No Progress':'var(--amber)','Done':'var(--green)'};
+  const sc={'Todo':taskStatusColor('Todo'),'In Progress':taskStatusColor('In Progress'),'No Progress':taskStatusColor('No Progress'),'Done':taskStatusColor('Done')};
   const el=document.getElementById('briefWorldTasks');if(!el)return;
   let rows='';
   worlds.forEach(w=>{
@@ -11580,7 +11603,7 @@ function renderBrief(){
 
   // TO DO NOW — full row list style matching screenshot
   const urgent=DB.tasks.filter(t=>t.priority==='High'&&t.status!=='Done').slice(0,6);
-  const worldColor=w=>w.startsWith('WORK-CS')?'var(--red)':w==='VENTURE'?'var(--orange)':w==='BUILD'?'var(--green)':w==='SIDES'?'var(--amber)':'var(--teal)';
+  const worldColor=w=>(w||'').startsWith('WORK-CS')?'var(--red)':w==='VENTURE'?'var(--orange)':w==='BUILD'?'var(--green)':w==='SIDES'?'var(--amber)':'var(--teal)';
   document.getElementById('briefToDo').innerHTML=urgent.map(t=>`
     <div style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--navy3);border:1px solid var(--border);border-radius:10px;cursor:pointer;transition:all .15s" onclick="editTask(${t.id})" onmouseover="this.style.background='rgba(0,255,242,.04)'" onmouseout="this.style.background='var(--navy3)'">
       <div style="width:18px;height:18px;border:1px solid var(--red);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
@@ -11864,7 +11887,7 @@ function renderSubitemRows(t,colCount){
     <td><span style="opacity:.4;margin-right:4px">↳</span>${s.title||'Sub-item'}</td>
     <td></td><td>${s.assignee||'—'}</td>
     <td></td>
-    <td><span class="pill ${s.status==='Done'?'pg':s.status==='In Progress'?'pt':'pgr'}" style="font-size:var(--text-xs)">${s.status||'Todo'}</span></td>
+    <td><span class="pill ${taskStatusPillClass(s.status)}" style="font-size:var(--text-xs)">${s.status||'Todo'}</span></td>
     <td colspan="${colCount-5}"></td>
   </tr>`).join('')+addRow;
 }
@@ -11954,7 +11977,7 @@ function renderBoardTable(tasks){
             </td>
             <td style="width:110px">${worldPill(t)}</td>
             <td style="width:90px"><span style="display:flex;align-items:center;gap:4px"><div class="pdot ${t.priority==='High'?'ph':t.priority==='Medium'?'pm':'pl'}"></div>${t.priority||'—'}</span></td>
-            <td style="width:110px"><span class="pill ${t.status==='Done'?'pg':t.status==='In Progress'?'pt':t.status==='No Progress'?'pam':'pgr'}">${t.status}</span></td>
+            <td style="width:110px"><span class="pill ${taskStatusPillClass(t.status)}">${t.status}</span></td>
             <td style="width:100px;color:var(--text3)">${t.due||'—'}</td>
             ${boardColVis.time?`<td style="width:90px;color:var(--text3)">${t.startTime?t.startTime.substring(0,5)+(t.endTime?' – '+to12h(t.endTime):''):'—'}</td>`:''}
             <td style="width:100px;color:var(--text3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${t.platform||'—'}</td>
@@ -11979,8 +12002,8 @@ function renderBoardKanban(tasks){
   const el=document.getElementById('boardBody');
   if(!el)return;
   const statuses=['Todo','In Progress','No Progress','Done'];
-  const sc={'Todo':'var(--text3)','In Progress':'var(--teal)','No Progress':'var(--amber)','Done':'var(--green)'};
-  const sch={'Todo':'pgr','In Progress':'pt','No Progress':'pam','Done':'pg'};
+  const sc={'Todo':taskStatusColor('Todo'),'In Progress':taskStatusColor('In Progress'),'No Progress':taskStatusColor('No Progress'),'Done':taskStatusColor('Done')};
+  const sch={'Todo':taskStatusPillClass('Todo'),'In Progress':taskStatusPillClass('In Progress'),'No Progress':taskStatusPillClass('No Progress'),'Done':taskStatusPillClass('Done')};
   const isMobile=window.innerWidth<=768;
 
   // Build world color map from DB.worlds (handles renamed worlds)
@@ -12256,7 +12279,6 @@ function initTaskDragSort(){
 // ── Upgraded buildKanban (used by WorkIH, WorkCS, Venture) ───────────────
 function buildKanban(containerId,tasks,world,statusList,statusColors,isOrange){
   const container=document.getElementById(containerId);if(!container)return;
-  const sch={'Todo':'pgr','In Progress':'pt','No Progress':'pam','Done':'pg'};
   const tgm={'Todo':'todo','In Progress':'prog','No Progress':'noprog','Done':'done'};
   container.innerHTML=statusList.map(s=>{
     const items=tasks.filter(t=>t.status===s);
@@ -12264,7 +12286,7 @@ function buildKanban(containerId,tasks,world,statusList,statusColors,isOrange){
     return`<div class="kc">
       <div class="kch ${tgm[s]||'todo'}">
         <span class="kch-title">${s.toUpperCase()}</span>
-        <span class="pill ${sch[s]}" style="font-size:var(--text-xs)">${items.length}</span>
+        <span class="pill ${taskStatusPillClass(s)}" style="font-size:var(--text-xs)">${items.length}</span>
       </div>
       <div class="kc-body" id="kc-${containerId}-${s.replace(/ /g,'_')}" data-status="${s}" ondragover="event.preventDefault();this.style.background='var(--hover-tint)'" ondragleave="this.style.background=''" ondrop="handleBuildKanbanDrop(event,'${s}')">
         ${items.map(t=>{
@@ -12368,7 +12390,7 @@ function renderWorkIH(){renderDomainTimerCard('work-ih');
 
     const statusCl=c.status==='Active'?'pt':c.status==='Urgent'?'pr':c.status==='Done'?'pg':'po';
     const pDot=p=>p==='High'?'#ef4444':p==='Medium'?'#f59e0b':'#4ade80';
-    const sCl=s=>s==='Done'?'pg':s==='In Progress'?'pt':s==='No Progress'?'pam':'pgr';
+    const sCl=taskStatusPillClass;
 
     return`<div style="background:var(--navy3);border:1px solid ${accentBorder};border-radius:12px;overflow:hidden;display:flex;flex-direction:column;transition:box-shadow .2s;font-size:var(--text-xs)" onmouseover="this.style.boxShadow='0 0 0 1px ${accentColor}50'" onmouseout="this.style.boxShadow='none'">
 
@@ -12433,7 +12455,7 @@ function askClientTasks(e,id){
   },350);
 }
 function populateIHClientFilter(){const sel=document.getElementById('ihCF');if(!sel)return;const clients=[...new Set(DB.tasks.filter(t=>t.world==='WORK-IH'&&t.client).map(t=>t.client))];sel.innerHTML='<option value="all">All Clients</option>'+clients.map(c=>`<option value="${c}">${c}</option>`).join('');}
-function renderIHClientTasks(){const cf=document.getElementById('ihCF')?.value||'all';const tasks=DB.tasks.filter(t=>t.world==='WORK-IH'&&(cf==='all'||t.client===cf));document.getElementById('ihCTbody').innerHTML=tasks.map(t=>`<tr onclick="editTask(${t.id})"><td style="font-weight:500">${t.title}</td><td>${t.client||'—'}</td><td style="font-size:var(--text-xs);color:var(--text3)">${t.platform||'—'}</td><td><span style="display:flex;align-items:center;gap:4px"><div class="pdot ${t.priority==='High'?'ph':t.priority==='Medium'?'pm':'pl'}"></div>${t.priority}</span></td><td><span class="pill ${t.status==='Done'?'pg':t.status==='In Progress'?'pt':t.status==='No Progress'?'pam':'pgr'}">${t.status}</span></td><td style="font-size:var(--text-xs);color:var(--text3)">${t.due||'—'}</td><td style="font-size:var(--text-xs);color:var(--text3);max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${t.notes||'—'}</td><td><button class="btn btn-d" style="padding:2px 7px" onclick="deleteTask(event,${t.id})"><i class="ti ti-trash" style="font-size:var(--text-xs);line-height:1;display:block"></i></button></td></tr>`).join('');}
+function renderIHClientTasks(){const cf=document.getElementById('ihCF')?.value||'all';const tasks=DB.tasks.filter(t=>t.world==='WORK-IH'&&(cf==='all'||t.client===cf));document.getElementById('ihCTbody').innerHTML=tasks.map(t=>`<tr onclick="editTask(${t.id})"><td style="font-weight:500">${t.title}</td><td>${t.client||'—'}</td><td style="font-size:var(--text-xs);color:var(--text3)">${t.platform||'—'}</td><td><span style="display:flex;align-items:center;gap:4px"><div class="pdot ${t.priority==='High'?'ph':t.priority==='Medium'?'pm':'pl'}"></div>${t.priority}</span></td><td><span class="pill ${taskStatusPillClass(t.status)}">${t.status}</span></td><td style="font-size:var(--text-xs);color:var(--text3)">${t.due||'—'}</td><td style="font-size:var(--text-xs);color:var(--text3);max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${t.notes||'—'}</td><td><button class="btn btn-d" style="padding:2px 7px" onclick="deleteTask(event,${t.id})"><i class="ti ti-trash" style="font-size:var(--text-xs);line-height:1;display:block"></i></button></td></tr>`).join('');}
 
 // ===== WORK CS =====
 // CS client config
@@ -12529,7 +12551,7 @@ function renderCSKanban(tasks,cfg){
 function renderCSList(tasks,cfg){
   if(!tasks){const allCS=DB.tasks.filter(t=>t.world==='WORK-CS');tasks=csActiveClient==='chainsmoker'?allCS.filter(t=>!t.client||/chainsmoker/i.test(t.client)):allCS.filter(t=>/sweetheart/i.test(t.client||''));}
   const tb=document.getElementById('csTbody');if(!tb)return;
-  tb.innerHTML=tasks.map(t=>`<tr onclick="editTask(${t.id})"><td style="font-weight:500">${t.title}</td><td style="font-size:var(--text-xs);color:var(--text3)">${t.client||'—'}</td><td style="font-size:var(--text-xs);color:var(--text3)">${t.platform||'—'}</td><td><span style="display:flex;align-items:center;gap:4px"><div class="pdot ${t.priority==='High'?'ph':t.priority==='Medium'?'pm':'pl'}"></div>${t.priority}</span></td><td><span class="pill ${t.status==='Done'?'pg':t.status==='In Progress'?'pt':t.status==='No Progress'?'pam':'pgr'}">${t.status}</span></td><td style="font-size:var(--text-xs);color:var(--text3)">${t.due||'—'}</td><td><button class="btn btn-d" style="padding:2px 7px" onclick="deleteTask(event,${t.id})"><i class="ti ti-trash" style="font-size:var(--text-xs);line-height:1;display:block"></i></button></td></tr>`).join('');
+  tb.innerHTML=tasks.map(t=>`<tr onclick="editTask(${t.id})"><td style="font-weight:500">${t.title}</td><td style="font-size:var(--text-xs);color:var(--text3)">${t.client||'—'}</td><td style="font-size:var(--text-xs);color:var(--text3)">${t.platform||'—'}</td><td><span style="display:flex;align-items:center;gap:4px"><div class="pdot ${t.priority==='High'?'ph':t.priority==='Medium'?'pm':'pl'}"></div>${t.priority}</span></td><td><span class="pill ${taskStatusPillClass(t.status)}">${t.status}</span></td><td style="font-size:var(--text-xs);color:var(--text3)">${t.due||'—'}</td><td><button class="btn btn-d" style="padding:2px 7px" onclick="deleteTask(event,${t.id})"><i class="ti ti-trash" style="font-size:var(--text-xs);line-height:1;display:block"></i></button></td></tr>`).join('');
 }
 
 // ===== TASKS =====
@@ -12897,7 +12919,7 @@ function _renderVTasks(){
   if(sf!=='all') tasks=tasks.filter(t=>t.status===sf);
 
   const pDot=p=>p==='High'?'#ef4444':p==='Medium'?'#f59e0b':'#4ade80';
-  const sCl=s=>s==='Done'?'pg':s==='In Progress'?'pt':s==='No Progress'?'pam':'pgr';
+  const sCl=taskStatusPillClass;
   const pCl=p=>p==='High'?'pr':p==='Medium'?'pam':'pgr';
 
   if(!tasks.length){
@@ -12922,7 +12944,7 @@ function _renderVTasks(){
   } else {
     // Kanban view — columns by status
     const statuses=['Todo','In Progress','No Progress','Done'];
-    const stColor=s=>s==='Done'?'var(--green)':s==='In Progress'?'var(--teal)':s==='No Progress'?'var(--red)':'var(--text3)';
+    const stColor=taskStatusColor;
     el.innerHTML=`<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:12px 16px;height:100%;align-content:start">
       ${statuses.map(s=>{
         const col=tasks.filter(t=>(t.status||'Todo')===s);
@@ -13271,7 +13293,7 @@ function renderBuildTasks(){
   let tasks=DB.tasks.filter(t=>t.world==='BUILD');
   if(sf!=='all')tasks=tasks.filter(t=>t.status===sf);
   const pDot=p=>p==='High'?'#ef4444':p==='Medium'?'#f59e0b':'#4ade80';
-  const sCl=s=>s==='Done'?'pg':s==='In Progress'?'pt':s==='No Progress'?'pam':'pgr';
+  const sCl=taskStatusPillClass;
   const pCl=p=>p==='High'?'pr':p==='Medium'?'pam':'pgr';
   tbody.innerHTML=tasks.length?tasks.map(t=>`<tr onclick="editTask(${t.id})" style="cursor:pointer">
     <td style="font-size:var(--text-sm);font-weight:600;color:var(--text1)">${t.title}</td>
@@ -14445,7 +14467,7 @@ function openCashModal(type,id){
   }
   // Category
   const catSel=document.getElementById('ca-cat');
-  const knownCats=['Housing','Food','Transport','Utilities','Business','Health','Entertainment','Income','Loan','Payment','Subscription','Other'];
+  const knownCats=['Housing','Food','Transport','Utilities','Business','Health','Entertainment','Income','Loan','Payment','Subscription','Family','Other'];
   if(existing){
     if(knownCats.includes(existing.category)){catSel.value=existing.category;}
     else{catSel.value='Other';}
@@ -15077,10 +15099,17 @@ function recordLoanPayment(id){
   l.amountPaid=(l.amountPaid||0)+amt;
   l.remaining=Math.max(0,(l.principal||0)-l.amountPaid);
   SB.update('loans',l.id,l,'loans');save('loans');
-  // Log as Credit (expense) in cashflow — reduces account balance
+  // Log as Credit (expense) in cashflow — reduces account balance. Was
+  // 'Payment' (a type that doesn't exist anywhere else in the app —
+  // every other expense total, monthly report, and budget check only
+  // ever looks for 'Credit'), which meant every loan payment logged this
+  // way was silently invisible in almost all bookkeeping views. category
+  // 'Loan' already carries the "this was a loan payment" distinction —
+  // that's the right place for it, not a parallel type value that only
+  // one code path understood.
   const entry={
     id:Date.now(),
-    type:'Payment',
+    type:'Credit',
     desc:'Loan payment — '+l.lender,
     amount:amt,
     account:acct.trim()||'GCash',
@@ -15108,6 +15137,31 @@ function toggleCashSort(){
   renderCashTable();
 }
 
+// Category is the real bookkeeping dimension (what a Credit/Debit was
+// FOR — Loan, Subscription, Food...), separate from type (which direction
+// the money moved). It was a plain-text column, making Loan payments and
+// Housing bills look no different from a coffee purchase at a glance —
+// color-code it like everything else that got this treatment this session.
+const CASHFLOW_CATEGORY_STYLE={
+  Income:{color:'var(--success-text)',icon:'ti-trending-up'},
+  Loan:{color:'var(--danger-text)',icon:'ti-building-bank'},
+  Payment:{color:'var(--danger-text)',icon:'ti-receipt'},
+  Subscription:{color:'var(--purple)',icon:'ti-refresh'},
+  Housing:{color:'var(--info-text)',icon:'ti-home'},
+  Utilities:{color:'var(--info-text)',icon:'ti-bolt'},
+  Food:{color:'var(--warning-text)',icon:'ti-tools-kitchen-2'},
+  Transport:{color:'var(--warning-text)',icon:'ti-car'},
+  Entertainment:{color:'var(--warning-text)',icon:'ti-device-tv'},
+  Business:{color:'var(--teal)',icon:'ti-briefcase'},
+  Health:{color:'var(--red)',icon:'ti-heart'},
+  Family:{color:'var(--purple)',icon:'ti-users'},
+  Other:{color:'var(--text3)',icon:'ti-dots'}
+};
+function cashflowCategoryBadge(cat){
+  if(!cat)return'<span style="color:var(--text3)">—</span>';
+  const style=CASHFLOW_CATEGORY_STYLE[cat]||{color:'var(--text3)',icon:'ti-tag'};
+  return`<span style="display:inline-flex;align-items:center;gap:4px;color:${style.color};font-size:var(--text-xs);font-weight:600"><i class="ti ${style.icon}" style="font-size:11px"></i>${cat}</span>`;
+}
 function renderCashTable(){
   const typeF    = document.getElementById('cf-filter-type')?.value    || 'all';
   const acctF    = document.getElementById('cf-filter-account')?.value || 'all';
@@ -15161,7 +15215,7 @@ function renderCashTable(){
             '<div style="font-size:var(--text-xs);color:var(--text3);margin-top:2px;display:flex;gap:8px">'+
               '<span>'+(t.date||'')+'</span>'+
               (t.account?'<span>'+t.account+'</span>':'')+
-              (t.category?'<span>'+t.category+'</span>':'')+
+              (t.category?cashflowCategoryBadge(t.category):'')+
             '</div>'+
           '</div>'+
           '<div style="flex-shrink:0;text-align:right">'+
@@ -15220,7 +15274,7 @@ function renderCashTable(){
       <td style="font-size:var(--text-sm);color:var(--text3);white-space:nowrap"><i class="ti ti-grip-vertical drag-grip-desktop" style="font-size:var(--text-xs);color:var(--text3);margin-right:4px;vertical-align:middle"></i><span class="reorder-mobile-btns" style="display:none;gap:2px;margin-right:4px"><button onclick="event.stopPropagation();moveCashTxn(${t.id},${prevNeighbor?prevNeighbor.id:'null'})" ${!prevNeighbor?'disabled':''} style="background:transparent;border:none;color:var(--text3);cursor:pointer;padding:0"><i class="ti ti-chevron-up" style="font-size:11px;line-height:1;display:block"></i></button><button onclick="event.stopPropagation();moveCashTxn(${t.id},${nextNeighbor?nextNeighbor.id:'null'})" ${!nextNeighbor?'disabled':''} style="background:transparent;border:none;color:var(--text3);cursor:pointer;padding:0"><i class="ti ti-chevron-down" style="font-size:11px;line-height:1;display:block"></i></button></span>${t.date||'—'}</td>
       <td style="font-size:var(--text-sm);font-weight:500;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${t.desc||''}">${t.desc||'—'}${t.notes?'<div style="font-size:var(--text-xs);color:var(--text3);font-style:italic">'+t.notes+'</div>':''}</td>
       <td><span class="pill" style="color:${typeColor};background:${typeBg};font-size:var(--text-sm)">${t.type.toUpperCase()}</span></td>
-      <td style="font-size:var(--text-sm);color:var(--text3)">${t.category||'—'}${t.catNotes?'<div style="font-size:var(--text-xs)">'+t.catNotes+'</div>':''}</td>
+      <td>${cashflowCategoryBadge(t.category)}${t.catNotes?'<div style="font-size:var(--text-xs);color:var(--text3)">'+t.catNotes+'</div>':''}</td>
       <td style="font-size:var(--text-sm);color:var(--text3)">${t.account||'—'}</td>
       <td style="font-size:var(--text-sm);font-weight:700;color:${amtColor};white-space:nowrap">${amtDisplay}</td>
       <td style="font-size:var(--text-sm);color:${balColor};white-space:nowrap">${balDisplay}</td>
