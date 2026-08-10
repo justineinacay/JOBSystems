@@ -15220,6 +15220,47 @@ const CAL_TYPE_MAP = {pt:'ih',oc:'cs',po:'ven',pg:'bld',pam:'sid',pu:'fth',pgr:'
 // mirrors any custom hex onto CAL_WORLDS so every calendar view (event
 // blocks, legend, pills, dots, agenda) reflects the same color everywhere.
 const CAL_WORLDS_DEFAULTS=CAL_WORLDS.map(w=>({id:w.id,color:w.color,hex:w.hex}));
+// Overlap layout — two events at the same time used to render fully
+// stacked on top of each other (identical left/right), making both
+// unreadable. Standard calendar-style collision layout: cluster events
+// whose time ranges transitively overlap, greedily assign each a column
+// within its cluster, then every event in a cluster gets 1/N width.
+function _layoutEventColumns(events){
+  const t2m=t=>{const[h,m]=t.split(':').map(Number);return h*60+m;};
+  const items=events.map(e=>{
+    const s=t2m(e.time);
+    let en=e.endTime?t2m(e.endTime):s+60;
+    if(en<=s)en=s+60; // overnight/zero-length guard
+    return{e,s,en};
+  }).sort((a,b)=>a.s-b.s||a.en-b.en);
+  const layout=new Map();
+  let cluster=[],clusterEnd=-Infinity;
+  const flushCluster=()=>{
+    if(!cluster.length)return;
+    const columns=[]; // columns[i] = end time of the last event placed in that column
+    cluster.forEach(item=>{
+      let placed=false;
+      for(let c=0;c<columns.length;c++){
+        if(columns[c]<=item.s){columns[c]=item.en;layout.set(item.e,{col:c,cols:0});placed=true;break;}
+      }
+      if(!placed){columns.push(item.en);layout.set(item.e,{col:columns.length-1,cols:0});}
+    });
+    cluster.forEach(item=>{layout.get(item.e).cols=columns.length;});
+    cluster=[];
+  };
+  items.forEach(item=>{
+    if(item.s>=clusterEnd)flushCluster();
+    cluster.push(item);
+    clusterEnd=Math.max(clusterEnd,item.en);
+  });
+  flushCluster();
+  return layout;
+}
+function _colStyle(layout,e){
+  const pos=layout.get(e);
+  if(!pos||pos.cols<=1)return'left:3px;right:3px;';
+  return`left:calc(${(pos.col/pos.cols*100).toFixed(3)}% + 2px);width:calc(${(100/pos.cols).toFixed(3)}% - 4px);right:auto;`;
+}
 const CAL_TO_DOMAIN_ID={ih:'work-ih',cs:'work-cs',ven:'venture',bld:'build',sid:'sides',fth:'faith',lif:'life'};
 // Reverse of the above (real DB.worlds slug -> calendar short code) — was
 // missing entirely, which is a real, separate bug from the missing 'cs'
@@ -15670,9 +15711,20 @@ function renderCalSidebar(){
   for(let i=1;i<=rem;i++) html+=`<div class="cal-mini-day om">${i}</div>`;
   grid.innerHTML=html;
 
+  // Legend / pills / dot row — must reflect live DB.worlds, not the
+  // hardcoded CAL_WORLDS array. CAL_WORLDS only exists as the internal
+  // short-code registry (ih/cs/ven/bld/sid/fth/lif) that calendar event
+  // types resolve through; it always contains all 7 original domains
+  // (including Chainsmoker/'cs') regardless of what's actually been
+  // deleted from Domains. Rendering the UI straight from it meant a
+  // deleted domain kept reappearing here forever — deleting it from
+  // DB.worlds never touched this constant, so there was nothing to
+  // "come back": it was never reading the real list in the first place.
+  const domainList=(DB.worlds||[]).map(w=>calWorldById(DOMAIN_ID_TO_CAL[w.id]||w.id));
+
   // Legend
   const leg=document.getElementById('calLegend');
-  if(leg)leg.innerHTML=CAL_WORLDS.map(w=>`
+  if(leg)leg.innerHTML=domainList.map(w=>`
     <div class="cal-legend-item" onclick="toggleCalContext('${w.id}',this)">
       <div class="cal-legend-dot" style="background:${w.hex};opacity:${calContextFilter.has(w.id)?1:.3}"></div>
       <span style="opacity:${calContextFilter.has(w.id)?1:.4}">${w.label}</span>
@@ -15680,11 +15732,11 @@ function renderCalSidebar(){
 
   // Context pills in toolbar (desktop)
   const pills=document.getElementById('calCtxFilters');
-  if(pills)pills.innerHTML=CAL_WORLDS.map(w=>`
+  if(pills)pills.innerHTML=domainList.map(w=>`
     <div class="cal-ctx-pill${calContextFilter.has(w.id)?' on':''}" style="background:${calContextFilter.has(w.id)?w.hex+'22':'transparent'};border-color:${calContextFilter.has(w.id)?w.hex:'rgba(255,255,255,.12)'};color:${calContextFilter.has(w.id)?w.hex:'var(--text3)'}" onclick="toggleCalContext('${w.id}',null)">${w.label}</div>`).join('');
   // World dots for mobile inline filter
   const dotRow=document.getElementById('calWorldDotRow');
-  if(dotRow)dotRow.innerHTML=CAL_WORLDS.map(w=>`<span style="width:8px;height:8px;border-radius:50%;background:${w.hex};display:inline-block;opacity:${calContextFilter.has(w.id)?1:.2};flex-shrink:0" title="${w.label}"></span>`).join('');
+  if(dotRow)dotRow.innerHTML=domainList.map(w=>`<span style="width:8px;height:8px;border-radius:50%;background:${w.hex};display:inline-block;opacity:${calContextFilter.has(w.id)?1:.2};flex-shrink:0" title="${w.label}"></span>`).join('');
 
   // Upcoming events (next 7 days)
   const up=document.getElementById('calUpcoming');
@@ -15936,15 +15988,17 @@ function renderCalWeek(){
     // Now line
     if(isT) html+=`<div class="cal-now-line" style="top:${nowPx}px"></div>`;
     // Events — with overnight split support
-    getEvs(ds).filter(e=>!e.allDay).forEach(e=>{
-      if(!e.time)return;
+    const dayTimedEvs=getEvs(ds).filter(e=>!e.allDay&&e.time);
+    const dayLayout=_layoutEventColumns(dayTimedEvs);
+    dayTimedEvs.forEach(e=>{
       const top=t2px(e.time);
       const w=calWorldById(normaliseType(e.type));
+      const colStyle=_colStyle(dayLayout,e);
       const isOvernight=e.endTime&&(()=>{const[sh,sm]=e.time.split(':').map(Number);const[eh,em]=e.endTime.split(':').map(Number);return eh*60+em<=sh*60+sm;})();
       if(isOvernight){
         // Clip at midnight — show arrow-down indicator
         const h1=Math.max(24*48-top,20);
-        html+=`<div class="cal-event-block" style="top:${top}px;height:${h1}px;background:${w.hex}22;border-left:3px solid ${w.hex};color:${w.color};border-bottom:1px dashed ${w.hex}88" onclick="event.stopPropagation();showCalPopover(event,${e.id||0},'${e._expandedDate||e.date}')">
+        html+=`<div class="cal-event-block" style="top:${top}px;height:${h1}px;${colStyle}background:${w.hex}22;border-left:3px solid ${w.hex};color:${w.color};border-bottom:1px dashed ${w.hex}88" onclick="event.stopPropagation();showCalPopover(event,${e.id||0},'${e._expandedDate||e.date}')">
           <div class="ceb-title">${e.title}</div>
           <div class="ceb-time">${to12h(e.time)} ↓</div>
         </div>`;
@@ -15952,7 +16006,7 @@ function renderCalWeek(){
         const bot=e.endTime?t2px(e.endTime):top+48;
         const h=Math.max(bot-top,20);
         const draggable=!e._recurring;
-        html+=`<div class="cal-event-block" ${draggable?`draggable="true" ondragstart="calDragStart(event,${e.id||0},${e._taskId?e._taskId:'null'})" ondragend="calDragEnd(event)"`:''} style="top:${top}px;height:${h}px;background:${w.hex}22;border-left:3px solid ${w.hex};color:${w.color}" onclick="event.stopPropagation();showCalPopover(event,${e.id||0},'${e._expandedDate||e.date}')">
+        html+=`<div class="cal-event-block" ${draggable?`draggable="true" ondragstart="calDragStart(event,${e.id||0},${e._taskId?e._taskId:'null'})" ondragend="calDragEnd(event)"`:''} style="top:${top}px;height:${h}px;${colStyle}background:${w.hex}22;border-left:3px solid ${w.hex};color:${w.color}" onclick="event.stopPropagation();showCalPopover(event,${e.id||0},'${e._expandedDate||e.date}')">
           <div class="ceb-title">${e.title}</div>
           <div class="ceb-time">${to12h(e.time)}${e.endTime?'–'+to12h(e.endTime):''}</div>
         </div>`;
@@ -16026,14 +16080,16 @@ function renderCalDay(){
   });
   if(isToday) html+=`<div class="cal-now-line" style="top:${nowPx}px;height:2px"></div>`;
   // Timed events — with overnight cross-day support
+  const dayLayout=_layoutEventColumns(timedEvs);
   timedEvs.forEach(e=>{
     const top=t2px(e.time);
     const w=calWorldById(normaliseType(e.type));
+    const colStyle=_colStyle(dayLayout,e);
     const isOvernight=e.endTime&&(()=>{const[sh,sm]=e.time.split(':').map(Number);const[eh,em]=e.endTime.split(':').map(Number);return eh*60+em<=sh*60+sm;})();
     if(isOvernight){
       // Block 1: start time → midnight (1440px mark)
       const h1=Math.max(1440-top,24);
-      html+=`<div class="cal-event-block" style="top:${top}px;height:${h1}px;background:${w.hex}22;border-left:3px solid ${w.hex};color:${w.color};border-bottom:1px dashed ${w.hex}88" onclick="event.stopPropagation();showCalPopover(event,${e.id||0},'${e._expandedDate||e.date}')">
+      html+=`<div class="cal-event-block" style="top:${top}px;height:${h1}px;${colStyle}background:${w.hex}22;border-left:3px solid ${w.hex};color:${w.color};border-bottom:1px dashed ${w.hex}88" onclick="event.stopPropagation();showCalPopover(event,${e.id||0},'${e._expandedDate||e.date}')">
         <div class="ceb-title">${e.title}</div>
         <div class="ceb-time">${to12h(e.time)} → midnight ↓</div>
         ${e.loc?`<div class="ceb-time"><i class="ti ti-map-pin"></i> ${e.loc}</div>`:''}
@@ -16042,7 +16098,7 @@ function renderCalDay(){
       const bot=e.endTime?t2px(e.endTime):top+60;
       const h=Math.max(bot-top,24);
       const draggable=!e._recurring;
-      html+=`<div class="cal-event-block" ${draggable?`draggable="true" ondragstart="calDragStart(event,${e.id||0},${e._taskId?e._taskId:'null'})" ondragend="calDragEnd(event)"`:''} style="top:${top}px;height:${h}px;background:${w.hex}22;border-left:3px solid ${w.hex};color:${w.color}" onclick="event.stopPropagation();showCalPopover(event,${e.id||0},'${e._expandedDate||e.date}')">
+      html+=`<div class="cal-event-block" ${draggable?`draggable="true" ondragstart="calDragStart(event,${e.id||0},${e._taskId?e._taskId:'null'})" ondragend="calDragEnd(event)"`:''} style="top:${top}px;height:${h}px;${colStyle}background:${w.hex}22;border-left:3px solid ${w.hex};color:${w.color}" onclick="event.stopPropagation();showCalPopover(event,${e.id||0},'${e._expandedDate||e.date}')">
         <div class="ceb-title">${e.title}</div>
         <div class="ceb-time">${to12h(e.time)}${e.endTime?' – '+to12h(e.endTime):''}</div>
         ${e.loc?`<div class="ceb-time"><i class="ti ti-map-pin"></i> ${e.loc}</div>`:''}
