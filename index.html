@@ -323,7 +323,7 @@ select option{background:var(--navy3)}
    collapsing to the same amber. */
 .pts-noprogress{background:var(--danger-bg);color:var(--danger-text)}
 .pts-todo{background:var(--warning-bg);color:var(--warning-text)}
-.pts-progress{background:var(--info-bg);color:var(--info-text)}
+.pts-progress{background:var(--blue2);color:var(--blue)}
 .pts-done{background:var(--success-bg);color:var(--success-text)}
 .pdot{width:7px;height:7px;border-radius:50%;flex-shrink:0;display:inline-block}
 .ph{background:var(--red);box-shadow:0 0 4px var(--red)}.pm{background:var(--amber)}.pl{background:var(--green)}
@@ -361,11 +361,11 @@ select option{background:var(--navy3)}
 .kch{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--border);flex-shrink:0}
 .kch-title{font-size:var(--text-xs);font-weight:700;letter-spacing:.1em;text-transform:uppercase}
 .kch.todo .kch-title{color:var(--warning-text)}
-.kch.prog .kch-title{color:var(--info-text)}
+.kch.prog .kch-title{color:var(--blue)}
 .kch.noprog .kch-title{color:var(--danger-text)}
 .kch.done .kch-title{color:var(--success-text)}
 .kch.todo{border-top:2px solid var(--warning-text)}
-.kch.prog{border-top:2px solid var(--info-text)}
+.kch.prog{border-top:2px solid var(--blue)}
 .kch.noprog{border-top:2px solid var(--danger-text)}
 .kch.done{border-top:2px solid var(--success-text)}
 .kc-body{flex:1;overflow-y:auto;overflow-x:hidden;padding:8px;-webkit-overflow-scrolling:touch;min-height:0}
@@ -6916,7 +6916,13 @@ function taskStatusPillClass(status){
   return status==='Done'?'pts-done':status==='In Progress'?'pts-progress':status==='No Progress'?'pts-noprogress':'pts-todo';
 }
 function taskStatusColor(status){
-  return status==='Done'?'var(--success-text)':status==='In Progress'?'var(--info-text)':status==='No Progress'?'var(--danger-text)':'var(--warning-text)';
+  // In Progress used --info-text, which turns out to be the exact same
+  // hex as --teal (#C9E85C) -- a yellow-green sitting right next to
+  // Todo's amber (#FFB547) on the wheel, close enough that they read as
+  // "the same color" at pill/dot size. Swapped to --blue, which shares
+  // no neighboring hue with red/amber/green, so all 4 are unambiguous
+  // even at a glance.
+  return status==='Done'?'var(--success-text)':status==='In Progress'?'var(--blue)':status==='No Progress'?'var(--danger-text)':'var(--warning-text)';
 }
 const DOMAIN_MODULE_RENDERERS={
   contacts:(worldId,colorVal)=>{
