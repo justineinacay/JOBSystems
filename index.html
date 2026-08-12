@@ -1137,6 +1137,11 @@ select option{background:var(--navy3)}
   #taskViewToggle{display:none !important}
   #taskSearchWrap{display:none !important}
   .bvt-wrap{display:none !important}
+  /* Secondary filters (Deadline/Time/Connected/Platform) and the
+     keyboard-shortcut hint are desktop conveniences with no touch
+     equivalent (no j/k nav on a phone) — free the row for the filters
+     that matter on mobile: Board/Priority/Status. */
+  .filter-hide-mobile{display:none !important}
   button,.btn,.ni,.mbn-tab,.mbn-center{min-height:44px}
   .kcard{min-height:54px}
   .mbn-tab{min-height:56px}
@@ -1349,6 +1354,12 @@ select option{background:var(--navy3)}
   #statusText,#topDate{display:none}
   .hpill{padding:3px 6px}
 }
+
+/* Default (desktop/tablet) — wraps if the window's narrow enough to need
+   it. The ≤430px media query below overrides this to a horizontal-scroll
+   single row instead. Moved out of an inline style on the element itself
+   so the mobile override isn't fighting inline-style precedence. */
+#cashFilterRow{flex-wrap:wrap}
 
 /* ═══════════════════════════════════════════════════════════════
    JELIX — THUMB-OPTIMISED PORTRAIT LAYOUT (≤430px)
@@ -1804,6 +1815,14 @@ select option{background:var(--navy3)}
   /* ── Task board mobile: hide desktop toolbar, show mobile bar ── */
   .board-toolbar{display:none !important}
   #mobileTaskBar{display:flex !important}
+  /* Filter chip row (Board/Priority/Status, once .filter-hide-mobile has
+     already dropped Deadline/Time/Connected/Platform above) — same
+     horizontal-scroll treatment as #cashFilterRow so it never wraps to a
+     second row regardless of how many chips remain. */
+  #taskFilterRow{flex-wrap:nowrap !important;overflow-x:auto !important;scrollbar-width:none !important}
+  #taskFilterRow::-webkit-scrollbar{display:none}
+  #taskFilterRow .filter-wrap{flex-shrink:0 !important}
+  #taskFilterRow .filter-chip-sel{font-size:13px !important;min-width:0 !important}
 
   /* ── Transaction table → mobile card list ── */
   #cashTransactionTable{display:none !important}
@@ -1816,9 +1835,27 @@ select option{background:var(--navy3)}
      font-size below 16px doesn't trigger Safari's zoom-on-focus. */
   #cashFilterRow{flex-direction:row !important;flex-wrap:nowrap !important;overflow-x:auto !important;scrollbar-width:none !important;gap:6px !important}
   #cashFilterRow::-webkit-scrollbar{display:none}
-  #cashFilterRow select,#cashFilterRow input{flex-shrink:0 !important;font-size:13px !important;width:auto !important}
-  #cf-filter-type,#cf-filter-account,#cf-filter-cat{width:100px !important}
-  #cf-filter-month{width:112px !important}
+  #cashFilterRow select,#cashFilterRow input{flex-shrink:0 !important;font-size:13px !important}
+  /* Qualified with #cashFilterRow (ID+ID beats ID+type) -- a plain
+     #cf-filter-type selector alone lost this exact cascade fight against
+     the rule above last time, caught in real-device testing: the row
+     scrolled correctly but every field still rendered at its old
+     120-140px width because "#cashFilterRow select" (1,0,1) out-specifies
+     a bare "#cf-filter-type" (1,0,0) regardless of which is written later. */
+  #cashFilterRow #cf-filter-type,#cashFilterRow #cf-filter-account,#cashFilterRow #cf-filter-cat{width:100px !important}
+  #cashFilterRow #cf-filter-month{width:112px !important}
+  /* View header (.vh) — shared by every domain (Life, Build, Sides, Notes,
+     History, etc.). Base padding is 16px/24px/14px, a desktop value never
+     overridden for mobile, so it was quietly the single biggest chunk of
+     "header space" stacked above every view's content — bigger than the
+     timer card or filter row individually. Shrinking it here is a global,
+     one-line win across all views, not just Life. */
+  .vh{padding:9px 14px !important;min-height:auto !important}
+  .vt{font-size:var(--text-sm) !important}
+  .vs{margin-top:1px !important}
+  /* Tab strip (Overview/Transactions/Budget/Accounts) — tighten the gap
+     below it to match the rest of the compacted stack. */
+  .cftab{margin-bottom:8px !important}
   /* Life view header buttons — wrap */
   #view-life .vh{flex-wrap:wrap !important;gap:6px !important}
   #cfActionBtns{flex-wrap:wrap !important;gap:5px !important}
@@ -4615,7 +4652,7 @@ select option{background:var(--navy3)}
 
           <!-- TRANSACTIONS TAB -->
           <div id="cf-transactions" style="display:none">
-            <div id="cashFilterRow" style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap">
+            <div id="cashFilterRow" style="display:flex;gap:8px;margin-bottom:10px">
               <select id="cf-filter-type" onchange="renderCashTable()" style="font-size:var(--text-xs);width:120px;padding:5px 8px"><option value="all">All Types</option><option value="Debit">Debit (Income)</option><option value="Credit">Credit (Expense)</option><option value="Transfer">Transfer</option></select>
               <select id="cf-filter-account" onchange="renderCashTable()" style="font-size:var(--text-xs);width:130px;padding:5px 8px"><option value="all">All Accounts</option></select>
               <select id="cf-filter-cat" onchange="renderCashTable()" style="font-size:var(--text-xs);width:130px;padding:5px 8px"><option value="all">All Categories</option></select>
@@ -4932,7 +4969,7 @@ select option{background:var(--navy3)}
           </div>
 
           <!-- ROW 2: All filter chips inline -->
-          <div style="display:flex;align-items:center;gap:6px;padding:7px 14px;background:var(--navy3);flex-wrap:wrap;border-bottom:1px solid var(--border)">
+          <div id="taskFilterRow" style="display:flex;align-items:center;gap:6px;padding:7px 14px;background:var(--navy3);flex-wrap:wrap;border-bottom:1px solid var(--border)">
 
             <!-- Board / World -->
             <div class="filter-wrap" data-filter="board" style="display:flex;align-items:center;gap:4px">
