@@ -2721,8 +2721,9 @@ select option{background:var(--navy3)}
     <div class="mb">
       <div class="fg"><label class="fl">Title</label><input id="tf-title" placeholder="Task title..."></div>
       <div class="fr">
-        <div class="fg"><label class="fl">Domain</label><select id="tf-world" onchange="updateTaskClientDropdown(this.value)"><option value="WORK-IH">WORK — Ideahub</option><option value="WORK-CS">WORK — Chainsmoker & Sweetheart</option><option value="VENTURE">VENTURE</option><option value="BUILD">BUILD</option><option value="SIDES">SIDES</option><option value="FAITH">FAITH</option><option value="LIFE">LIFE</option></select></div>
+        <div class="fg"><label class="fl">Domain</label><select id="tf-world" onchange="updateTaskClientDropdown(this.value);refreshProjectSelect('tf-project',this.value,'')"><option value="WORK-IH">WORK — Ideahub</option><option value="WORK-CS">WORK — Chainsmoker & Sweetheart</option><option value="VENTURE">VENTURE</option><option value="BUILD">BUILD</option><option value="SIDES">SIDES</option><option value="FAITH">FAITH</option><option value="LIFE">LIFE</option></select></div>
         <div class="fg"><label class="fl">Priority</label><select id="tf-prio"><option>High</option><option>Medium</option><option>Low</option></select></div>
+        <div class="fg"><label class="fl">Project</label><select id="tf-project" onchange="handleProjectSelectChange(this,document.getElementById('tf-world').value)"></select></div>
       </div>
       <div class="fr">
         <div class="fg"><label class="fl">Status</label><select id="tf-status"><option>Todo</option><option>In Progress</option><option>No Progress</option><option>Done</option></select></div>
@@ -3209,7 +3210,7 @@ select option{background:var(--navy3)}
         <div class="fg"><label class="fl">End Time</label><select id="ce-end-time"></select></div>
       </div>
       <div class="fr">
-        <div class="fg"><label class="fl">Domain / Context</label><select id="ce-type">
+        <div class="fg"><label class="fl">Domain / Context</label><select id="ce-type" onchange="if(typeof refreshProjectSelect==='function')refreshProjectSelect('ce-project',_ceTypeToWorldId(this.value),'')">
           <option value="ih">WORK — Ideahub</option>
           <option value="cs">WORK — Chainsmoker</option>
           <option value="ven">Job Collectives</option>
@@ -3219,6 +3220,9 @@ select option{background:var(--navy3)}
           <option value="lif">LIFE / Personal</option>
         </select></div>
         <div class="fg"><label class="fl">Location / Link</label><input id="ce-loc" placeholder="Address or meeting link..."></div>
+      </div>
+      <div class="fr">
+        <div class="fg"><label class="fl">Project</label><select id="ce-project" onchange="handleProjectSelectChange(this,_ceTypeToWorldId(document.getElementById('ce-type').value))"></select></div>
       </div>
       <div class="fr">
         <div class="fg" style="max-width:160px">
@@ -4988,6 +4992,7 @@ select option{background:var(--navy3)}
               <button class="bvt active" id="btv-table"   onclick="setBoardView('table')">Table</button>
               <button class="bvt"        id="btv-kanban"  onclick="setBoardView('kanban')">Kanban</button>
               <button class="bvt"        id="btv-boards"  onclick="setBoardView('boards')">Boards</button>
+              <button class="bvt"        id="btv-project" onclick="setBoardView('project')">Project</button>
             </div>
             <div id="taskSearchWrap" style="display:flex;flex:1;min-width:100px">
               <input class="board-search" id="boardSearch" placeholder="🔍 Search tasks…" oninput="renderTasks()" style="width:100%">
@@ -5152,6 +5157,7 @@ select option{background:var(--navy3)}
           <div id="noteTitle" contenteditable="true" style="font-size:var(--text-sm);font-weight:700;outline:none;color:var(--teal);flex:1;padding:0 4px;min-width:200px" onblur="saveNoteTitle()">Untitled Note</div>
           <span id="notesEditToggleMount"></span>
           <select id="noteFolderSelect" onchange="setNoteFolder(this.value)" style="font-size:var(--text-xs);width:auto;margin-right:8px" title="Folder"></select>
+          <select id="note-project" onchange="setNoteProject(this.value)" style="font-size:var(--text-xs);width:auto;margin-right:8px" title="Project"></select>
           <button class="mc" onclick="closeModal('noteEditorModal')">×</button>
         </div>
         <div class="mb" style="padding:14px">
@@ -5995,6 +6001,7 @@ const SB={
         else if(table==='saved_links')DB[key]=rows.map(r=>({...r,previewImage:r.preview_image,worldId:r.world_id,projectId:r.project_id}));
         else if(table==='item_links')DB[key]=rows.map(r=>({...r,fromType:r.from_type,fromId:r.from_id,toType:r.to_type,toId:r.to_id}));
         else if(table==='cal_events')DB[key]=rows.map(r=>({...r,recurExceptions:r.recur_exceptions||{}}));
+        else if(table==='projects')DB[key]=rows.map(r=>({...r,worldId:r.world_id}));
         else DB[key]=rows;
         save(key);
       }
@@ -6006,6 +6013,7 @@ const SB={
     let r=this._sanitizeDates(row);
     if(table==='cashflow'){r.description=row.desc;delete r.desc;delete r._fromAccount;delete r._toAccount;delete r._runBal;}
     if(table==='cal_events'){r.recur_exceptions=row.recurExceptions||{};delete r.recurExceptions;delete r._expandedDate;delete r._recurring;delete r._taskId;delete r._isTask;delete r._billId;delete r._isBill;}
+    if(table==='projects'){r.world_id=row.worldId;delete r.worldId;}
     if(table==='memories'){delete r.source;}
     if(table==='tasks'){if(r.driveLink!==undefined){r.link=r.driveLink;delete r.driveLink;}}
     if(table==='saved_links'){r.preview_image=row.previewImage;r.world_id=row.worldId;r.project_id=row.projectId;delete r.previewImage;delete r.worldId;delete r.projectId;}
@@ -6032,6 +6040,7 @@ const SB={
     let c=this._sanitizeDates(changes);
     if(table==='cashflow'){if(c.desc){c.description=c.desc;delete c.desc;}delete c._fromAccount;delete c._toAccount;delete c._runBal;}
     if(table==='cal_events'){if(c.recurExceptions!==undefined){c.recur_exceptions=c.recurExceptions;delete c.recurExceptions;}delete c._expandedDate;delete c._recurring;delete c._taskId;delete c._isTask;delete c._billId;delete c._isBill;}
+    if(table==='projects'&&c.worldId!==undefined){c.world_id=c.worldId;delete c.worldId;}
     if(table==='memories'){delete c.source;}
     if(table==='tasks'){if(c.driveLink!==undefined){c.link=c.driveLink;delete c.driveLink;}}
     if(table==='saved_links'){if(c.previewImage!==undefined){c.preview_image=c.previewImage;delete c.previewImage;}if(c.worldId!==undefined){c.world_id=c.worldId;delete c.worldId;}if(c.projectId!==undefined){c.project_id=c.projectId;delete c.projectId;}}
@@ -6683,7 +6692,7 @@ function initRealtime(){
 
 async function loadAllFromSupabase(){
   showToast('↻ Syncing with Supabase...');
-  await Promise.all([SB.load('tasks','tasks'),SB.load('clients','clients'),SB.load('venture','venture'),SB.load('faith','faith'),SB.load('cashflow','cashflow'),SB.load('cal_events','calEvents'),SB.load('journal','journal'),SB.load('notes','notes'),SB.load('memories','memories'),SB.load('sides','sides'),SB.load('history','history'),SB.load('loans','loans'),SB.load('accounts','accounts'),SB.load('collateral','collateral'),SB.load('social_posts','socialPosts'),SB.load('creative_projects','creativeProjects'),SB.load('pipeline','pipeline'),SB.load('campaigns','campaigns'),SB.load('influencers','influencers'),SB.load('pricing','pricing'),SB.load('credentials','credentials'),SB.load('saved_links','savedLinks'),SB.load('item_links','itemLinks'),_pullWorldsFromCloud()]);
+  await Promise.all([SB.load('tasks','tasks'),SB.load('clients','clients'),SB.load('venture','venture'),SB.load('faith','faith'),SB.load('cashflow','cashflow'),SB.load('cal_events','calEvents'),SB.load('journal','journal'),SB.load('notes','notes'),SB.load('memories','memories'),SB.load('sides','sides'),SB.load('history','history'),SB.load('loans','loans'),SB.load('accounts','accounts'),SB.load('collateral','collateral'),SB.load('social_posts','socialPosts'),SB.load('creative_projects','creativeProjects'),SB.load('pipeline','pipeline'),SB.load('campaigns','campaigns'),SB.load('influencers','influencers'),SB.load('pricing','pricing'),SB.load('credentials','credentials'),SB.load('saved_links','savedLinks'),SB.load('item_links','itemLinks'),SB.load('projects','projects'),_pullWorldsFromCloud()]);
   reRenderAll();if(typeof renderTagsDatalist==='function')renderTagsDatalist();if(typeof updateInboxBadge==='function')updateInboxBadge();showToast('✓ Supabase synced');speak('All systems synced.');
 }
 // ═══════════════════════════════════════════════════════════════════════════
@@ -10370,6 +10379,10 @@ const DB={
   // per relation; read as bidirectional (a query checks both from_/to_ sides
   // for a given item) even though it's stored as a single directed row.
   itemLinks:JSON.parse(localStorage.getItem('j-itemLinks')||'null')||[],
+  // Projects — a layer between Domain and item. Scoped to one Domain
+  // (world_id), never crosses Domains. null project_id on a task/note/
+  // event means "Unassigned" within that Domain, never invisible.
+  projects:JSON.parse(localStorage.getItem('j-projects')||'null')||[],
   journal:JSON.parse(localStorage.getItem('j-journal')||'null')||[],
   memories:JSON.parse(localStorage.getItem('j-memories')||'null')||[
     {id:1,memory:'RTP prefers meetings with CFO Rachel in the afternoon PHT',category:'Client Preference',world:'WORK-IH',date:'2026-06-09'},
@@ -11908,7 +11921,7 @@ let collapsedGroups=new Set();
 
 function setBoardView(v){
   boardView=v;
-  ['table','kanban','boards'].forEach(vv=>{
+  ['table','kanban','boards','project'].forEach(vv=>{
     const b=document.getElementById('btv-'+vv);
     if(b)b.classList.toggle('active',vv===v);
   });
@@ -12226,6 +12239,142 @@ function moveKanbanTask(taskId,newStatus){
   showToast('✓ Moved to '+newStatus);
 }
 
+// ── PROJECT VIEW (group by Project within each Domain, drag to reassign) ──
+// Mirrors the Kanban view's structure and drag-and-drop mechanism exactly
+// (handleKanbanDragStart/handleKanbanDrop/moveKanbanTask above), just with
+// Project as the grouping axis instead of Status, and one section-row per
+// Domain since a Project never crosses Domains.
+function renderBoardProjectGrouped(tasks){
+  const el=document.getElementById('boardBody');
+  if(!el)return;
+  el.style.cssText='flex:1;min-height:0;overflow-y:auto;display:flex;flex-direction:column';
+  const worldsPresent=[...new Set(tasks.map(t=>t.world))];
+  if(!worldsPresent.length){
+    el.innerHTML='<div id="projBulkBar"></div><div style="padding:32px;text-align:center;color:var(--text3);font-size:var(--text-sm)">No tasks match the current filters.</div>';
+    updateProjBulkBar();
+    return;
+  }
+  let html='<div id="projBulkBar"></div><div style="padding:12px;display:flex;flex-direction:column;gap:18px">';
+  worldsPresent.forEach(worldId=>{
+    const board=getBoards().find(b=>b.id===worldId)||{name:worldId,color:'var(--text2)'};
+    const worldTasks=tasks.filter(t=>t.world===worldId);
+    const projects=getProjectsForWorld(worldId);
+    const sections=[...projects.map(p=>({id:p.id,name:p.name})),{id:null,name:'Unassigned'}];
+    html+=`<div>
+      <div style="font-size:var(--text-xs);font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:${board.color};margin-bottom:8px">${board.name}</div>
+      <div style="display:flex;gap:10px;overflow-x:auto;padding-bottom:6px">
+        ${sections.map(sec=>{
+          const secTasks=worldTasks.filter(t=>(t.projectId||null)===sec.id);
+          return `<div ondragover="event.preventDefault();this.style.background='var(--hover-tint)'" ondragleave="this.style.background=''" ondrop="handleProjectDrop(event,${sec.id?`'${sec.id}'`:'null'},'${worldId}')" style="min-width:220px;flex:1 1 220px;background:var(--navy2);border:1px solid var(--border);border-radius:12px;overflow:hidden;transition:background .15s">
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;border-bottom:1px solid var(--border);background:var(--hover-tint)">
+              <span style="font-size:var(--text-xs);font-weight:700;color:var(--text2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${sec.name}</span>
+              <span style="display:flex;align-items:center;gap:2px;flex-shrink:0">
+                <span style="font-size:var(--text-xs);color:var(--text3);margin-right:2px">${secTasks.length}</span>
+                ${sec.id?`<button onclick="event.stopPropagation();renameProject('${sec.id}')" title="Rename" style="background:transparent;border:none;color:var(--text3);cursor:pointer;padding:2px"><i class="ti ti-pencil" style="font-size:10px"></i></button><button onclick="event.stopPropagation();deleteProject('${sec.id}')" title="Delete" style="background:transparent;border:none;color:var(--text3);cursor:pointer;padding:2px"><i class="ti ti-trash" style="font-size:10px"></i></button>`:''}
+              </span>
+            </div>
+            <div style="padding:6px;display:flex;flex-direction:column;gap:5px;min-height:64px">
+              ${secTasks.length?secTasks.map(t=>`<div draggable="true" ondragstart="handleProjectDragStart(event,${t.id})" ondragend="this.style.opacity='1'" onclick="editTask(${t.id})" style="background:var(--navy3);border:1px solid var(--border);border-radius:8px;padding:8px 10px;cursor:grab;display:flex;gap:6px;align-items:flex-start">
+                <input type="checkbox" onclick="event.stopPropagation()" onchange="toggleTaskSelect(${t.id},this.checked)" ${selectedTaskIds.has(t.id)?'checked':''} style="width:auto;accent-color:var(--teal);margin-top:2px;flex-shrink:0">
+                <div style="min-width:0;flex:1">
+                  <div style="color:var(--text1);font-weight:600;font-size:var(--text-xs);margin-bottom:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${t.title}</div>
+                  <span class="pill ${taskStatusPillClass(t.status)}" style="font-size:9px">${t.status}</span>
+                </div>
+              </div>`).join(''):'<div style="font-size:var(--text-xs);color:var(--text3);text-align:center;padding:10px">Drop here</div>'}
+            </div>
+          </div>`;
+        }).join('')}
+        <div style="flex-shrink:0;display:flex;flex-direction:column;gap:6px;align-items:stretch">
+          <button onclick="createProjectFlow('${worldId}')" style="background:transparent;border:1px dashed var(--border2);border-radius:12px;padding:0 16px;color:var(--text3);font-size:var(--text-xs);cursor:pointer;white-space:nowrap;flex:1"><i class="ti ti-plus"></i> New Project</button>
+          ${projects.length>1?`<button onclick="mergeProjectsFlow('${worldId}')" style="background:transparent;border:1px dashed var(--border2);border-radius:12px;padding:0 16px;color:var(--text3);font-size:var(--text-xs);cursor:pointer;white-space:nowrap;flex:1"><i class="ti ti-arrows-join"></i> Merge</button>`:''}
+        </div>
+      </div>
+    </div>`;
+  });
+  html+='</div>';
+  el.innerHTML=html;
+  updateProjBulkBar();
+}
+function toggleTaskSelect(taskId,checked){
+  if(checked)selectedTaskIds.add(taskId);
+  else selectedTaskIds.delete(taskId);
+  updateProjBulkBar();
+}
+function clearProjSelection(){
+  selectedTaskIds.clear();
+  updateProjBulkBar();
+  // Selection state also drives the row-highlight in Table view, which
+  // needs a real re-render (not just the lightweight bulk-bar update) to
+  // clear; Project view's checkboxes already reflect state on their own.
+  if(boardView==='table')renderTasks();
+}
+// Bulk "Move to Project" — only makes sense when every selected task
+// belongs to the same Domain (a Project can't span Domains), so the bar
+// disables the picker with an explanatory hint otherwise rather than
+// silently doing something wrong.
+function updateProjBulkBar(){
+  const bar=document.getElementById('projBulkBar');
+  if(!bar)return;
+  const n=selectedTaskIds.size;
+  if(!n){bar.innerHTML='';bar.style.display='none';return;}
+  bar.style.display='block';
+  const selected=[...selectedTaskIds].map(id=>DB.tasks.find(t=>t.id===id)).filter(Boolean);
+  const worldsInSelection=new Set(selected.map(t=>t.world));
+  const sameDomain=worldsInSelection.size===1;
+  const worldId=sameDomain?[...worldsInSelection][0]:null;
+  bar.innerHTML=`<div style="display:flex;align-items:center;gap:10px;padding:8px 12px;margin:12px 12px 0;background:var(--navy3);border:1px solid var(--teal2);border-radius:12px;flex-wrap:wrap">
+    <span style="font-size:var(--text-xs);font-weight:700;color:var(--text1)">${n} selected</span>
+    ${sameDomain
+      ?`<span style="font-size:var(--text-xs);color:var(--text3)">Move to:</span><select onchange="bulkMoveSelectedTasksToProject(this.value)" style="font-size:var(--text-xs);padding:4px 8px;width:auto">${projectOptionsHtml(worldId,'')}</select>`
+      :`<span style="font-size:var(--text-xs);color:var(--text3)">Select tasks from one Domain to bulk-move Project.</span>`}
+    <button onclick="clearProjSelection()" style="margin-left:auto;background:transparent;border:1px solid var(--border2);border-radius:8px;color:var(--text3);font-size:var(--text-xs);padding:4px 10px;cursor:pointer">Clear</button>
+  </div>`;
+}
+function bulkMoveSelectedTasksToProject(projectIdOrNew){
+  const worldId=[...selectedTaskIds].map(id=>DB.tasks.find(t=>t.id===id)).find(Boolean)?.world;
+  if(projectIdOrNew==='__new__'){
+    const p=createProjectFlow(worldId);
+    if(!p){updateProjBulkBar();return;}
+    projectIdOrNew=p.id;
+  }
+  const newProjectId=projectIdOrNew||null;
+  selectedTaskIds.forEach(id=>{
+    const t=DB.tasks.find(x=>x.id===id);
+    if(!t)return;
+    t.projectId=newProjectId;
+    SB.update('tasks',t.id,{projectId:newProjectId},'tasks').catch(()=>{});
+  });
+  save('tasks');
+  addHistory('edit',`Bulk-moved ${selectedTaskIds.size} task(s) to Project`,{_dbKey:'tasks'});
+  selectedTaskIds.clear();
+  renderTasks();
+  showToast('✓ Moved');
+}
+let _projectDragTaskId=null;
+function handleProjectDragStart(e,taskId){
+  _projectDragTaskId=taskId;
+  e.dataTransfer.effectAllowed='move';
+  e.target.style.opacity='.4';
+}
+function handleProjectDrop(e,projectId,worldId){
+  e.preventDefault();
+  e.currentTarget.style.background='';
+  if(_projectDragTaskId==null)return;
+  const t=DB.tasks.find(x=>x.id===_projectDragTaskId);
+  _projectDragTaskId=null;
+  if(!t)return;
+  // Projects don't cross Domains — dragging a task's card only ever
+  // appears within its own Domain's row, but guard anyway in case a
+  // future layout ever mixes rows.
+  if(t.world!==worldId){showToast('⚠ Can only reassign Project within the same Domain.');return;}
+  const newProjectId=projectId||null;
+  if((t.projectId||null)===newProjectId)return;
+  t.projectId=newProjectId;
+  save('tasks');
+  SB.update('tasks',t.id,{projectId:newProjectId},'tasks').catch(()=>{});
+  renderTasks();
+}
+
 // ── BOARDS LIST VIEW (Workspace overview) ─────────────────────────────────
 function renderBoardsListView(){
   const el=document.getElementById('boardBody');
@@ -12406,6 +12555,7 @@ function renderTasks(){
   if(boardView==='table'){renderBoardTable(tasks);initTaskDragSort();}
   else if(boardView==='kanban') renderBoardKanban(tasks);
   else if(boardView==='boards') renderBoardsListView();
+  else if(boardView==='project') renderBoardProjectGrouped(tasks);
 }
 
 function initTaskDragSort(){
@@ -12789,6 +12939,13 @@ function openModal(id){
     if(rc)rc.innerHTML=(editingTaskId!=null)?renderRelatedSection('task',editingTaskId):'<div style="font-size:var(--text-xs);color:var(--text3)">Save the task first, then come back to link related items.</div>';
     const tc=document.getElementById('tf-tags');
     if(tc)tc.innerHTML=(editingTaskId!=null)?renderTagsSection('task',editingTaskId):'<div style="font-size:var(--text-xs);color:var(--text3)">Save the task first, then come back to tag it.</div>';
+    // New-task case only — editTask() already populated this correctly
+    // (with the task's actual projectId) before calling openModal, and
+    // this generic branch would otherwise stomp that with an empty pick.
+    if(editingTaskId==null&&typeof refreshProjectSelect==='function'){
+      const wEl=document.getElementById('tf-world');
+      refreshProjectSelect('tf-project',wEl?wEl.value:'WORK-IH','');
+    }
   }
   if(id==='calModal'&&typeof renderRelatedSection==='function'){
     const rc=document.getElementById('ce-related');
@@ -12822,6 +12979,7 @@ function saveTask(){
   const startDate=document.getElementById('tf-start-date')?.value||'';
   const existing=editingTaskId?DB.tasks.find(x=>x.id===editingTaskId):{};
   const t={id:editingTaskId||Date.now(),title:document.getElementById('tf-title').value.trim()||'Untitled Task',world:document.getElementById('tf-world').value,priority:document.getElementById('tf-prio').value,status:document.getElementById('tf-status').value,startDate,due:document.getElementById('tf-due').value,platform:document.getElementById('tf-platform').value.trim(),client:document.getElementById('tf-client').value.trim(),notes:document.getElementById('tf-notes').value,driveLink:document.getElementById('tf-drive-link')?.value.trim()||'',startTime,endTime,
+    projectId:  document.getElementById('tf-project')?.value||null,
     recur:      document.getElementById('tf-recur')?.value||'none',
     groupId:    existing.groupId    || null,
     subitems:   existing.subitems   || [],
@@ -12866,6 +13024,7 @@ function editTask(id){
   document.getElementById('taskModalTitle').textContent='Edit Task';
   document.getElementById('tf-title').value=t.title;
   document.getElementById('tf-world').value=t.world;
+  if(typeof refreshProjectSelect==='function')refreshProjectSelect('tf-project',t.world,t.projectId);
   document.getElementById('tf-prio').value=t.priority;
   document.getElementById('tf-status').value=t.status;
   document.getElementById('tf-due').value=t.due||'';
@@ -17198,6 +17357,7 @@ function editCalEvent(id,occurrenceDate){
   build12hOptions('ce-end-time',v.endTime||'');
   _populateCeTypeCustomDomains();
   document.getElementById('ce-type').value=e.type||'lif';
+  if(typeof refreshProjectSelect==='function')refreshProjectSelect('ce-project',_ceTypeToWorldId(e.type||'lif'),e.projectId);
   document.getElementById('ce-loc').value=v.loc||'';
   document.getElementById('ce-notes').value=v.notes||'';
   const rEl=document.getElementById('ce-recur');if(rEl)rEl.value=e.recur||'none';
@@ -17364,6 +17524,7 @@ function saveCalEvent(){
     recurCount:recurCount,
     recurDays:Array.from(document.querySelectorAll('#ce-custom-days-wrap input[type="checkbox"]:checked')).map(c=>c.value),
     color:document.getElementById('ce-color')?.value||null,
+    projectId:document.getElementById('ce-project')?.value||null,
     // Editing via "All events" (or a plain non-recurring save) rebuilds
     // this whole object from the form, which has no idea about exceptions
     // already accumulated on the series — carry them forward explicitly
@@ -17432,6 +17593,16 @@ function saveCalEvent(){
 }
 
 function openCalEventModal(){openCalEventModalOnDate(calSelectedDate||localDateStr(new Date()));}
+// Calendar events use short internal codes (ih/cs/ven/...) for built-in
+// Domains, or the real DB.worlds id directly for custom ones (see
+// _populateCeTypeCustomDomains) — neither matches the uppercase worldId
+// convention tasks/notes/Projects use (WORK-IH, VENTURE, ...) directly.
+// This bridges the two so the event modal's Project picker filters by
+// the same worldId a Project is actually scoped to.
+function _ceTypeToWorldId(typeVal){
+  const slug=CAL_TO_DOMAIN_ID[typeVal];
+  return slug?slug.toUpperCase():typeVal;
+}
 function _populateCeTypeCustomDomains(){
   const sel=document.getElementById('ce-type');if(!sel)return;
   const builtinIds=new Set(CAL_WORLDS.map(w=>w.id));
@@ -17447,6 +17618,8 @@ function openCalEventModalOnDate(date){
   const colorResetEl=document.getElementById('ce-color');if(colorResetEl)colorResetEl.value='';
   selectedCalDate=date;
   _populateCeTypeCustomDomains();
+  const typeEl=document.getElementById('ce-type');
+  if(typeof refreshProjectSelect==='function')refreshProjectSelect('ce-project',_ceTypeToWorldId(typeEl?typeEl.value:'lif'),'');
   document.getElementById('calModalTitle').textContent='Add Event';
   document.getElementById('ce-date').value=date;
   const edEl=document.getElementById('ce-end-date');if(edEl){edEl.value=date;edEl.min=date;}
@@ -17534,11 +17707,32 @@ function renderNotesList(){
 function setNoteFolder(worldId){
   const n=DB.notes[currentNote];if(!n)return;
   n.worldId=worldId||null;
+  // The note's old Project (if any) almost certainly doesn't belong to
+  // the new Domain — a Project never crosses Domains, so carry it
+  // forward only if it does, otherwise clear it rather than leave a
+  // dangling reference to a Project in a different Domain.
+  if(n.projectId&&!(DB.projects||[]).some(p=>p.id===n.projectId&&p.worldId===worldId)){
+    n.projectId=null;
+  }
   save('notes');
+  SB.update('notes',n.id,{worldId:n.worldId,projectId:n.projectId},'notes').catch(()=>{});
+  if(typeof refreshProjectSelect==='function')refreshProjectSelect('note-project',worldId,n.projectId);
   renderNotesList();
   showToast(worldId?'✓ Moved to folder':'✓ Marked unfiled');
 }
-function openNoteEditor(i){currentNote=i;noteBlocks=[...DB.notes[currentNote].blocks];const t=document.getElementById('noteTitle');if(t)t.textContent=DB.notes[currentNote].title;const tm=document.getElementById('notesEditToggleMount');if(tm)tm.innerHTML=_editToggleButtonHtml();renderBlocks();populateNoteFolderSelect();const rc=document.getElementById('note-related');if(rc&&typeof renderRelatedSection==='function')rc.innerHTML=renderRelatedSection('note',DB.notes[currentNote].id);const tgc=document.getElementById('note-tags');if(tgc&&typeof renderTagsSection==='function')tgc.innerHTML=renderTagsSection('note',DB.notes[currentNote].id);openModal('noteEditorModal');}
+function setNoteProject(projectIdOrNew){
+  const n=DB.notes[currentNote];if(!n)return;
+  if(projectIdOrNew==='__new__'){
+    const p=createProjectFlow(n.worldId);
+    if(typeof refreshProjectSelect==='function')refreshProjectSelect('note-project',n.worldId,p?p.id:'');
+    if(!p)return;
+    projectIdOrNew=p.id;
+  }
+  n.projectId=projectIdOrNew||null;
+  save('notes');
+  SB.update('notes',n.id,{projectId:n.projectId},'notes').catch(()=>{});
+}
+function openNoteEditor(i){currentNote=i;noteBlocks=[...DB.notes[currentNote].blocks];const t=document.getElementById('noteTitle');if(t)t.textContent=DB.notes[currentNote].title;const tm=document.getElementById('notesEditToggleMount');if(tm)tm.innerHTML=_editToggleButtonHtml();renderBlocks();populateNoteFolderSelect();const n=DB.notes[currentNote];if(typeof refreshProjectSelect==='function')refreshProjectSelect('note-project',n.worldId,n.projectId);const rc=document.getElementById('note-related');if(rc&&typeof renderRelatedSection==='function')rc.innerHTML=renderRelatedSection('note',DB.notes[currentNote].id);const tgc=document.getElementById('note-tags');if(tgc&&typeof renderTagsSection==='function')tgc.innerHTML=renderTagsSection('note',DB.notes[currentNote].id);openModal('noteEditorModal');}
 function populateNoteFolderSelect(){
   const sel=document.getElementById('noteFolderSelect');if(!sel)return;
   const n=DB.notes[currentNote];
@@ -17854,6 +18048,126 @@ function renderInboxView(){
       <span style="font-size:var(--text-xs);color:var(--text3);background:rgba(0,0,0,.3);padding:1px 6px;border-radius:8px;flex-shrink:0;text-transform:capitalize">${it.type}</span>
       <select onchange="assignInboxItemToWorld('${it.type}','${it.id}',this.value)" style="font-size:var(--text-xs);padding:3px 6px;width:auto;flex-shrink:0">${worldOptionsFor(it.id)}</select>
     </div>`).join('');
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// PROJECTS — a layer between Domain and item. Scoped to one Domain; a
+// Project never crosses Domains. Tasks/Notes/Events get a projectId
+// field (null = "Unassigned" within that Domain, never invisible).
+// ═══════════════════════════════════════════════════════════════════════════
+function getProjectsForWorld(worldId){
+  return (DB.projects||[]).filter(p=>p.worldId===worldId);
+}
+function createProject(worldId,name,color){
+  name=(name||'').trim();
+  if(!name)return null;
+  const p={id:'proj_'+Date.now(),worldId,name,color:color||null};
+  DB.projects.push(p);
+  save('projects');
+  SB.upsert('projects',p,'projects').catch(()=>{});
+  addHistory('add','Added project: '+p.name,{...p,_dbKey:'projects'});
+  return p;
+}
+function createProjectFlow(worldId){
+  const name=prompt('New project name:');
+  if(!name)return null;
+  const p=createProject(worldId,name);
+  renderTasks();
+  return p;
+}
+function renameProject(id){
+  const p=(DB.projects||[]).find(x=>x.id===id);if(!p)return;
+  const name=prompt('Rename project:',p.name);
+  if(!name||!name.trim())return;
+  p.name=name.trim();
+  save('projects');
+  SB.update('projects',id,{name:p.name},'projects').catch(()=>{});
+  renderTasks();
+}
+// Deleting a Project never deletes its items — they fall back to
+// "Unassigned" within the same Domain, mirroring the fix already shipped
+// for deleting a Domain not deleting its tasks.
+function deleteProject(id){
+  const p=(DB.projects||[]).find(x=>x.id===id);if(!p)return;
+  if(!confirm(`Delete project "${p.name}"? Its tasks/notes/events become Unassigned — nothing is deleted.`))return;
+  [['tasks','tasks'],['notes','notes'],['calEvents','cal_events'],['savedLinks','saved_links']].forEach(([key,table])=>{
+    (DB[key]||[]).forEach(item=>{
+      if(item.projectId===id){
+        item.projectId=null;
+        SB.update(table,item.id,{projectId:null},key).catch(()=>{});
+      }
+    });
+    save(key);
+  });
+  DB.projects=(DB.projects||[]).filter(x=>x.id!==id);
+  save('projects');
+  SB.remove('projects',id,'projects');
+  addHistory('delete','Deleted project: '+p.name,{...p,_dbKey:'projects'});
+  renderTasks();
+}
+// Merge: everything in `sourceId` moves to `targetId`, source Project is
+// removed. Both must belong to the same Domain (a Project's worldId is
+// fixed — merging across Domains would silently relabel items into a
+// different Domain's Project, which isn't what "merge" should mean).
+function mergeProjects(sourceId,targetId){
+  if(!sourceId||!targetId||sourceId===targetId)return;
+  const source=(DB.projects||[]).find(x=>x.id===sourceId);
+  const target=(DB.projects||[]).find(x=>x.id===targetId);
+  if(!source||!target)return;
+  if(source.worldId!==target.worldId){showToast('⚠ Can only merge Projects within the same Domain.');return;}
+  if(!confirm(`Merge "${source.name}" into "${target.name}"? Everything moves over, "${source.name}" is removed.`))return;
+  [['tasks','tasks'],['notes','notes'],['calEvents','cal_events'],['savedLinks','saved_links']].forEach(([key,table])=>{
+    (DB[key]||[]).forEach(item=>{
+      if(item.projectId===sourceId){
+        item.projectId=targetId;
+        SB.update(table,item.id,{projectId:targetId},key).catch(()=>{});
+      }
+    });
+    save(key);
+  });
+  DB.projects=(DB.projects||[]).filter(x=>x.id!==sourceId);
+  save('projects');
+  SB.remove('projects',sourceId,'projects');
+  addHistory('edit','Merged project "'+source.name+'" into "'+target.name+'"',{_dbKey:'projects'});
+  renderTasks();
+  showToast('✓ Merged into '+target.name);
+}
+function mergeProjectsFlow(worldId){
+  const projects=getProjectsForWorld(worldId);
+  if(projects.length<2){showToast('Need at least 2 projects in this Domain to merge.');return;}
+  const list=projects.map((p,i)=>`${i+1}. ${p.name}`).join('\n');
+  const srcIdx=parseInt(prompt('Merge FROM which project? (enter number)\n'+list),10)-1;
+  if(isNaN(srcIdx)||!projects[srcIdx])return;
+  const tgtIdx=parseInt(prompt('Merge INTO which project? (enter number)\n'+list),10)-1;
+  if(isNaN(tgtIdx)||!projects[tgtIdx])return;
+  mergeProjects(projects[srcIdx].id,projects[tgtIdx].id);
+}
+// Shared picker, embedded in Task/Note/Event edit modals alongside the
+// existing Domain picker — filtered to whichever Domain is currently
+// selected on that item, since a Project never crosses Domains. Follows
+// the same pattern as every other field in these modals: a plain form
+// control read at Save time, not an auto-saving widget.
+function projectOptionsHtml(worldId,selectedId){
+  const projects=getProjectsForWorld(worldId);
+  return ['<option value="">No Project</option>']
+    .concat(projects.map(p=>`<option value="${p.id}" ${p.id===selectedId?'selected':''}>${p.name}</option>`))
+    .concat(['<option value="__new__">+ New Project…</option>'])
+    .join('');
+}
+// Repopulates a Project <select> for whichever Domain is now selected —
+// called both when a modal opens and whenever its Domain picker changes.
+function refreshProjectSelect(selectId,worldId,selectedId){
+  const sel=document.getElementById(selectId);
+  if(!sel)return;
+  sel.innerHTML=projectOptionsHtml(worldId,selectedId||'');
+}
+// Shared onchange — intercepts "+ New Project" so picking it prompts for
+// a name and re-selects the new Project, instead of saving "__new__".
+function handleProjectSelectChange(selectEl,worldId){
+  if(selectEl.value==='__new__'){
+    const p=createProjectFlow(worldId);
+    refreshProjectSelect(selectEl.id,worldId,p?p.id:'');
+  }
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
