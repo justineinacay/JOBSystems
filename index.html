@@ -2703,6 +2703,7 @@ select option{background:var(--navy3)}
 </style>
 </head>
 <body>
+<datalist id="allTagsDatalist"></datalist>
 <div class="tstack" id="tstack"></div>
 
 <!-- CTX MENU -->
@@ -2746,6 +2747,8 @@ select option{background:var(--navy3)}
       </div>
       <div class="fg"><label class="fl">Note</label><textarea id="tf-notes" rows="2" placeholder="Additional notes..."></textarea></div>
       <div class="fg"><label class="fl"><i class="ti ti-brand-google-drive" style="font-size:var(--text-sm);color:#4285F4"></i> Google Drive Link</label><div style="display:flex;gap:8px"><input id="tf-drive-link" placeholder="https://drive.google.com/..." style="flex:1"><button type="button" class="btn btn-g" onclick="openDrivePicker(f=>{document.getElementById('tf-drive-link').value=f.webViewLink;})" style="flex-shrink:0"><i class="ti ti-search"></i> Browse</button></div></div>
+      <div class="fg"><label class="fl"><i class="ti ti-link" style="font-size:var(--text-sm)"></i> Related</label><div id="tf-related"></div></div>
+      <div class="fg"><label class="fl"><i class="ti ti-tag" style="font-size:var(--text-sm)"></i> Tags</label><div id="tf-tags"></div></div>
     </div>
     <div class="mf" style="justify-content:space-between">
       <button class="btn btn-g" id="tf-focus-btn" style="display:none" onclick="startFocusTimer(editingTaskId)"><i class="ti ti-clock-play"></i> Start Focus Timer</button>
@@ -2753,6 +2756,21 @@ select option{background:var(--navy3)}
         <button class="btn btn-g" onclick="closeModal('taskModal')">Cancel</button>
         <button class="btn btn-t" onclick="saveTask()">Save Task</button>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- LINK PICKER — used by the Related section on Task/Note/Event/Link
+     edit modals to search-and-attach any of the 4 linkable content types -->
+<div class="mov" id="linkPickerModal">
+  <div class="modal" style="width:min(480px,92vw)">
+    <div class="mh"><div class="mt">Link an item</div><button class="mc" onclick="closeLinkPicker()">×</button></div>
+    <div class="mb">
+      <div class="ciw" style="border:1px solid var(--border2);border-radius:12px;padding:8px 12px;margin-bottom:10px">
+        <i class="ti ti-search" style="color:var(--text3);font-size:var(--text-sm);line-height:1;display:block"></i>
+        <input class="cinput" id="linkPickerInput" placeholder="Search tasks, notes, events, links..." oninput="filterLinkPicker()" autocomplete="off">
+      </div>
+      <div class="cres" id="linkPickerResults" style="max-height:340px;overflow-y:auto"></div>
     </div>
   </div>
 </div>
@@ -3292,6 +3310,8 @@ select option{background:var(--navy3)}
       </div>
 
       <div class="fg"><label class="fl">Notes / Agenda</label><textarea id="ce-notes" rows="2" placeholder="Additional notes or agenda..."></textarea></div>
+      <div class="fg"><label class="fl"><i class="ti ti-link" style="font-size:var(--text-sm)"></i> Related</label><div id="ce-related"></div></div>
+      <div class="fg"><label class="fl"><i class="ti ti-tag" style="font-size:var(--text-sm)"></i> Tags</label><div id="ce-tags"></div></div>
     </div>
     <div class="mf">
       <button class="btn btn-g" onclick="closeModal('calModal')">Cancel</button>
@@ -3811,6 +3831,8 @@ select option{background:var(--navy3)}
       <div class="ni active" onclick="setView('dashboard')" data-view="dashboard" title="Dashboard"><i class="ti ti-layout-dashboard"></i>Dashboard</div>
       <div class="ni" onclick="setView('tasks')" data-view="tasks" title="Tasks"><i class="ti ti-checklist"></i>Tasks<span class="nbadge" id="taskBadge">0</span></div>
       <div class="ni" onclick="setView('notes')" data-view="notes" title="Notes"><i class="ti ti-notes"></i>Notes</div>
+      <div class="ni" onclick="setView('links')" data-view="links" title="Links"><i class="ti ti-link"></i>Links</div>
+      <div class="ni" onclick="setView('inbox')" data-view="inbox" title="Inbox"><i class="ti ti-inbox"></i>Inbox<span class="nbadge" id="inboxBadge">0</span></div>
       <div class="ni" onclick="setView('calendar')" data-view="calendar" title="Calendar"><i class="ti ti-calendar"></i>Calendar</div>
       <div class="ni" onclick="setView('ai')" data-view="ai" title="Ask JELIX"><i class="ti ti-sparkles"></i>Ask JELIX</div>
       <div class="ni" onclick="setView('memory')" data-view="memory" title="Memory"><i class="ti ti-brain"></i>Memory</div>
@@ -5096,6 +5118,22 @@ select option{background:var(--navy3)}
         </div>
       </div>
     </div>
+    <!-- ===== LINKS ===== -->
+    <div class="view" id="view-links">
+      <div class="vh"><div><div class="vt"><i class="ti ti-link"></i>Links</div><div class="vs">Saved pages · auto title, preview & favicon</div></div><div class="va"><button class="btn btn-t" onclick="addSavedLinkFlow()"><i class="ti ti-plus"></i> Add Link</button></div></div>
+      <div class="vb" style="padding:14px 18px">
+        <div id="linksListContainer"></div>
+      </div>
+    </div>
+
+    <!-- ===== INBOX ===== -->
+    <div class="view" id="view-inbox">
+      <div class="vh"><div><div class="vt"><i class="ti ti-inbox"></i>Inbox</div><div class="vs">Tasks, notes & links with no Domain yet — sort them when you're ready</div></div></div>
+      <div class="vb" style="padding:14px 18px">
+        <div id="inboxListContainer"></div>
+      </div>
+    </div>
+
     <!-- NOTE EDITOR OVERLAY -->
     <div class="mov" id="noteEditorModal">
       <div class="modal" style="width:min(680px,96vw);max-height:85vh">
@@ -5138,6 +5176,12 @@ select option{background:var(--navy3)}
   <div style="font-size:var(--text-xs);font-weight:700;color:var(--text3);letter-spacing:.1em;padding:5px 9px 2px;text-transform:uppercase">Attach</div>
   <div class="bmi" onclick="document.getElementById('blockMenu').classList.remove('open');openDrivePicker(f=>addNoteDriveBlock(f))"><i class="ti ti-brand-google-drive" style="font-size:var(--text-sm);margin-right:6px;line-height:1;display:inline-block;color:#4285F4"></i>Drive File</div>
 </div>
+        </div>
+        <div style="padding:0 14px 10px;border-top:1px solid var(--border);padding-top:10px">
+          <label class="fl" style="display:flex;align-items:center;gap:5px;margin-bottom:6px"><i class="ti ti-link" style="font-size:var(--text-sm)"></i> Related</label>
+          <div id="note-related"></div>
+          <label class="fl" style="display:flex;align-items:center;gap:5px;margin:10px 0 6px"><i class="ti ti-tag" style="font-size:var(--text-sm)"></i> Tags</label>
+          <div id="note-tags"></div>
         </div>
         <div class="mf"><button class="btn btn-d" style="margin-right:auto;font-size:var(--text-xs)" onclick="deleteCurrentNote()"><i class="ti ti-trash"></i> Delete Note</button><button class="btn btn-t" onclick="closeModal('noteEditorModal')">Done</button></div>
       </div>
@@ -5437,6 +5481,14 @@ select option{background:var(--navy3)}
           <div onclick="setView('notes')" style="background:var(--navy2);border:1px solid var(--border);border-radius:12px;padding:16px 14px;cursor:pointer;display:flex;align-items:center;gap:10px;transition:border-color .15s" onmouseover="this.style.borderColor='rgba(128,255,250,.3)'" onmouseout="this.style.borderColor='var(--border)'">
             <i class="ti ti-notes" style="font-size:20px;color:var(--amber);flex-shrink:0;line-height:1;display:block"></i>
             <div><div style="font-size:12px;font-weight:700;color:var(--text1)">Notes</div><div style="font-size:10px;color:var(--text3)">Journal</div></div>
+          </div>
+          <div onclick="setView('links')" style="background:var(--navy2);border:1px solid var(--border);border-radius:12px;padding:16px 14px;cursor:pointer;display:flex;align-items:center;gap:10px;transition:border-color .15s" onmouseover="this.style.borderColor='rgba(128,255,250,.3)'" onmouseout="this.style.borderColor='var(--border)'">
+            <i class="ti ti-link" style="font-size:20px;color:var(--blue);flex-shrink:0;line-height:1;display:block"></i>
+            <div><div style="font-size:12px;font-weight:700;color:var(--text1)">Links</div><div style="font-size:10px;color:var(--text3)">Saved pages</div></div>
+          </div>
+          <div onclick="setView('inbox')" style="background:var(--navy2);border:1px solid var(--border);border-radius:12px;padding:16px 14px;cursor:pointer;display:flex;align-items:center;gap:10px;transition:border-color .15s" onmouseover="this.style.borderColor='rgba(128,255,250,.3)'" onmouseout="this.style.borderColor='var(--border)'">
+            <i class="ti ti-inbox" style="font-size:20px;color:var(--orange);flex-shrink:0;line-height:1;display:block"></i>
+            <div><div style="font-size:12px;font-weight:700;color:var(--text1)">Inbox</div><div style="font-size:10px;color:var(--text3)">Unsorted items</div></div>
           </div>
         </div>
       </div>
@@ -5929,6 +5981,8 @@ const SB={
       const rows=await sbFetch(table);
       if(rows&&rows.length){
         if(table==='cashflow')DB[key]=rows.map(r=>({...r,desc:r.description||r.desc||''}));
+        else if(table==='saved_links')DB[key]=rows.map(r=>({...r,previewImage:r.preview_image,worldId:r.world_id,projectId:r.project_id}));
+        else if(table==='item_links')DB[key]=rows.map(r=>({...r,fromType:r.from_type,fromId:r.from_id,toType:r.to_type,toId:r.to_id}));
         else DB[key]=rows;
         save(key);
       }
@@ -5942,6 +5996,8 @@ const SB={
     if(table==='cal_events'){delete r.allDay;delete r.overnight;delete r.remindMin;delete r.recurN;delete r.recurEnd;delete r.endDate;delete r.recurUnit;delete r.recurCount;delete r.recur;delete r.reminder;delete r.recurDays;delete r._expandedDate;delete r._recurring;delete r._taskId;delete r._isTask;delete r._billId;delete r._isBill;}
     if(table==='memories'){delete r.source;}
     if(table==='tasks'){if(r.driveLink!==undefined){r.link=r.driveLink;delete r.driveLink;}}
+    if(table==='saved_links'){r.preview_image=row.previewImage;r.world_id=row.worldId;r.project_id=row.projectId;delete r.previewImage;delete r.worldId;delete r.projectId;}
+    if(table==='item_links'){r.from_type=row.fromType;r.from_id=row.fromId;r.to_type=row.toType;r.to_id=row.toId;delete r.fromType;delete r.fromId;delete r.toType;delete r.toId;}
     delete r._dbKey;
     const uid=getAuthUserId();
     if(!uid){
@@ -5966,6 +6022,8 @@ const SB={
     if(table==='cal_events'){delete c.allDay;delete c.overnight;delete c.remindMin;delete c.recurN;delete c.recurEnd;delete c.endDate;delete c.recurUnit;delete c.recurCount;delete c.recur;delete c.reminder;delete c.recurDays;delete c._expandedDate;delete c._recurring;delete c._taskId;delete c._isTask;delete c._billId;delete c._isBill;}
     if(table==='memories'){delete c.source;}
     if(table==='tasks'){if(c.driveLink!==undefined){c.link=c.driveLink;delete c.driveLink;}}
+    if(table==='saved_links'){if(c.previewImage!==undefined){c.preview_image=c.previewImage;delete c.previewImage;}if(c.worldId!==undefined){c.world_id=c.worldId;delete c.worldId;}if(c.projectId!==undefined){c.project_id=c.projectId;delete c.projectId;}}
+    if(table==='cal_events'&&c.worldId!==undefined){c.world_id=c.worldId;delete c.worldId;}
     // Conflict check -- only when this record has a remembered updated_at
     // baseline (set on load/last successful write). A mismatch means
     // another device changed this row since we last saw it; last-write-wins
@@ -6613,8 +6671,8 @@ function initRealtime(){
 
 async function loadAllFromSupabase(){
   showToast('↻ Syncing with Supabase...');
-  await Promise.all([SB.load('tasks','tasks'),SB.load('clients','clients'),SB.load('venture','venture'),SB.load('faith','faith'),SB.load('cashflow','cashflow'),SB.load('cal_events','calEvents'),SB.load('journal','journal'),SB.load('notes','notes'),SB.load('memories','memories'),SB.load('sides','sides'),SB.load('history','history'),SB.load('loans','loans'),SB.load('accounts','accounts'),SB.load('collateral','collateral'),SB.load('social_posts','socialPosts'),SB.load('creative_projects','creativeProjects'),SB.load('pipeline','pipeline'),SB.load('campaigns','campaigns'),SB.load('influencers','influencers'),SB.load('pricing','pricing'),SB.load('credentials','credentials'),_pullWorldsFromCloud()]);
-  reRenderAll();showToast('✓ Supabase synced');speak('All systems synced.');
+  await Promise.all([SB.load('tasks','tasks'),SB.load('clients','clients'),SB.load('venture','venture'),SB.load('faith','faith'),SB.load('cashflow','cashflow'),SB.load('cal_events','calEvents'),SB.load('journal','journal'),SB.load('notes','notes'),SB.load('memories','memories'),SB.load('sides','sides'),SB.load('history','history'),SB.load('loans','loans'),SB.load('accounts','accounts'),SB.load('collateral','collateral'),SB.load('social_posts','socialPosts'),SB.load('creative_projects','creativeProjects'),SB.load('pipeline','pipeline'),SB.load('campaigns','campaigns'),SB.load('influencers','influencers'),SB.load('pricing','pricing'),SB.load('credentials','credentials'),SB.load('saved_links','savedLinks'),SB.load('item_links','itemLinks'),_pullWorldsFromCloud()]);
+  reRenderAll();if(typeof renderTagsDatalist==='function')renderTagsDatalist();if(typeof updateInboxBadge==='function')updateInboxBadge();showToast('✓ Supabase synced');speak('All systems synced.');
 }
 // ═══════════════════════════════════════════════════════════════════════════
 // STORE — Centralized render bus
@@ -6633,6 +6691,8 @@ const Store={
     calendar:()=>{try{renderCalendar();}catch(e){}},
     tasks:()=>{try{renderTasks();}catch(e){}},
     notes:()=>{try{renderNotesList();}catch(e){}},
+    links:()=>{try{renderLinksView();}catch(e){}},
+    inbox:()=>{try{if(typeof renderInboxView==='function')renderInboxView();}catch(e){}},
     memory:()=>{try{renderMemory();}catch(e){}},
     history:()=>{try{renderHistory();}catch(e){}},
     'jarvis-morning':()=>{},
@@ -6677,6 +6737,7 @@ function _miniProgressRing(pct,color){
   </svg>`;
 }
 function renderSideNav(){
+  updateInboxBadge();
   const container=document.getElementById('navWorldsList');
   if(!container)return;
   container.innerHTML=(DB.worlds||[]).map(function(w){
@@ -10290,6 +10351,13 @@ const DB={
     {id:3,name:'Maria A.',type:'Partner/VA',stage:'Active',notes:'Executive VA · 10PM–6AM shift'},
   ],
   notes:JSON.parse(localStorage.getItem('j-notes')||'null')||[{id:1,title:'Operations Log — June 2026',blocks:[{type:'h2',content:'June 14 2026',done:false},{type:'todo',content:'Reply to Right Team Provider',done:false},{type:'todo',content:'TJC meeting prep',done:false}]}],
+  // Saved Links — a first-class content type alongside tasks/notes/events.
+  // worldId null = sits in the Inbox until manually assigned to a Domain.
+  savedLinks:JSON.parse(localStorage.getItem('j-savedLinks')||'null')||[],
+  // Universal relations between any two of {task,note,event,link}. One row
+  // per relation; read as bidirectional (a query checks both from_/to_ sides
+  // for a given item) even though it's stored as a single directed row.
+  itemLinks:JSON.parse(localStorage.getItem('j-itemLinks')||'null')||[],
   journal:JSON.parse(localStorage.getItem('j-journal')||'null')||[],
   memories:JSON.parse(localStorage.getItem('j-memories')||'null')||[
     {id:1,memory:'RTP prefers meetings with CFO Rachel in the afternoon PHT',category:'Client Preference',world:'WORK-IH',date:'2026-06-09'},
@@ -10681,7 +10749,7 @@ function setView(v){
   currentView=v;addHistory('navigate','Navigated to '+v,{view:v});
   LearnEngine.onNavigate(v);
   renderSideNav();
-  const r={dashboard:renderBrief,'work-ih':renderWorkIH,'work-cs':renderWorkCS,venture:renderVenture,build:renderBuild,sides:renderSides,faith:renderFaith,life:renderLife,calendar:renderCalendar,tasks:renderTasks,notes:renderNotesList,journal:renderJournal,memory:renderMemory,history:renderHistory,settings:renderSettingsView,'worlds-settings':renderWorldsSettings};
+  const r={dashboard:renderBrief,'work-ih':renderWorkIH,'work-cs':renderWorkCS,venture:renderVenture,build:renderBuild,sides:renderSides,faith:renderFaith,life:renderLife,calendar:renderCalendar,tasks:renderTasks,notes:renderNotesList,journal:renderJournal,memory:renderMemory,history:renderHistory,settings:renderSettingsView,'worlds-settings':renderWorldsSettings,links:renderLinksView,inbox:()=>{if(typeof renderInboxView==='function')renderInboxView();}};
   if(v==='life'){renderLife();}
   else if(v==='biomonitor'){setView('life');setTimeout(()=>{const btns=document.querySelectorAll('.cfbt');btns.forEach(b=>{if(b.textContent.includes('Bio Monitor')){setCFTab('biomonitor',b);}});},150);}
   else if(isCustomDomain)renderDomainGenericView(v);
@@ -11354,12 +11422,35 @@ function renderOverheadScoreboard(){
 // ===== SMART SEARCH — content-aware =====
 function smartSearch(query){
   if(!query||query.length<2)return[];
+  // #tag search — filters Tasks/Notes/Events/Links by exact tag membership
+  // instead of substring-matching titles/notes, across all 4 taggable types.
+  if(query[0]==='#'){
+    const tag=query.slice(1).toLowerCase().trim();
+    if(!tag)return[];
+    const results=[];
+    (DB.tasks||[]).forEach(t=>{if((t.tags||[]).includes(tag))results.push({type:'Task',icon:'ti-checkbox',label:t.title,sub:t.world+' · '+t.status,color:'var(--teal)',action:`editTask(${t.id})`});});
+    (DB.notes||[]).forEach(n=>{if((n.tags||[]).includes(tag))results.push({type:'Note',icon:'ti-notes',label:n.title||'Untitled note',sub:'Note',color:'var(--amber)',action:`setView('notes');setTimeout(()=>{const i=DB.notes.findIndex(x=>x.id===${n.id});if(i>=0)openNoteEditor(i);},150)`});});
+    (DB.calEvents||[]).forEach(e=>{if((e.tags||[]).includes(tag))results.push({type:'Event',icon:'ti-calendar',label:e.title,sub:e.date+(e.time?' · '+e.time:''),color:'var(--teal)',action:`setView('calendar')`});});
+    (DB.savedLinks||[]).forEach(l=>{if((l.tags||[]).includes(tag))results.push({type:'Link',icon:'ti-link',label:l.title||l.url,sub:l.url,color:'var(--blue)',action:`setView('links')`});});
+    return results.slice(0,12);
+  }
   const q=query.toLowerCase();
   const results=[];
-  // Tasks — title + notes + platform
+  // Tasks — title + notes + platform + tags
   (DB.tasks||[]).forEach(t=>{
-    const hay=[t.title,t.notes,t.platform,t.client,t.world].filter(Boolean).join(' ').toLowerCase();
+    const hay=[t.title,t.notes,t.platform,t.client,t.world,...(t.tags||[])].filter(Boolean).join(' ').toLowerCase();
     if(hay.includes(q))results.push({type:'Task',icon:'ti-checkbox',label:t.title,sub:t.world+' · '+t.status,color:'var(--teal)',action:`editTask(${t.id})`});
+  });
+  // Notes — title + block text content + tags (previously not searched at all)
+  (DB.notes||[]).forEach(n=>{
+    const blockText=(n.blocks||[]).map(b=>b.content||'').join(' ');
+    const hay=[n.title,blockText,...(n.tags||[])].filter(Boolean).join(' ').toLowerCase();
+    if(hay.includes(q))results.push({type:'Note',icon:'ti-notes',label:n.title||'Untitled note',sub:blockText.substring(0,50),color:'var(--amber)',action:`setView('notes');setTimeout(()=>{const i=DB.notes.findIndex(x=>x.id===${n.id});if(i>=0)openNoteEditor(i);},150)`});
+  });
+  // Saved Links — title + url + tags
+  (DB.savedLinks||[]).forEach(l=>{
+    const hay=[l.title,l.url,...(l.tags||[])].filter(Boolean).join(' ').toLowerCase();
+    if(hay.includes(q))results.push({type:'Link',icon:'ti-link',label:l.title||l.url,sub:l.url,color:'var(--blue)',action:`setView('links')`});
   });
   // Clients — name + contact + next
   (DB.clients||[]).forEach(c=>{
@@ -11376,9 +11467,9 @@ function smartSearch(query){
     const hay=[j.title,j.content].filter(Boolean).join(' ').toLowerCase();
     if(hay.includes(q))results.push({type:'Journal',icon:'ti-notebook',label:j.title||'Entry',sub:(j.content||'').substring(0,50)+'...',color:'var(--purple)',action:`setView('journal')`});
   });
-  // Calendar events — title + notes + loc
+  // Calendar events — title + notes + loc + tags
   (DB.calEvents||[]).forEach(e=>{
-    const hay=[e.title,e.notes,e.loc].filter(Boolean).join(' ').toLowerCase();
+    const hay=[e.title,e.notes,e.loc,...(e.tags||[])].filter(Boolean).join(' ').toLowerCase();
     if(hay.includes(q))results.push({type:'Event',icon:'ti-calendar',label:e.title,sub:e.date+(e.time?' · '+e.time:''),color:'var(--teal)',action:`setView('calendar')`});
   });
   // Faith activities
@@ -12678,6 +12769,21 @@ function openModal(id){
     const wEl=document.getElementById('tf-world');
     if(wEl)updateTaskClientDropdown(wEl.value);
   }
+  // Related-items section — centralized here rather than in every "+Task"
+  // call site, since editingTaskId is reliably set (edit) or null (new) by
+  // the time any of them calls openModal('taskModal').
+  if(id==='taskModal'&&typeof renderRelatedSection==='function'){
+    const rc=document.getElementById('tf-related');
+    if(rc)rc.innerHTML=(editingTaskId!=null)?renderRelatedSection('task',editingTaskId):'<div style="font-size:var(--text-xs);color:var(--text3)">Save the task first, then come back to link related items.</div>';
+    const tc=document.getElementById('tf-tags');
+    if(tc)tc.innerHTML=(editingTaskId!=null)?renderTagsSection('task',editingTaskId):'<div style="font-size:var(--text-xs);color:var(--text3)">Save the task first, then come back to tag it.</div>';
+  }
+  if(id==='calModal'&&typeof renderRelatedSection==='function'){
+    const rc=document.getElementById('ce-related');
+    if(rc)rc.innerHTML=(typeof calEditingId!=='undefined'&&calEditingId!=null)?renderRelatedSection('event',calEditingId):'<div style="font-size:var(--text-xs);color:var(--text3)">Save the event first, then come back to link related items.</div>';
+    const tc=document.getElementById('ce-tags');
+    if(tc)tc.innerHTML=(typeof calEditingId!=='undefined'&&calEditingId!=null)?renderTagsSection('event',calEditingId):'<div style="font-size:var(--text-xs);color:var(--text3)">Save the event first, then come back to tag it.</div>';
+  }
   document.getElementById(id).classList.add('open');
 }
 function closeModal(id){document.getElementById(id).classList.remove('open');editingTaskId=null;editingClientId=null;editingFaithId=null;editingVentureId=null;editingJournalId=null;editingCashId=null;_flushPendingShapeSaves();const focusBtn=document.getElementById('tf-focus-btn');if(focusBtn)focusBtn.style.display='none';}
@@ -12777,6 +12883,7 @@ function deleteTask(e,id){
   DB.tasks=DB.tasks.filter(x=>x.id!==id);SB.remove('tasks',id,'tasks');
   // Remove associated calendar entry
   DB.calEvents=DB.calEvents.filter(e=>e._taskId!==id);
+  if(typeof _deleteItemLinksFor==='function')_deleteItemLinksFor('task',id);
   addHistory('delete','Deleted task: '+t.title,{...t,_dbKey:'tasks'});
   reRenderAll();showToast('Task deleted');
 }
@@ -17053,6 +17160,7 @@ function deleteCalEvent(id){
   if(!confirm('Delete this event?'))return;
   DB.calEvents=DB.calEvents.filter(e=>e.id!==id);
   SB.remove('cal_events',id,'calEvents');
+  if(typeof _deleteItemLinksFor==='function')_deleteItemLinksFor('event',id);
   renderCalendar();showToast('Event deleted');
 }
 
@@ -17307,7 +17415,7 @@ function setNoteFolder(worldId){
   renderNotesList();
   showToast(worldId?'✓ Moved to folder':'✓ Marked unfiled');
 }
-function openNoteEditor(i){currentNote=i;noteBlocks=[...DB.notes[currentNote].blocks];const t=document.getElementById('noteTitle');if(t)t.textContent=DB.notes[currentNote].title;const tm=document.getElementById('notesEditToggleMount');if(tm)tm.innerHTML=_editToggleButtonHtml();renderBlocks();populateNoteFolderSelect();openModal('noteEditorModal');}
+function openNoteEditor(i){currentNote=i;noteBlocks=[...DB.notes[currentNote].blocks];const t=document.getElementById('noteTitle');if(t)t.textContent=DB.notes[currentNote].title;const tm=document.getElementById('notesEditToggleMount');if(tm)tm.innerHTML=_editToggleButtonHtml();renderBlocks();populateNoteFolderSelect();const rc=document.getElementById('note-related');if(rc&&typeof renderRelatedSection==='function')rc.innerHTML=renderRelatedSection('note',DB.notes[currentNote].id);const tgc=document.getElementById('note-tags');if(tgc&&typeof renderTagsSection==='function')tgc.innerHTML=renderTagsSection('note',DB.notes[currentNote].id);openModal('noteEditorModal');}
 function populateNoteFolderSelect(){
   const sel=document.getElementById('noteFolderSelect');if(!sel)return;
   const n=DB.notes[currentNote];
@@ -17317,9 +17425,379 @@ function populateNoteFolderSelect(){
 function newNote(){const assignWorld=notesActiveFolder!=='all'&&notesActiveFolder!=='unfiled'?notesActiveFolder:null;const n={id:Date.now(),title:'New Note',worldId:assignWorld,blocks:[{id:Date.now()+'.1',type:'h1',content:'',done:false},{id:Date.now()+'.2',type:'p',content:'',done:false}]};DB.notes.push(n);save('notes');SB.upsert('notes',n,'notes').catch(()=>{});addHistory('add','Added note: '+n.title,{...n,_dbKey:'notes'});currentNote=DB.notes.length-1;renderNotesList();openNoteEditor(currentNote);}
 function switchNote(){openNoteEditor(currentNote);}
 
-function deleteNote(i){if(!confirm('Delete this note?'))return;const n=DB.notes[i];DB.notes.splice(i,1);save('notes');if(n){SB.remove('notes',n.id,'notes');addHistory('delete','Deleted note: '+(n.title||'Untitled note'),{...n,_dbKey:'notes'});}currentNote=Math.max(0,currentNote-1);renderNotesList();}
+function deleteNote(i){if(!confirm('Delete this note?'))return;const n=DB.notes[i];DB.notes.splice(i,1);save('notes');if(n){SB.remove('notes',n.id,'notes');if(typeof _deleteItemLinksFor==='function')_deleteItemLinksFor('note',n.id);addHistory('delete','Deleted note: '+(n.title||'Untitled note'),{...n,_dbKey:'notes'});}currentNote=Math.max(0,currentNote-1);renderNotesList();}
 function deleteCurrentNote(){closeModal('noteEditorModal');deleteNote(currentNote);}
 function saveNoteTitle(){if(DB.notes[currentNote]){DB.notes[currentNote].title=document.getElementById('noteTitle').textContent;save('notes');SB.update('notes',DB.notes[currentNote].id,DB.notes[currentNote],'notes').catch(()=>{});renderNotesList();}}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// SAVED LINKS — a first-class content type alongside tasks/notes/events.
+// Paste a URL, a Supabase Edge Function (fetch-link-metadata) fetches it
+// server-side and parses title/og:image/favicon, since the browser can't
+// fetch arbitrary third-party pages itself (CORS). worldId null = sits in
+// the Inbox until manually assigned to a Domain.
+// ═══════════════════════════════════════════════════════════════════════════
+const LINK_METADATA_URL='https://ddxkmidantqgnxfxsrrz.supabase.co/functions/v1/fetch-link-metadata';
+
+async function fetchLinkMetadata(url){
+  const session=await getAuthSession();
+  const authToken=session?session.access_token:SB_KEY;
+  try{
+    const res=await fetch(LINK_METADATA_URL,{
+      method:'POST',
+      headers:{'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+authToken},
+      body:JSON.stringify({url}),
+    });
+    const data=await res.json();
+    if(!res.ok)throw new Error(data.error||'metadata_fetch_failed');
+    return data; // {title, previewImage, favicon}
+  }catch(err){
+    console.warn('fetchLinkMetadata failed, falling back to bare URL:',err);
+    // Never blocks saving — worst case the user gets just the URL as the
+    // title and no preview image/favicon, editable by hand afterward.
+    return {title:url,previewImage:null,favicon:null};
+  }
+}
+
+async function addSavedLinkFlow(){
+  const url=(prompt('Paste a URL to save:')||'').trim();
+  if(!url)return;
+  let parsed;
+  try{parsed=new URL(url);}catch(e){showToast('⚠ That doesn\'t look like a valid URL.');return;}
+  if(parsed.protocol!=='http:'&&parsed.protocol!=='https:'){showToast('⚠ Only http/https links are supported.');return;}
+  showToast('↻ Fetching link preview…');
+  const meta=await fetchLinkMetadata(parsed.href);
+  const link={
+    id:'link_'+Date.now(),
+    url:parsed.href,
+    title:meta.title||parsed.href,
+    previewImage:meta.previewImage||null,
+    favicon:meta.favicon||null,
+    worldId:null, // always lands in the Inbox first; assign a Domain afterward
+    projectId:null,
+    tags:[],
+  };
+  DB.savedLinks.unshift(link);
+  save('savedLinks');
+  SB.upsert('saved_links',link,'savedLinks').catch(()=>{});
+  addHistory('add','Saved link: '+link.title,{...link,_dbKey:'savedLinks'});
+  renderLinksView();
+  showToast('✓ Link saved');
+}
+
+async function refreshSavedLink(id){
+  const link=DB.savedLinks.find(l=>l.id===id);
+  if(!link)return;
+  showToast('↻ Refreshing preview…');
+  const meta=await fetchLinkMetadata(link.url);
+  link.title=meta.title||link.title;
+  link.previewImage=meta.previewImage;
+  link.favicon=meta.favicon;
+  save('savedLinks');
+  SB.update('saved_links',id,{title:link.title,previewImage:link.previewImage,favicon:link.favicon},'savedLinks').catch(()=>{});
+  renderLinksView();
+  showToast('✓ Preview refreshed');
+}
+
+function deleteSavedLink(id){
+  if(!confirm('Delete this link?'))return;
+  const link=DB.savedLinks.find(l=>l.id===id);
+  DB.savedLinks=DB.savedLinks.filter(l=>l.id!==id);
+  save('savedLinks');
+  SB.remove('saved_links',id,'savedLinks');
+  if(typeof _deleteItemLinksFor==='function')_deleteItemLinksFor('link',id);
+  if(link)addHistory('delete','Deleted link: '+link.title,{...link,_dbKey:'savedLinks'});
+  renderLinksView();
+}
+
+function assignSavedLinkToWorld(id,worldId){
+  const link=DB.savedLinks.find(l=>l.id===id);
+  if(!link)return;
+  link.worldId=worldId||null;
+  save('savedLinks');
+  SB.update('saved_links',id,{worldId:link.worldId},'savedLinks').catch(()=>{});
+  renderLinksView();
+  if(typeof renderInboxView==='function')renderInboxView();
+}
+
+function renderLinksView(){
+  const container=document.getElementById('linksListContainer');
+  if(!container)return;
+  const links=[...DB.savedLinks].sort((a,b)=>(b.id>a.id?1:-1));
+  if(!links.length){
+    container.innerHTML='<div style="font-size:var(--text-xs);color:var(--text3);text-align:center;padding:24px">No links saved yet. Paste a URL to get started.</div>';
+    return;
+  }
+  container.innerHTML=links.map(l=>{
+    const world=(DB.worlds||[]).find(w=>w.id===l.worldId);
+    const worldLabel=world?world.label:'Inbox';
+    const worldOptions=['<option value="">Inbox (unassigned)</option>']
+      .concat((DB.worlds||[]).map(w=>`<option value="${w.id}" ${w.id===l.worldId?'selected':''}>${w.label}</option>`)).join('');
+    return `<div class="hc" style="display:flex;gap:12px;align-items:flex-start;margin-bottom:10px;padding:12px">
+      ${l.previewImage?`<img src="${l.previewImage}" style="width:64px;height:64px;object-fit:cover;border-radius:8px;flex-shrink:0;background:var(--navy3)" onerror="this.style.display='none'">`:`<div style="width:64px;height:64px;border-radius:8px;flex-shrink:0;background:var(--navy3);display:flex;align-items:center;justify-content:center"><i class="ti ti-link" style="font-size:22px;color:var(--text3)"></i></div>`}
+      <div style="flex:1;min-width:0">
+        <a href="${l.url}" target="_blank" rel="noopener" style="font-size:var(--text-sm);font-weight:600;color:var(--text1);text-decoration:none;display:flex;align-items:center;gap:6px">
+          ${l.favicon?`<img src="${l.favicon}" style="width:14px;height:14px;flex-shrink:0" onerror="this.style.display='none'">`:''}
+          <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${l.title}</span>
+        </a>
+        <div style="font-size:var(--text-xs);color:var(--text3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:2px">${l.url}</div>
+        <div style="display:flex;align-items:center;gap:6px;margin-top:8px;flex-wrap:wrap">
+          <select onchange="assignSavedLinkToWorld('${l.id}',this.value)" style="font-size:var(--text-xs);padding:3px 6px;width:auto">${worldOptions}</select>
+          <button onclick="refreshSavedLink('${l.id}')" title="Refresh preview" style="background:transparent;border:1px solid var(--border2);border-radius:8px;color:var(--text3);font-size:var(--text-xs);padding:3px 8px;cursor:pointer"><i class="ti ti-refresh"></i></button>
+          <button onclick="deleteSavedLink('${l.id}')" title="Delete" style="background:transparent;border:1px solid var(--border2);border-radius:8px;color:var(--text3);font-size:var(--text-xs);padding:3px 8px;cursor:pointer"><i class="ti ti-trash"></i></button>
+        </div>
+        <div style="margin-top:8px" id="link-related-${l.id}">${typeof renderRelatedSection==='function'?renderRelatedSection('link',l.id):''}</div>
+        <div style="margin-top:6px" id="link-tags-${l.id}">${typeof renderTagsSection==='function'?renderTagsSection('link',l.id):''}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// UNIVERSAL LINKING — relate any task/note/event/link to any other, across
+// types. Stored as one row per relation in DB.itemLinks; read as
+// bidirectional (a query checks both the from_ and to_ side for a given
+// item) even though each row only has one direction on disk.
+// ═══════════════════════════════════════════════════════════════════════════
+function _resolveLinkedItem(type,id){
+  if(type==='task'){const t=DB.tasks.find(x=>String(x.id)===String(id));return t?{type,id,label:t.title||'Untitled task',icon:'ti-checkbox'}:null;}
+  if(type==='note'){const n=DB.notes.find(x=>String(x.id)===String(id));return n?{type,id,label:n.title||'Untitled note',icon:'ti-notes'}:null;}
+  if(type==='event'){const e=DB.calEvents.find(x=>String(x.id)===String(id));return e?{type,id,label:e.title||'Untitled event',icon:'ti-calendar'}:null;}
+  if(type==='link'){const l=DB.savedLinks.find(x=>String(x.id)===String(id));return l?{type,id,label:l.title||l.url,icon:'ti-link'}:null;}
+  return null;
+}
+function _openLinkedItem(type,id){
+  if(type==='task'){setView('tasks');setTimeout(()=>editTask(DB.tasks.find(x=>String(x.id)===String(id))?.id),150);}
+  else if(type==='note'){setView('notes');setTimeout(()=>{const i=DB.notes.findIndex(x=>String(x.id)===String(id));if(i>=0)openNoteEditor(i);},150);}
+  else if(type==='event'){setView('calendar');setTimeout(()=>editCalEvent(DB.calEvents.find(x=>String(x.id)===String(id))?.id),150);}
+  else if(type==='link'){setView('links');}
+}
+function getLinkedItems(type,id){
+  return DB.itemLinks
+    .filter(l=>(l.fromType===type&&String(l.fromId)===String(id))||(l.toType===type&&String(l.toId)===String(id)))
+    .map(l=>{
+      const isFrom=l.fromType===type&&String(l.fromId)===String(id);
+      const other=isFrom?{type:l.toType,id:l.toId}:{type:l.fromType,id:l.fromId};
+      const resolved=_resolveLinkedItem(other.type,other.id);
+      return resolved?{linkId:l.id,...resolved}:null;
+    })
+    .filter(Boolean); // silently drop relations pointing at a since-deleted item
+}
+function addItemLink(fromType,fromId,toType,toId){
+  const exists=DB.itemLinks.some(l=>
+    (l.fromType===fromType&&String(l.fromId)===String(fromId)&&l.toType===toType&&String(l.toId)===String(toId))||
+    (l.fromType===toType&&String(l.fromId)===String(toId)&&l.toType===fromType&&String(l.toId)===String(fromId))
+  );
+  if(exists)return;
+  const link={id:'itemlink_'+Date.now(),fromType,fromId:String(fromId),toType,toId:String(toId)};
+  DB.itemLinks.push(link);
+  save('itemLinks');
+  SB.upsert('item_links',link,'itemLinks').catch(()=>{});
+}
+function removeItemLink(linkId){
+  DB.itemLinks=DB.itemLinks.filter(l=>l.id!==linkId);
+  save('itemLinks');
+  SB.remove('item_links',linkId,'itemLinks');
+}
+// Cascading cleanup — call from every content type's delete function so a
+// removed item doesn't leave dangling relations pointing at nothing.
+function _deleteItemLinksFor(type,id){
+  const toDelete=DB.itemLinks.filter(l=>(l.fromType===type&&String(l.fromId)===String(id))||(l.toType===type&&String(l.toId)===String(id)));
+  if(!toDelete.length)return;
+  const ids=new Set(toDelete.map(l=>l.id));
+  DB.itemLinks=DB.itemLinks.filter(l=>!ids.has(l.id));
+  save('itemLinks');
+  toDelete.forEach(l=>SB.remove('item_links',l.id,'itemLinks'));
+}
+// Shared renderer, embedded in the Task/Note/Event edit modals and each
+// Link card — a chip per related item (click to jump to it, × to unlink)
+// plus a "+ Link item" button that opens the picker.
+function renderRelatedSection(type,id){
+  const items=getLinkedItems(type,id);
+  const chips=items.map(it=>`<span class="conn-chip" style="cursor:pointer">
+    <i class="ti ${it.icon}" style="font-size:10px" onclick="_openLinkedItem('${it.type}','${it.id}')"></i>
+    <span onclick="_openLinkedItem('${it.type}','${it.id}')">${(it.label||'').substring(0,28)}</span>
+    <i class="ti ti-x" style="font-size:9px;margin-left:2px;opacity:.6" onclick="removeItemLink('${it.linkId}');_refreshRelatedSection('${type}','${id}')"></i>
+  </span>`).join('');
+  return `<div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center">
+    ${chips}
+    <button type="button" onclick="openLinkPicker('${type}','${id}')" style="background:transparent;border:1px dashed var(--border2);border-radius:100px;padding:3px 10px;font-size:var(--text-xs);color:var(--text3);cursor:pointer"><i class="ti ti-plus"></i> Link item</button>
+  </div>`;
+}
+// Re-render whichever Related section is currently on screen for this item —
+// covers the 3 possible containers (task/note/event modals) plus Links cards.
+function _refreshRelatedSection(type,id){
+  const map={task:'tf-related',note:'note-related',event:'ce-related'};
+  const container=map[type]&&document.getElementById(map[type]);
+  if(container)container.innerHTML=renderRelatedSection(type,id);
+  if(type==='link'&&typeof renderLinksView==='function')renderLinksView();
+}
+
+// ── Link picker overlay ──────────────────────────────────────────────────
+let _linkPickerSource=null; // {type,id}
+function openLinkPicker(type,id){
+  _linkPickerSource={type,id};
+  const modal=document.getElementById('linkPickerModal');
+  if(!modal)return;
+  modal.classList.add('open');
+  const input=document.getElementById('linkPickerInput');
+  if(input){input.value='';setTimeout(()=>input.focus(),50);}
+  filterLinkPicker();
+}
+function closeLinkPicker(){
+  document.getElementById('linkPickerModal')?.classList.remove('open');
+  _linkPickerSource=null;
+}
+function filterLinkPicker(){
+  const q=(document.getElementById('linkPickerInput')?.value||'').toLowerCase().trim();
+  const results=document.getElementById('linkPickerResults');
+  if(!results||!_linkPickerSource)return;
+  const {type:srcType,id:srcId}=_linkPickerSource;
+  const already=new Set(getLinkedItems(srcType,srcId).map(it=>it.type+':'+it.id));
+  const pools=[
+    ...DB.tasks.map(t=>({type:'task',id:t.id,label:t.title,sub:t.world,icon:'ti-checkbox'})),
+    ...DB.notes.map(n=>({type:'note',id:n.id,label:n.title||'Untitled note',sub:'Note',icon:'ti-notes'})),
+    ...DB.calEvents.map(e=>({type:'event',id:e.id,label:e.title,sub:e.date,icon:'ti-calendar'})),
+    ...DB.savedLinks.map(l=>({type:'link',id:l.id,label:l.title||l.url,sub:l.url,icon:'ti-link'})),
+  ].filter(it=>!(it.type===srcType&&String(it.id)===String(srcId))) // never link an item to itself
+   .filter(it=>!already.has(it.type+':'+it.id))
+   .filter(it=>!q||(it.label||'').toLowerCase().includes(q)||(it.sub||'').toLowerCase().includes(q));
+  const shown=pools.slice(0,30);
+  results.innerHTML=shown.length?shown.map(it=>`
+    <div class="cr" onclick="pickLinkedItem('${it.type}','${it.id}')" style="gap:9px;cursor:pointer">
+      <div class="cri" style="background:rgba(0,0,0,.3);color:var(--teal)"><i class="ti ${it.icon}" style="font-size:var(--text-sm);line-height:1;display:block"></i></div>
+      <div style="flex:1;min-width:0">
+        <div class="crl">${it.label}</div>
+        <div class="crs" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${it.sub||''}</div>
+      </div>
+      <span style="font-size:var(--text-xs);color:var(--text3);background:rgba(0,0,0,.3);padding:1px 5px;border-radius:8px;flex-shrink:0;text-transform:capitalize">${it.type}</span>
+    </div>`).join(''):'<div style="font-size:var(--text-xs);color:var(--text3);text-align:center;padding:16px">No matching items.</div>';
+}
+function pickLinkedItem(type,id){
+  if(!_linkPickerSource)return;
+  addItemLink(_linkPickerSource.type,_linkPickerSource.id,type,id);
+  const {type:srcType,id:srcId}=_linkPickerSource;
+  closeLinkPicker();
+  _refreshRelatedSection(srcType,srcId);
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// INBOX — a computed view, not stored state. Tasks/Notes/Links with no
+// Domain assigned land here until manually triaged. Calendar events are
+// deliberately excluded: unlike tasks/notes, events have no Domain-picker
+// UI at all today, so treating a missing world_id as "unsorted" would just
+// flood the Inbox with every existing event rather than surface anything
+// genuinely new.
+// ═══════════════════════════════════════════════════════════════════════════
+function _getInboxItems(){
+  const tasks=(DB.tasks||[]).filter(t=>!t.world).map(t=>({type:'task',id:t.id,title:t.title||'Untitled task',icon:'ti-checkbox',color:'var(--teal)'}));
+  const notes=(DB.notes||[]).filter(n=>!n.worldId).map(n=>({type:'note',id:n.id,title:n.title||'Untitled note',icon:'ti-notes',color:'var(--amber)'}));
+  const links=(DB.savedLinks||[]).filter(l=>!l.worldId).map(l=>({type:'link',id:l.id,title:l.title||l.url,icon:'ti-link',color:'var(--blue)'}));
+  return [...tasks,...notes,...links].sort((a,b)=>(String(b.id)>String(a.id)?1:-1));
+}
+function updateInboxBadge(){
+  const badge=document.getElementById('inboxBadge');
+  if(badge)badge.textContent=_getInboxItems().length;
+}
+function assignInboxItemToWorld(type,id,worldId){
+  worldId=worldId||null;
+  if(type==='task'){
+    const t=DB.tasks.find(x=>String(x.id)===String(id));if(!t)return;
+    t.world=worldId;save('tasks');SB.update('tasks',t.id,{world:worldId},'tasks').catch(()=>{});
+  }else if(type==='note'){
+    const n=DB.notes.find(x=>String(x.id)===String(id));if(!n)return;
+    n.worldId=worldId;save('notes');SB.update('notes',n.id,{worldId},'notes').catch(()=>{});
+  }else if(type==='link'){
+    assignSavedLinkToWorld(id,worldId);return; // already saves + re-renders
+  }
+  renderInboxView();
+  if(typeof renderTasks==='function')renderTasks();
+  if(typeof renderNotesList==='function')renderNotesList();
+}
+function renderInboxView(){
+  const container=document.getElementById('inboxListContainer');
+  if(!container)return;
+  const items=_getInboxItems();
+  updateInboxBadge();
+  if(!items.length){
+    container.innerHTML='<div style="font-size:var(--text-xs);color:var(--text3);text-align:center;padding:24px">Inbox zero. New tasks, notes, and links with no Domain will show up here.</div>';
+    return;
+  }
+  const worldOptionsFor=(currentId)=>['<option value="">Assign a Domain…</option>']
+    .concat((DB.worlds||[]).map(w=>`<option value="${w.id}">${w.label}</option>`)).join('');
+  container.innerHTML=items.map(it=>`
+    <div class="hc" style="display:flex;align-items:center;gap:10px;margin-bottom:8px;padding:10px 12px">
+      <i class="ti ${it.icon}" style="font-size:16px;color:${it.color};flex-shrink:0"></i>
+      <div onclick="_openLinkedItem('${it.type}','${it.id}')" style="flex:1;min-width:0;cursor:pointer;font-size:var(--text-sm);color:var(--text1);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${it.title}</div>
+      <span style="font-size:var(--text-xs);color:var(--text3);background:rgba(0,0,0,.3);padding:1px 6px;border-radius:8px;flex-shrink:0;text-transform:capitalize">${it.type}</span>
+      <select onchange="assignInboxItemToWorld('${it.type}','${it.id}',this.value)" style="font-size:var(--text-xs);padding:3px 6px;width:auto;flex-shrink:0">${worldOptionsFor(it.id)}</select>
+    </div>`).join('');
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// TAGS — freeform, cross-Domain labels on any Task/Note/Event/Link. A tag
+// is just a string in that item's `tags` array; creating one is using it —
+// there's no separate tag-management screen, autocomplete just suggests
+// whatever's already been typed elsewhere via a shared <datalist>.
+// ═══════════════════════════════════════════════════════════════════════════
+function _getTaggableItem(type,id){
+  if(type==='task')return DB.tasks.find(x=>String(x.id)===String(id));
+  if(type==='note')return DB.notes.find(x=>String(x.id)===String(id));
+  if(type==='event')return DB.calEvents.find(x=>String(x.id)===String(id));
+  if(type==='link')return DB.savedLinks.find(x=>String(x.id)===String(id));
+  return null;
+}
+function _saveTaggableItem(type,id){
+  const map={task:['tasks','tasks'],note:['notes','notes'],event:['cal_events','calEvents'],link:['saved_links','savedLinks']};
+  const entry=map[type];if(!entry)return;
+  const [table,key]=entry;
+  const item=_getTaggableItem(type,id);if(!item)return;
+  save(key);
+  SB.update(table,id,{tags:item.tags||[]},key).catch(()=>{});
+}
+function getAllTags(){
+  const all=[...DB.tasks,...DB.notes,...DB.calEvents,...DB.savedLinks].flatMap(x=>x.tags||[]);
+  return [...new Set(all)].filter(Boolean).sort();
+}
+function renderTagsDatalist(){
+  const dl=document.getElementById('allTagsDatalist');
+  if(dl)dl.innerHTML=getAllTags().map(t=>`<option value="${t}">`).join('');
+}
+function addTagToItem(type,id,rawTag){
+  const tag=(rawTag||'').trim().toLowerCase().replace(/^#/,'');
+  if(!tag)return;
+  const item=_getTaggableItem(type,id);if(!item)return;
+  if(!item.tags)item.tags=[];
+  if(item.tags.includes(tag))return;
+  item.tags.push(tag);
+  _saveTaggableItem(type,id);
+  renderTagsDatalist();
+  _refreshTagsSection(type,id);
+}
+function removeTagFromItem(type,id,tag){
+  const item=_getTaggableItem(type,id);if(!item)return;
+  item.tags=(item.tags||[]).filter(t=>t!==tag);
+  _saveTaggableItem(type,id);
+  _refreshTagsSection(type,id);
+}
+function renderTagsSection(type,id){
+  const item=_getTaggableItem(type,id);
+  const tags=(item&&item.tags)||[];
+  const chips=tags.map(tag=>`<span class="conn-chip" style="cursor:default">#${tag}<i class="ti ti-x" style="font-size:9px;margin-left:4px;opacity:.6;cursor:pointer" onclick="removeTagFromItem('${type}','${id}','${tag.replace(/'/g,"\\'")}')"></i></span>`).join('');
+  return `<div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center">
+    ${chips}
+    <input list="allTagsDatalist" placeholder="+ tag" onkeydown="if(event.key==='Enter'){event.preventDefault();addTagToItem('${type}','${id}',this.value);this.value='';}" style="font-size:var(--text-xs);width:90px;padding:3px 8px;background:transparent;border:1px dashed var(--border2);border-radius:100px">
+  </div>`;
+}
+function _refreshTagsSection(type,id){
+  const map={task:'tf-tags',note:'note-tags',event:'ce-tags'};
+  const container=map[type]&&document.getElementById(map[type]);
+  if(container)container.innerHTML=renderTagsSection(type,id);
+  if(type==='link'){
+    const linkContainer=document.getElementById('link-tags-'+id);
+    if(linkContainer)linkContainer.innerHTML=renderTagsSection(type,id);
+  }
+}
+
 // ═══════════════════════════════════════════════════════════════════════════
 // EDIT / VIEW MODE — global toggle. Edit mode shows drag handles, delete
 // buttons, shape presets, resize handles, and the slash/+ block menus, and
