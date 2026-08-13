@@ -8711,7 +8711,6 @@ function toggleNav(){
 checkAuthGate();
 
 // ── Quick Capture NLP Router ─────────────────────────────────────────────────
-async function processCapture(){runCapture();}
 // Natural-language due date/time — "Call John tomorrow 3pm" becomes title
 // "Call John" with due=tomorrow, time=15:00, instead of the whole phrase
 // landing as a literal task title. Deliberately covers only common,
@@ -14301,7 +14300,7 @@ function saveInfluencer(){
 async function deleteInfluencer(id){
   const targetId=id||editingInfluencerId;
   const inf=(DB.influencers||[]).find(x=>x.id===targetId);if(!inf)return;
-  if(!id&&!await jelixConfirm('Delete "'+inf.name+'"?','Delete'))return;
+  if(!await jelixConfirm('Delete "'+inf.name+'"?','Delete'))return;
   DB.influencers=DB.influencers.filter(x=>x.id!==targetId);
   save('influencers');SB.remove('influencers',targetId,'influencers');
   addHistory('delete','Deleted influencer: '+inf.name,{...inf,_dbKey:'influencers'});
@@ -14375,7 +14374,7 @@ function savePricing(){
 async function deletePricing(id){
   const targetId=id||editingPricingId;
   const p=(DB.pricing||[]).find(x=>x.id===targetId);if(!p)return;
-  if(!id&&!await jelixConfirm('Delete "'+p.item+'"?','Delete'))return;
+  if(!await jelixConfirm('Delete "'+p.item+'"?','Delete'))return;
   DB.pricing=DB.pricing.filter(x=>x.id!==targetId);
   save('pricing');SB.remove('pricing',targetId,'pricing');
   addHistory('delete','Deleted pricing item: '+p.item,{...p,_dbKey:'pricing'});
@@ -19801,9 +19800,6 @@ function renderMemory(){
   </tr>`).join('')
   :'<tr><td colspan="6" style="text-align:center;color:var(--text3);padding:20px;font-size:var(--text-sm)">No memories yet. The OS learns automatically as you use it.</td></tr>';
 }
-
-// CAPTURE
-async function processCapture(){const input=document.getElementById('captureInput');const text=input.value.trim();if(!text)return;input.value='';await executeVoiceCommand(text);}
 
 // ===== VOICE COMMAND ENGINE =====
 const WAKE_WORDS=['hey jelix','hey felix','hey jelly','hey jellix','angelix','hi jelix','jelix'];
