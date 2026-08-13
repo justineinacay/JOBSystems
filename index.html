@@ -3848,6 +3848,7 @@ select option{background:var(--navy3)}
       <div class="ni" onclick="setView('notes')" data-view="notes" title="Notes"><i class="ti ti-notes"></i>Notes</div>
       <div class="ni" onclick="setView('links')" data-view="links" title="Links"><i class="ti ti-link"></i>Links</div>
       <div class="ni" onclick="setView('inbox')" data-view="inbox" title="Inbox"><i class="ti ti-inbox"></i>Inbox<span class="nbadge" id="inboxBadge">0</span></div>
+      <div class="ni" onclick="setView('all-files')" data-view="all-files" title="All Files"><i class="ti ti-files"></i>All Files</div>
       <div class="ni" onclick="setView('calendar')" data-view="calendar" title="Calendar"><i class="ti ti-calendar"></i>Calendar</div>
       <div class="ni" onclick="setView('ai')" data-view="ai" title="Ask JELIX"><i class="ti ti-sparkles"></i>Ask JELIX</div>
       <div class="ni" onclick="setView('memory')" data-view="memory" title="Memory"><i class="ti ti-brain"></i>Memory</div>
@@ -5150,6 +5151,14 @@ select option{background:var(--navy3)}
       </div>
     </div>
 
+    <!-- ===== ALL FILES ===== -->
+    <div class="view" id="view-all-files">
+      <div class="vh"><div><div class="vt"><i class="ti ti-files"></i>All Files</div><div class="vs">Every attached file, in one place</div></div><div class="va"><select id="allFilesWorldFilter" onchange="renderAllFilesView()" style="font-size:var(--text-xs);padding:5px 8px;width:auto"></select></div></div>
+      <div class="vb" style="padding:14px 18px">
+        <div id="allFilesListContainer"></div>
+      </div>
+    </div>
+
     <!-- NOTE EDITOR OVERLAY -->
     <div class="mov" id="noteEditorModal">
       <div class="modal" style="width:min(680px,96vw);max-height:85vh">
@@ -5506,6 +5515,10 @@ select option{background:var(--navy3)}
           <div onclick="setView('inbox')" style="background:var(--navy2);border:1px solid var(--border);border-radius:12px;padding:16px 14px;cursor:pointer;display:flex;align-items:center;gap:10px;transition:border-color .15s" onmouseover="this.style.borderColor='rgba(128,255,250,.3)'" onmouseout="this.style.borderColor='var(--border)'">
             <i class="ti ti-inbox" style="font-size:20px;color:var(--orange);flex-shrink:0;line-height:1;display:block"></i>
             <div><div style="font-size:12px;font-weight:700;color:var(--text1)">Inbox</div><div style="font-size:10px;color:var(--text3)">Unsorted items</div></div>
+          </div>
+          <div onclick="setView('all-files')" style="background:var(--navy2);border:1px solid var(--border);border-radius:12px;padding:16px 14px;cursor:pointer;display:flex;align-items:center;gap:10px;transition:border-color .15s" onmouseover="this.style.borderColor='rgba(128,255,250,.3)'" onmouseout="this.style.borderColor='var(--border)'">
+            <i class="ti ti-files" style="font-size:20px;color:var(--green);flex-shrink:0;line-height:1;display:block"></i>
+            <div><div style="font-size:12px;font-weight:700;color:var(--text1)">All Files</div><div style="font-size:10px;color:var(--text3)">Every attachment</div></div>
           </div>
         </div>
       </div>
@@ -10774,7 +10787,7 @@ function setView(v){
   currentView=v;addHistory('navigate','Navigated to '+v,{view:v});
   LearnEngine.onNavigate(v);
   renderSideNav();
-  const r={dashboard:renderBrief,'work-ih':renderWorkIH,'work-cs':renderWorkCS,venture:renderVenture,build:renderBuild,sides:renderSides,faith:renderFaith,life:renderLife,calendar:renderCalendar,tasks:renderTasks,notes:renderNotesList,journal:renderJournal,memory:renderMemory,history:renderHistory,settings:renderSettingsView,'worlds-settings':renderWorldsSettings,links:renderLinksView,inbox:()=>{if(typeof renderInboxView==='function')renderInboxView();}};
+  const r={dashboard:renderBrief,'work-ih':renderWorkIH,'work-cs':renderWorkCS,venture:renderVenture,build:renderBuild,sides:renderSides,faith:renderFaith,life:renderLife,calendar:renderCalendar,tasks:renderTasks,notes:renderNotesList,journal:renderJournal,memory:renderMemory,history:renderHistory,settings:renderSettingsView,'worlds-settings':renderWorldsSettings,links:renderLinksView,inbox:()=>{if(typeof renderInboxView==='function')renderInboxView();},'all-files':()=>{if(typeof renderAllFilesView==='function')renderAllFilesView();}};
   if(v==='life'){renderLife();}
   else if(v==='biomonitor'){setView('life');setTimeout(()=>{const btns=document.querySelectorAll('.cfbt');btns.forEach(b=>{if(b.textContent.includes('Bio Monitor')){setCFTab('biomonitor',b);}});},150);}
   else if(isCustomDomain)renderDomainGenericView(v);
@@ -18168,6 +18181,72 @@ function handleProjectSelectChange(selectEl,worldId){
     const p=createProjectFlow(worldId);
     refreshProjectSelect(selectEl.id,worldId,p?p.id:'');
   }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ALL FILES — pure read-time aggregation, no new storage. Scans every
+// existing attachment source (task Drive links, note Drive-file blocks,
+// Domain Gallery module files, saved Link previews) and lists them in
+// one place. Nothing is cached, so a deleted source item just stops
+// appearing next render — no stale/dangling entries possible.
+// ═══════════════════════════════════════════════════════════════════════════
+// Note "Drive File" blocks aren't a distinct block type — addNoteDriveBlock()
+// stores them as a plain paragraph formatted "📎 name — url". Parsing that
+// back out here rather than changing the note format itself, which would
+// touch the block editor for a benefit only this aggregation needs.
+const _NOTE_DRIVE_BLOCK_RE=/^📎 (.+?) — (https?:\/\/\S+)$/;
+function _getAllFilesItems(){
+  const items=[];
+  (DB.tasks||[]).forEach(t=>{
+    if(t.driveLink)items.push({name:t.title||'Untitled task',url:t.driveLink,thumbnail:null,sourceType:'task',sourceId:t.id,worldId:t.world||null});
+  });
+  (DB.notes||[]).forEach(n=>{
+    (n.blocks||[]).forEach(b=>{
+      if(b.type!=='p'||!b.content)return;
+      const m=b.content.match(_NOTE_DRIVE_BLOCK_RE);
+      if(m)items.push({name:m[1],url:m[2],thumbnail:null,sourceType:'note',sourceId:n.id,worldId:n.worldId||null});
+    });
+  });
+  (DB.worlds||[]).forEach(w=>{
+    (w.galleryFiles||[]).forEach(f=>{
+      items.push({name:f.name,url:f.url,thumbnail:null,sourceType:'domain',sourceId:w.id,worldId:w.id});
+    });
+  });
+  (DB.savedLinks||[]).forEach(l=>{
+    items.push({name:l.title||l.url,url:l.url,thumbnail:l.previewImage||l.favicon||null,sourceType:'link',sourceId:l.id,worldId:l.worldId||null});
+  });
+  return items;
+}
+function _openFileSource(sourceType,sourceId){
+  if(sourceType==='task'){setView('tasks');setTimeout(()=>editTask(sourceId),150);}
+  else if(sourceType==='note'){setView('notes');setTimeout(()=>{const i=DB.notes.findIndex(x=>x.id===sourceId);if(i>=0)openNoteEditor(i);},150);}
+  else if(sourceType==='domain'){setView(sourceId);}
+  else if(sourceType==='link'){setView('links');}
+}
+function renderAllFilesView(){
+  const container=document.getElementById('allFilesListContainer');
+  if(!container)return;
+  const filterEl=document.getElementById('allFilesWorldFilter');
+  const worldFilter=filterEl?filterEl.value:'';
+  let items=_getAllFilesItems();
+  if(worldFilter)items=items.filter(it=>it.worldId===worldFilter);
+  if(filterEl&&!filterEl._populated){
+    filterEl._populated=true;
+    filterEl.innerHTML='<option value="">All Domains</option>'+(DB.worlds||[]).map(w=>`<option value="${w.id}">${w.label}</option>`).join('');
+  }
+  if(!items.length){
+    container.innerHTML='<div style="font-size:var(--text-xs);color:var(--text3);text-align:center;padding:24px">No files attached anywhere yet — Drive links on tasks/notes, Domain Gallery files, and Link previews all show up here.</div>';
+    return;
+  }
+  const sourceLabel={task:'Task',note:'Note',domain:'Domain Gallery',link:'Link'};
+  const sourceIcon={task:'ti-checkbox',note:'ti-notes',domain:'ti-photo',link:'ti-link'};
+  container.innerHTML=`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px">${items.map(it=>`
+    <div onclick="_openFileSource('${it.sourceType}','${it.sourceId}')" style="cursor:pointer;background:var(--navy2);border:1px solid var(--border);border-radius:12px;padding:10px;display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center">
+      ${it.thumbnail?`<img src="${it.thumbnail}" style="width:100%;height:70px;object-fit:cover;border-radius:8px;background:var(--navy3)" onerror="this.replaceWith(Object.assign(document.createElement('div'),{innerHTML:'<i class=&quot;ti ti-file&quot; style=&quot;font-size:28px;color:var(--text3)&quot;></i>'}))">`
+        :`<div style="width:100%;height:70px;display:flex;align-items:center;justify-content:center;background:var(--navy3);border-radius:8px"><i class="ti ti-file" style="font-size:28px;color:var(--text3)"></i></div>`}
+      <div style="font-size:var(--text-xs);color:var(--text1);font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;width:100%">${it.name}</div>
+      <span style="font-size:9px;color:var(--text3);display:flex;align-items:center;gap:3px"><i class="ti ${sourceIcon[it.sourceType]}" style="font-size:9px"></i>${sourceLabel[it.sourceType]}</span>
+    </div>`).join('')}</div>`;
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
