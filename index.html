@@ -5120,6 +5120,11 @@ select option{background:var(--navy3)}
             <input type="search" id="mobileTaskSearch" style="flex:1;background:var(--navy3);border:1px solid var(--border);border-radius:10px;padding:7px 10px;font-size:var(--text-sm);color:var(--text1);outline:none" placeholder="Search tasks..." oninput="taskSearchFilter=this.value;renderTasks()">
             <button class="btn btn-t" onclick="editingTaskId=null;document.getElementById('taskModalTitle').textContent='New Task';openModal('taskModal')" style="flex-shrink:0;padding:8px 16px;font-size:var(--text-sm);font-weight:700;white-space:nowrap">+ Task</button>
           </div>
+          <div style="display:flex;gap:6px;padding:8px 14px;flex-shrink:0;border-bottom:1px solid var(--border)">
+            <span style="font-size:var(--text-xs);color:var(--text3);align-self:center">Group by:</span>
+            <button id="mtc-group-board" class="bvt active" style="font-size:var(--text-xs);padding:4px 10px" onclick="setMobileTaskGroupMode('board')">Board</button>
+            <button id="mtc-group-project" class="bvt" style="font-size:var(--text-xs);padding:4px 10px" onclick="setMobileTaskGroupMode('project')">Project</button>
+          </div>
           <div id="mobileTaskContainer" style="flex:1;overflow-y:auto;overscroll-behavior-y:contain;padding-bottom:80px"></div>
         </div>
       </div>
@@ -5153,7 +5158,7 @@ select option{background:var(--navy3)}
 
     <!-- ===== ALL FILES ===== -->
     <div class="view" id="view-all-files">
-      <div class="vh"><div><div class="vt"><i class="ti ti-files"></i>All Files</div><div class="vs">Every attached file, in one place</div></div><div class="va"><select id="allFilesWorldFilter" onchange="renderAllFilesView()" style="font-size:var(--text-xs);padding:5px 8px;width:auto"></select></div></div>
+      <div class="vh"><div><div class="vt"><i class="ti ti-files"></i>All Files</div><div class="vs">Every attached file, in one place</div></div><div class="va" style="gap:6px"><select id="allFilesTypeFilter" onchange="renderAllFilesView()" style="font-size:var(--text-xs);padding:5px 8px;width:auto"><option value="">All Types</option><option value="image">Images</option><option value="document">Documents</option><option value="other">Other</option></select><select id="allFilesWorldFilter" onchange="renderAllFilesView()" style="font-size:var(--text-xs);padding:5px 8px;width:auto"></select></div></div>
       <div class="vb" style="padding:14px 18px">
         <div id="allFilesListContainer"></div>
       </div>
@@ -11080,8 +11085,22 @@ function initTaskSwipe(card,taskId){
 }
 
 // ── Render mobile task cards (called by renderTasks on mobile) ────────────
+let _mobileTaskGroupMode=localStorage.getItem('j-pref-mobile-task-group')||'board';
+function setMobileTaskGroupMode(mode){
+  _mobileTaskGroupMode=mode;
+  localStorage.setItem('j-pref-mobile-task-group',mode);
+  ['board','project'].forEach(m=>{
+    const b=document.getElementById('mtc-group-'+m);
+    if(b)b.classList.toggle('active',m===mode);
+  });
+  renderTasks();
+}
 function renderMobileTaskCards(tasks,container){
   if(!container)return;
+  ['board','project'].forEach(m=>{
+    const b=document.getElementById('mtc-group-'+m);
+    if(b)b.classList.toggle('active',m===_mobileTaskGroupMode);
+  });
   if(!tasks||!tasks.length){
     container.innerHTML='<div style="text-align:center;padding:40px 16px;font-size:var(--text-sm);color:var(--text3)">No tasks. Tap + Task to add one.</div>';
     return;
@@ -11090,19 +11109,46 @@ function renderMobileTaskCards(tasks,container){
   const worldLabel={'WORK-IH':'Ideahub','WORK-CS':'Chainsmoker','VENTURE':'Venture','BUILD':'Build','SIDES':'Sides','FAITH':'Faith','LIFE':'Life'};
   const priorityDot={'High':'#ff2244','Medium':'#ffaa00','Low':'#00ff88'};
 
+  // Board mode: one section per Domain. Project mode: one section per
+  // (Domain, Project) pair, plus an "Unassigned" section per Domain —
+  // mirrors the desktop Project tab's grouping exactly.
+  const byProject=_mobileTaskGroupMode==='project';
   const worlds=[...new Set(tasks.map(t=>t.world||'Other'))];
+  let groups=[];
+  if(!byProject){
+    groups=worlds.map(world=>({key:world,label:worldLabel[world]||world,stripe:worldStripe[world]||'var(--text3)',tasks:tasks.filter(t=>(t.world||'Other')===world)}));
+  }else{
+    worlds.forEach(world=>{
+      const wtasks=tasks.filter(t=>(t.world||'Other')===world);
+      const stripe=worldStripe[world]||'var(--text3)';
+      const wlabel=worldLabel[world]||world;
+      const projects=typeof getProjectsForWorld==='function'?getProjectsForWorld(world):[];
+      projects.forEach(p=>{
+        const pTasks=wtasks.filter(t=>t.projectId===p.id);
+        if(pTasks.length)groups.push({key:world+'::'+p.id,label:wlabel+' · '+p.name,stripe,tasks:pTasks,isProject:true,world,projectId:p.id});
+      });
+      const unassigned=wtasks.filter(t=>!t.projectId);
+      if(unassigned.length)groups.push({key:world+'::unassigned',label:wlabel+' · Unassigned',stripe,tasks:unassigned,isProject:false});
+    });
+  }
   let html='';
 
-  worlds.forEach(world=>{
-    const wtasks=tasks.filter(t=>(t.world||'Other')===world);
-    const stripe=worldStripe[world]||'var(--text3)';
-    const wlabel=worldLabel[world]||world;
+  groups.forEach(group=>{
+    const wtasks=group.tasks;
+    const stripe=group.stripe;
+    const wlabel=group.label;
+    // Computed from the FULL unfiltered task list, not the (possibly
+    // Done-excluded) `tasks` this function was called with — otherwise
+    // the progress count would always read 0 under the default filter.
+    const allProjTasks=group.isProject?(DB.tasks||[]).filter(t=>t.world===group.world&&t.projectId===group.projectId):[];
+    const doneCount=group.isProject?allProjTasks.filter(t=>t.status==='Done').length:0;
+    const countLabel=group.isProject?doneCount+'/'+allProjTasks.length:wtasks.length;
 
     // Group header
     html+='<div class="mtc-group-header" style="color:'+stripe+'">'+
       '<div class="mtc-stripe" style="background:'+stripe+'"></div>'+
       wlabel+
-      '<span class="mtc-count">'+wtasks.length+'</span>'+
+      '<span class="mtc-count">'+countLabel+'</span>'+
     '</div>';
 
     wtasks.forEach(t=>{
@@ -12278,14 +12324,24 @@ function renderBoardProjectGrouped(tasks){
       <div style="display:flex;gap:10px;overflow-x:auto;padding-bottom:6px">
         ${sections.map(sec=>{
           const secTasks=worldTasks.filter(t=>(t.projectId||null)===sec.id);
+          // Completion progress only makes sense for a real Project — the
+          // "Unassigned" bucket is a catch-all, not something with a
+          // deliverable to track completion against. Computed from the
+          // FULL unfiltered task list, not `tasks`/`secTasks` — the board's
+          // default filter already hides Done tasks from the visible list,
+          // so deriving progress from what's shown would always read 0%.
+          const allProjTasks=sec.id?(DB.tasks||[]).filter(t=>t.world===worldId&&t.projectId===sec.id):[];
+          const doneCount=allProjTasks.filter(t=>t.status==='Done').length;
+          const pct=allProjTasks.length?Math.round(doneCount/allProjTasks.length*100):0;
           return `<div ondragover="event.preventDefault();this.style.background='var(--hover-tint)'" ondragleave="this.style.background=''" ondrop="handleProjectDrop(event,${sec.id?`'${sec.id}'`:'null'},'${worldId}')" style="min-width:220px;flex:1 1 220px;background:var(--navy2);border:1px solid var(--border);border-radius:12px;overflow:hidden;transition:background .15s">
             <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;border-bottom:1px solid var(--border);background:var(--hover-tint)">
               <span style="font-size:var(--text-xs);font-weight:700;color:var(--text2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${sec.name}</span>
               <span style="display:flex;align-items:center;gap:2px;flex-shrink:0">
-                <span style="font-size:var(--text-xs);color:var(--text3);margin-right:2px">${secTasks.length}</span>
+                <span style="font-size:var(--text-xs);color:var(--text3);margin-right:2px">${sec.id?doneCount+'/'+allProjTasks.length:secTasks.length}</span>
                 ${sec.id?`<button onclick="event.stopPropagation();renameProject('${sec.id}')" title="Rename" style="background:transparent;border:none;color:var(--text3);cursor:pointer;padding:2px"><i class="ti ti-pencil" style="font-size:10px"></i></button><button onclick="event.stopPropagation();deleteProject('${sec.id}')" title="Delete" style="background:transparent;border:none;color:var(--text3);cursor:pointer;padding:2px"><i class="ti ti-trash" style="font-size:10px"></i></button>`:''}
               </span>
             </div>
+            ${sec.id&&allProjTasks.length?`<div style="height:3px;background:var(--navy3)"><div style="height:100%;width:${pct}%;background:var(--teal);transition:width .2s"></div></div>`:''}
             <div style="padding:6px;display:flex;flex-direction:column;gap:5px;min-height:64px">
               ${secTasks.length?secTasks.map(t=>`<div draggable="true" ondragstart="handleProjectDragStart(event,${t.id})" ondragend="this.style.opacity='1'" onclick="editTask(${t.id})" style="background:var(--navy3);border:1px solid var(--border);border-radius:8px;padding:8px 10px;cursor:grab;display:flex;gap:6px;align-items:flex-start">
                 <input type="checkbox" onclick="event.stopPropagation()" onchange="toggleTaskSelect(${t.id},this.checked)" ${selectedTaskIds.has(t.id)?'checked':''} style="width:auto;accent-color:var(--teal);margin-top:2px;flex-shrink:0">
@@ -18195,6 +18251,20 @@ function handleProjectSelectChange(selectEl,worldId){
 // back out here rather than changing the note format itself, which would
 // touch the block editor for a benefit only this aggregation needs.
 const _NOTE_DRIVE_BLOCK_RE=/^📎 (.+?) — (https?:\/\/\S+)$/;
+// Inferred from the URL's extension, when it has one — good enough for
+// direct file links and Gallery/Link previews; Drive "view" URLs rarely
+// expose a real extension, so those land in "Other" rather than guessing.
+const _FILE_TYPE_EXT={
+  image:['jpg','jpeg','png','gif','webp','svg','bmp','heic'],
+  document:['pdf','doc','docx','xls','xlsx','ppt','pptx','txt','csv','pages','key','numbers'],
+};
+function _inferFileType(url){
+  const m=(url||'').split('?')[0].match(/\.([a-z0-9]+)$/i);
+  const ext=m?m[1].toLowerCase():null;
+  if(ext&&_FILE_TYPE_EXT.image.includes(ext))return'image';
+  if(ext&&_FILE_TYPE_EXT.document.includes(ext))return'document';
+  return'other';
+}
 function _getAllFilesItems(){
   const items=[];
   (DB.tasks||[]).forEach(t=>{
@@ -18215,6 +18285,7 @@ function _getAllFilesItems(){
   (DB.savedLinks||[]).forEach(l=>{
     items.push({name:l.title||l.url,url:l.url,thumbnail:l.previewImage||l.favicon||null,sourceType:'link',sourceId:l.id,worldId:l.worldId||null});
   });
+  items.forEach(it=>{it.fileType=_inferFileType(it.url);});
   return items;
 }
 function _openFileSource(sourceType,sourceId){
@@ -18228,8 +18299,11 @@ function renderAllFilesView(){
   if(!container)return;
   const filterEl=document.getElementById('allFilesWorldFilter');
   const worldFilter=filterEl?filterEl.value:'';
+  const typeFilterEl=document.getElementById('allFilesTypeFilter');
+  const typeFilter=typeFilterEl?typeFilterEl.value:'';
   let items=_getAllFilesItems();
   if(worldFilter)items=items.filter(it=>it.worldId===worldFilter);
+  if(typeFilter)items=items.filter(it=>it.fileType===typeFilter);
   if(filterEl&&!filterEl._populated){
     filterEl._populated=true;
     filterEl.innerHTML='<option value="">All Domains</option>'+(DB.worlds||[]).map(w=>`<option value="${w.id}">${w.label}</option>`).join('');
@@ -18298,11 +18372,57 @@ function removeTagFromItem(type,id,tag){
 function renderTagsSection(type,id){
   const item=_getTaggableItem(type,id);
   const tags=(item&&item.tags)||[];
-  const chips=tags.map(tag=>`<span class="conn-chip" style="cursor:default">#${tag}<i class="ti ti-x" style="font-size:9px;margin-left:4px;opacity:.6;cursor:pointer" onclick="removeTagFromItem('${type}','${id}','${tag.replace(/'/g,"\\'")}')"></i></span>`).join('');
+  const chips=tags.map(tag=>{
+    const safeTag=tag.replace(/'/g,"\\'");
+    return `<span class="conn-chip" style="cursor:default"><span onclick="manageTagEverywhere('${safeTag}')" style="cursor:pointer" title="Rename or remove this tag everywhere">#${tag}</span><i class="ti ti-x" style="font-size:9px;margin-left:4px;opacity:.6;cursor:pointer" title="Remove from just this item" onclick="removeTagFromItem('${type}','${id}','${safeTag}')"></i></span>`;
+  }).join('');
   return `<div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center">
     ${chips}
     <input list="allTagsDatalist" placeholder="+ tag" onkeydown="if(event.key==='Enter'){event.preventDefault();addTagToItem('${type}','${id}',this.value);this.value='';}" style="font-size:var(--text-xs);width:90px;padding:3px 8px;background:transparent;border:1px dashed var(--border2);border-radius:100px">
   </div>`;
+}
+// Click the tag text (not the per-item × icon) to rename or remove it
+// across every task/note/event/link that has it, not just this one.
+function manageTagEverywhere(tag){
+  const input=prompt(`#${tag}\n\nType a new name to rename this tag everywhere it's used, type DELETE to remove it everywhere, or Cancel to leave it alone.`,tag);
+  if(input===null)return;
+  const trimmed=input.trim();
+  if(!trimmed)return;
+  if(trimmed.toUpperCase()==='DELETE'){
+    if(!confirm(`Remove #${tag} from every task, note, event, and link that has it?`))return;
+    _applyTagEverywhere(tag,null);
+    showToast('✓ Tag removed everywhere');
+  }else{
+    const newTag=trimmed.toLowerCase().replace(/^#/,'');
+    if(!newTag||newTag===tag)return;
+    _applyTagEverywhere(tag,newTag);
+    showToast('✓ Tag renamed everywhere');
+  }
+}
+function _applyTagEverywhere(oldTag,newTagOrNull){
+  const sources=[['tasks','tasks'],['notes','notes'],['calEvents','cal_events'],['savedLinks','saved_links']];
+  sources.forEach(([key,table])=>{
+    let changed=false;
+    (DB[key]||[]).forEach(item=>{
+      if(!item.tags||!item.tags.includes(oldTag))return;
+      changed=true;
+      item.tags=newTagOrNull
+        ?[...new Set(item.tags.map(t=>t===oldTag?newTagOrNull:t))]
+        :item.tags.filter(t=>t!==oldTag);
+      SB.update(table,item.id,{tags:item.tags},key).catch(()=>{});
+    });
+    if(changed)save(key);
+  });
+  renderTagsDatalist();
+  // Refresh every place tags are currently visible on screen, including
+  // whichever edit modal is open right now (its Tags section was just
+  // rendered from the pre-change data, so it needs an explicit re-draw —
+  // reopening it later would already pick up the change on its own).
+  if(typeof renderLinksView==='function')renderLinksView();
+  if(typeof renderTasks==='function')renderTasks();
+  if(editingTaskId!=null)_refreshTagsSection('task',editingTaskId);
+  if(document.getElementById('noteEditorModal')?.classList.contains('open')&&DB.notes[currentNote])_refreshTagsSection('note',DB.notes[currentNote].id);
+  if(typeof calEditingId!=='undefined'&&calEditingId!=null)_refreshTagsSection('event',calEditingId);
 }
 function _refreshTagsSection(type,id){
   const map={task:'tf-tags',note:'note-tags',event:'ce-tags'};
