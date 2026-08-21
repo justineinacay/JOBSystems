@@ -1,6 +1,6 @@
 # J.O.B Systems — Security Posture
 
-Personal, private operating system for Justine Luis Inacay. This file is the honest
+Personal operating system. This file is the honest
 record of what's actually secured, what isn't yet, and exactly what to do about it.
 Read it before assuming anything here is "handled."
 
@@ -95,13 +95,20 @@ would be exactly as exposed as the old one, just newer.
 
 ---
 
-## 4. AI Provider Keys (Claude / Gemini / OpenAI)
+## 4. JOB AI and legacy provider keys
 
-All stored in `localStorage`, entered by you directly in Settings, never
-committed to this repo. Same exposure model as the Supabase key: anyone
-with access to your browser's localStorage on this device has them.
-Standard tradeoff for a backend-less personal app — not a gap unique to
-this project, just worth knowing.
+The dashboard now routes JOB AI requests through the `job-ai` Supabase Edge
+Function. `OPENAI_API_KEY` stays in server-side function secrets and is not
+entered into the browser. The function validates the Supabase session, applies
+RLS-scoped context, sends only an allowlisted subset of dashboard fields, and
+keeps the first version read-only.
+
+Older versions stored Claude, Gemini, OpenAI, and ElevenLabs keys in
+`localStorage`. The Settings view now provides **Clear legacy browser AI keys**;
+use it after upgrading, then rotate any key that may have been exposed.
+
+See `JOB_AI_SETUP.md` and `AI_MIGRATION.sql` for the function and audit-log
+setup. The Edge Function is not deployed automatically by this repository.
 
 ---
 
