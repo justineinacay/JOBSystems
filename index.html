@@ -6055,9 +6055,15 @@ async function requestJobAI({message,history='',world='',purpose='dashboard_assi
   try{
     const res=await fetch(JOB_AI_URL,{method:'POST',headers:{'apikey':SB_KEY,'Authorization':'Bearer '+session.access_token,'Content-Type':'application/json'},body:JSON.stringify({message,history,world,purpose,system})});
     const data=await res.json().catch(()=>({}));
-    if(!res.ok)return{ok:false,text:data?.error||'J.E.L.I.X is unavailable right now.'};
+    if(!res.ok){
+      const text=res.status===401?'Your J.E.L.I.X. session has expired. Please sign in again.':res.status===502?'J.E.L.I.X. is temporarily unavailable. Please try again once the AI service is restored.':data?.error||'J.E.L.I.X. is unavailable right now.';
+      return{ok:false,text};
+    }
     return{ok:true,text:data?.text||'No response.',request_id:data?.request_id};
-  }catch(e){return{ok:false,text:'J.E.L.I.X connection failed: '+e.message};}
+  }catch(error){
+    console.warn('[J.E.L.I.X.] request failed',error);
+    return{ok:false,text:navigator.onLine===false?'You’re offline. Reconnect and try J.E.L.I.X. again.':'J.E.L.I.X. can’t reach its secure service right now. Please try again in a moment.'};
+  }
 }
 function isSignedIn(){
   const raw=localStorage.getItem('j-auth-session');
@@ -24474,6 +24480,37 @@ window.addEventListener('appinstalled', () => {
     .mobile-bottom-nav .mbn-bar{margin-left:8px!important;margin-right:8px!important}
     .mobile-bottom-nav .mbn-tab{font-size:9px!important}
   }
+
+  /* Sidebar: a single, stable rhythm for every navigation destination. */
+  .side-panel .ni,.side-panel .nav-ai-entry{
+    box-sizing:border-box!important;
+    height:44px!important;
+    min-height:44px!important;
+    margin:3px 8px!important;
+    padding:10px 12px!important;
+    border-radius:12px!important;
+  }
+  .side-panel .nav-ai-entry{
+    margin-top:8px!important;
+    border:0!important;
+    background:transparent!important;
+    color:#C3C7CE!important;
+    font-weight:520!important;
+  }
+  .side-panel .nav-ai-entry .nav-label{color:inherit!important;letter-spacing:0!important}
+  .side-panel .ni.active:not(.world-ni),.side-panel .nav-ai-entry.active{
+    background:#282B31!important;
+    border:1px solid #343941!important;
+    color:#F7F8FA!important;
+    font-weight:650!important;
+    box-shadow:none!important;
+  }
+  .side-panel .ni.active:not(.world-ni) .nav-label,.side-panel .nav-ai-entry.active .nav-label{color:#F7F8FA!important}
+  .side-panel .ni.active:not(.world-ni)>i:first-child,.side-panel .nav-ai-entry.active>i:first-child{
+    background:var(--accent-lime)!important;
+    color:#172006!important;
+  }
+  .app.nav-collapsed .side-panel .ni,.app.nav-collapsed .side-panel .nav-ai-entry{margin-left:8px!important;margin-right:8px!important}
 </style>
 
 <div id="jelix-container" class="state-default" title="J.E.L.I.X. — click to chat, right-click for quick actions">
