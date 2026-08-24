@@ -1,0 +1,666 @@
+.desktop-nav-toggle{
+  display:grid;
+  width:38px;
+  min-width:38px;
+  height:38px;
+  min-height:38px;
+  padding:0;
+  place-items:center;
+  border:1px solid var(--border);
+  border-radius:10px;
+  background:var(--navy3);
+  color:var(--text2);
+  cursor:pointer;
+  transition:background-color 160ms ease,border-color 160ms ease,color 160ms ease;
+}
+.desktop-nav-toggle:hover{border-color:var(--border2);background:var(--navy4);color:var(--text1)}
+.desktop-nav-toggle i{font-size:17px;line-height:1}
+
+@media(min-width:769px){
+  .app:not(.nav-collapsed){grid-template-columns:236px minmax(0,1fr)!important}
+  .app:not(.nav-collapsed) .sidebar-brand,
+  .app:not(.nav-collapsed) .side-panel{
+    width:236px!important;
+    min-width:236px!important;
+    max-width:236px!important;
+  }
+  .app:not(.nav-collapsed) .topbar{padding-left:260px!important}
+  .app:not(.nav-collapsed) .topbar::before{width:236px!important}
+  .app,
+  .app.nav-collapsed,
+  .topbar,
+  .topbar::before,
+  .sidebar-brand,
+  .side-panel{
+    transition-duration:170ms!important;
+    transition-timing-function:cubic-bezier(.22,.8,.25,1)!important;
+  }
+  .app.nav-collapsed .side-panel:hover{
+    width:76px!important;
+    min-width:76px!important;
+    max-width:76px!important;
+    padding-left:8px!important;
+    padding-right:8px!important;
+  }
+  .app.nav-collapsed:has(.side-panel:hover){grid-template-columns:76px minmax(0,1fr)!important}
+  .app.nav-collapsed:has(.side-panel:hover) .topbar{padding-left:100px!important}
+  .app.nav-collapsed:has(.side-panel:hover) .topbar::before{width:76px!important}
+  .app.nav-collapsed .side-panel:hover .sidebar-brand{
+    width:76px!important;
+    justify-content:center!important;
+    padding:0!important;
+  }
+  .app.nav-collapsed .side-panel:hover .sidebar-brand-name,
+  .app.nav-collapsed .side-panel:hover .nav-label,
+  .app.nav-collapsed .side-panel:hover .nav-shortcut,
+  .app.nav-collapsed .side-panel:hover .nav-section-action,
+  .app.nav-collapsed .side-panel:hover .nav-more-chevron,
+  .app.nav-collapsed .side-panel:hover #navWorldsLabel span,
+  .app.nav-collapsed .side-panel:hover #navProfileCard .np-text,
+  .app.nav-collapsed .side-panel:hover .vsbtn>span{display:none!important}
+  .app.nav-collapsed .side-panel:hover .ni{
+    display:grid!important;
+    grid-template-columns:1fr!important;
+    place-items:center!important;
+    justify-content:center!important;
+    width:44px!important;
+    min-width:44px!important;
+    height:42px!important;
+    min-height:42px!important;
+    margin:2px auto!important;
+    padding:0!important;
+    gap:0!important;
+  }
+  .app.nav-collapsed .side-panel:hover .ngl{
+    display:flex!important;
+    justify-content:center!important;
+    padding:14px 0 5px!important;
+    font-size:0!important;
+  }
+  .app.nav-collapsed .side-panel:hover .nbadge{top:6px!important;right:-3px!important;transform:scale(.9)!important}
+  .app.nav-collapsed .side-panel:hover .side-bottom{
+    align-items:center!important;
+    padding:8px 0 10px!important;
+  }
+  .app.nav-collapsed .side-panel:hover .side-utility-row,
+  .app.nav-collapsed .side-utility-row{
+    display:flex!important;
+    width:48px!important;
+    height:auto!important;
+    align-items:center!important;
+    justify-content:center!important;
+    flex-direction:column!important;
+    gap:5px!important;
+    margin:0 auto 8px!important;
+    padding:4px!important;
+  }
+  .app.nav-collapsed .side-panel:hover .side-utility-row .side-utility-item,
+  .app.nav-collapsed .side-utility-row .side-utility-item{
+    display:grid!important;
+    width:38px!important;
+    min-width:38px!important;
+    height:38px!important;
+    min-height:38px!important;
+    margin:0!important;
+    padding:0!important;
+    place-items:center!important;
+  }
+  .app.nav-collapsed .side-panel:hover .side-utility-row .side-utility-item>i,
+  .app.nav-collapsed .side-utility-row .side-utility-item>i{margin:0!important;line-height:1!important}
+  .app.nav-collapsed .side-panel:hover .vsbtn,
+  .app.nav-collapsed .vsbtn{
+    display:grid!important;
+    width:48px!important;
+    min-width:48px!important;
+    height:42px!important;
+    min-height:42px!important;
+    margin:0 auto!important;
+    padding:0!important;
+    place-items:center!important;
+  }
+}
+
+#view-life.life-command-center>.vh{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) auto;
+  min-height:78px!important;
+  padding-top:14px!important;
+  padding-bottom:14px!important;
+}
+#view-life.life-command-center>#domainTimer-life{padding-top:9px!important;padding-bottom:11px!important}
+#view-life.life-command-center>#domainTimer-life .agency-timer-card{min-height:58px!important}
+
+.kb-status-col[data-status="Todo"]>div:first-child>span:first-child{color:#e9da62!important}
+.kb-status-col[data-status="In Progress"]>div:first-child>span:first-child{color:#e7b64f!important}
+.kb-status-col[data-status="No Progress"]>div:first-child>span:first-child{color:#f08a92!important}
+.kb-status-col[data-status="Done"]>div:first-child>span:first-child{color:#62c9aa!important}
+.kb-status-col>div:first-child>span:first-child{text-shadow:none!important}
+
+html[data-theme="light"]{
+  --navy:#f4f5f2;
+  --navy2:#ffffff;
+  --navy3:#f7f8f5;
+  --navy4:#eef0eb;
+  --navy5:#e2e5df;
+  --navy-panel:#ffffff;
+  --text1:#181b18;
+  --text2:#414741;
+  --text3:#727a72;
+  --text4:#9ba19b;
+  --border:#dfe3dd;
+  --border2:#cbd1ca;
+  --hover-tint:#eef1ec;
+  --teal:#397a00;
+  --teal2:#397a00;
+  --teal3:#e7f4dc;
+  --teal4:#f0f8e9;
+  color-scheme:light;
+}
+html[data-theme="light"] body,
+html[data-theme="light"] .app,
+html[data-theme="light"] .main,
+html[data-theme="light"] .view:not(.agency-command):not(.faith-command):not(.life-command-center),
+html[data-theme="light"] #view-dashboard,
+html[data-theme="light"] #view-tasks,
+html[data-theme="light"] #view-calendar,
+html[data-theme="light"] #view-review{background:#f4f5f2!important;color:#181b18!important}
+html[data-theme="light"] .topbar{background:#ffffff!important;border-color:#dfe3dd!important}
+html[data-theme="light"] .desktop-nav-toggle,
+html[data-theme="light"] #desktopSearchBar,
+html[data-theme="light"] .sync-badge,
+html[data-theme="light"] #topNotifBtn{background:#f5f6f3!important;border-color:#dfe3dd!important;color:#414741!important}
+html[data-theme="light"] .desktop-nav-toggle:hover,
+html[data-theme="light"] #desktopSearchBar:hover,
+html[data-theme="light"] .sync-badge:hover,
+html[data-theme="light"] #topNotifBtn:hover{background:#ecefea!important;border-color:#cbd1ca!important;color:#181b18!important}
+
+html[data-theme="light"] #view-dashboard .quiet-dashboard-header{background:#ffffff!important;border-bottom:1px solid #dfe3dd!important}
+html[data-theme="light"] #view-dashboard .quiet-dashboard-header h1,
+html[data-theme="light"] #view-dashboard .quiet-dashboard-header .vt,
+html[data-theme="light"] #view-dashboard .today-focus-title,
+html[data-theme="light"] #view-dashboard .today-focus h2,
+html[data-theme="light"] #view-dashboard .next-action-title,
+html[data-theme="light"] #view-dashboard .upcoming-copy strong{color:#181b18!important}
+html[data-theme="light"] #view-dashboard .quiet-dashboard-header p,
+html[data-theme="light"] #view-dashboard .quiet-dashboard-header .vs,
+html[data-theme="light"] #view-dashboard .today-focus-meta,
+html[data-theme="light"] #view-dashboard .next-action-meta,
+html[data-theme="light"] #view-dashboard .next-action-due,
+html[data-theme="light"] #view-dashboard .upcoming-copy small,
+html[data-theme="light"] #view-dashboard .upcoming-copy>span{color:#727a72!important}
+html[data-theme="light"] #view-dashboard .today-focus,
+html[data-theme="light"] #view-dashboard #briefMainRow>.bd-block,
+html[data-theme="light"] #view-dashboard .dashboard-upcoming{background:#ffffff!important;border-color:#dfe3dd!important}
+html[data-theme="light"] #view-dashboard .today-focus-action,
+html[data-theme="light"] #view-dashboard .quiet-add-task{background:#7fff00!important;border-color:#7fff00!important;color:#111611!important}
+html[data-theme="light"] #view-dashboard .today-focus-marker,
+html[data-theme="light"] #view-dashboard .focus-marker{background:#e8f7df!important;border-color:#9bd66b!important;color:#397a00!important}
+html[data-theme="light"] #view-dashboard .next-action-row:hover,
+html[data-theme="light"] #view-dashboard .upcoming-item:hover{background:#f4f6f2!important}
+html[data-theme="light"] #view-dashboard .money-note{background:#20231f!important;border-color:#20231f!important;color:#d9ddd7!important}
+html[data-theme="light"] #view-dashboard .money-note strong{color:#7fff00!important}
+
+html[data-theme="light"] #view-tasks .task-page-header h1,
+html[data-theme="light"] #view-calendar .calendar-page-header h1,
+html[data-theme="light"] #view-review .review-page-header h1{color:#181b18!important}
+html[data-theme="light"] #view-tasks .task-page-header p,
+html[data-theme="light"] #view-calendar .calendar-page-header p,
+html[data-theme="light"] #view-review .review-page-header p{color:#727a72!important}
+html[data-theme="light"] #view-tasks .board-toolbar,
+html[data-theme="light"] #view-tasks #boardBody,
+html[data-theme="light"] #view-tasks .board-table,
+html[data-theme="light"] #view-tasks .board-table td{background:#ffffff!important;border-color:#dfe3dd!important;color:#414741!important}
+html[data-theme="light"] #view-tasks .board-view-tabs,
+html[data-theme="light"] #view-tasks .board-search,
+html[data-theme="light"] #view-tasks #taskFilterRow .filter-wrap{background:#f5f6f3!important;border-color:#dfe3dd!important;color:#414741!important}
+html[data-theme="light"] #view-tasks .board-view-tabs .bvt{color:#727a72!important}
+html[data-theme="light"] #view-tasks .board-view-tabs .bvt.active{background:#ffffff!important;border-color:#cbd1ca!important;color:#181b18!important}
+html[data-theme="light"] #view-tasks .smart-view-pill,
+html[data-theme="light"] #view-tasks #boardColsToggle .bvt{background:#f5f6f3!important;border-color:#dfe3dd!important;color:#414741!important}
+html[data-theme="light"] #view-tasks .smart-view-pill:hover{background:#ecefea!important;border-color:#cbd1ca!important;color:#181b18!important}
+html[data-theme="light"] #view-tasks .smart-view-pill.active,
+html[data-theme="light"] #view-tasks #boardColsToggle .bvt.active{background:#e8f4ee!important;border-color:#8fc6b5!important;color:#176b56!important}
+html[data-theme="light"] #view-tasks .board-table thead th{background:#f2f4f0!important;border-color:#dfe3dd!important;color:#687068!important}
+html[data-theme="light"] #view-tasks .board-table tr.item-row:hover td{background:#f5f7f3!important}
+html[data-theme="light"] #view-tasks .board-table tr.item-row.selected td{background:#e9f4ef!important}
+html[data-theme="light"] #view-tasks .group-header-row td{background:#e9ece7!important;border-color:#d4d9d2!important}
+html[data-theme="light"] #view-tasks .group-header-row .board-group-name{color:#252a25!important}
+html[data-theme="light"] #view-tasks .group-header-row button{background:#ffffff!important;border-color:#cbd1ca!important;color:#596159!important}
+html[data-theme="light"] #view-tasks .board-table tr.group-footer td{background:#f2f4f0!important;color:#727a72!important}
+html[data-theme="light"] #view-tasks .world-pill{background:#edf0eb!important;color:#414741!important}
+html[data-theme="light"] #view-tasks .task-row-menu-trigger:hover,
+html[data-theme="light"] #view-tasks .task-row-menu-trigger[aria-expanded="true"]{background:#ecefea!important;border-color:#cbd1ca!important;color:#181b18!important}
+html[data-theme="light"] #view-tasks .task-row-menu{background:#ffffff!important;border-color:#cbd1ca!important}
+html[data-theme="light"] #view-tasks .task-row-menu button{color:#414741!important}
+html[data-theme="light"] #view-tasks .task-row-menu button:hover{background:#f0f2ee!important;color:#181b18!important}
+html[data-theme="light"] #view-tasks .kb-status-col{background:#ffffff!important;border-color:#dfe3dd!important}
+html[data-theme="light"] #view-tasks .kb-status-col>div:first-child{background:#eef1ec!important;border-color:#dfe3dd!important}
+html[data-theme="light"] #view-tasks .kb-status-col>div:nth-child(2)>div{background:#f7f8f5!important;border-color:#dfe3dd!important}
+html[data-theme="light"] #view-tasks .kb-status-col>div:nth-child(2)>div>div:first-child{color:#181b18!important}
+html[data-theme="light"] .kb-status-col[data-status="Todo"]>div:first-child>span:first-child{color:#6f6000!important}
+html[data-theme="light"] .kb-status-col[data-status="In Progress"]>div:first-child>span:first-child{color:#825700!important}
+html[data-theme="light"] .kb-status-col[data-status="No Progress"]>div:first-child>span:first-child{color:#a61e42!important}
+html[data-theme="light"] .kb-status-col[data-status="Done"]>div:first-child>span:first-child{color:#176b56!important}
+
+html[data-theme="light"] #view-calendar .cal-toolbar,
+html[data-theme="light"] #view-calendar .cal-sidebar,
+html[data-theme="light"] #view-calendar .cal-main{background:#ffffff!important;border-color:#dfe3dd!important}
+html[data-theme="light"] #view-calendar .cal-nav-btn,
+html[data-theme="light"] #view-calendar #calToolbarRow1>.btn:not(.cal-toolbar-add),
+html[data-theme="light"] #view-calendar .cal-view-tabs{background:#f5f6f3!important;border-color:#dfe3dd!important;color:#414741!important}
+html[data-theme="light"] #view-calendar .cal-nav-btn:hover,
+html[data-theme="light"] #view-calendar #calToolbarRow1>.btn:not(.cal-toolbar-add):hover,
+html[data-theme="light"] #view-calendar .cal-vt:hover,
+html[data-theme="light"] #view-calendar .cal-mini-btn:hover,
+html[data-theme="light"] #view-calendar .cal-mini-day:hover,
+html[data-theme="light"] #view-calendar .cal-legend-item:hover,
+html[data-theme="light"] #view-calendar #calUpcoming>div:hover{background:#edf0eb!important;border-color:#cbd1ca!important;color:#181b18!important}
+html[data-theme="light"] #view-calendar .cal-vt{color:#727a72!important}
+html[data-theme="light"] #view-calendar .cal-vt.active{background:#e8f4ee!important;border-color:#8fc6b5!important;color:#176b56!important}
+html[data-theme="light"] #view-calendar .cal-mini-month,
+html[data-theme="light"] #view-calendar .cal-toolbar-title,
+html[data-theme="light"] #view-calendar .cal-agenda-heading strong,
+html[data-theme="light"] #view-calendar .cal-agenda-date .adn{color:#181b18!important}
+html[data-theme="light"] #view-calendar .cal-mini-day,
+html[data-theme="light"] #view-calendar .cal-legend-item{color:#596159!important}
+html[data-theme="light"] #view-calendar .cal-agenda-date{background:#ffffff!important;border-color:#dfe3dd!important;color:#414741!important}
+html[data-theme="light"] #view-calendar .cal-agenda-event{background:#ffffff!important;border-color:#dfe3dd!important;color:#181b18!important}
+html[data-theme="light"] #view-calendar .cal-agenda-event:hover{background:#f5f7f3!important}
+html[data-theme="light"] #view-calendar .cal-grid,
+html[data-theme="light"] #view-calendar .cal-month-grid,
+html[data-theme="light"] #view-calendar .cal-quarter-grid{background:#ffffff!important;color:#181b18!important}
+html[data-theme="light"] #view-calendar .cal-day,
+html[data-theme="light"] #view-calendar .cal-month-cell,
+html[data-theme="light"] #view-calendar .cal-quarter-month{background:#ffffff!important;border-color:#dfe3dd!important;color:#181b18!important}
+
+html[data-theme="light"] #view-review .os-review-stat,
+html[data-theme="light"] #view-review .os-review-reset,
+html[data-theme="light"] #view-review .os-review-panel{background:#ffffff!important;border-color:#dfe3dd!important}
+html[data-theme="light"] #view-review .os-review-stat strong,
+html[data-theme="light"] #view-review .os-review-reset-copy h2,
+html[data-theme="light"] #view-review .os-review-panel-head h2,
+html[data-theme="light"] #view-review .os-review-item-copy strong{color:#181b18!important}
+html[data-theme="light"] #view-review .os-review-actions .btn-g,
+html[data-theme="light"] #view-review .review-panel-action{background:#f5f6f3!important;border-color:#dfe3dd!important;color:#414741!important}
+html[data-theme="light"] #view-review .os-review-actions .btn-g:hover,
+html[data-theme="light"] #view-review .review-panel-action:hover{background:#ecefea!important;border-color:#cbd1ca!important;color:#181b18!important}
+html[data-theme="light"] #view-review .os-review-item:hover{background:#f5f7f3!important}
+html[data-theme="light"] #view-review .os-review-check{border-color:#aeb5ad!important;background:#ffffff!important}
+html[data-theme="light"] #view-review .os-review-state{background:#f1f3ef!important;border-color:#d5dad4!important;color:#596159!important}
+html[data-theme="light"] #view-review .review-panel-count{background:#edf0eb!important;border-color:#d5dad4!important;color:#414741!important}
+html[data-theme="light"] #view-review .review-rhythm-row>span{border-color:#aeb5ad!important}
+html[data-theme="light"] #view-review .review-progress{background:#dfe3dd!important}
+
+html[data-theme="light"] .agency-command{
+  --agency-bg:#f4f5f2;
+  --agency-panel:#ffffff;
+  --agency-panel-2:#f7f8f5;
+  --agency-panel-3:#edf0eb;
+  --agency-border:#dfe3dd;
+  --agency-border-strong:#cbd1ca;
+  --agency-text:#181b18;
+  --agency-muted:#687068;
+  --agency-dim:#959c95;
+  --agency-accent-soft:#e5f4ef;
+}
+html[data-theme="light"] .agency-command.creative-command{--agency-accent-soft:#fff8d7}
+html[data-theme="light"] body .agency-command.view{background:var(--agency-bg)!important;color:var(--agency-text)!important}
+html[data-theme="light"] .agency-command .agency-shell{background:var(--agency-bg)!important}
+html[data-theme="light"] .agency-command .agency-header,
+html[data-theme="light"] .faith-command .agency-header{background:rgba(255,255,255,.97)!important}
+html[data-theme="light"] .faith-command .agency-metric{background:#ffffff!important}
+
+html[data-theme="light"] #view-life.life-command-center{
+  --life-bg:#f4f5f2;
+  --life-header:#ffffff;
+  --life-panel:#ffffff;
+  --life-panel-2:#f7f8f5;
+  --life-panel-3:#edf0eb;
+  --life-border:#dfe3dd;
+  --life-border-strong:#cbd1ca;
+  --life-text:#181b18;
+  --life-muted:#687068;
+  --life-dim:#959c95;
+}
+html[data-theme="light"] #view-life.life-command-center .life-add-menu{background:#ffffff!important}
+
+@media(max-width:768px){
+  .desktop-nav-toggle{display:none!important}
+  #view-life.life-command-center>.vh{display:flex!important;min-height:88px!important}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .app,.topbar,.topbar::before,.sidebar-brand,.side-panel,.desktop-nav-toggle{transition:none!important}
+}
+
+/* Final authoritative layout: explicit sidebar states, no hover expansion. */
+@media(min-width:769px){
+  .app{
+    grid-template-columns:236px minmax(0,1fr)!important;
+    transition:grid-template-columns 180ms cubic-bezier(.22,.8,.25,1)!important;
+  }
+  .side-panel{
+    width:236px!important;
+    min-width:236px!important;
+    max-width:236px!important;
+    padding:0 8px 14px!important;
+    transition:width 180ms cubic-bezier(.22,.8,.25,1),min-width 180ms cubic-bezier(.22,.8,.25,1),max-width 180ms cubic-bezier(.22,.8,.25,1)!important;
+  }
+  .sidebar-brand{width:236px!important}
+  .topbar{padding-left:260px!important}
+  .topbar::before{width:236px!important}
+  .side-panel .ni{width:calc(100% - 16px)!important}
+  .side-bottom{
+    display:flex!important;
+    width:100%!important;
+    align-items:stretch!important;
+    flex-direction:column!important;
+    padding:8px!important;
+  }
+  .side-utility-row{
+    display:grid!important;
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    width:100%!important;
+    height:46px!important;
+    gap:6px!important;
+    margin:0 0 7px!important;
+    padding:3px!important;
+  }
+  .side-utility-row .side-utility-item{
+    display:grid!important;
+    width:100%!important;
+    min-width:0!important;
+    height:38px!important;
+    min-height:38px!important;
+    margin:0!important;
+    padding:0!important;
+    place-items:center!important;
+  }
+  .side-utility-row .side-utility-item>i{margin:0!important;line-height:1!important}
+  .vsbtn{
+    display:flex!important;
+    width:100%!important;
+    min-width:0!important;
+    height:42px!important;
+    min-height:42px!important;
+    margin:0!important;
+    padding:0 12px!important;
+    align-items:center!important;
+    justify-content:center!important;
+  }
+  .vsbtn>i{margin:0!important;line-height:1!important}
+
+  .app.nav-collapsed,
+  .app.nav-collapsed:has(.side-panel:hover){grid-template-columns:76px minmax(0,1fr)!important}
+  .app.nav-collapsed .side-panel,
+  .app.nav-collapsed .side-panel:hover{
+    width:76px!important;
+    min-width:76px!important;
+    max-width:76px!important;
+    padding:0!important;
+  }
+  .app.nav-collapsed .topbar,
+  .app.nav-collapsed:has(.side-panel:hover) .topbar{padding-left:100px!important}
+  .app.nav-collapsed .topbar::before,
+  .app.nav-collapsed:has(.side-panel:hover) .topbar::before,
+  .app.nav-collapsed .sidebar-brand,
+  .app.nav-collapsed .side-panel:hover .sidebar-brand{
+    width:76px!important;
+    justify-content:center!important;
+    padding:0!important;
+  }
+  .app.nav-collapsed .sidebar-brand-name,
+  .app.nav-collapsed .side-panel:hover .sidebar-brand-name,
+  .app.nav-collapsed .side-panel:hover .nav-label,
+  .app.nav-collapsed .side-panel:hover .nav-shortcut,
+  .app.nav-collapsed .side-panel:hover .nav-section-action,
+  .app.nav-collapsed .side-panel:hover .nav-more-chevron,
+  .app.nav-collapsed .side-panel:hover #navWorldsLabel span,
+  .app.nav-collapsed .side-panel:hover .vsbtn>span{display:none!important}
+  .app.nav-collapsed .ni,
+  .app.nav-collapsed .side-panel:hover .ni{
+    display:grid!important;
+    grid-template-columns:1fr!important;
+    width:44px!important;
+    min-width:44px!important;
+    height:42px!important;
+    min-height:42px!important;
+    margin:2px auto!important;
+    padding:0!important;
+    place-items:center!important;
+    gap:0!important;
+  }
+  .app.nav-collapsed .ngl,
+  .app.nav-collapsed .side-panel:hover .ngl{
+    justify-content:center!important;
+    padding:14px 0 5px!important;
+    font-size:0!important;
+  }
+  .app.nav-collapsed .side-bottom,
+  .app.nav-collapsed .side-panel:hover .side-bottom{
+    align-items:center!important;
+    padding:8px 0 10px!important;
+  }
+  .app.nav-collapsed .side-utility-row,
+  .app.nav-collapsed .side-panel:hover .side-utility-row{
+    display:flex!important;
+    width:52px!important;
+    height:auto!important;
+    align-items:center!important;
+    flex-direction:column!important;
+    gap:6px!important;
+    margin:0 auto 8px!important;
+    padding:5px!important;
+  }
+  .app.nav-collapsed .side-utility-row .side-utility-item,
+  .app.nav-collapsed .side-panel:hover .side-utility-row .side-utility-item{
+    width:40px!important;
+    min-width:40px!important;
+    height:40px!important;
+    min-height:40px!important;
+  }
+  .app.nav-collapsed .vsbtn,
+  .app.nav-collapsed .side-panel:hover .vsbtn{
+    width:52px!important;
+    min-width:52px!important;
+    height:44px!important;
+    min-height:44px!important;
+    margin:0 auto!important;
+    padding:0!important;
+  }
+}
+
+/* Today: keep finance labels readable and the action queue independently scrollable. */
+#view-dashboard .vb,
+#view-tasks .vb,
+#view-calendar .vb,
+#view-review .vb{width:100%!important;max-width:none!important;margin:0!important}
+#view-dashboard #briefMainRow>.quiet-actions-card{
+  display:flex!important;
+  min-height:0!important;
+  flex-direction:column!important;
+}
+#view-dashboard #briefToDo{
+  min-height:0!important;
+  overflow-x:hidden!important;
+  overflow-y:auto!important;
+  overscroll-behavior:contain;
+  scrollbar-gutter:stable;
+}
+#view-dashboard .money-totals>div{min-width:88px!important}
+#view-dashboard .money-totals span{white-space:nowrap!important}
+#view-dashboard .quiet-add-task{
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:7px!important;
+  text-align:center!important;
+  line-height:1!important;
+}
+#view-dashboard .quiet-add-task i{margin:0!important;line-height:1!important}
+
+/* Today finance: compact balance summary with a useful chart, not dead space. */
+#view-dashboard .quiet-money-card{min-height:0!important}
+#view-dashboard #briefFinances{min-height:0!important;overflow:visible!important}
+#view-dashboard .money-topline{
+  align-items:flex-start!important;
+  padding:2px 0 14px!important;
+  border-bottom:1px solid var(--border)!important;
+}
+#view-dashboard .money-available{margin:0!important;gap:4px!important}
+#view-dashboard .money-available strong{margin:2px 0 0!important;font-size:30px!important}
+#view-dashboard .money-available small{color:var(--text4)!important;font-size:10px!important}
+#view-dashboard .money-range{min-height:30px!important;padding:6px 9px!important;background:var(--navy3)!important}
+#view-dashboard .money-core{
+  display:grid!important;
+  grid-template-columns:minmax(210px,.9fr) minmax(260px,1.1fr)!important;
+  align-items:stretch!important;
+  gap:16px!important;
+  min-height:0!important;
+  margin:14px 0 0!important;
+}
+#view-dashboard .money-summary-stack{display:flex!important;min-width:0!important;flex-direction:column!important;gap:10px!important}
+#view-dashboard .money-totals{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important}
+#view-dashboard .money-totals>div{
+  min-width:0!important;
+  min-height:76px!important;
+  padding:11px 12px!important;
+  border:1px solid var(--border)!important;
+  border-radius:11px!important;
+  background:var(--navy3)!important;
+}
+#view-dashboard .money-totals>div+div{padding-left:12px!important;border-left:1px solid var(--border)!important}
+#view-dashboard .money-totals strong{font-size:16px!important}
+#view-dashboard .money-note{min-height:42px!important;margin:0!important;padding:9px 11px!important}
+#view-dashboard .money-chart-panel{
+  display:flex!important;
+  min-width:0!important;
+  flex-direction:column!important;
+  padding:11px 12px 8px!important;
+  border:1px solid var(--border)!important;
+  border-radius:12px!important;
+  background:var(--navy3)!important;
+}
+#view-dashboard .money-chart-head{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:10px!important}
+#view-dashboard .money-chart-head span{color:var(--text2)!important;font-size:11px!important;font-weight:700!important}
+#view-dashboard .money-chart-head small{color:var(--text4)!important;font-size:9px!important;text-align:right!important}
+#view-dashboard .money-chart{height:104px!important;padding:8px 2px 0!important;border-bottom:0!important}
+#view-dashboard .money-bar{max-width:18px!important}
+
+/* Calendar: only currently active workspaces appear in filters and legends. */
+#view-calendar .cal-legend-item span{white-space:nowrap!important}
+
+/* Tasks: solid, high-contrast priority pills in every theme. */
+#view-tasks .kanban-priority-badge{
+  display:inline-flex;
+  min-height:20px;
+  align-items:center;
+  border:1px solid transparent;
+  line-height:1;
+  white-space:nowrap;
+}
+#view-tasks .kanban-priority-badge.priority-high{border-color:#8e3c4e!important;background:#55232e!important;color:#ffdce4!important}
+#view-tasks .kanban-priority-badge.priority-medium{border-color:#f9f871!important;background:#f9f871!important;color:#111111!important}
+#view-tasks .kanban-priority-badge.priority-low{border-color:#4b504a!important;background:#30332f!important;color:#e6e9e4!important}
+
+/* Let every command center use the available canvas. */
+.agency-command .agency-panel,
+.faith-command .agency-panel{width:100%!important;max-width:none!important}
+#view-life.life-command-center .life-content{width:100%!important;max-width:none!important}
+
+/* Life: integrated navigation, title-row timer, and balanced information flow. */
+#view-life.life-command-center>.vh{
+  display:grid!important;
+  grid-template-columns:minmax(220px,1fr) minmax(390px,500px) auto!important;
+  align-items:center!important;
+  gap:20px!important;
+}
+#view-life.life-command-center>.vh>#domainTimer-life{
+  width:100%!important;
+  min-width:0!important;
+  padding:0!important;
+  background:transparent!important;
+}
+#view-life.life-command-center>.vh>#domainTimer-life .agency-timer-card{
+  width:100%!important;
+  max-width:500px!important;
+  margin:0!important;
+}
+#view-life.life-command-center .life-primary-nav,
+#view-life.life-command-center .life-secondary-nav{
+  position:static!important;
+  top:auto!important;
+  width:100%!important;
+  background:var(--life-header)!important;
+}
+#view-life.life-command-center .life-dual-grid{align-items:stretch}
+#view-life.life-command-center .life-dual-grid>.life-panel{height:100%}
+#view-life.life-command-center .life-chart-panel{margin-bottom:0!important}
+#view-life.life-command-center .life-wellbeing-panel{margin-bottom:14px}
+#view-life.life-command-center .life-wellbeing-panel .life-wellbeing-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+
+/* Light mode remains a fully usable alternative. */
+html[data-theme="light"] #view-tasks .kanban-priority-badge.priority-high{border-color:#d9a8b4!important;background:#f7e5e9!important;color:#8a1f39!important}
+html[data-theme="light"] #view-tasks .kanban-priority-badge.priority-medium{border-color:#c8bd45!important;background:#f9f871!important;color:#282400!important}
+html[data-theme="light"] #view-tasks .kanban-priority-badge.priority-low{border-color:#cbd1ca!important;background:#edf0eb!important;color:#414741!important}
+html[data-theme="light"] #view-life.life-command-center .life-primary-nav,
+html[data-theme="light"] #view-life.life-command-center .life-secondary-nav{background:#ffffff!important;border-color:#dfe3dd!important}
+html[data-theme="light"] #view-life.life-command-center .life-focus-card,
+html[data-theme="light"] #view-life.life-command-center .life-insight,
+html[data-theme="light"] #view-life.life-command-center .life-review-hero{background:#ffffff!important;border-color:#dfe3dd!important}
+html[data-theme="light"] #view-life.life-command-center .life-review-summary-card,
+html[data-theme="light"] #view-life.life-command-center .life-review-reflection textarea{background:#ffffff!important;border-color:#dfe3dd!important;color:#181b18!important}
+html[data-theme="light"] #view-life.life-command-center .life-review-summary-card:hover,
+html[data-theme="light"] #view-life.life-command-center .life-review-loop:hover{background:#f5f7f3!important}
+html[data-theme="light"] #view-life.life-command-center .life-review-ring>div,
+html[data-theme="light"] #view-life.life-command-center .life-review-loop-check,
+html[data-theme="light"] #view-life.life-command-center .life-review-section-head>span,
+html[data-theme="light"] #view-life.life-command-center .life-review-save{background:#edf0eb!important;color:#181b18!important}
+html[data-theme="light"] #view-life.life-command-center .life-review-loop.is-overdue em{background:#f7e5e9!important;color:#8a1f39!important}
+html[data-theme="light"] #view-life.life-command-center .life-review-loop.is-blocked em{background:#f6f1d6!important;color:#655d00!important}
+html[data-theme="light"] #view-life.life-command-center .life-review-loop.is-high em{background:#eaf4e4!important;color:#397a00!important}
+html[data-theme="light"] #view-life.life-command-center .life-metric-icon,
+html[data-theme="light"] #view-life.life-command-center .life-wellbeing-grid button>i,
+html[data-theme="light"] #view-life.life-command-center .life-account-add i{background:#eaf4e4!important;color:#397a00!important}
+html[data-theme="light"] #view-life.life-command-center .tone-red .life-metric-icon{background:#f8e8eb!important;color:#a92b47!important}
+html[data-theme="light"] #view-life.life-command-center .tone-blue .life-metric-icon{background:#e8eef8!important;color:#315f9f!important}
+html[data-theme="light"] #view-life.life-command-center #cashFilterRow select,
+html[data-theme="light"] #view-life.life-command-center #cashFilterRow input,
+html[data-theme="light"] #view-life.life-command-center #cashFilterRow button{background:#ffffff!important;border-color:#cbd1ca!important;color:#181b18!important}
+html[data-theme="light"] #view-life.life-command-center #cashTransactionTable{background:#ffffff!important;border-color:#dfe3dd!important}
+html[data-theme="light"] #view-life.life-command-center #cashTransactionTable th{background:#f0f2ee!important;color:#596159!important;border-color:#dfe3dd!important}
+html[data-theme="light"] #view-life.life-command-center #cashTransactionTable td{background:#ffffff!important;color:#181b18!important;border-color:#dfe3dd!important}
+html[data-theme="light"] #view-life.life-command-center #cashTransactionTable tbody tr:hover td{background:#f5f7f3!important}
+html[data-theme="light"] #view-life.life-command-center .life-account-stat,
+html[data-theme="light"] #view-life.life-command-center .life-account-actions .btn{background:#f4f6f2!important;border-color:#dfe3dd!important;color:#181b18!important}
+html[data-theme="light"] #view-life.life-command-center .life-account-add:hover{background:#f4f6f2!important}
+html[data-theme="light"] #view-life.life-command-center #loan-list>.hc,
+html[data-theme="light"] #view-life.life-command-center .life-panel,
+html[data-theme="light"] #view-life.life-command-center .life-metric-card{background:#ffffff!important;border-color:#dfe3dd!important;color:#181b18!important}
+html[data-theme="light"] #view-life.life-command-center .life-loan-payment{background:#eaf4e4!important;border-color:#9bc58a!important;color:#397a00!important}
+html[data-theme="light"] #view-life.life-command-center #cf-overview [style*="background:rgba(34,197,94"],
+html[data-theme="light"] #view-life.life-command-center #cf-accounts [style*="background:rgba(34,197,94"]{background:#eaf4e4!important}
+html[data-theme="light"] #view-life.life-command-center #cf-overview [style*="background:rgba(239,68,68"],
+html[data-theme="light"] #view-life.life-command-center #cf-accounts [style*="background:rgba(239,68,68"]{background:#f8e8eb!important}
+html[data-theme="light"] .side-panel .ni.active:not(.world-ni) .nav-label{color:#1b1d21!important}
+.side-panel #navThemeToggleIcon{color:#7fff00!important}
+
+@media(max-width:1180px) and (min-width:769px){
+  #view-life.life-command-center>.vh{
+    grid-template-columns:minmax(190px,1fr) minmax(340px,440px) auto!important;
+    gap:14px!important;
+  }
+}
+@media(max-width:768px){
+  #view-life.life-command-center>.vh{
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr) auto!important;
+    gap:12px!important;
+  }
+  #view-life.life-command-center>.vh>#domainTimer-life{grid-column:1/-1;grid-row:2}
+  #view-life.life-command-center .life-header-actions{grid-column:2;grid-row:1}
+  #view-life.life-command-center .life-wellbeing-panel .life-wellbeing-grid{grid-template-columns:1fr 1fr}
+  #view-dashboard #briefToDo{max-height:320px!important}
+  #view-dashboard .money-core{grid-template-columns:1fr!important}
+  #view-dashboard .money-chart-panel{min-height:128px!important}
+}
