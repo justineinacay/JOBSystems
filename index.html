@@ -5551,6 +5551,44 @@ button,input,select,textarea{font-family:inherit}
       <div class="vb" id="historyBody"><div style="font-size:var(--text-xs);color:var(--text3);text-align:center;padding:30px">No activity yet.</div></div>
     </div>
 
+    <!-- ===== MOBILE CAPTURE ===== -->
+    <div class="view" id="view-capture">
+      <div class="mobile-capture-shell">
+        <header class="mobile-command-header">
+          <div>
+            <div class="mobile-command-eyebrow">Personal productivity OS</div>
+            <h1>Capture</h1>
+            <p>Clear your mind. Route it when you are ready.</p>
+          </div>
+        </header>
+        <section class="mobile-capture-composer" aria-labelledby="mobileCaptureHeading">
+          <div class="mobile-section-heading">
+            <div><span>Quick capture</span><h2 id="mobileCaptureHeading">What needs your attention?</h2></div>
+            <button type="button" class="mobile-icon-button" onclick="toggleVoice()" aria-label="Capture with voice"><i class="ti ti-microphone"></i></button>
+          </div>
+          <textarea id="mobileCaptureInput" rows="5" placeholder="Write a task, idea, decision, reference, or insight…"></textarea>
+          <div class="mobile-capture-types" role="group" aria-label="Capture type">
+            <button type="button" class="active" data-capture-type="Task" onclick="setMobileCaptureType('Task',this)"><i class="ti ti-checkbox"></i>Task</button>
+            <button type="button" data-capture-type="Idea" onclick="setMobileCaptureType('Idea',this)"><i class="ti ti-bulb"></i>Idea</button>
+            <button type="button" data-capture-type="Decision" onclick="setMobileCaptureType('Decision',this)"><i class="ti ti-scale"></i>Decision</button>
+            <button type="button" data-capture-type="Reference" onclick="setMobileCaptureType('Reference',this)"><i class="ti ti-paperclip"></i>Reference</button>
+          </div>
+          <div class="mobile-capture-footer">
+            <label for="mobileCaptureWorld">Destination</label>
+            <select id="mobileCaptureWorld" aria-label="Capture destination"></select>
+            <button type="button" class="mobile-primary-button" onclick="saveMobileCapture()"><i class="ti ti-arrow-up"></i>Save capture</button>
+          </div>
+        </section>
+        <section class="mobile-recent-captures">
+          <div class="mobile-section-heading">
+            <div><span>Inbox</span><h2>Recent captures</h2></div>
+            <button type="button" class="mobile-text-button" onclick="setView('jarvis-capture')">Process all <i class="ti ti-arrow-right"></i></button>
+          </div>
+          <div id="mobileRecentCaptures"></div>
+        </section>
+      </div>
+    </div>
+
     <!-- ===== REVIEW ===== -->
     <div class="view" id="view-review">
       <div class="review-page-shell">
@@ -10947,7 +10985,7 @@ function setView(v){
   currentView=v;addHistory('navigate','Navigated to '+v,{view:v});
   LearnEngine.onNavigate(v);
   renderSideNav();
-  const r={dashboard:renderBrief,review:renderReviewView,'work-ih':renderWorkIH,'work-cs':renderWorkCS,venture:renderVenture,build:renderBuild,sides:renderSides,faith:renderFaith,life:renderLife,calendar:renderCalendar,tasks:renderTasks,notes:renderNotesList,journal:renderJournal,memory:renderMemory,history:renderHistory,settings:renderSettingsView,'worlds-settings':renderWorldsSettings,links:renderLinksView,inbox:()=>{if(typeof renderInboxView==='function')renderInboxView();},'all-files':()=>{if(typeof renderAllFilesView==='function')renderAllFilesView();}};
+  const r={dashboard:renderBrief,capture:renderMobileCaptureView,review:renderReviewView,'work-ih':renderWorkIH,'work-cs':renderWorkCS,venture:renderVenture,build:renderBuild,sides:renderSides,faith:renderFaith,life:renderLife,calendar:renderCalendar,tasks:renderTasks,notes:renderNotesList,journal:renderJournal,memory:renderMemory,history:renderHistory,settings:renderSettingsView,'worlds-settings':renderWorldsSettings,links:renderLinksView,inbox:()=>{if(typeof renderInboxView==='function')renderInboxView();},'all-files':()=>{if(typeof renderAllFilesView==='function')renderAllFilesView();}};
   if(v==='life'){renderLife();}
   else if(v==='biomonitor'){setView('life');setTimeout(()=>{const btns=document.querySelectorAll('.cfbt');btns.forEach(b=>{if(b.textContent.includes('Bio Monitor')){setCFTab('biomonitor',b);}});},150);}
   else if(isCustomDomain)renderDomainGenericView(v);
@@ -10972,13 +11010,8 @@ function mobileNav(view, tabEl){
   syncMobileNavActive(view);
 }
 function mobileCaptureNav(tabEl){
-  mobileNav('dashboard',null);
-  setTimeout(()=>{
-    const input=document.getElementById('captureInput');
-    if(input){input.focus();input.scrollIntoView({block:'center',behavior:'smooth'});}
-  },80);
-  const nav=document.getElementById('mobileBottomNav');
-  if(nav){nav.querySelectorAll('.mbn-tab').forEach(t=>t.classList.remove('active'));tabEl?.classList.add('active');}
+  mobileNav('capture',tabEl);
+  setTimeout(()=>document.getElementById('mobileCaptureInput')?.focus(),80);
 }
 
 function syncMobileNavActive(view){
@@ -10987,25 +11020,21 @@ function syncMobileNavActive(view){
   const tabMap={
     'life':'mbt-more',
     'tasks':'mbt-more',
+    'capture':'mbt-capture',
     'dashboard':'mbt-dashboard',
     'calendar':'mbt-calendar',
     'review':'mbt-review',
     'settings':'mbt-more',
     'worlds-settings':'mbt-more',
   };
-  nav.querySelectorAll('.mbn-tab').forEach(t=>t.classList.remove('active'));
+  nav.querySelectorAll('.mbn-tab,.mbn-center').forEach(t=>t.classList.remove('active'));
   const center=document.getElementById('mbt-dashboard');
   if(center){center.style.background='';center.style.boxShadow='';}
   const id=tabMap[view];
   if(!id) return;
   const tab=document.getElementById(id);
   if(tab){
-    if(tab.classList.contains('mbn-center')){
-      tab.style.background='linear-gradient(135deg,var(--teal),var(--teal2))';
-      tab.style.boxShadow='0 4px 20px rgba(0,255,242,.5),0 0 0 5px rgba(0,255,242,.12)';
-    } else {
-      tab.classList.add('active');
-    }
+    tab.classList.add('active');
   }
 }
 
@@ -27680,9 +27709,11 @@ window.addEventListener('appinstalled', () => {
 
 <link rel="stylesheet" href="ui-coherence-fixes.css?v=20260824-6">
 <link rel="stylesheet" href="today-command-center.css?v=20260824-1">
+<link rel="stylesheet" href="mobile-command-center.css?v=20260824-1">
 <script src="agency-command-centers.js?v=20260823-1"></script>
 <script src="faith-command-center.js?v=20260824-2"></script>
 <script src="life-command-center.js?v=20260824-6"></script>
+<script src="mobile-command-center.js?v=20260824-1"></script>
 
 <script>
 (() => {

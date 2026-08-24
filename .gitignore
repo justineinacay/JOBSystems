@@ -31,3 +31,6 @@ Thumbs.db
 # Local backups you don't want tracked
 *.backup.html
 *.bak
+
+# Local browser QA artifacts
+output/
