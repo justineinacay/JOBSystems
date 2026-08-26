@@ -2860,7 +2860,7 @@ button,input,select,textarea{font-family:inherit}
 </style>
 <link rel="stylesheet" href="agency-command-centers.css?v=20260823-1">
 <link rel="stylesheet" href="faith-command-center.css?v=20260824-2">
-<link rel="stylesheet" href="life-command-center.css?v=20260826-4">
+<link rel="stylesheet" href="life-command-center.css?v=20260826-6">
 <link rel="stylesheet" href="interface-layout-fixes.css?v=20260824-2">
 <script>
 (()=>{const stored=localStorage.getItem('j-theme');const explicitlyChosen=localStorage.getItem('j-theme-user-set')==='true';document.documentElement.dataset.theme=explicitlyChosen&&stored==='light'?'light':'dark';})();
@@ -4901,10 +4901,12 @@ button,input,select,textarea{font-family:inherit}
               <button id="cashSortBtn" onclick="toggleCashSort()" class="btn btn-g" style="font-size:var(--text-xs);padding:5px 10px;white-space:nowrap"><i class="ti ti-arrows-sort" style="font-size:12px;line-height:1;display:inline-block;margin-right:3px"></i>Newest</button>
             </div>
             <div id="mobileTransactionList" style="display:none;margin:0 -14px"></div>
-            <table id="cashTransactionTable" class="ht">
-              <thead><tr><th>Date</th><th>Description</th><th>Type</th><th>Category</th><th>Account</th><th>Amount</th><th>Balance</th><th></th></tr></thead>
-              <tbody id="cashTbody"></tbody>
-            </table>
+            <div class="cash-table-scroll" role="region" aria-label="Transactions table" tabindex="0">
+              <table id="cashTransactionTable" class="ht">
+                <thead><tr><th>Date</th><th>Description</th><th>Type</th><th>Category</th><th>Account</th><th>Amount</th><th>Balance</th><th></th></tr></thead>
+                <tbody id="cashTbody"></tbody>
+              </table>
+            </div>
             <div style="margin-top:8px;font-size:var(--text-xs);color:var(--text3);text-align:center" id="cashEmpty" style="display:none">No transactions yet.</div>
           </div>
 
@@ -27771,7 +27773,7 @@ window.addEventListener('appinstalled', () => {
 })();
 </script>
 
-<link rel="stylesheet" href="ui-coherence-fixes.css?v=20260826-4">
+<link rel="stylesheet" href="ui-coherence-fixes.css?v=20260826-6">
 <link rel="stylesheet" href="today-command-center.css?v=20260826-2">
 <link rel="stylesheet" href="mobile-command-center.css?v=20260826-2">
 <script src="agency-command-centers.js?v=20260823-1"></script>
