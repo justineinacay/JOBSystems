@@ -501,6 +501,17 @@ html[data-theme="light"] #view-life.life-command-center .life-add-menu{backgroun
 
 /* Today finance: compact balance summary with a useful chart, not dead space. */
 #view-dashboard .quiet-money-card{min-height:0!important}
+
+#view-tasks .workspace-board-card{border-color:#343a35!important;background:#1c201d!important}
+#view-tasks .workspace-board-card:hover{border-color:#10ad8c!important;box-shadow:0 0 0 1px rgba(16,173,140,.2)!important}
+#view-tasks .workspace-board-card .board-card-stripe{background:#10ad8c!important}
+#view-tasks .workspace-board-progress-label{color:#12c7a1;font-size:20px;font-weight:850}
+#view-tasks .workspace-board-progress{height:100%;border-radius:10px;background:#10ad8c;transition:width .3s}
+#view-tasks .workspace-board-stat{padding:7px 4px;border:1px solid #343a35;border-radius:10px;background:#222723;text-align:center}
+#view-tasks .workspace-board-stat.is-active{border-color:rgba(16,173,140,.28);background:rgba(16,173,140,.1);color:#12c7a1}
+#view-tasks .workspace-board-stat.is-done{border-color:rgba(16,173,140,.2);background:rgba(16,173,140,.07);color:#9bd9c9}
+html[data-theme="light"] #view-tasks .workspace-board-card{border-color:#d9ded9!important;background:#fff!important}
+html[data-theme="light"] #view-tasks .workspace-board-stat{border-color:#d9ded9;background:#f0f3ef}
 #view-dashboard #briefFinances{min-height:0!important;overflow:visible!important}
 #view-dashboard .money-topline{
   align-items:flex-start!important;
@@ -571,7 +582,7 @@ html[data-theme="light"] #view-life.life-command-center .life-add-menu{backgroun
 /* Life: integrated navigation, title-row timer, and balanced information flow. */
 #view-life.life-command-center>.vh{
   display:grid!important;
-  grid-template-columns:minmax(220px,1fr) minmax(390px,500px) auto!important;
+  grid-template-columns:minmax(0,1fr) minmax(390px,500px) minmax(0,1fr)!important;
   align-items:center!important;
   gap:20px!important;
 }
@@ -584,7 +595,7 @@ html[data-theme="light"] #view-life.life-command-center .life-add-menu{backgroun
 #view-life.life-command-center>.vh>#domainTimer-life .agency-timer-card{
   width:100%!important;
   max-width:500px!important;
-  margin:0!important;
+  margin:0 auto!important;
 }
 #view-life.life-command-center .life-primary-nav,
 #view-life.life-command-center .life-secondary-nav{
@@ -647,7 +658,7 @@ html[data-theme="light"] .side-panel .ni.active:not(.world-ni) .nav-label{color:
 
 @media(max-width:1180px) and (min-width:769px){
   #view-life.life-command-center>.vh{
-    grid-template-columns:minmax(190px,1fr) minmax(340px,440px) auto!important;
+    grid-template-columns:minmax(0,1fr) minmax(340px,440px) minmax(0,1fr)!important;
     gap:14px!important;
   }
 }

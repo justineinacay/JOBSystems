@@ -207,17 +207,20 @@
 #view-dashboard .money-chart-head{display:flex;align-items:center;justify-content:space-between;gap:10px;color:var(--today-copy);font-size:10px}
 #view-dashboard .money-chart-head small{color:var(--today-muted);font-size:9px}
 #view-dashboard .money-chart{height:104px!important;border-bottom:0!important}
+#view-dashboard .money-chart{grid-template-columns:repeat(var(--money-days,7),minmax(12px,1fr))!important;overflow-x:auto!important;overflow-y:hidden!important}
+#view-dashboard .money-range{padding:0!important;overflow:hidden!important}
+#view-dashboard .money-range-select{min-height:32px!important;padding:6px 27px 6px 10px!important;border:0!important;background-color:transparent!important;color:var(--today-copy)!important;font-size:10px!important;font-weight:600!important;cursor:pointer!important}
 #view-dashboard .money-note{margin-top:9px!important;background:#1b1d1b!important;border-color:var(--today-line)!important}
 
 #view-dashboard .today-lower-grid{
   display:grid;
-  grid-template-columns:minmax(0,1.7fr) minmax(310px,.9fr);
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr);
   gap:16px;
 }
 
 #view-dashboard .dashboard-upcoming,
 #view-dashboard .today-daily-brief{
-  min-height:154px!important;
+  min-height:176px!important;
   padding:20px!important;
   border:1px solid var(--today-line)!important;
   border-radius:15px!important;
@@ -248,7 +251,7 @@
 }
 
 #view-dashboard .today-daily-brief-heading i{color:var(--accent-lime);font-size:18px}
-#view-dashboard .today-daily-brief-body{display:grid;grid-template-columns:42px minmax(0,1fr);align-items:center;gap:14px;flex:1;padding:14px 0 8px}
+#view-dashboard .today-daily-brief-body{display:grid;grid-template-columns:42px minmax(0,1fr);align-items:center;gap:14px;flex:1;padding:10px 0 4px}
 #view-dashboard .today-daily-brief-icon{display:grid;width:40px;height:40px;place-items:center;border:2px solid var(--accent-yellow);border-radius:50%;color:var(--accent-yellow);font-size:18px}
 #view-dashboard .today-daily-brief-body p{display:flex;min-width:0;flex-direction:column;gap:5px;margin:0}
 #view-dashboard .today-daily-brief-body strong{color:var(--accent-yellow);font-size:14px;font-weight:650;line-height:1.35}

@@ -2860,7 +2860,7 @@ button,input,select,textarea{font-family:inherit}
 </style>
 <link rel="stylesheet" href="agency-command-centers.css?v=20260823-1">
 <link rel="stylesheet" href="faith-command-center.css?v=20260824-2">
-<link rel="stylesheet" href="life-command-center.css?v=20260824-5">
+<link rel="stylesheet" href="life-command-center.css?v=20260826-3">
 <link rel="stylesheet" href="interface-layout-fixes.css?v=20260824-2">
 <script>
 (()=>{const stored=localStorage.getItem('j-theme');const explicitlyChosen=localStorage.getItem('j-theme-user-set')==='true';document.documentElement.dataset.theme=explicitlyChosen&&stored==='light'?'light':'dark';})();
@@ -4124,20 +4124,8 @@ button,input,select,textarea{font-family:inherit}
           </div>
         </div>
 
-        <!-- ROW 3: TIMELINE + DAILY BRIEF -->
+        <!-- ROW 3: DAILY BRIEF + TIMELINE -->
         <div class="today-lower-grid">
-          <section class="bd-block dashboard-upcoming today-timeline-card" style="flex-shrink:0;padding:10px 14px">
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-              <div style="display:flex;align-items:center;gap:6px">
-                <i class="ti ti-calendar-week" style="color:var(--teal);font-size:var(--text-sm);line-height:1;display:block"></i>
-                <span class="quiet-upcoming-title">Today timeline</span>
-                <span id="briefWeekLabel" style="font-size:var(--text-xs);font-weight:700;color:var(--text3);letter-spacing:.12em;text-transform:uppercase"></span>
-              </div>
-              <button class="quiet-card-link compact upcoming-calendar-link" type="button" onclick="setView('calendar')">Open calendar <i class="ti ti-arrow-right"></i></button>
-            </div>
-            <div id="briefWeekStrip" class="upcoming-strip"></div>
-          </section>
-
           <aside class="bd-block today-daily-brief" aria-labelledby="todayDailyBriefTitle">
             <div class="today-daily-brief-heading">
               <i class="ti ti-speakerphone"></i>
@@ -4149,6 +4137,18 @@ button,input,select,textarea{font-family:inherit}
             </div>
             <button type="button" class="today-daily-brief-action" onclick="setView('review')">Open review <i class="ti ti-arrow-right"></i></button>
           </aside>
+
+          <section class="bd-block dashboard-upcoming today-timeline-card" style="flex-shrink:0;padding:10px 14px">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+              <div style="display:flex;align-items:center;gap:6px">
+                <i class="ti ti-calendar-week" style="color:var(--teal);font-size:var(--text-sm);line-height:1;display:block"></i>
+                <span class="quiet-upcoming-title">Today timeline</span>
+                <span id="briefWeekLabel" style="font-size:var(--text-xs);font-weight:700;color:var(--text3);letter-spacing:.12em;text-transform:uppercase"></span>
+              </div>
+              <button class="quiet-card-link compact upcoming-calendar-link" type="button" onclick="setView('calendar')">Open calendar <i class="ti ti-arrow-right"></i></button>
+            </div>
+            <div id="briefWeekStrip" class="upcoming-strip"></div>
+          </section>
         </div>
 
         <!-- ROW 4: TASKS BY WORLD (full width) -->
@@ -5765,11 +5765,11 @@ button,input,select,textarea{font-family:inherit}
     <!-- ===== WORLDS + SETTINGS (mobile combined) ===== -->
     <div class="view" id="view-worlds-settings">
       <div class="vh">
-        <div><div class="vt"><i class="ti ti-grid-dots" style="color:var(--teal)"></i>Domains</div><div class="vs">Navigate worlds · System settings</div></div>
+        <div><div class="vt"><i class="ti ti-grid-dots" style="color:var(--teal)"></i>Workspaces</div><div class="vs">Open a workspace or manage your system</div></div>
       </div>
       <div class="vb" style="padding:16px;overflow-y:auto">
         <!-- World grid — 2 col, LIFE spans full row at bottom -->
-        <div style="font-size:10px;font-weight:700;letter-spacing:.12em;color:var(--text3);text-transform:uppercase;margin-bottom:10px">My Worlds</div>
+        <div style="font-size:10px;font-weight:700;letter-spacing:.12em;color:var(--text3);text-transform:uppercase;margin-bottom:10px">My Workspaces</div>
         <div id="mobileWorldsGrid" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:20px"></div>
         <!-- Settings shortcuts -->
         <div style="font-size:10px;font-weight:700;letter-spacing:.12em;color:var(--text3);text-transform:uppercase;margin-bottom:10px">Settings</div>
@@ -6262,6 +6262,42 @@ async function checkAuthGate(){
   if(authEl)authEl.style.display='flex';
 }
 
+const SYNC_TOMBSTONE_KEY='j-sync-tombstones-v1';
+const SYNC_TOMBSTONE_MAX_AGE=180*24*60*60*1000;
+function readSyncTombstones(){
+  let tombstones={};
+  try{tombstones=JSON.parse(localStorage.getItem(SYNC_TOMBSTONE_KEY)||'{}')||{};}catch(e){}
+  const cutoff=Date.now()-SYNC_TOMBSTONE_MAX_AGE;
+  let changed=false;
+  Object.keys(tombstones).forEach(key=>{if(Number(tombstones[key])<cutoff){delete tombstones[key];changed=true;}});
+  if(changed)localStorage.setItem(SYNC_TOMBSTONE_KEY,JSON.stringify(tombstones));
+  return tombstones;
+}
+function syncTombstoneKeys(table,record){
+  if(!record)return[];
+  const prefix=table==='cal_events'?'cal_events':'tasks';
+  const keys=[];
+  if(record.id!=null)keys.push(prefix+':id:'+String(record.id));
+  if(record.google_task_id)keys.push('tasks:google:'+String(record.google_task_id));
+  if(record.google_event_id)keys.push('cal_events:google:'+String(record.google_event_id));
+  return keys;
+}
+function rememberSyncDeletion(table,record){
+  const keys=syncTombstoneKeys(table,record);if(!keys.length)return;
+  const tombstones=readSyncTombstones();
+  keys.forEach(key=>{tombstones[key]=Date.now();});
+  localStorage.setItem(SYNC_TOMBSTONE_KEY,JSON.stringify(tombstones));
+}
+function isSyncTombstoned(table,record){
+  const tombstones=readSyncTombstones();
+  return syncTombstoneKeys(table,record).some(key=>Boolean(tombstones[key]));
+}
+function clearSyncTombstone(table,record){
+  const tombstones=readSyncTombstones();let changed=false;
+  syncTombstoneKeys(table,record).forEach(key=>{if(tombstones[key]){delete tombstones[key];changed=true;}});
+  if(changed)localStorage.setItem(SYNC_TOMBSTONE_KEY,JSON.stringify(tombstones));
+}
+
 const SB={
   // Known date/timestamp-typed field names across all tables — Postgres rejects "" for
   // date columns (needs a real date or NULL), so any empty string here must become null
@@ -6276,7 +6312,12 @@ const SB={
   },
   async load(table,key){
     try{
-      const rows=await sbFetch(table);
+      let rows=await sbFetch(table);
+      if((table==='tasks'||table==='cal_events')&&rows&&rows.length){
+        const stale=rows.filter(row=>isSyncTombstoned(table,row));
+        rows=rows.filter(row=>!isSyncTombstoned(table,row));
+        stale.forEach(row=>sbFetch(table,'DELETE',null,`id=eq.${row.id}`).catch(()=>{}));
+      }
       if(rows&&rows.length){
         if(table==='cashflow')DB[key]=rows.map(r=>({...r,desc:r.description||r.desc||''}));
         else if(table==='saved_links')DB[key]=rows.map(r=>({...r,previewImage:r.preview_image,worldId:r.world_id,projectId:r.project_id}));
@@ -6291,6 +6332,7 @@ const SB={
     }
   },
   async upsert(table,row,key){
+    if(table==='tasks'||table==='cal_events')clearSyncTombstone(table,row);
     let r=this._sanitizeDates(row);
     if(table==='cashflow'){r.description=row.desc;delete r.desc;delete r._fromAccount;delete r._toAccount;delete r._runBal;}
     if(table==='cal_events'){r.recur_exceptions=row.recurExceptions||{};delete r.recurExceptions;delete r._expandedDate;delete r._recurring;delete r._taskId;delete r._isTask;delete r._billId;delete r._isBill;}
@@ -6366,26 +6408,27 @@ const SB={
     if(table==='cal_events'){const full=(DB[key]||[]).find(x=>x.id===id);if(full)_pushCalEventToGoogle(full);}
   },
   async remove(table,id,key){
-    let googleId=null,googleListId=null;
+    let googleId=null,googleListId=null,record=null;
     if(table==='tasks'||table==='cal_events'){
       try{
         const prev=JSON.parse(localStorage.getItem('j-'+key)||'[]');
-        const rec=prev.find(x=>x.id===id);
-        if(rec){
-          googleId=table==='tasks'?rec.google_task_id:rec.google_event_id;
-          if(table==='tasks')googleListId=rec.google_task_list_id;
+        record=prev.find(x=>x.id===id);
+        if(record){
+          googleId=table==='tasks'?record.google_task_id:record.google_event_id;
+          if(table==='tasks')googleListId=record.google_task_list_id;
+          rememberSyncDeletion(table,record);
         }
       }catch(e){}
     }
+    save(key);
+    if(googleId){
+      if(table==='tasks')_deleteGoogleTaskFor({google_task_id:googleId,google_task_list_id:googleListId});
+      if(table==='cal_events')_deleteGoogleCalEventFor({google_event_id:googleId});
+    }
     try{
       await sbFetch(table,'DELETE',null,`id=eq.${id}`);
-      save(key);
-      if(googleId){
-        if(table==='tasks')_deleteGoogleTaskFor({google_task_id:googleId,google_task_list_id:googleListId});
-        if(table==='cal_events')_deleteGoogleCalEventFor({google_event_id:googleId});
-      }
     }catch(err){
-      showToast('\u26a0 Delete failed ('+table+'): '+err.message);
+      showToast('\u26a0 Cloud delete will retry on the next sync.');
       console.error('SB.remove error',table,err);
     }
   },
@@ -6864,6 +6907,10 @@ function initRealtime(){
     var oldRecord=msg.payload.old_record;
     var type=msg.payload.type;
     var key=tableMap.key;
+    if((tableName==='tasks'||tableName==='cal_events')&&(type==='INSERT'||type==='UPDATE')&&isSyncTombstoned(tableName,record)){
+      if(record&&record.id!=null)sbFetch(tableName,'DELETE',null,`id=eq.${record.id}`).catch(()=>{});
+      return;
+    }
     if(tableName==='agent_tasks'||tableName==='agent_log'){
       // Operational log, not app state — don't push into DB[], just refresh the panel
       if(tableName==='agent_tasks'&&type==='UPDATE'&&record&&record.status){
@@ -9795,7 +9842,7 @@ async function deleteGoogleTask(googleTaskId,listId){
 let _jelixSyncingFromGoogle=false;
 
 async function _pushTaskToGoogle(task){
-  if(_jelixSyncingFromGoogle||!isGoogleWorkspaceConnected())return;
+  if(_jelixSyncingFromGoogle||!isGoogleWorkspaceConnected()||isSyncTombstoned('tasks',task))return;
   _syncGmailTaskCompletion(task);
   try{
     if(!task.google_task_id){
@@ -9858,7 +9905,7 @@ function _calEventToGoogle(ev){
 }
 let _pendingMeetRequests=new Set();
 async function _pushCalEventToGoogle(ev){
-  if(_jelixSyncingFromGoogle||!isGoogleWorkspaceConnected()||!_isSyncableCalEvent(ev))return;
+  if(_jelixSyncingFromGoogle||!isGoogleWorkspaceConnected()||!_isSyncableCalEvent(ev)||isSyncTombstoned('cal_events',ev))return;
   try{
     if(!ev.google_event_id){
       const wantMeet=_pendingMeetRequests.has(ev.id);
@@ -9939,6 +9986,10 @@ async function pullGoogleTasks(){
   let changed=false;
   const seenGoogleIds=new Set();
   for(const gt of r.tasks){
+    if(isSyncTombstoned('tasks',{google_task_id:gt.id})){
+      deleteGoogleTask(gt.id,gt._listId||'@default').catch(()=>{});
+      continue;
+    }
     seenGoogleIds.add(gt.id);
     const local=DB.tasks.find(t=>t.google_task_id===gt.id);
     const wantStatus=gt.status==='completed'?'Done':null;
@@ -9985,6 +10036,10 @@ async function pullGoogleCalendarEvents(){
   const seenGoogleIds=new Set();
   for(const ge of r.events){
     if(ge.status==='cancelled')continue;
+    if(isSyncTombstoned('cal_events',{google_event_id:ge.id})){
+      deleteGoogleCalendarEvent(ge.id).catch(()=>{});
+      continue;
+    }
     seenGoogleIds.add(ge.id);
     const local=DB.calEvents.find(e=>e.google_event_id===ge.id);
     const start=ge.start&&(ge.start.dateTime||ge.start.date);
@@ -11018,14 +11073,14 @@ function syncMobileNavActive(view){
   const nav=document.getElementById('mobileBottomNav');
   if(!nav) return;
   const tabMap={
-    'life':'mbt-more',
-    'tasks':'mbt-more',
-    'capture':'mbt-capture',
+    'life':'mbt-workspaces',
+    'tasks':'mbt-tasks',
+    'capture':'mbt-workspaces',
     'dashboard':'mbt-dashboard',
     'calendar':'mbt-calendar',
-    'review':'mbt-review',
-    'settings':'mbt-more',
-    'worlds-settings':'mbt-more',
+    'review':'mbt-settings',
+    'settings':'mbt-settings',
+    'worlds-settings':'mbt-workspaces',
   };
   nav.querySelectorAll('.mbn-tab,.mbn-center').forEach(t=>t.classList.remove('active'));
   const center=document.getElementById('mbt-dashboard');
@@ -11080,7 +11135,7 @@ function toggleMobileMore(){
     nav.querySelectorAll('.mbn-tab').forEach(t=>t.classList.remove('active'));
     const center=document.getElementById('mbt-dashboard');
     if(center){center.style.background='';center.style.boxShadow='';}
-    const moreTab=document.getElementById('mbt-more');
+    const moreTab=document.getElementById('mbt-workspaces');
     if(isHidden && moreTab){
       moreTab.classList.add('active');
       setTimeout(()=>initSheetSwipe(),50);
@@ -11954,6 +12009,14 @@ async function editMonthlyBudget(){
   renderBrief();
   showToast('✓ Budget updated');
 }
+let todayMoneyRangeDays=[7,14,30].includes(Number(localStorage.getItem('j-today-money-range')))?Number(localStorage.getItem('j-today-money-range')):7;
+function setTodayMoneyRange(value){
+  const days=Number(value);
+  if(![7,14,30].includes(days))return;
+  todayMoneyRangeDays=days;
+  localStorage.setItem('j-today-money-range',String(days));
+  renderQuietBrief();
+}
 function renderQuietBrief(){
   renderBriefWeekStrip();
 
@@ -11961,8 +12024,6 @@ function renderQuietBrief(){
   const today=localDateStr(now);
   const tomorrowDate=new Date(now);tomorrowDate.setDate(now.getDate()+1);
   const tomorrow=localDateStr(tomorrowDate);
-  const firstWeekDate=new Date(now);firstWeekDate.setDate(now.getDate()-6);
-  const firstWeekDay=localDateStr(firstWeekDate);
   const fmt=value=>'₱'+Math.abs(value||0).toLocaleString('en-PH',{minimumFractionDigits:2,maximumFractionDigits:2});
   const signedMoney=value=>(value<0?'-':'')+fmt(value);
   const dueLabel=task=>{
@@ -12026,20 +12087,22 @@ function renderQuietBrief(){
   const accountNames=typeof getAccountNames==='function'?getAccountNames():[];
   const fallbackBalance=allCash.reduce((sum,entry)=>sum+(entry.type==='Debit'?entry.amount||0:-(entry.amount||0)),0);
   const available=accountNames.length&&typeof getTotalPortfolioBalance==='function'?getTotalPortfolioBalance():fallbackBalance;
-  const weekCash=allCash.filter(entry=>entry.date>=firstWeekDay&&entry.date<=today);
-  const weekIncome=weekCash.filter(entry=>entry.type==='Debit').reduce((sum,entry)=>sum+(entry.amount||0),0);
-  const weekExpenses=weekCash.filter(entry=>entry.type==='Credit').reduce((sum,entry)=>sum+(entry.amount||0),0);
-  const weekNet=weekIncome-weekExpenses;
-  const last7Dates=Array.from({length:7},(_,index)=>{const date=new Date(now);date.setDate(now.getDate()-(6-index));return date;});
-  const dailyNet=last7Dates.map(date=>{
+  const rangeDays=todayMoneyRangeDays;
+  const rangeDates=Array.from({length:rangeDays},(_,index)=>{const date=new Date(now);date.setDate(now.getDate()-((rangeDays-1)-index));return date;});
+  const rangeStart=localDateStr(rangeDates[0]);
+  const rangeCash=allCash.filter(entry=>entry.date>=rangeStart&&entry.date<=today);
+  const rangeIncome=rangeCash.filter(entry=>entry.type==='Debit').reduce((sum,entry)=>sum+(entry.amount||0),0);
+  const rangeExpenses=rangeCash.filter(entry=>entry.type==='Credit').reduce((sum,entry)=>sum+(entry.amount||0),0);
+  const rangeNet=rangeIncome-rangeExpenses;
+  const dailyNet=rangeDates.map(date=>{
     const dateString=localDateStr(date);
     return allCash.filter(entry=>entry.date===dateString).reduce((sum,entry)=>sum+(entry.type==='Debit'?entry.amount||0:-(entry.amount||0)),0);
   });
   const chartMax=Math.max(...dailyNet.map(value=>Math.abs(value)),1);
   const finance=document.getElementById('briefFinances');
   if(finance){
-    const incomeCount=weekCash.filter(entry=>entry.type==='Debit').length;
-    const expenseCount=weekCash.filter(entry=>entry.type==='Credit').length;
+    const incomeCount=rangeCash.filter(entry=>entry.type==='Debit').length;
+    const expenseCount=rangeCash.filter(entry=>entry.type==='Credit').length;
     finance.innerHTML=`
       <div class="money-topline">
         <div class="money-available">
@@ -12047,20 +12110,20 @@ function renderQuietBrief(){
           <strong class="${available<0?'negative':''}">${signedMoney(available)}</strong>
           <small>${accountNames.length} account${accountNames.length===1?'':'s'} connected</small>
         </div>
-        <span class="money-range">Last 7 days <i class="ti ti-chevron-down"></i></span>
+        <label class="money-range" aria-label="Money chart period"><select class="money-range-select" onchange="setTodayMoneyRange(this.value)"><option value="7"${rangeDays===7?' selected':''}>Last 7 days</option><option value="14"${rangeDays===14?' selected':''}>Last 14 days</option><option value="30"${rangeDays===30?' selected':''}>Last 30 days</option></select></label>
       </div>
       <div class="money-core">
         <div class="money-summary-stack">
           <div class="money-totals">
-            <div><span>Income</span><strong class="income">+${fmt(weekIncome)}</strong><small>${incomeCount} source${incomeCount===1?'':'s'}</small></div>
-            <div><span>Expenses</span><strong class="expense">-${fmt(weekExpenses)}</strong><small>${expenseCount} transaction${expenseCount===1?'':'s'}</small></div>
+            <div><span>Income</span><strong class="income">+${fmt(rangeIncome)}</strong><small>${incomeCount} source${incomeCount===1?'':'s'}</small></div>
+            <div><span>Expenses</span><strong class="expense">-${fmt(rangeExpenses)}</strong><small>${expenseCount} transaction${expenseCount===1?'':'s'}</small></div>
           </div>
-          <div class="money-note"><span class="money-note-dot"></span><span>Net this week</span><strong class="${weekNet<0?'negative':''}">${weekNet>=0?'+':''}${signedMoney(weekNet)}</strong></div>
+          <div class="money-note"><span class="money-note-dot"></span><span>Net this period</span><strong class="${rangeNet<0?'negative':''}">${rangeNet>=0?'+':''}${signedMoney(rangeNet)}</strong></div>
         </div>
         <div class="money-chart-panel">
-          <div class="money-chart-head"><span>Daily cash flow</span><small>${weekNet<0?'Spending exceeded income':'Income stayed ahead'}</small></div>
-          <div class="money-chart" aria-label="Seven day cash flow">
-            ${dailyNet.map((value,index)=>`<span class="money-bar-column" title="${last7Dates[index].toLocaleDateString('en-PH',{weekday:'long',month:'short',day:'numeric',timeZone:'Asia/Manila'})}: ${signedMoney(value)}"><i class="money-bar${value<0?' negative':index===6?' today':''}" style="height:${Math.max(8,Math.round(Math.abs(value)/chartMax*62))}px"></i><small>${last7Dates[index].toLocaleDateString('en-PH',{weekday:'short',timeZone:'Asia/Manila'}).slice(0,1)}</small></span>`).join('')}
+          <div class="money-chart-head"><span>Daily cash flow</span><small>${rangeNet<0?'Spending exceeded income':'Income stayed ahead'}</small></div>
+          <div class="money-chart" style="--money-days:${rangeDays}" aria-label="${rangeDays} day cash flow">
+            ${dailyNet.map((value,index)=>`<span class="money-bar-column" title="${rangeDates[index].toLocaleDateString('en-PH',{weekday:'long',month:'short',day:'numeric',timeZone:'Asia/Manila'})}: ${signedMoney(value)}"><i class="money-bar${value<0?' negative':index===rangeDays-1?' today':''}" style="height:${Math.max(8,Math.round(Math.abs(value)/chartMax*62))}px"></i><small>${rangeDays===7||index%5===0||index===rangeDays-1?rangeDates[index].toLocaleDateString('en-PH',{weekday:'short',timeZone:'Asia/Manila'}).slice(0,1):''}</small></span>`).join('')}
           </div>
         </div>
       </div>`;
@@ -12889,30 +12952,30 @@ function renderBoardsListView(){
     const pct=items.length?Math.round((done/items.length)*100):0;
     const highPriority=items.filter(t=>t.status!=='Done'&&t.priority==='High');
     const nextUp=items.filter(t=>t.status!=='Done').sort((a,c)=>(a.due||'9999')<(c.due||'9999')?-1:1)[0];
-    html+=`<div class="board-card" onclick="document.getElementById('taskFilter').value='${b.id}';setBoardView('table')">
-      <div class="board-card-stripe" style="background:${b.stripe}"></div>
+    html+=`<div class="board-card workspace-board-card" onclick="document.getElementById('taskFilter').value='${b.id}';setBoardView('table')">
+      <div class="board-card-stripe"></div>
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
         <div style="width:36px;height:36px;border-radius:9px;background:${b.color}18;border:1px solid ${b.color}35;display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="ti ${b.icon}" style="color:${b.color};font-size:17px;line-height:1;display:block"></i></div>
         <div style="flex:1;min-width:0">
           <div class="board-card-name" style="font-size:var(--text-md);margin-bottom:1px">${b.name}</div>
           <div class="board-card-meta">${items.length} total · ${open} open</div>
         </div>
-        <div style="font-size:20px;font-weight:900;color:${b.color}">${pct}%</div>
+        <div class="workspace-board-progress-label">${pct}%</div>
       </div>
       <div style="background:var(--navy3);border-radius:10px;height:6px;overflow:hidden;margin-bottom:14px">
-        <div style="height:100%;width:${pct}%;background:${b.stripe};border-radius:10px;transition:width .3s"></div>
+        <div class="workspace-board-progress" style="width:${pct}%"></div>
       </div>
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:12px">
-        <div style="text-align:center;padding:6px 4px;background:var(--hover-tint);border-radius:12px">
+        <div class="workspace-board-stat">
           <div style="font-size:15px;font-weight:800;color:var(--text1)">${todo+noProg}</div>
           <div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.04em">To Do</div>
         </div>
-        <div style="text-align:center;padding:6px 4px;background:rgba(0,255,242,.05);border-radius:12px">
-          <div style="font-size:15px;font-weight:800;color:var(--teal)">${inProg}</div>
+        <div class="workspace-board-stat is-active">
+          <div style="font-size:15px;font-weight:800">${inProg}</div>
           <div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.04em">Active</div>
         </div>
-        <div style="text-align:center;padding:6px 4px;background:rgba(34,197,94,.06);border-radius:12px">
-          <div style="font-size:15px;font-weight:800;color:var(--green)">${done}</div>
+        <div class="workspace-board-stat is-done">
+          <div style="font-size:15px;font-weight:800">${done}</div>
           <div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.04em">Done</div>
         </div>
       </div>
@@ -13546,6 +13609,7 @@ function editTask(id){
 }
 function deleteTask(e,id){
   e.stopPropagation();const t=DB.tasks.find(x=>x.id===id);if(!t)return;
+  rememberSyncDeletion('tasks',t);
   if(t.sourceNoteId&&t.sourceBlockId){
     const n=DB.notes.find(x=>x.id===t.sourceNoteId);
     const b=n?.blocks.find(x=>x.id===t.sourceBlockId);
@@ -13553,7 +13617,10 @@ function deleteTask(e,id){
   }
   DB.tasks=DB.tasks.filter(x=>x.id!==id);SB.remove('tasks',id,'tasks');
   // Remove associated calendar entry
-  DB.calEvents=DB.calEvents.filter(e=>e._taskId!==id);
+  const linkedEvents=DB.calEvents.filter(event=>event._taskId===id);
+  linkedEvents.forEach(event=>{rememberSyncDeletion('cal_events',event);SB.remove('cal_events',event.id,'calEvents');});
+  DB.calEvents=DB.calEvents.filter(event=>event._taskId!==id);
+  save('calEvents');
   if(typeof _deleteItemLinksFor==='function')_deleteItemLinksFor('task',id);
   addHistory('delete','Deleted task: '+t.title,{...t,_dbKey:'tasks'});
   reRenderAll();showToast('Task deleted');
@@ -18014,6 +18081,8 @@ async function cancelSingleCalOccurrence(){
 }
 async function deleteCalEvent(id){
   if(!await jelixConfirm('Delete this event?','Delete'))return;
+  const event=DB.calEvents.find(item=>item.id===id);
+  if(event)rememberSyncDeletion('cal_events',event);
   DB.calEvents=DB.calEvents.filter(e=>e.id!==id);
   SB.remove('cal_events',id,'calEvents');
   if(typeof _deleteItemLinksFor==='function')_deleteItemLinksFor('event',id);
@@ -23775,30 +23844,25 @@ console.log('[J.O.B Systems] JELIX Intelligence Layer loaded — Skills 1–7 + 
     <i class="ti ti-microphone" id="mbnVoiceIcon" style="font-size:20px;line-height:1;display:block"></i>
   </button>
   <div class="mbn-bar">
-    <!-- Capture -->
-    <div class="mbn-tab" id="mbt-capture" onclick="mobileCaptureNav(this)">
-      <i class="ti ti-square-plus"></i>
-      <span>Capture</span>
-    </div>
-    <!-- Review -->
-    <div class="mbn-tab" id="mbt-review" onclick="mobileNav('review',this)">
-      <i class="ti ti-circle-check"></i>
-      <span>Review</span>
-    </div>
-    <!-- Center floating Brief button -->
-    <div class="mbn-center" id="mbt-dashboard" onclick="mobileNav('dashboard',this)">
+    <div class="mbn-tab" id="mbt-dashboard" onclick="mobileNav('dashboard',this)">
       <i class="ti ti-home"></i>
       <span>Today</span>
     </div>
-    <!-- Calendar -->
+    <div class="mbn-tab" id="mbt-tasks" onclick="mobileNav('tasks',this)">
+      <i class="ti ti-checklist"></i>
+      <span>Tasks</span>
+    </div>
     <div class="mbn-tab" id="mbt-calendar" onclick="mobileNav('calendar',this)">
       <i class="ti ti-calendar"></i>
       <span>Calendar</span>
     </div>
-    <!-- More -->
-    <div class="mbn-tab" id="mbt-more" onclick="mobileNav('worlds-settings',this)">
+    <div class="mbn-tab" id="mbt-settings" onclick="mobileNav('settings',this)">
+      <i class="ti ti-settings"></i>
+      <span>Settings</span>
+    </div>
+    <div class="mbn-tab" id="mbt-workspaces" onclick="mobileNav('worlds-settings',this)">
       <i class="ti ti-grid-dots"></i>
-      <span>More</span>
+      <span>Workspaces</span>
     </div>
   </div>
 </div>
@@ -27707,13 +27771,13 @@ window.addEventListener('appinstalled', () => {
 })();
 </script>
 
-<link rel="stylesheet" href="ui-coherence-fixes.css?v=20260824-6">
-<link rel="stylesheet" href="today-command-center.css?v=20260824-1">
-<link rel="stylesheet" href="mobile-command-center.css?v=20260824-1">
+<link rel="stylesheet" href="ui-coherence-fixes.css?v=20260826-3">
+<link rel="stylesheet" href="today-command-center.css?v=20260826-2">
+<link rel="stylesheet" href="mobile-command-center.css?v=20260826-2">
 <script src="agency-command-centers.js?v=20260823-1"></script>
 <script src="faith-command-center.js?v=20260824-2"></script>
-<script src="life-command-center.js?v=20260824-6"></script>
-<script src="mobile-command-center.js?v=20260824-1"></script>
+<script src="life-command-center.js?v=20260826-2"></script>
+<script src="mobile-command-center.js?v=20260826-2"></script>
 
 <script>
 (() => {

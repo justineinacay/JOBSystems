@@ -40,7 +40,7 @@
 
 #view-life.life-command-center>.vh{
   display:grid!important;
-  grid-template-columns:minmax(220px,1fr) minmax(390px,500px) auto;
+  grid-template-columns:minmax(0,1fr) minmax(390px,500px) minmax(0,1fr);
   align-items:center;
   gap:20px;
   width:100%;
@@ -239,8 +239,8 @@
   display:flex;
   align-items:center;
   gap:4px;
-  min-height:58px;
-  padding:8px var(--life-shell-edge);
+  min-height:48px;
+  padding:4px var(--life-shell-edge);
   overflow-x:auto;
   border-bottom:1px solid var(--life-border);
   background:var(--life-header);
@@ -252,7 +252,7 @@
   position:relative;
   display:inline-flex;
   min-width:max-content;
-  min-height:40px;
+  min-height:36px;
   align-items:center;
   gap:8px;
   padding:0 14px;
@@ -275,7 +275,7 @@
 #view-life.life-command-center .life-primary-nav button.is-active:after{
   position:absolute;
   right:13px;
-  bottom:-9px;
+  bottom:-5px;
   left:13px;
   height:2px;
   border-radius:2px;
@@ -285,10 +285,10 @@
 #view-life.life-command-center .life-secondary-nav{
   position:static;
   z-index:85;
-  top:58px;
+  top:48px;
   display:flex;
   gap:5px;
-  padding:8px var(--life-shell-edge);
+  padding:5px var(--life-shell-edge);
   overflow-x:auto;
   border-bottom:1px solid var(--life-border);
   background:var(--life-header);
@@ -931,7 +931,8 @@
 }
 
 @media(max-width:760px){
-  #view-life.life-command-center>.vh{min-height:82px!important;padding:16px!important;gap:12px!important;flex-wrap:nowrap!important}
+  #view-life.life-command-center>.vh{grid-template-columns:minmax(0,1fr) auto!important;min-height:82px!important;padding:14px 16px!important;gap:10px 12px!important}
+  #view-life.life-command-center #domainTimer-life{grid-column:1/-1;grid-row:2;width:min(500px,100%);justify-self:center}
   #view-life.life-command-center .vt{font-size:21px!important}
   #view-life.life-command-center .vs{font-size:10px!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:54vw}
   #view-life.life-command-center .life-review-button span{display:none}
@@ -944,9 +945,9 @@
   #view-life.life-command-center #domainTimer-life .agency-timer-toggle span{display:none}
   #view-life.life-command-center #domainTimer-life .agency-timer-toggle{min-width:36px;width:36px;padding:0}
   #view-life.life-command-center #domainTimer-life .agency-timer-reset{display:none}
-  #view-life.life-command-center .life-primary-nav{padding:7px 14px}
-  #view-life.life-command-center .life-primary-nav button{min-height:38px;padding:0 12px}
-  #view-life.life-command-center .life-secondary-nav{padding:7px 14px}
+  #view-life.life-command-center .life-primary-nav{min-height:46px;padding:4px 14px}
+  #view-life.life-command-center .life-primary-nav button{min-height:34px;padding:0 11px}
+  #view-life.life-command-center .life-secondary-nav{padding:5px 14px}
   #view-life.life-command-center .life-content{padding:16px 14px 100px!important}
   #view-life.life-command-center .life-focus-card{align-items:flex-start;flex-direction:column;gap:18px;padding:20px}
   #view-life.life-command-center .life-focus-card h1{font-size:24px}

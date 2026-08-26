@@ -63,8 +63,8 @@
       item.removeAttribute('style');
       item.classList.remove('active');
     });
-    const map={capture:'mbt-capture',review:'mbt-review',dashboard:'mbt-dashboard',calendar:'mbt-calendar'};
-    const target=document.getElementById(map[currentView]||'mbt-more');
+    const map={dashboard:'mbt-dashboard',tasks:'mbt-tasks',calendar:'mbt-calendar',settings:'mbt-settings','worlds-settings':'mbt-workspaces'};
+    const target=document.getElementById(map[currentView]||'mbt-workspaces');
     target?.classList.add('active');
   };
 
@@ -73,12 +73,12 @@
     if(window.innerWidth>768&&typeof originalSync==='function')return originalSync(view);
     const nav=document.getElementById('mobileBottomNav');
     if(!nav)return;
-    const map={capture:'mbt-capture',review:'mbt-review',dashboard:'mbt-dashboard',calendar:'mbt-calendar'};
+    const map={dashboard:'mbt-dashboard',tasks:'mbt-tasks',calendar:'mbt-calendar',settings:'mbt-settings','worlds-settings':'mbt-workspaces'};
     nav.querySelectorAll('.mbn-tab,.mbn-center').forEach(item=>{
       item.removeAttribute('style');
       item.classList.remove('active');
     });
-    document.getElementById(map[view]||'mbt-more')?.classList.add('active');
+    document.getElementById(map[view]||'mbt-workspaces')?.classList.add('active');
   };
 
   document.addEventListener('DOMContentLoaded',()=>{
