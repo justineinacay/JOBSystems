@@ -2860,7 +2860,7 @@ button,input,select,textarea{font-family:inherit}
 </style>
 <link rel="stylesheet" href="agency-command-centers.css?v=20260823-1">
 <link rel="stylesheet" href="faith-command-center.css?v=20260824-2">
-<link rel="stylesheet" href="life-command-center.css?v=20260826-3">
+<link rel="stylesheet" href="life-command-center.css?v=20260826-4">
 <link rel="stylesheet" href="interface-layout-fixes.css?v=20260824-2">
 <script>
 (()=>{const stored=localStorage.getItem('j-theme');const explicitlyChosen=localStorage.getItem('j-theme-user-set')==='true';document.documentElement.dataset.theme=explicitlyChosen&&stored==='light'?'light':'dark';})();
@@ -16136,24 +16136,24 @@ function toggleCashSort(){
 // Housing bills look no different from a coffee purchase at a glance —
 // color-code it like everything else that got this treatment this session.
 const CASHFLOW_CATEGORY_STYLE={
-  Income:{color:'var(--success-text)',icon:'ti-trending-up'},
-  Loan:{color:'var(--danger-text)',icon:'ti-building-bank'},
-  Payment:{color:'var(--danger-text)',icon:'ti-receipt'},
-  Subscription:{color:'var(--purple)',icon:'ti-refresh'},
-  Housing:{color:'var(--info-text)',icon:'ti-home'},
-  Utilities:{color:'var(--info-text)',icon:'ti-bolt'},
-  Food:{color:'var(--warning-text)',icon:'ti-tools-kitchen-2'},
-  Transport:{color:'var(--warning-text)',icon:'ti-car'},
-  Entertainment:{color:'var(--warning-text)',icon:'ti-device-tv'},
-  Business:{color:'var(--teal)',icon:'ti-briefcase'},
-  Health:{color:'var(--red)',icon:'ti-heart'},
-  Family:{color:'var(--purple)',icon:'ti-users'},
-  Other:{color:'var(--text3)',icon:'ti-dots'}
+  Income:{tone:'income',icon:'ti-trending-up'},
+  Loan:{tone:'danger',icon:'ti-building-bank'},
+  Payment:{tone:'danger',icon:'ti-receipt'},
+  Subscription:{tone:'purple',icon:'ti-refresh'},
+  Housing:{tone:'blue',icon:'ti-home'},
+  Utilities:{tone:'blue',icon:'ti-bolt'},
+  Food:{tone:'yellow',icon:'ti-tools-kitchen-2'},
+  Transport:{tone:'yellow',icon:'ti-car'},
+  Entertainment:{tone:'yellow',icon:'ti-device-tv'},
+  Business:{tone:'income',icon:'ti-briefcase'},
+  Health:{tone:'danger',icon:'ti-heart'},
+  Family:{tone:'purple',icon:'ti-users'},
+  Other:{tone:'neutral',icon:'ti-dots'}
 };
 function cashflowCategoryBadge(cat){
   if(!cat)return'<span style="color:var(--text3)">—</span>';
-  const style=CASHFLOW_CATEGORY_STYLE[cat]||{color:'var(--text3)',icon:'ti-tag'};
-  return`<span style="display:inline-flex;align-items:center;gap:4px;color:${style.color};font-size:var(--text-xs);font-weight:600"><i class="ti ${style.icon}" style="font-size:11px"></i>${cat}</span>`;
+  const style=CASHFLOW_CATEGORY_STYLE[cat]||{tone:'neutral',icon:'ti-tag'};
+  return`<span class="cashflow-category-badge tone-${style.tone}"><i class="ti ${style.icon}"></i>${cat}</span>`;
 }
 function renderCashTable(){
   const typeF    = document.getElementById('cf-filter-type')?.value    || 'all';
@@ -27771,7 +27771,7 @@ window.addEventListener('appinstalled', () => {
 })();
 </script>
 
-<link rel="stylesheet" href="ui-coherence-fixes.css?v=20260826-3">
+<link rel="stylesheet" href="ui-coherence-fixes.css?v=20260826-4">
 <link rel="stylesheet" href="today-command-center.css?v=20260826-2">
 <link rel="stylesheet" href="mobile-command-center.css?v=20260826-2">
 <script src="agency-command-centers.js?v=20260823-1"></script>

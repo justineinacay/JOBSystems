@@ -321,6 +321,12 @@ html[data-theme="light"] #view-life.life-command-center{
   --life-text:#181b18;
   --life-muted:#687068;
   --life-dim:#959c95;
+  --life-category-income:#087e69;
+  --life-category-danger:#b4233f;
+  --life-category-purple:#75489b;
+  --life-category-blue:#315f9f;
+  --life-category-yellow:#6a5b00;
+  --life-category-neutral:#4f5750;
 }
 html[data-theme="light"] #view-life.life-command-center .life-add-menu{background:#ffffff!important}
 
@@ -601,8 +607,10 @@ html[data-theme="light"] #view-tasks .workspace-board-stat{border-color:#d9ded9;
 #view-life.life-command-center .life-secondary-nav{
   position:static!important;
   top:auto!important;
-  width:100%!important;
-  background:var(--life-header)!important;
+  width:auto!important;
+  margin-right:var(--life-shell-pad)!important;
+  margin-left:var(--life-shell-pad)!important;
+  background:var(--life-panel)!important;
 }
 #view-life.life-command-center .life-dual-grid{align-items:stretch}
 #view-life.life-command-center .life-dual-grid>.life-panel{height:100%}
@@ -667,6 +675,11 @@ html[data-theme="light"] .side-panel .ni.active:not(.world-ni) .nav-label{color:
     display:grid!important;
     grid-template-columns:minmax(0,1fr) auto!important;
     gap:12px!important;
+  }
+  #view-life.life-command-center .life-primary-nav,
+  #view-life.life-command-center .life-secondary-nav{
+    margin-right:14px!important;
+    margin-left:14px!important;
   }
   #view-life.life-command-center>.vh>#domainTimer-life{grid-column:1/-1;grid-row:2}
   #view-life.life-command-center .life-header-actions{grid-column:2;grid-row:1}
