@@ -1,0 +1,11 @@
+@keyframes bootspin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+@keyframes bootspinrev{from{transform:rotate(0deg)}to{transform:rotate(-360deg)}}
+@keyframes bootfadeout{from{opacity:1;transform:scale(1)}to{opacity:0;transform:scale(1.05)}}
+@keyframes mbara{0%,100%{transform:scaleY(1)}50%{transform:scaleY(2.2)}}
+@keyframes starBreathe{0%,100%{opacity:.5;transform:scale(.9)}50%{opacity:1;transform:scale(1.15)}}
+@keyframes starBreatheScale{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+@keyframes bootWordmarkFade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+@keyframes jelixglow{0%,100%{text-shadow:0 0 20px rgba(0,212,200,.4),0 0 60px rgba(0,212,200,.15)}50%{text-shadow:0 0 40px rgba(0,212,200,.8),0 0 100px rgba(0,212,200,.3),0 0 140px rgba(0,212,200,.1)}}
+@keyframes letterflicker{0%,100%{opacity:1}92%{opacity:1}93%{opacity:.4}94%{opacity:1}96%{opacity:.7}97%{opacity:1}}
+@keyframes scanline{0%{transform:translateY(-100%)}100%{transform:translateY(100vh)}}
+@keyframes bootpulse{0%,100%{opacity:.3}50%{opacity:1}}
