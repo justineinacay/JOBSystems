@@ -506,9 +506,11 @@
   }
 
   window.lifeSetSection=function(section){
+    if(['today','money','health','home','review'].indexOf(section)<0)section='today';
     state.section=section;
     applySection(true);
   };
+  window.setLifeSection=window.lifeSetSection;
 
   window.lifeSetDetail=function(tab){
     if(tab==='billtracker'||tab==='property'){state.section='home';state.home=tab;}

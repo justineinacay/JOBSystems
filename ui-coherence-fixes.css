@@ -321,10 +321,35 @@ html[data-theme="light"] #view-life.life-command-center{
   --life-text:#181b18;
   --life-muted:#687068;
   --life-dim:#959c95;
+  --life-category-income:#087e69;
+  --life-category-danger:#b4233f;
+  --life-category-purple:#75489b;
+  --life-category-blue:#315f9f;
+  --life-category-yellow:#6a5b00;
+  --life-category-neutral:#4f5750;
 }
 html[data-theme="light"] #view-life.life-command-center .life-add-menu{background:#ffffff!important}
 
 @media(max-width:768px){
+  html,body{height:100%!important;overflow:hidden!important}
+  .app{
+    display:block!important;
+    box-sizing:border-box!important;
+    width:100%!important;
+    height:100vh!important;
+    height:100dvh!important;
+    padding-top:calc(env(safe-area-inset-top,0px) + 52px)!important;
+    overflow:hidden!important;
+  }
+  .main{
+    width:100%!important;
+    height:calc(100vh - env(safe-area-inset-top,0px) - 52px)!important;
+    height:calc(100dvh - env(safe-area-inset-top,0px) - 52px)!important;
+    min-height:0!important;
+    max-height:calc(100dvh - env(safe-area-inset-top,0px) - 52px)!important;
+    overflow:hidden!important;
+  }
+  .view.active{height:100%!important;min-height:0!important;max-height:100%!important}
   .desktop-nav-toggle{display:none!important}
   #view-life.life-command-center>.vh{display:flex!important;min-height:88px!important}
 }
@@ -501,7 +526,19 @@ html[data-theme="light"] #view-life.life-command-center .life-add-menu{backgroun
 
 /* Today finance: compact balance summary with a useful chart, not dead space. */
 #view-dashboard .quiet-money-card{min-height:0!important}
+
+#view-tasks .workspace-board-card{border-color:#343a35!important;background:#1c201d!important}
+#view-tasks .workspace-board-card:hover{border-color:#10ad8c!important;box-shadow:0 0 0 1px rgba(16,173,140,.2)!important}
+#view-tasks .workspace-board-card .board-card-stripe{background:#10ad8c!important}
+#view-tasks .workspace-board-progress-label{color:#12c7a1;font-size:20px;font-weight:850}
+#view-tasks .workspace-board-progress{height:100%;border-radius:10px;background:#10ad8c;transition:width .3s}
+#view-tasks .workspace-board-stat{padding:7px 4px;border:1px solid #343a35;border-radius:10px;background:#222723;text-align:center}
+#view-tasks .workspace-board-stat.is-active{border-color:rgba(16,173,140,.28);background:rgba(16,173,140,.1);color:#12c7a1}
+#view-tasks .workspace-board-stat.is-done{border-color:rgba(16,173,140,.2);background:rgba(16,173,140,.07);color:#9bd9c9}
+html[data-theme="light"] #view-tasks .workspace-board-card{border-color:#d9ded9!important;background:#fff!important}
+html[data-theme="light"] #view-tasks .workspace-board-stat{border-color:#d9ded9;background:#f0f3ef}
 #view-dashboard #briefFinances{min-height:0!important;overflow:visible!important}
+#view-dashboard #briefFinances{container:today-money / inline-size}
 #view-dashboard .money-topline{
   align-items:flex-start!important;
   padding:2px 0 14px!important;
@@ -546,6 +583,25 @@ html[data-theme="light"] #view-life.life-command-center .life-add-menu{backgroun
 #view-dashboard .money-chart-head small{color:var(--text4)!important;font-size:9px!important;text-align:right!important}
 #view-dashboard .money-chart{height:104px!important;padding:8px 2px 0!important;border-bottom:0!important}
 #view-dashboard .money-bar{max-width:18px!important}
+#view-dashboard .money-totals strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap!important;font-variant-numeric:tabular-nums}
+
+@container today-money (min-width:401px) and (max-width:620px){
+  #view-dashboard .money-core{
+    grid-template-columns:minmax(150px,.78fr) minmax(0,1.22fr)!important;
+    gap:10px!important;
+  }
+  #view-dashboard .money-summary-stack{gap:6px!important}
+  #view-dashboard .money-totals{grid-template-columns:1fr!important;gap:6px!important}
+  #view-dashboard .money-totals>div{min-height:46px!important;padding:5px 10px!important;gap:2px!important}
+  #view-dashboard .money-totals span,
+  #view-dashboard .money-totals strong,
+  #view-dashboard .money-totals small{line-height:1!important}
+  #view-dashboard .money-totals strong{font-size:15px!important}
+  #view-dashboard .money-totals small{font-size:8px!important}
+  #view-dashboard .money-note{min-height:32px!important;padding:5px 9px!important;font-size:9px!important}
+  #view-dashboard .money-chart-panel{min-height:0!important;padding:9px 10px 6px!important}
+  #view-dashboard .money-chart{height:96px!important}
+}
 
 /* Calendar: only currently active workspaces appear in filters and legends. */
 #view-calendar .cal-legend-item span{white-space:nowrap!important}
@@ -571,7 +627,7 @@ html[data-theme="light"] #view-life.life-command-center .life-add-menu{backgroun
 /* Life: integrated navigation, title-row timer, and balanced information flow. */
 #view-life.life-command-center>.vh{
   display:grid!important;
-  grid-template-columns:minmax(220px,1fr) minmax(390px,500px) auto!important;
+  grid-template-columns:minmax(0,1fr) minmax(390px,500px) minmax(0,1fr)!important;
   align-items:center!important;
   gap:20px!important;
 }
@@ -584,14 +640,16 @@ html[data-theme="light"] #view-life.life-command-center .life-add-menu{backgroun
 #view-life.life-command-center>.vh>#domainTimer-life .agency-timer-card{
   width:100%!important;
   max-width:500px!important;
-  margin:0!important;
+  margin:0 auto!important;
 }
 #view-life.life-command-center .life-primary-nav,
 #view-life.life-command-center .life-secondary-nav{
   position:static!important;
   top:auto!important;
-  width:100%!important;
-  background:var(--life-header)!important;
+  width:auto!important;
+  margin-right:var(--life-shell-pad)!important;
+  margin-left:var(--life-shell-pad)!important;
+  background:var(--life-panel)!important;
 }
 #view-life.life-command-center .life-dual-grid{align-items:stretch}
 #view-life.life-command-center .life-dual-grid>.life-panel{height:100%}
@@ -647,7 +705,7 @@ html[data-theme="light"] .side-panel .ni.active:not(.world-ni) .nav-label{color:
 
 @media(max-width:1180px) and (min-width:769px){
   #view-life.life-command-center>.vh{
-    grid-template-columns:minmax(190px,1fr) minmax(340px,440px) auto!important;
+    grid-template-columns:minmax(0,1fr) minmax(340px,440px) minmax(0,1fr)!important;
     gap:14px!important;
   }
 }
@@ -657,10 +715,77 @@ html[data-theme="light"] .side-panel .ni.active:not(.world-ni) .nav-label{color:
     grid-template-columns:minmax(0,1fr) auto!important;
     gap:12px!important;
   }
+  #view-life.life-command-center .life-primary-nav,
+  #view-life.life-command-center .life-secondary-nav{
+    margin-right:14px!important;
+    margin-left:14px!important;
+  }
   #view-life.life-command-center>.vh>#domainTimer-life{grid-column:1/-1;grid-row:2}
   #view-life.life-command-center .life-header-actions{grid-column:2;grid-row:1}
   #view-life.life-command-center .life-wellbeing-panel .life-wellbeing-grid{grid-template-columns:1fr 1fr}
   #view-dashboard #briefToDo{max-height:320px!important}
   #view-dashboard .money-core{grid-template-columns:1fr!important}
   #view-dashboard .money-chart-panel{min-height:128px!important}
+}
+
+/* Compact desktop resilience: keep the desktop shell, but let every workspace
+   adapt before the mobile breakpoint instead of overflowing between 769–900px. */
+@media(min-width:769px) and (max-width:900px){
+  html,body{max-width:100%;overflow-x:hidden!important}
+  .topbar{min-width:0!important;overflow:hidden!important;gap:10px!important}
+  .topbar>div:first-child{min-width:0!important}
+  .topbar .tb-r{min-width:0!important;flex-shrink:1!important;gap:6px!important}
+  .topbar .mobile-only-btn{display:none!important}
+  #desktopSearchBar{width:40px!important;min-width:40px!important;padding:9px!important;justify-content:center!important}
+  #desktopSearchBar>span{display:none!important}
+  #dataTicker .header-date,
+  #dataTicker .header-weather{display:none!important}
+  .topbar .sync-badge{width:40px!important;min-width:40px!important;padding:9px!important;justify-content:center!important}
+  .topbar .sync-badge span,
+  #topNotifSummary{display:none!important}
+  #topNotifBtn{width:40px!important;height:40px!important;padding:0!important;justify-content:center!important}
+
+  #view-tasks .board-toolbar{
+    grid-template-columns:minmax(0,1fr)!important;
+    min-width:0!important;
+    overflow:hidden!important;
+  }
+  #view-tasks .board-toolbar>div,
+  #view-tasks #smartViewRow,
+  #view-tasks #taskFilterRow{box-sizing:border-box!important;width:100%!important;min-width:0!important;max-width:100%!important}
+  #view-tasks .board-toolbar>div:nth-child(2){flex-wrap:wrap!important}
+  #view-tasks #taskSearchWrap{order:2;flex:1 1 220px!important;min-width:160px!important}
+  #view-tasks #smartViewRow,
+  #view-tasks #taskFilterRow{overflow-x:auto!important;overflow-y:hidden!important;flex-wrap:nowrap!important;scrollbar-width:none!important}
+  #view-tasks #smartViewRow::-webkit-scrollbar,
+  #view-tasks #taskFilterRow::-webkit-scrollbar{display:none}
+
+  #view-calendar .cal-toolbar{height:auto!important;min-height:0!important;min-width:0!important;overflow:hidden!important}
+  #view-calendar #calToolbarRow1{width:100%!important;min-width:0!important;overflow:visible!important;flex-wrap:nowrap!important}
+  #view-calendar .cal-toolbar .cal-view-tabs{display:none!important}
+  #view-calendar .cal-toolbar>div:nth-child(2){display:block!important}
+  #view-calendar .cal-toolbar>div:nth-child(2)>div{width:100%;overflow-x:auto;scrollbar-width:none}
+  #view-calendar .cal-toolbar>div:nth-child(2)>div::-webkit-scrollbar{display:none}
+  #view-calendar .cal-toolbar>div:nth-child(2) .cal-vt{flex:1 0 auto!important}
+  #view-calendar .cal-body{grid-template-columns:minmax(0,1fr)!important}
+  #view-calendar .cal-sidebar{display:none!important}
+  #view-calendar .cal-main{width:100%!important;min-width:0!important}
+
+  #view-review .os-review-grid{grid-template-columns:1fr 1fr!important;gap:12px!important}
+  #view-review .os-review-stat:last-child{grid-column:1/-1}
+  #view-review .os-review-reset{grid-template-columns:40px minmax(0,1fr)!important;padding:20px!important;gap:14px!important}
+  #view-review .os-review-reset-marker{width:40px!important;height:40px!important}
+  #view-review .os-review-actions{grid-column:1/-1!important;justify-content:flex-start!important}
+  #view-review .os-review-side-stack{grid-template-columns:1fr!important}
+
+  #view-life.life-command-center .life-primary-nav,
+  #view-life.life-command-center .life-secondary-nav{display:flex!important}
+  #view-life.life-command-center .life-primary-nav button,
+  #view-life.life-command-center .life-secondary-nav button{flex:0 0 auto!important;padding-left:8px!important;padding-right:8px!important;font-size:11px!important}
+}
+
+@media(min-width:769px) and (max-width:1199px){
+  #view-life.life-command-center>.vh{grid-template-columns:minmax(0,1fr) auto!important;gap:12px 16px!important}
+  #view-life.life-command-center>.vh>#domainTimer-life{grid-column:1/-1;grid-row:2;width:min(500px,100%)!important;justify-self:center}
+  #view-life.life-command-center .life-header-actions{grid-column:2;grid-row:1}
 }

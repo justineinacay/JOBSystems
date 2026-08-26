@@ -13,6 +13,12 @@
   --life-red:#ff5d78;
   --life-yellow:#f9f871;
   --life-blue:#72a7ff;
+  --life-category-income:#4bd7b0;
+  --life-category-danger:#ff8297;
+  --life-category-purple:#d2a7ef;
+  --life-category-blue:#8eb7ff;
+  --life-category-yellow:#f2df62;
+  --life-category-neutral:#b5bdb6;
   --life-shell-pad:clamp(22px,2.6vw,42px);
   --life-shell-edge:max(var(--life-shell-pad),calc((100% - 1580px)/2 + var(--life-shell-pad)));
   box-sizing:border-box;
@@ -40,7 +46,7 @@
 
 #view-life.life-command-center>.vh{
   display:grid!important;
-  grid-template-columns:minmax(220px,1fr) minmax(390px,500px) auto;
+  grid-template-columns:minmax(0,1fr) minmax(390px,500px) minmax(0,1fr);
   align-items:center;
   gap:20px;
   width:100%;
@@ -236,14 +242,18 @@
   position:static;
   z-index:90;
   top:0;
-  display:flex;
+  display:grid;
+  grid-template-columns:repeat(5,minmax(0,1fr));
   align-items:center;
-  gap:4px;
-  min-height:58px;
-  padding:8px var(--life-shell-edge);
+  gap:6px;
+  width:auto;
+  min-height:48px;
+  margin:18px var(--life-shell-pad) 0;
+  padding:6px;
   overflow-x:auto;
-  border-bottom:1px solid var(--life-border);
-  background:var(--life-header);
+  border:1px solid var(--life-border);
+  border-radius:14px;
+  background:var(--life-panel);
   scrollbar-width:none;
 }
 #view-life.life-command-center .life-primary-nav::-webkit-scrollbar,
@@ -252,8 +262,9 @@
   position:relative;
   display:inline-flex;
   min-width:max-content;
-  min-height:40px;
+  min-height:36px;
   align-items:center;
+  justify-content:center;
   gap:8px;
   padding:0 14px;
   border:1px solid transparent;
@@ -267,31 +278,28 @@
 #view-life.life-command-center .life-primary-nav button i{font-size:16px}
 #view-life.life-command-center .life-primary-nav button:hover{background:var(--life-panel);color:var(--life-text)}
 #view-life.life-command-center .life-primary-nav button.is-active{
-  border-color:var(--life-border-strong);
+  border-color:var(--life-green);
   background:var(--life-panel-2);
   color:var(--life-text);
+  box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--life-green) 22%,transparent);
 }
 #view-life.life-command-center .life-primary-nav button.is-active i{color:var(--life-green)}
-#view-life.life-command-center .life-primary-nav button.is-active:after{
-  position:absolute;
-  right:13px;
-  bottom:-9px;
-  left:13px;
-  height:2px;
-  border-radius:2px;
-  background:var(--life-green);
-  content:"";
-}
+#view-life.life-command-center .life-primary-nav button.is-active:after{display:none}
 #view-life.life-command-center .life-secondary-nav{
   position:static;
   z-index:85;
-  top:58px;
-  display:flex;
+  top:48px;
+  display:grid;
+  grid-auto-columns:minmax(96px,1fr);
+  grid-auto-flow:column;
   gap:5px;
-  padding:8px var(--life-shell-edge);
+  width:auto;
+  margin:8px var(--life-shell-pad) 0;
+  padding:5px;
   overflow-x:auto;
-  border-bottom:1px solid var(--life-border);
-  background:var(--life-header);
+  border:1px solid var(--life-border);
+  border-radius:11px;
+  background:var(--life-panel);
   scrollbar-width:none;
 }
 #view-life.life-command-center .life-secondary-nav[hidden]{display:none!important}
@@ -309,6 +317,7 @@
 }
 #view-life.life-command-center .life-secondary-nav button.is-active{
   border-color:var(--life-green);
+  background:var(--life-panel-2);
   color:var(--life-green);
 }
 #view-life.life-command-center .life-legacy-tabs{display:none!important}
@@ -793,7 +802,35 @@
   box-shadow:none!important;
 }
 #view-life.life-command-center #cashFilterRow button{width:auto!important;min-width:112px}
+#view-life.life-command-center .cashflow-category-badge{
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  color:var(--life-category-neutral)!important;
+  font-size:var(--text-xs);
+  font-weight:650;
+  white-space:nowrap;
+}
+#view-life.life-command-center .cashflow-category-badge i{font-size:11px}
+#view-life.life-command-center .cashflow-category-badge.tone-income{color:var(--life-category-income)!important}
+#view-life.life-command-center .cashflow-category-badge.tone-danger{color:var(--life-category-danger)!important}
+#view-life.life-command-center .cashflow-category-badge.tone-purple{color:var(--life-category-purple)!important}
+#view-life.life-command-center .cashflow-category-badge.tone-blue{color:var(--life-category-blue)!important}
+#view-life.life-command-center .cashflow-category-badge.tone-yellow{color:var(--life-category-yellow)!important}
+#view-life.life-command-center .cash-table-scroll{
+  width:100%;
+  max-width:100%;
+  overflow-x:auto;
+  overflow-y:hidden;
+  border-radius:16px;
+  overscroll-behavior-x:contain;
+  scrollbar-width:thin;
+  scrollbar-color:var(--life-border-strong) transparent;
+}
+#view-life.life-command-center .cash-table-scroll:focus-visible{outline:2px solid var(--life-green);outline-offset:3px}
 #view-life.life-command-center #cashTransactionTable{
+  width:100%;
+  min-width:720px;
   overflow:hidden;
   border:1px solid var(--life-border);
   border-radius:16px;
@@ -931,7 +968,8 @@
 }
 
 @media(max-width:760px){
-  #view-life.life-command-center>.vh{min-height:82px!important;padding:16px!important;gap:12px!important;flex-wrap:nowrap!important}
+  #view-life.life-command-center>.vh{grid-template-columns:minmax(0,1fr) auto!important;min-height:82px!important;padding:14px 16px!important;gap:10px 12px!important}
+  #view-life.life-command-center #domainTimer-life{grid-column:1/-1;grid-row:2;width:min(500px,100%);justify-self:center}
   #view-life.life-command-center .vt{font-size:21px!important}
   #view-life.life-command-center .vs{font-size:10px!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:54vw}
   #view-life.life-command-center .life-review-button span{display:none}
@@ -944,9 +982,9 @@
   #view-life.life-command-center #domainTimer-life .agency-timer-toggle span{display:none}
   #view-life.life-command-center #domainTimer-life .agency-timer-toggle{min-width:36px;width:36px;padding:0}
   #view-life.life-command-center #domainTimer-life .agency-timer-reset{display:none}
-  #view-life.life-command-center .life-primary-nav{padding:7px 14px}
-  #view-life.life-command-center .life-primary-nav button{min-height:38px;padding:0 12px}
-  #view-life.life-command-center .life-secondary-nav{padding:7px 14px}
+  #view-life.life-command-center .life-primary-nav{display:flex;min-height:46px;margin:10px 14px 0;padding:4px}
+  #view-life.life-command-center .life-primary-nav button{flex:0 0 auto;min-height:34px;padding:0 11px}
+  #view-life.life-command-center .life-secondary-nav{display:flex;margin:6px 14px 0;padding:4px}
   #view-life.life-command-center .life-content{padding:16px 14px 100px!important}
   #view-life.life-command-center .life-focus-card{align-items:flex-start;flex-direction:column;gap:18px;padding:20px}
   #view-life.life-command-center .life-focus-card h1{font-size:24px}
@@ -992,6 +1030,7 @@
   #view-life.life-command-center .life-review-loop{grid-template-columns:28px minmax(0,1fr) 16px}
   #view-life.life-command-center .life-review-loop em{grid-column:2;justify-self:start}
   #view-life.life-command-center .life-review-loop>i{grid-column:3;grid-row:1/3}
+  #view-life.life-command-center .cash-table-scroll{display:none}
 }
 
 @media(prefers-reduced-motion:reduce){
