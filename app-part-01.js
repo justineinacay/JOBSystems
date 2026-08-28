@@ -121,20 +121,26 @@ async function getAuthSession(){
   return session;
 }
 const JOB_AI_URL='https://ddxkmidantqgnxfxsrrz.supabase.co/functions/v1/job-ai';
+const _jelixDelay=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 async function requestJobAI({message,history='',world='',purpose='dashboard_assistant',system=''}){
   const session=await getAuthSession();
   if(!session?.access_token)return{ok:false,text:'Sign in to use J.E.L.I.X.'};
   try{
-    const res=await fetch(JOB_AI_URL,{method:'POST',headers:{'apikey':SB_KEY,'Authorization':'Bearer '+session.access_token,'Content-Type':'application/json'},body:JSON.stringify({message,history,world,purpose,system})});
+    const requestOptions={method:'POST',headers:{'apikey':SB_KEY,'Authorization':'Bearer '+session.access_token,'Content-Type':'application/json'},body:JSON.stringify({message,history,world,purpose,system})};
+    let res=await fetch(JOB_AI_URL,requestOptions);
+    if([429,502,503,504].includes(res.status)){
+      await _jelixDelay(700);
+      res=await fetch(JOB_AI_URL,requestOptions);
+    }
     const data=await res.json().catch(()=>({}));
     if(!res.ok){
-      const text=res.status===401?'Your J.E.L.I.X. session has expired. Please sign in again.':res.status===502?'J.E.L.I.X. is temporarily unavailable. Please try again once the AI service is restored.':data?.error||'J.E.L.I.X. is unavailable right now.';
-      return{ok:false,text};
+      const text=res.status===401?'Your J.E.L.I.X. session has expired. Please sign in again.':res.status===429?'J.E.L.I.X. is receiving too many requests right now.':res.status>=500?'J.E.L.I.X. cannot reach the secure AI service right now.':data?.error||'J.E.L.I.X. is unavailable right now.';
+      return{ok:false,text,status:res.status,code:data?.code||'AI_REQUEST_FAILED',retryable:[429,502,503,504].includes(res.status),request_id:data?.request_id};
     }
     return{ok:true,text:data?.text||'No response.',request_id:data?.request_id};
   }catch(error){
     console.warn('[J.E.L.I.X.] request failed',error);
-    return{ok:false,text:navigator.onLine===false?'You’re offline. Reconnect and try J.E.L.I.X. again.':'J.E.L.I.X. can’t reach its secure service right now. Please try again in a moment.'};
+    return{ok:false,text:navigator.onLine===false?'You’re offline. Reconnect and try J.E.L.I.X. again.':'J.E.L.I.X. can’t reach its secure service right now.',status:0,code:'NETWORK_ERROR',retryable:true};
   }
 }
 function isSignedIn(){
@@ -732,8 +738,42 @@ function jelixDriveWrite(fileName,content,mimeType,world){return runJelixIntent(
 // later through a server-side action layer.
 // ═══════════════════════════════════════════════════════════════════════════
 async function askJelixAgent(userMessage,world){
-  return requestJobAI({message:userMessage,history:_getRecentChatHistory(8),world:world||'',purpose:'jelix_chat'});
+  const result=await requestJobAI({message:userMessage,history:_getRecentChatHistory(8),world:world||'',purpose:'jelix_chat'});
+  if(result.ok||result.status===401||result.text==='Sign in to use J.E.L.I.X.')return result;
+  return{ok:true,text:_jelixLocalContinuityReply(userMessage,world),degraded:true,service_error:result.code};
 
+}
+function _jelixLocalContinuityReply(userMessage,world){
+  const message=String(userMessage||'').toLowerCase();
+  const context=gatherJelixContext();
+  const worldId=String(world||'').toUpperCase();
+  const worldMatches=item=>!worldId||String(item.world||'').toUpperCase()===worldId;
+  const openTasks=(DB.tasks||[]).filter(item=>item.status!=='Done'&&worldMatches(item));
+  const overdue=openTasks.filter(item=>item.due&&item.due<context.today).sort((a,b)=>String(a.due).localeCompare(String(b.due)));
+  const nextTasks=openTasks.slice().sort((a,b)=>String(a.due||'9999-12-31').localeCompare(String(b.due||'9999-12-31'))).slice(0,3);
+  const todayEvents=(DB.calEvents||[]).filter(item=>item.date===context.today).sort((a,b)=>String(a.time||'99:99').localeCompare(String(b.time||'99:99')));
+  const upcoming=(DB.calEvents||[]).filter(item=>item.date>context.today).sort((a,b)=>String(a.date||'').localeCompare(String(b.date||''))).slice(0,3);
+  const monthTransactions=(DB.cashflow||[]).filter(item=>String(item.date||'').startsWith(context.monthKey));
+  const income=monthTransactions.filter(item=>item.type==='Debit').reduce((sum,item)=>sum+(Number(item.amount)||0),0);
+  const expenses=monthTransactions.filter(item=>item.type==='Credit').reduce((sum,item)=>sum+(Number(item.amount)||0),0);
+  const peso=value=>'₱'+Number(value||0).toLocaleString('en-PH',{minimumFractionDigits:2,maximumFractionDigits:2});
+  const prefix='The secure AI service is temporarily unavailable, but I can still read the dashboard data already on this device.';
+  if(/task|todo|priority|overdue|next action|what.*do/.test(message)){
+    const taskList=nextTasks.length?nextTasks.map(item=>item.title+(item.due?' — '+item.due:'')).join('; '):'No open tasks are currently visible.';
+    return `${prefix} You have ${openTasks.length} open task${openTasks.length===1?'':'s'}${overdue.length?`, including ${overdue.length} overdue`:''}. Next visible items: ${taskList}`;
+  }
+  if(/calendar|schedule|meeting|event|today|tomorrow/.test(message)){
+    const todayList=todayEvents.length?todayEvents.map(item=>(item.time?item.time+' ':'')+item.title).join('; '):'No events are visible for today.';
+    const nextList=upcoming.length?upcoming.map(item=>item.date+' — '+item.title).join('; '):'No later events are currently visible.';
+    return `${prefix} Today: ${todayList} Upcoming: ${nextList}`;
+  }
+  if(/money|finance|expense|income|budget|cash|balance/.test(message)){
+    return `${prefix} For ${context.monthKey}, visible income is ${peso(income)}, visible expenses are ${peso(expenses)}, and the current net is ${peso(income-expenses)}.`;
+  }
+  if(/status|brief|summary|overview|dashboard/.test(message)){
+    return `${prefix} Current snapshot: ${openTasks.length} open task${openTasks.length===1?'':'s'}, ${overdue.length} overdue, ${todayEvents.length} event${todayEvents.length===1?'':'s'} today, and a visible monthly net of ${peso(income-expenses)}.`;
+  }
+  return `${prefix} I can still help with a local task, calendar, finance, or dashboard summary. For drafting, deeper analysis, or general questions, please try again shortly.`;
 }
 // Pulls the last N exchanges from the visible chat thread so follow-up
 // messages ("yes", "break it down", "what about those") resolve against

@@ -91,6 +91,17 @@ const responseText = (payload: Record<string, unknown>) => {
     .trim();
 };
 
+const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+const providerError = (payload: Record<string, unknown> | null) => {
+  const error = payload?.error;
+  if (!error || typeof error !== "object") return { code: "provider_error", type: "provider_error" };
+  const source = error as Record<string, unknown>;
+  return {
+    code: limitText(source.code, 80) || "provider_error",
+    type: limitText(source.type, 80) || "provider_error",
+  };
+};
+
 Deno.serve(async (request) => {
   const origin = allowedOrigin(request);
   if (request.method === "OPTIONS") return new Response("ok", { headers: corsHeaders(origin) });
@@ -134,7 +145,7 @@ Deno.serve(async (request) => {
     `User message:\n${message}`,
   ].filter(Boolean).join("\n\n");
   const requestId = crypto.randomUUID();
-  const openaiResponse = await fetch("https://api.openai.com/v1/responses", {
+  const openaiOptions = {
     method: "POST",
     headers: {
       Authorization: `Bearer ${openaiKey}`,
@@ -142,15 +153,25 @@ Deno.serve(async (request) => {
       "X-Client-Request-Id": requestId,
     },
     body: JSON.stringify({ model, store: false, instructions, input }),
-  });
+  };
+  let openaiResponse = await fetch("https://api.openai.com/v1/responses", openaiOptions);
+  if ([429, 500, 502, 503, 504].includes(openaiResponse.status)) {
+    await delay(650);
+    openaiResponse = await fetch("https://api.openai.com/v1/responses", openaiOptions);
+  }
   const openaiPayload = await readJson(openaiResponse) as Record<string, unknown> | null;
   const text = openaiPayload ? responseText(openaiPayload) : "";
+  const safeProviderError = providerError(openaiPayload);
   const logUrl = `${supabaseUrl}/rest/v1/ai_requests`;
   await fetch(logUrl, {
     method: "POST",
     headers: { apikey: anonKey, Authorization: `Bearer ${token}`, "Content-Type": "application/json", Prefer: "return=minimal" },
     body: JSON.stringify({ user_id: userId, request_id: requestId, purpose, input_chars: input.length, output_chars: text.length, ok: openaiResponse.ok }),
   }).catch(() => undefined);
-  if (!openaiResponse.ok) return json({ error: "The AI service could not complete that request." }, 502, origin);
+  if (!openaiResponse.ok) {
+    console.error(JSON.stringify({ request_id: requestId, provider_status: openaiResponse.status, provider_code: safeProviderError.code, provider_type: safeProviderError.type, model }));
+    const status = openaiResponse.status === 429 ? 429 : 502;
+    return json({ error: "The AI service could not complete that request.", code: safeProviderError.code, retryable: [429, 500, 502, 503, 504].includes(openaiResponse.status), request_id: requestId }, status, origin);
+  }
   return json({ ok: true, text: text || "I couldn't produce a response for that yet.", request_id: requestId }, 200, origin);
 });
