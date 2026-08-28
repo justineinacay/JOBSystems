@@ -244,6 +244,7 @@ function syncTombstoneKeys(table,record){
   const keys=[];
   if(record.id!=null)keys.push(prefix+':id:'+String(record.id));
   if(record.google_task_id)keys.push('tasks:google:'+String(record.google_task_id));
+  if(record.gmail_message_id)keys.push('tasks:gmail:'+String(record.gmail_message_id));
   if(record.google_event_id)keys.push('cal_events:google:'+String(record.google_event_id));
   return keys;
 }
@@ -263,7 +264,7 @@ async function persistSyncDeletion(table,record){
   if(!uid||!id)return;
   const entity=table==='cal_events'?'cal_events':'tasks';
   try{
-    await sbFetch('sync_tombstones','POST',{id,user_id:uid,entity_type:entity,record_id:record.id,google_id:cloudSyncGoogleId(entity,record),active:true,deleted_at:new Date().toISOString(),cleared_at:null});
+    await sbFetch('sync_tombstones','POST',{id,user_id:uid,entity_type:entity,record_id:record.id,google_id:cloudSyncGoogleId(entity,record),gmail_message_id:entity==='tasks'?(record.gmail_message_id||null):null,active:true,deleted_at:new Date().toISOString(),cleared_at:null});
   }catch(error){console.warn('[Sync] Could not persist deletion marker',error);}
 }
 async function removePersistedSyncDeletion(table,record){
@@ -275,7 +276,7 @@ function rememberSyncDeletion(table,record,persist=true){
   const tombstones=readSyncTombstones();
   keys.forEach(key=>{tombstones[key]=Date.now();});
   localStorage.setItem(SYNC_TOMBSTONE_KEY,JSON.stringify(tombstones));
-  if(persist)persistSyncDeletion(table,record);
+  if(persist)return persistSyncDeletion(table,record);
 }
 function isSyncTombstoned(table,record){
   const tombstones=readSyncTombstones();
@@ -285,11 +286,14 @@ function clearSyncTombstone(table,record,persist=true){
   const tombstones=readSyncTombstones();let changed=false;
   syncTombstoneKeys(table,record).forEach(key=>{if(tombstones[key]){delete tombstones[key];changed=true;}});
   if(changed)localStorage.setItem(SYNC_TOMBSTONE_KEY,JSON.stringify(tombstones));
-  if(persist)removePersistedSyncDeletion(table,record);
+  if(persist)return removePersistedSyncDeletion(table,record);
 }
 function recordFromCloudSyncTombstone(row){
   const record={id:row.record_id};
-  if(row.entity_type==='tasks')record.google_task_id=row.google_id||null;
+  if(row.entity_type==='tasks'){
+    record.google_task_id=row.google_id||null;
+    record.gmail_message_id=row.gmail_message_id||null;
+  }
   if(row.entity_type==='cal_events')record.google_event_id=row.google_id||null;
   return record;
 }
@@ -298,6 +302,7 @@ function removeSyncDeletedRecordLocally(entity,record){
   DB[key]=(DB[key]||[]).filter(item=>{
     if(String(item.id)===String(record.id))return false;
     if(record.google_task_id&&item.google_task_id===record.google_task_id)return false;
+    if(record.gmail_message_id&&item.gmail_message_id===record.gmail_message_id)return false;
     if(record.google_event_id&&item.google_event_id===record.google_event_id)return false;
     return true;
   });
@@ -337,7 +342,7 @@ const SB={
         rows=rows.filter(row=>!isSyncTombstoned(table,row));
         stale.forEach(row=>sbFetch(table,'DELETE',null,`id=eq.${row.id}`).catch(()=>{}));
       }
-      if(rows&&rows.length){
+      if(rows&&((table==='tasks'||table==='cal_events')||rows.length)){
         if(table==='cashflow')DB[key]=rows.map(r=>({...r,desc:r.description||r.desc||''}));
         else if(table==='saved_links')DB[key]=rows.map(r=>({...r,previewImage:r.preview_image,worldId:r.world_id,projectId:r.project_id}));
         else if(table==='item_links')DB[key]=rows.map(r=>({...r,fromType:r.from_type,fromId:r.from_id,toType:r.to_type,toId:r.to_id}));
@@ -351,7 +356,6 @@ const SB={
     }
   },
   async upsert(table,row,key){
-    if(table==='tasks'||table==='cal_events')clearSyncTombstone(table,row);
     let r=this._sanitizeDates(row);
     if(table==='cashflow'){r.description=row.desc;delete r.desc;delete r._fromAccount;delete r._toAccount;delete r._runBal;}
     if(table==='cal_events'){r.recur_exceptions=row.recurExceptions||{};delete r.recurExceptions;delete r._expandedDate;delete r._recurring;delete r._taskId;delete r._isTask;delete r._billId;delete r._isBill;}
@@ -427,7 +431,7 @@ const SB={
     if(table==='cal_events'){const full=(DB[key]||[]).find(x=>x.id===id);if(full)_pushCalEventToGoogle(full);}
   },
   async remove(table,id,key){
-    let googleId=null,googleListId=null,record=null;
+    let googleId=null,googleListId=null,gmailId=null,record=null;
     if(table==='tasks'||table==='cal_events'){
       try{
         const prev=JSON.parse(localStorage.getItem('j-'+key)||'[]');
@@ -435,7 +439,8 @@ const SB={
         if(record){
           googleId=table==='tasks'?record.google_task_id:record.google_event_id;
           if(table==='tasks')googleListId=record.google_task_list_id;
-          rememberSyncDeletion(table,record);
+          if(table==='tasks')gmailId=record.gmail_message_id;
+          await rememberSyncDeletion(table,record);
         }
       }catch(e){}
     }
@@ -444,6 +449,7 @@ const SB={
       if(table==='tasks')_deleteGoogleTaskFor({google_task_id:googleId,google_task_list_id:googleListId});
       if(table==='cal_events')_deleteGoogleCalEventFor({google_event_id:googleId});
     }
+    if(gmailId)archiveAndUnstarGmailMessage(gmailId).catch(error=>console.warn('[Gmail sync] Could not archive deleted task source',error));
     try{
       await sbFetch(table,'DELETE',null,`id=eq.${id}`);
     }catch(err){

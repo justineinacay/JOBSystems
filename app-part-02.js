@@ -1202,7 +1202,13 @@ async function archiveAndUnstarGmailMessage(messageId){
     return{ok:false,error:e.message};
   }
 }
-async function pullStarredGmailTasks(){
+let _starredGmailPullPromise=null;
+function pullStarredGmailTasks(){
+  if(_starredGmailPullPromise)return _starredGmailPullPromise;
+  _starredGmailPullPromise=_pullStarredGmailTasksOnce().finally(()=>{_starredGmailPullPromise=null;});
+  return _starredGmailPullPromise;
+}
+async function _pullStarredGmailTasksOnce(){
   if(!isGoogleWorkspaceConnected())return;
   const r=await fetchStarredGmailMessages(20);
   if(!r.ok){_markGoogleSyncError('Gmail',r.error);return;}
@@ -1210,6 +1216,10 @@ async function pullStarredGmailTasks(){
   if(!uid)return;
   let changed=false;
   for(const msg of r.messages){
+    if(isSyncTombstoned('tasks',{gmail_message_id:msg.id})){
+      archiveAndUnstarGmailMessage(msg.id).catch(()=>{});
+      continue;
+    }
     if(DB.tasks.some(t=>t.gmail_message_id===msg.id))continue;
     const fromName=(msg.from.match(/^([^<]+)/)||[])[1]?.trim()||msg.from;
     const task={id:Date.now()+Math.floor(Math.random()*1000),title:msg.subject,world:'LIFE',priority:'Medium',
@@ -2423,7 +2433,7 @@ function _viewToWorld(v){
   return m[v]||'LIFE';
 }
 function showUndoToast(label,hid){showToast('Deleted: '+label.substring(0,40),true,()=>restoreFromHistory(hid));}
-function restoreFromHistory(hid){
+async function restoreFromHistory(hid){
   const e=DB.history.find(h=>h.id===hid);if(!e||e.type!=='delete')return;
   const snap=e.data;
   const key=snap._dbKey;
@@ -2437,7 +2447,8 @@ function restoreFromHistory(hid){
     DB[key].unshift(restored);
     save(key);
     const sbTable=key==='calEvents'?'cal_events':key;
-    SB.upsert(sbTable,restored,key);
+    if(sbTable==='tasks'||sbTable==='cal_events')await clearSyncTombstone(sbTable,restored);
+    await SB.upsert(sbTable,restored,key);
   }
   // Targeted re-render — only update the affected view, not everything
   const viewMap={tasks:renderTasks,clients:renderWorkIH,venture:renderVenture,faith:renderFaith,cashflow:renderLife,calEvents:renderCalendar,captures:()=>{},beliefs:()=>{},decisions:()=>{},notes:renderNotesList,sides:renderSides,officers:renderOfficers,faithTopics:renderFaithTopics,memories:renderMemory};
