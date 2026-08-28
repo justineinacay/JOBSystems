@@ -2064,8 +2064,9 @@ function applyTheme(theme){
   document.documentElement.dataset.theme=next;
   localStorage.setItem('j-theme',next);
   const meta=document.querySelector('meta[name="theme-color"]');if(meta)meta.content=next==='dark'?'#111311':'#F5F5F3';
-  const icon=document.getElementById('navThemeToggleIcon'),button=document.getElementById('navThemeToggleBtn');
+  const icon=document.getElementById('navThemeToggleIcon'),button=document.getElementById('navThemeToggleBtn'),labelText=document.getElementById('navThemeToggleLabel');
   if(icon)icon.className=next==='dark'?'ti ti-sun':'ti ti-moon';
+  if(labelText)labelText.textContent=next==='dark'?'Light':'Dark';
   if(button){const label=next==='dark'?'Switch to light mode':'Switch to dark mode';button.title=label;button.setAttribute('aria-label',label);}
 }
 function toggleTheme(){

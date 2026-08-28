@@ -18,6 +18,10 @@ application does not require a framework, package installation, or build step.
 - `app-jelix-01.css` and `app-jelix-02.css` contain J.E.L.I.X. interface styles.
 - `app-dark-theme.css` contains the final dark product theme.
 - `app-job-command-center.css` contains Job Collectives command-center styles.
+- `workspace-layout.css` contains the shared full-width gutters, page alignment,
+  and nested Tasks scrolling used across dashboards and workspaces.
+- `ui-depth-system.css` contains the shared layered surface, elevation, active
+  control, inset work-area, and dark/light depth tokens.
 - Existing workspace and responsive styles remain in their dedicated files.
 
 ## Core runtime

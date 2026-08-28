@@ -1547,15 +1547,15 @@ function renderBoardProjectGrouped(tasks){
     updateProjBulkBar();
     return;
   }
-  let html='<div id="projBulkBar"></div><div style="padding:12px;display:flex;flex-direction:column;gap:18px">';
+  let html='<div id="projBulkBar"></div><div class="task-project-stack">';
   worldsPresent.forEach(worldId=>{
     const board=getBoards().find(b=>b.id===worldId)||{name:worldId,color:'var(--text2)'};
     const worldTasks=tasks.filter(t=>t.world===worldId);
     const projects=getProjectsForWorld(worldId);
     const sections=[...projects.map(p=>({id:p.id,name:p.name})),{id:null,name:'Unassigned'}];
-    html+=`<div>
-      <div style="font-size:var(--text-xs);font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:${board.color};margin-bottom:8px">${board.name}</div>
-      <div style="display:flex;gap:10px;overflow-x:auto;padding-bottom:6px">
+    html+=`<div class="task-workspace-section" data-workspace="${worldId}">
+      <div class="task-workspace-heading" style="font-size:var(--text-xs);font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:${board.color};margin-bottom:8px">${board.name}</div>
+      <div class="task-workspace-scroll">
         ${sections.map(sec=>{
           const secTasks=worldTasks.filter(t=>(t.projectId||null)===sec.id);
           // Completion progress only makes sense for a real Project — the
@@ -1567,7 +1567,7 @@ function renderBoardProjectGrouped(tasks){
           const allProjTasks=sec.id?(DB.tasks||[]).filter(t=>t.world===worldId&&t.projectId===sec.id):[];
           const doneCount=allProjTasks.filter(t=>t.status==='Done').length;
           const pct=allProjTasks.length?Math.round(doneCount/allProjTasks.length*100):0;
-          return `<div ondragover="event.preventDefault();this.style.background='var(--hover-tint)'" ondragleave="this.style.background=''" ondrop="handleProjectDrop(event,${sec.id?`'${sec.id}'`:'null'},'${worldId}')" style="min-width:220px;flex:1 1 220px;background:var(--navy2);border:1px solid var(--border);border-radius:12px;overflow:hidden;transition:background .15s">
+          return `<div class="task-project-column" ondragover="event.preventDefault();this.style.background='var(--hover-tint)'" ondragleave="this.style.background=''" ondrop="handleProjectDrop(event,${sec.id?`'${sec.id}'`:'null'},'${worldId}')" style="min-width:220px;flex:1 1 220px;background:var(--navy2);border:1px solid var(--border);border-radius:12px;overflow:hidden;transition:background .15s">
             <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;border-bottom:1px solid var(--border);background:var(--hover-tint)">
               <span style="font-size:var(--text-xs);font-weight:700;color:var(--text2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${sec.name}</span>
               <span style="display:flex;align-items:center;gap:2px;flex-shrink:0">
@@ -1576,7 +1576,7 @@ function renderBoardProjectGrouped(tasks){
               </span>
             </div>
             ${sec.id&&allProjTasks.length?`<div style="height:3px;background:var(--navy3)"><div style="height:100%;width:${pct}%;background:var(--teal);transition:width .2s"></div></div>`:''}
-            <div style="padding:6px;display:flex;flex-direction:column;gap:5px;min-height:64px">
+            <div class="task-project-items" style="padding:6px;display:flex;flex-direction:column;gap:5px;min-height:64px">
               ${secTasks.length?secTasks.map(t=>`<div draggable="true" ondragstart="handleProjectDragStart(event,${t.id})" ondragend="this.style.opacity='1'" onclick="editTask(${t.id})" style="background:var(--navy3);border:1px solid var(--border);border-radius:8px;padding:8px 10px;cursor:grab;display:flex;gap:6px;align-items:flex-start">
                 <input type="checkbox" onclick="event.stopPropagation()" onchange="toggleTaskSelect(${t.id},this.checked)" ${selectedTaskIds.has(t.id)?'checked':''} style="width:auto;accent-color:var(--teal);margin-top:2px;flex-shrink:0">
                 <div style="min-width:0;flex:1">
@@ -1587,7 +1587,7 @@ function renderBoardProjectGrouped(tasks){
             </div>
           </div>`;
         }).join('')}
-        <div style="flex-shrink:0;display:flex;flex-direction:column;gap:6px;align-items:stretch">
+        <div class="task-project-actions" style="flex-shrink:0;display:flex;flex-direction:column;gap:6px;align-items:stretch">
           <button onclick="createProjectFlow('${worldId}')" style="background:transparent;border:1px dashed var(--border2);border-radius:12px;padding:0 16px;color:var(--text3);font-size:var(--text-xs);cursor:pointer;white-space:nowrap;flex:1"><i class="ti ti-plus"></i> New Project</button>
           ${projects.length>1?`<button onclick="mergeProjectsFlow('${worldId}')" style="background:transparent;border:1px dashed var(--border2);border-radius:12px;padding:0 16px;color:var(--text3);font-size:var(--text-xs);cursor:pointer;white-space:nowrap;flex:1"><i class="ti ti-arrows-join"></i> Merge</button>`:''}
         </div>

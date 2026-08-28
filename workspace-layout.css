@@ -1,0 +1,202 @@
+:root{
+  --workspace-gutter:clamp(20px,2.35vw,38px);
+  --workspace-gutter-mobile:clamp(12px,4vw,18px);
+  --workspace-section-gap:18px;
+}
+
+.main>.view{
+  width:100%;
+  max-width:none;
+  min-width:0;
+}
+
+.main>.view>.vh{
+  width:100%;
+  padding-inline:var(--workspace-gutter)!important;
+}
+
+.main>.view>.vb:not([style*="padding:0"]){
+  width:100%;
+  max-width:none!important;
+  padding-inline:var(--workspace-gutter)!important;
+}
+
+#view-dashboard .quiet-dashboard-header,
+#view-dashboard>.vb,
+#view-tasks .task-page-shell,
+#view-calendar .calendar-page-shell,
+#view-review .review-page-shell{
+  width:100%!important;
+  max-width:none!important;
+  margin:0!important;
+  padding-right:var(--workspace-gutter)!important;
+  padding-left:var(--workspace-gutter)!important;
+}
+
+#view-dashboard>.vb{align-self:stretch}
+
+#view-life.life-command-center{--life-shell-edge:var(--workspace-gutter)}
+
+#view-life.life-command-center>.vb{
+  padding-right:var(--workspace-gutter)!important;
+  padding-left:var(--workspace-gutter)!important;
+}
+
+.agency-command .agency-header,
+.agency-command .agency-scroll,
+#view-venture .jc-header,
+#view-venture .jc-scroll{
+  padding-right:var(--workspace-gutter)!important;
+  padding-left:var(--workspace-gutter)!important;
+}
+
+.agency-command .agency-view,
+#view-venture .jc-view-panel{
+  width:100%;
+  max-width:none!important;
+  margin-inline:0!important;
+}
+
+#view-settings>.vb,
+#view-finances .mobile-finance-shell,
+#view-worlds-settings .mobile-workspaces-shell,
+#view-capture .mobile-capture-shell{
+  width:100%!important;
+  max-width:none!important;
+}
+
+/* Tasks has two intentional scroll layers: the complete page and each workspace lane. */
+#view-tasks{
+  overflow-x:hidden!important;
+  overflow-y:auto!important;
+  scrollbar-gutter:stable;
+}
+
+#view-tasks .task-page-shell{
+  height:auto!important;
+  min-height:100%;
+  align-content:start;
+}
+
+#view-tasks .board-shell{
+  flex:0 0 auto!important;
+  min-height:clamp(540px,calc(100dvh - 292px),920px);
+  overflow:visible!important;
+}
+
+#view-tasks #boardBody{
+  flex:0 0 auto!important;
+  width:100%;
+  height:clamp(500px,calc(100dvh - 330px),860px);
+  min-height:500px!important;
+  overflow:auto!important;
+  overscroll-behavior:contain;
+  scrollbar-gutter:stable both-edges;
+}
+
+#view-tasks .task-project-stack{
+  display:flex;
+  min-height:100%;
+  flex-direction:column;
+  gap:var(--workspace-section-gap);
+  padding:12px;
+}
+
+#view-tasks .task-workspace-section{
+  display:flex;
+  min-width:0;
+  min-height:300px;
+  max-height:clamp(390px,56vh,620px);
+  flex-direction:column;
+  padding:12px;
+  overflow:hidden;
+  border:1px solid var(--border);
+  border-radius:14px;
+  background:#1d1d1d;
+}
+
+#view-tasks .task-workspace-heading{
+  margin:0 0 10px!important;
+  flex:0 0 auto;
+}
+
+#view-tasks .task-workspace-scroll{
+  display:flex;
+  min-width:0;
+  min-height:0;
+  flex:1 1 auto;
+  align-items:stretch;
+  gap:10px;
+  padding-bottom:6px;
+  overflow:auto!important;
+  overscroll-behavior:contain;
+  scrollbar-gutter:stable both-edges;
+}
+
+#view-tasks .task-project-column{
+  display:flex;
+  min-width:240px!important;
+  flex:1 0 240px!important;
+  flex-direction:column;
+}
+
+#view-tasks .task-project-items{
+  min-height:80px!important;
+  flex:1 1 auto;
+  overflow-y:auto;
+  overscroll-behavior:contain;
+  scrollbar-gutter:stable;
+}
+
+#view-tasks .task-project-actions{min-width:132px}
+
+#view-tasks #boardBody,
+#view-tasks .task-workspace-scroll,
+#view-tasks .task-project-items{
+  scrollbar-color:#4a4a4a transparent;
+  scrollbar-width:thin;
+}
+
+@media(max-width:1180px){
+  :root{--workspace-gutter:clamp(18px,2.6vw,28px)}
+}
+
+@media(max-width:768px){
+  :root{--workspace-gutter:var(--workspace-gutter-mobile)}
+
+  .main>.view>.vh,
+  .main>.view>.vb:not([style*="padding:0"]),
+  #view-dashboard .quiet-dashboard-header,
+  #view-dashboard>.vb,
+  #view-tasks .task-page-shell,
+  #view-calendar .calendar-page-shell,
+  #view-review .review-page-shell{
+    padding-right:var(--workspace-gutter-mobile)!important;
+    padding-left:var(--workspace-gutter-mobile)!important;
+  }
+
+  #view-tasks .board-shell{min-height:0}
+
+  #view-tasks #boardBody{
+    height:auto;
+    min-height:520px!important;
+  }
+
+  #view-tasks #mobileTaskBar{
+    min-height:min(68dvh,620px);
+    overflow:hidden!important;
+  }
+
+  #view-tasks #mobileTaskContainer{
+    overflow-y:auto!important;
+    overscroll-behavior:contain;
+    scrollbar-gutter:stable;
+  }
+}
+
+@media(max-width:430px){
+  #view-tasks .task-page-shell{
+    padding-right:12px!important;
+    padding-left:12px!important;
+  }
+}
