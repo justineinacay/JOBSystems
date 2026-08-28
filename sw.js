@@ -10,10 +10,42 @@
 // hadn't changed and CACHE_VERSION was never bumped to force a purge. That's
 // what caused an already-fixed bug (the driveLink Supabase column error) to
 // keep reappearing on-device after the source was already correct.
-const CACHE_VERSION = 'jobsystems-v20';
+const CACHE_VERSION = 'jobsystems-v26';
 const APP_SHELL = [
   './',
   './index.html',
+  './app-shell-01.css?v=20260827-1',
+  './app-shell-02.css?v=20260827-1',
+  './app-boot.css?v=20260827-1',
+  './app-jelix-01.css?v=20260827-1',
+  './app-jelix-02.css?v=20260827-1',
+  './app-dark-theme.css?v=20260827-1',
+  './app-job-command-center.css?v=20260827-1',
+  './app-prelude.js?v=20260827-2',
+  './app-part-01.js?v=20260827-1',
+  './app-part-02.js?v=20260828-1',
+  './app-part-03.js?v=20260827-1',
+  './app-part-04.js?v=20260827-1',
+  './app-part-05.js?v=20260827-2',
+  './app-part-06.js?v=20260827-2',
+  './app-part-07.js?v=20260827-1',
+  './pwa-runtime.js?v=20260827-1',
+  './jelix-auto-scheduler.js?v=20260827-1',
+  './ui-runtime.js?v=20260827-1',
+  './mobile-viewport.js?v=20260827-1',
+  './agency-command-centers.css?v=20260823-1',
+  './faith-command-center.css?v=20260824-2',
+  './life-command-center.css?v=20260826-6',
+  './interface-layout-fixes.css?v=20260824-2',
+  './ui-coherence-fixes.css?v=20260826-6',
+  './today-command-center.css?v=20260826-2',
+  './mobile-command-center.css?v=20260826-3',
+  './workspace-layout.css?v=20260827-1',
+  './ui-depth-system.css?v=20260828-3',
+  './agency-command-centers.js?v=20260823-1',
+  './faith-command-center.js?v=20260824-2',
+  './life-command-center.js?v=20260826-2',
+  './mobile-command-center.js?v=20260826-3',
 ];
 const APP_SHELL_PATHS = new Set(APP_SHELL.map((p) => new URL(p, self.location.href).href));
 

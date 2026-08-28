@@ -1,0 +1,1099 @@
+:root{
+  --depth-canvas:#111311;
+  --depth-surface-1:#171a18;
+  --depth-surface-2:#1d211e;
+  --depth-surface-3:#242a25;
+  --depth-inset:#141714;
+  --depth-line:rgba(229,240,231,.11);
+  --depth-line-strong:rgba(229,240,231,.17);
+  --depth-highlight:rgba(255,255,255,.055);
+  --depth-highlight-strong:rgba(255,255,255,.085);
+  --depth-shadow-low:0 3px 8px rgba(0,0,0,.22);
+  --depth-shadow-medium:0 6px 12px rgba(0,0,0,.28);
+  --depth-shadow-high:0 8px 14px rgba(0,0,0,.34);
+  --depth-inset-shadow:inset 0 1px 3px rgba(0,0,0,.34);
+  --depth-raised:inset 0 1px 0 var(--depth-highlight),var(--depth-shadow-low);
+  --depth-raised-medium:inset 0 1px 0 var(--depth-highlight-strong),var(--depth-shadow-medium);
+  --depth-transition:background-color 180ms cubic-bezier(.2,.8,.2,1),border-color 180ms cubic-bezier(.2,.8,.2,1),box-shadow 180ms cubic-bezier(.2,.8,.2,1),transform 180ms cubic-bezier(.2,.8,.2,1);
+}
+
+html[data-theme="light"]{
+  --depth-canvas:#f1f3ef;
+  --depth-surface-1:#f7f8f4;
+  --depth-surface-2:#ffffff;
+  --depth-surface-3:#eaf0ea;
+  --depth-inset:#f3f5f1;
+  --depth-line:rgba(31,53,40,.14);
+  --depth-line-strong:rgba(31,53,40,.23);
+  --depth-highlight:rgba(255,255,255,.92);
+  --depth-highlight-strong:#ffffff;
+  --depth-shadow-low:0 2px 4px rgba(23,42,31,.07),0 8px 18px rgba(23,42,31,.06);
+  --depth-shadow-medium:0 3px 7px rgba(23,42,31,.09),0 14px 30px rgba(23,42,31,.08);
+  --depth-shadow-high:0 8px 18px rgba(23,42,31,.13),0 24px 48px rgba(23,42,31,.10);
+  --depth-inset-shadow:inset 0 1px 3px rgba(23,42,31,.10);
+}
+
+html[data-theme="dark"] body,
+html[data-theme="dark"] .app,
+html[data-theme="dark"] .main,
+html[data-theme="dark"] .main>.view{
+  background:var(--depth-canvas)!important;
+}
+
+html[data-theme="light"] body,
+html[data-theme="light"] .app,
+html[data-theme="light"] .main,
+html[data-theme="light"] .main>.view{
+  background:var(--depth-canvas)!important;
+}
+
+/* Fixed shell surfaces define the first layer without appearing to float. */
+.topbar,
+.topbar::before,
+.sidebar-brand,
+.side-panel,
+#mobileTopBar{
+  background:var(--depth-surface-1)!important;
+  border-color:var(--depth-line)!important;
+  box-shadow:inset 0 -1px 0 rgba(0,0,0,.12)!important;
+}
+
+#desktopSearchBar,
+.sync-badge,
+.top-notif,
+.side-utility-row,
+.voice-space,
+#mobileTopBar .sync-badge-mobile,
+#mobileNotifBtn{
+  background:var(--depth-surface-2)!important;
+  border-color:var(--depth-line)!important;
+  box-shadow:inset 0 1px 0 var(--depth-highlight)!important;
+  transition:var(--depth-transition)!important;
+}
+
+#desktopSearchBar:focus-within,
+.sync-badge:hover,
+.top-notif:hover,
+.side-utility-row:hover,
+.voice-space:hover{
+  background:var(--depth-surface-3)!important;
+  border-color:var(--depth-line-strong)!important;
+}
+
+.side-panel .ni{
+  transition:var(--depth-transition)!important;
+}
+
+.side-panel .ni:hover{
+  background:var(--depth-surface-2)!important;
+  border-color:var(--depth-line)!important;
+  box-shadow:inset 0 1px 0 var(--depth-highlight)!important;
+}
+
+.side-panel .ni.active{
+  background:var(--depth-surface-3)!important;
+  border-color:rgba(16,163,127,.48)!important;
+  box-shadow:inset 0 1px 0 var(--depth-highlight-strong),0 3px 8px rgba(0,0,0,.22)!important;
+}
+
+/* Primary command controls sit above supporting controls. */
+.btn-t,
+.btn-o,
+.btn-primary,
+.today-add-btn,
+.quiet-add-task,
+.calendar-page-add,
+.task-page-add,
+.review-page-complete,
+.agency-primary-button,
+.jc-primary-button,
+.life-add-button,
+.mobile-primary-button,
+.mobile-finance-add{
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 3px 8px rgba(0,0,0,.24)!important;
+  transition:var(--depth-transition)!important;
+}
+
+.btn-t:hover,
+.btn-o:hover,
+.btn-primary:hover,
+.today-add-btn:hover,
+.quiet-add-task:hover,
+.calendar-page-add:hover,
+.task-page-add:hover,
+.review-page-complete:hover,
+.agency-primary-button:hover,
+.jc-primary-button:hover,
+.life-add-button:hover,
+.mobile-primary-button:hover,
+.mobile-finance-add:hover{
+  transform:translateY(-1px);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.22),0 5px 8px rgba(0,0,0,.28)!important;
+}
+
+.btn-t:active,
+.btn-o:active,
+.btn-primary:active,
+.today-add-btn:active,
+.quiet-add-task:active,
+.calendar-page-add:active,
+.task-page-add:active,
+.review-page-complete:active,
+.agency-primary-button:active,
+.jc-primary-button:active,
+.life-add-button:active,
+.mobile-primary-button:active,
+.mobile-finance-add:active{
+  transform:translateY(1px)!important;
+  box-shadow:inset 0 2px 4px rgba(0,0,0,.2)!important;
+}
+
+/* Top-level cards use one consistent elevation step. */
+#view-dashboard .today-focus,
+#view-dashboard #briefMainRow>.bd-block,
+#view-dashboard .dashboard-upcoming,
+#view-dashboard .today-daily-brief,
+#view-review .os-review-stat,
+#view-review .os-review-reset,
+#view-review .os-review-panel,
+#view-settings .hc,
+.mobile-capture-composer,
+.mobile-recent-captures,
+.mobile-balance-card,
+.mobile-finance-section,
+.mobile-workspace-card,
+.mobile-tool-list,
+.mobile-tool-grid button,
+.life-panel,
+.life-focus-card,
+.life-metric-card,
+.life-review-hero,
+.life-review-summary-card,
+.jc-card,
+.jc-metric-card,
+.jc-attention-card,
+.agency-card,
+.agency-metric,
+.agency-detail-card{
+  background-color:var(--depth-surface-2)!important;
+  border-color:var(--depth-line)!important;
+  box-shadow:var(--depth-raised)!important;
+}
+
+/* Focus and reset callouts carry the strongest content elevation. */
+#view-dashboard .today-focus,
+#view-review .os-review-reset,
+.life-focus-card,
+.life-review-hero,
+.jc-attention-card{
+  background-color:var(--depth-surface-3)!important;
+  border-color:var(--depth-line-strong)!important;
+  box-shadow:var(--depth-raised-medium)!important;
+}
+
+/* Toolbars and workspace headers are raised controls, not content cards. */
+#view-tasks .board-toolbar,
+#view-calendar .cal-toolbar,
+.life-primary-nav,
+.life-secondary-nav,
+.life-command-center>.life-header,
+.jc-header,
+.agency-header,
+.agency-timer-card,
+.jc-timer-card{
+  background-color:var(--depth-surface-2)!important;
+  border-color:var(--depth-line)!important;
+  box-shadow:inset 0 1px 0 var(--depth-highlight),0 3px 8px rgba(0,0,0,.18)!important;
+}
+
+/* Work areas recede so their children remain easy to scan. */
+#view-tasks .board-shell,
+#view-tasks #boardBody,
+#view-tasks .task-workspace-scroll,
+#view-tasks .task-project-items,
+#view-calendar .cal-body,
+#view-calendar .cal-main,
+#view-calendar .cal-sidebar,
+#view-dashboard .money-chart-panel,
+#view-dashboard .money-note,
+.life-chart-panel,
+.life-mini-list,
+.life-action-list,
+.jc-pipeline-column,
+.agency-pipeline-column,
+.agency-table-wrap{
+  background-color:var(--depth-inset)!important;
+  border-color:var(--depth-line)!important;
+  box-shadow:var(--depth-inset-shadow)!important;
+}
+
+#view-tasks .task-workspace-section,
+#view-tasks .task-project-column{
+  background-color:var(--depth-surface-2)!important;
+  border-color:var(--depth-line)!important;
+  box-shadow:var(--depth-raised)!important;
+}
+
+#view-tasks .task-project-column:hover,
+.mobile-workspace-card:hover,
+.life-metric-card:hover,
+.jc-metric-card:hover,
+.agency-metric:hover{
+  border-color:var(--depth-line-strong)!important;
+  box-shadow:inset 0 1px 0 var(--depth-highlight-strong),0 5px 8px rgba(0,0,0,.24)!important;
+  transform:translateY(-1px);
+}
+
+/* Selected controls use a lighter layer plus an inner highlight. */
+.bvt.active,
+.cal-vt.active,
+.life-primary-nav button.active,
+.life-secondary-nav button.active,
+.life-primary-nav .active,
+.life-secondary-nav .active,
+.agency-command [aria-selected="true"],
+.jc-shell [aria-selected="true"],
+.smart-view-pill.active,
+.mobile-capture-types button.active{
+  background-color:var(--depth-surface-3)!important;
+  border-color:rgba(16,163,127,.58)!important;
+  box-shadow:inset 0 1px 0 var(--depth-highlight-strong),0 3px 8px rgba(0,0,0,.20)!important;
+}
+
+.filter-chip-sel,
+.board-search,
+.cal-nav-btn,
+.cal-mini-btn,
+.money-range,
+.life-command-center input,
+.life-command-center select,
+.agency-command input,
+.agency-command select,
+.jc-shell input,
+.jc-shell select,
+#view-settings input,
+#view-settings select,
+#view-settings textarea{
+  background-color:var(--depth-surface-2)!important;
+  border-color:var(--depth-line)!important;
+  box-shadow:inset 0 1px 0 var(--depth-highlight)!important;
+}
+
+/* Floating layers are reserved for menus, assistants, and modals. */
+.modal,
+.cal-popover,
+#ctxMenu,
+#calFilterDropdown,
+.agency-action-menu,
+.jc-action-menu,
+.life-add-menu,
+#jelix-drawer,
+.jelix-drawer{
+  background-color:var(--depth-surface-3)!important;
+  border-color:var(--depth-line-strong)!important;
+  box-shadow:inset 0 1px 0 var(--depth-highlight-strong),var(--depth-shadow-high)!important;
+}
+
+.mov{
+  background:rgba(5,8,6,.68)!important;
+  backdrop-filter:blur(8px)!important;
+  -webkit-backdrop-filter:blur(8px)!important;
+}
+
+html[data-theme="light"] .mov{
+  background:rgba(28,44,34,.26)!important;
+}
+
+/* Mobile retains hierarchy while avoiding stacked heavy shadows. */
+.mobile-bottom-nav .mbn-bar{
+  background:var(--depth-surface-2)!important;
+  border-color:var(--depth-line-strong)!important;
+  box-shadow:inset 0 1px 0 var(--depth-highlight-strong),var(--depth-shadow-medium)!important;
+}
+
+.mobile-bottom-nav .mbn-tab.active,
+.mobile-bottom-nav .mbn-center.active{
+  background:var(--depth-surface-3)!important;
+  box-shadow:inset 0 1px 0 var(--depth-highlight-strong),0 3px 8px rgba(0,0,0,.20)!important;
+}
+
+@media(max-width:768px){
+  #view-dashboard .today-focus,
+  #view-review .os-review-reset,
+  .life-focus-card,
+  .life-review-hero{
+    box-shadow:inset 0 1px 0 var(--depth-highlight-strong),0 4px 8px rgba(0,0,0,.24)!important;
+  }
+
+  #view-dashboard #briefMainRow>.bd-block,
+  #view-dashboard .dashboard-upcoming,
+  #view-dashboard .today-daily-brief,
+  #view-review .os-review-stat,
+  #view-review .os-review-panel,
+  .mobile-workspace-card,
+  .mobile-tool-list,
+  .mobile-tool-grid button{
+    box-shadow:inset 0 1px 0 var(--depth-highlight)!important;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Light mode: calm layered command center
+   This final layer intentionally overrides older white-on-white theme rules.
+   -------------------------------------------------------------------------- */
+html[data-theme="light"]{
+  color-scheme:light;
+  --navy:#f1f3ef;
+  --navy2:#ffffff;
+  --navy3:#f5f7f3;
+  --navy4:#e9eee8;
+  --navy5:#dce3dc;
+  --navy-panel:#fbfcfa;
+  --teal:#0f6859;
+  --teal2:#0a4e43;
+  --teal3:#e3f2ed;
+  --teal4:#f0f7f4;
+  --text1:#172019;
+  --text2:#3f4a42;
+  --text3:#626f66;
+  --text4:#7c887f;
+  --border:#d7ded7;
+  --border2:#bdc8be;
+  --hover-tint:#edf2ed;
+  --accent-lime:#69c925;
+  --accent-lime-hover:#54ad18;
+  --accent-lime-soft:#ebf7e1;
+  --card-shadow:var(--depth-raised);
+}
+
+html[data-theme="light"] body,
+html[data-theme="light"] .app,
+html[data-theme="light"] .main,
+html[data-theme="light"] .main>.view,
+html[data-theme="light"] .vh{
+  background:var(--depth-canvas)!important;
+  color:var(--text1)!important;
+}
+
+/* Shell: keep the product identity dark while the working canvas stays light. */
+html[data-theme="light"] .topbar{
+  background:#ffffff!important;
+  border-color:var(--depth-line)!important;
+  box-shadow:inset 0 -1px 0 var(--depth-line),0 2px 10px rgba(23,42,31,.04)!important;
+}
+html[data-theme="light"] .topbar::before,
+html[data-theme="light"] .sidebar-brand,
+html[data-theme="light"] .side-panel{
+  background:#18201d!important;
+  border-color:#2b3530!important;
+}
+html[data-theme="light"] .sidebar-brand{
+  box-shadow:inset 0 -1px 0 rgba(255,255,255,.08)!important;
+}
+html[data-theme="light"] .sidebar-brand-name{color:#f5f7f4!important}
+html[data-theme="light"] .sidebar-brand-name span{color:#aeb8b1!important}
+html[data-theme="light"] .side-panel .ngl{color:#89958d!important}
+html[data-theme="light"] .side-panel .ni{color:#c8d0ca!important;border:1px solid transparent!important}
+html[data-theme="light"] .side-panel .ni:hover{
+  background:#242e29!important;
+  border-color:#35423b!important;
+  color:#ffffff!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.045)!important;
+}
+html[data-theme="light"] .side-panel .ni.active{
+  background:#123d35!important;
+  border-color:#1b7564!important;
+  color:#f4faf7!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 4px 10px rgba(0,0,0,.18)!important;
+}
+html[data-theme="light"] .side-panel .ni.active:not(.world-ni) .nav-label{color:#f4faf7!important}
+html[data-theme="light"] .side-panel .ni.active>i:first-child:not(.nav-more-chevron),
+html[data-theme="light"] .side-panel .ni:hover>i:first-child:not(.nav-more-chevron){
+  background:#1a8b75!important;
+  color:#ffffff!important;
+}
+html[data-theme="light"] .side-utility-row,
+html[data-theme="light"] .voice-space,
+html[data-theme="light"] .side-panel .vsbtn{
+  background:#202925!important;
+  border-color:#36423c!important;
+  color:#d6ddd8!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.05)!important;
+}
+html[data-theme="light"] .side-utility-row .side-utility-item{
+  background:#29332e!important;
+  color:#dce3de!important;
+}
+html[data-theme="light"] #desktopSearchBar,
+html[data-theme="light"] .sync-badge,
+html[data-theme="light"] .top-notif{
+  background:var(--depth-surface-1)!important;
+  border-color:var(--depth-line)!important;
+  color:var(--text2)!important;
+}
+
+/* Essential actions use a deeper, accessible emerald instead of neon lime. */
+html[data-theme="light"] #view-dashboard .quiet-add-task,
+html[data-theme="light"] #view-dashboard .today-focus-action,
+html[data-theme="light"] .calendar-page-add,
+html[data-theme="light"] .task-page-add,
+html[data-theme="light"] .review-page-complete{
+  background:#0f6859!important;
+  border-color:#0f6859!important;
+  color:#ffffff!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.16),0 5px 12px rgba(15,104,89,.22)!important;
+}
+html[data-theme="light"] #view-dashboard .today-focus-action i{color:#d9ff8a!important}
+html[data-theme="light"] #view-dashboard .quiet-add-task:hover,
+html[data-theme="light"] #view-dashboard .today-focus-action:hover,
+html[data-theme="light"] .calendar-page-add:hover,
+html[data-theme="light"] .task-page-add:hover,
+html[data-theme="light"] .review-page-complete:hover{
+  background:#0a5548!important;
+  border-color:#0a5548!important;
+}
+
+/* Today: preserve the approved composition while making each layer distinct. */
+html[data-theme="light"] #view-dashboard{
+  --today-panel:var(--depth-surface-2);
+  --today-panel-soft:var(--depth-surface-1);
+  --today-line:var(--depth-line);
+  --today-muted:#68756b;
+  --today-copy:#3d4940;
+  background:var(--depth-canvas)!important;
+}
+html[data-theme="light"] #view-dashboard .today-focus,
+html[data-theme="light"] #view-dashboard #briefMainRow>.bd-block,
+html[data-theme="light"] #view-dashboard .dashboard-upcoming,
+html[data-theme="light"] #view-dashboard .today-daily-brief{
+  background:var(--depth-surface-2)!important;
+  border-color:var(--depth-line)!important;
+  box-shadow:var(--depth-raised)!important;
+}
+html[data-theme="light"] #view-dashboard .today-focus{
+  box-shadow:inset 0 1px 0 #ffffff,var(--depth-shadow-medium)!important;
+}
+html[data-theme="light"] #view-dashboard .focus-marker{
+  background:#edf8e7!important;
+  border-color:#9dce78!important;
+  color:#4b9b16!important;
+}
+html[data-theme="light"] #view-dashboard .today-kicker,
+html[data-theme="light"] #view-dashboard .today-card-heading>span i,
+html[data-theme="light"] #view-dashboard .quiet-money-card .bd-h>span i,
+html[data-theme="light"] #view-dashboard .today-daily-brief-heading i{
+  color:#4eaa18!important;
+}
+html[data-theme="light"] #view-dashboard .next-action-row:hover,
+html[data-theme="light"] #view-dashboard .upcoming-item:hover{
+  background:var(--depth-surface-1)!important;
+}
+html[data-theme="light"] #view-dashboard .money-chart-panel,
+html[data-theme="light"] #view-dashboard .money-totals>div,
+html[data-theme="light"] #view-dashboard .money-note{
+  background:var(--depth-inset)!important;
+  border-color:var(--depth-line)!important;
+  box-shadow:var(--depth-inset-shadow)!important;
+}
+html[data-theme="light"] #view-dashboard .money-note{color:var(--text2)!important}
+html[data-theme="light"] #view-dashboard .money-note strong{color:#087663!important}
+html[data-theme="light"] #view-dashboard .today-daily-brief-body strong{color:#72570c!important}
+html[data-theme="light"] #view-dashboard .today-daily-brief-body span,
+html[data-theme="light"] #view-dashboard .next-action-copy small,
+html[data-theme="light"] #view-dashboard .next-action-due,
+html[data-theme="light"] #view-dashboard .upcoming-copy small,
+html[data-theme="light"] #view-dashboard .upcoming-copy>span{font-size:12px!important;color:#68756b!important}
+
+/* Tasks, Calendar, and Review use the same four elevation layers. */
+html[data-theme="light"] #view-tasks .board-toolbar,
+html[data-theme="light"] #view-calendar .cal-toolbar,
+html[data-theme="light"] #view-review .os-review-stat,
+html[data-theme="light"] #view-review .os-review-reset,
+html[data-theme="light"] #view-review .os-review-panel{
+  background:var(--depth-surface-2)!important;
+  border-color:var(--depth-line)!important;
+  box-shadow:var(--depth-raised)!important;
+}
+html[data-theme="light"] #view-tasks #boardBody,
+html[data-theme="light"] #view-tasks .board-shell,
+html[data-theme="light"] #view-calendar .cal-body{
+  background:var(--depth-surface-1)!important;
+  border-color:var(--depth-line)!important;
+}
+html[data-theme="light"] #view-tasks .task-workspace-section,
+html[data-theme="light"] #view-tasks .task-project-column,
+html[data-theme="light"] #view-tasks .kb-status-col{
+  background:var(--depth-surface-2)!important;
+  border-color:var(--depth-line)!important;
+  box-shadow:var(--depth-raised)!important;
+}
+html[data-theme="light"] #view-tasks .task-workspace-scroll,
+html[data-theme="light"] #view-tasks .task-project-items,
+html[data-theme="light"] #view-tasks .kb-status-col>div:nth-child(2){
+  background:var(--depth-inset)!important;
+}
+html[data-theme="light"] #view-calendar .cal-sidebar,
+html[data-theme="light"] #view-calendar .cal-main{
+  background:var(--depth-surface-2)!important;
+  border-color:var(--depth-line)!important;
+  box-shadow:var(--depth-raised)!important;
+}
+html[data-theme="light"] #view-calendar .cal-agenda-date{
+  background:var(--depth-surface-3)!important;
+  border-color:var(--depth-line)!important;
+  color:var(--text2)!important;
+}
+html[data-theme="light"] #view-calendar .cal-agenda-event{
+  background:var(--depth-surface-2)!important;
+  border-color:var(--depth-line)!important;
+  color:var(--text1)!important;
+  transition:var(--depth-transition)!important;
+}
+html[data-theme="light"] #view-calendar .cal-agenda-event:hover{
+  background:var(--depth-surface-1)!important;
+  box-shadow:inset 3px 0 0 var(--teal)!important;
+}
+html[data-theme="light"] #view-calendar .cal-agenda-event .ae-time,
+html[data-theme="light"] #view-calendar .cal-agenda-event .ae-sub,
+html[data-theme="light"] #view-calendar .cal-mini-day,
+html[data-theme="light"] #view-calendar .cal-legend-item{font-size:12px!important;color:#626f66!important}
+html[data-theme="light"] #view-review .os-review-reset{
+  background:var(--depth-surface-3)!important;
+  border-color:var(--depth-line-strong)!important;
+  box-shadow:var(--depth-raised-medium)!important;
+}
+
+/* Job Collectives: reference workspace for alignment and hierarchy. */
+html[data-theme="light"] #view-venture{
+  --jc-bg:var(--depth-canvas);
+  --jc-surface:var(--depth-surface-2);
+  --jc-surface-raised:var(--depth-surface-1);
+  --jc-surface-hover:var(--depth-surface-3);
+  --jc-border:#d5ddd6;
+  --jc-border-strong:#bcc8be;
+  --jc-text:#172019;
+  --jc-muted:#5f6c63;
+  --jc-subtle:#78847b;
+}
+html[data-theme="light"] #view-venture .jc-header,
+html[data-theme="light"] #view-venture .jc-metric-card,
+html[data-theme="light"] #view-venture .jc-card,
+html[data-theme="light"] #view-venture .jc-timer-card{
+  background:var(--depth-surface-2)!important;
+  border-color:var(--depth-line)!important;
+  box-shadow:var(--depth-raised)!important;
+}
+html[data-theme="light"] #view-venture .jc-pipeline-column{
+  background:var(--depth-inset)!important;
+  border-color:var(--depth-line)!important;
+}
+html[data-theme="light"] #view-venture .jc-pipeline-item{
+  background:var(--depth-surface-2)!important;
+  border-color:var(--depth-line)!important;
+  color:var(--jc-text)!important;
+  box-shadow:inset 0 1px 0 #ffffff,0 2px 5px rgba(23,42,31,.08)!important;
+}
+
+/* Code, Creative, and Faith: remove inherited dark cards from light mode. */
+html[data-theme="light"] .agency-command{
+  --agency-bg:var(--depth-canvas);
+  --agency-panel:var(--depth-surface-2);
+  --agency-panel-2:var(--depth-surface-1);
+  --agency-panel-3:var(--depth-surface-3);
+  --agency-border:#d5ddd6;
+  --agency-border-strong:#bcc8be;
+  --agency-text:#172019;
+  --agency-muted:#5f6c63;
+  --agency-dim:#78847b;
+  --agency-danger:#a62d47;
+  --agency-warning:#77570b;
+  --agency-accent:#167d68;
+  --agency-accent-rgb:22,125,104;
+  --agency-accent-soft:#e1f2ec;
+}
+html[data-theme="light"] .agency-command.creative-command{
+  --agency-accent:#876300;
+  --agency-accent-rgb:135,99,0;
+  --agency-accent-soft:#fff3c6;
+}
+html[data-theme="light"] .faith-command{
+  --agency-accent:#806014;
+  --agency-accent-rgb:128,96,20;
+  --agency-accent-soft:#f8efcf;
+  --faith-burgundy:#9a3440;
+  --faith-violet:#7753a0;
+}
+html[data-theme="light"] .agency-command .agency-shell{background:var(--agency-bg)!important}
+html[data-theme="light"] .agency-command .agency-header,
+html[data-theme="light"] .agency-command .agency-timer-card,
+html[data-theme="light"] .agency-command .agency-metric,
+html[data-theme="light"] .agency-command .agency-card,
+html[data-theme="light"] .agency-command .agency-detail-card{
+  background:var(--depth-surface-2)!important;
+  border-color:var(--depth-line)!important;
+  color:var(--agency-text)!important;
+  box-shadow:var(--depth-raised)!important;
+}
+html[data-theme="light"] .agency-command .agency-pipeline-column{
+  background:var(--depth-inset)!important;
+  border-color:var(--depth-line)!important;
+  box-shadow:var(--depth-inset-shadow)!important;
+}
+html[data-theme="light"] .agency-command .agency-pipeline-item{
+  background:var(--depth-surface-2)!important;
+  border-color:var(--depth-line)!important;
+  color:var(--agency-text)!important;
+  box-shadow:inset 0 1px 0 #ffffff,0 2px 5px rgba(23,42,31,.08)!important;
+}
+html[data-theme="light"] .agency-command .agency-pipeline-item strong,
+html[data-theme="light"] .agency-command .agency-health-row strong,
+html[data-theme="light"] .agency-command .agency-action-row strong,
+html[data-theme="light"] .faith-command .faith-preview-row strong{color:var(--agency-text)!important}
+html[data-theme="light"] .agency-command .agency-pipeline-item small,
+html[data-theme="light"] .agency-command .agency-pipeline-item time,
+html[data-theme="light"] .agency-command .agency-health-row small,
+html[data-theme="light"] .agency-command .agency-action-row small,
+html[data-theme="light"] .faith-command .faith-preview-row small{color:var(--agency-muted)!important}
+html[data-theme="light"] .agency-command .agency-pipeline-item strong{font-size:12px!important}
+html[data-theme="light"] .agency-command .agency-pipeline-item small,
+html[data-theme="light"] .agency-command .agency-health-row small,
+html[data-theme="light"] .agency-command .agency-action-row small{font-size:11px!important}
+html[data-theme="light"] .agency-command .agency-pipeline-item time,
+html[data-theme="light"] .agency-command .agency-pipeline-empty{font-size:10px!important}
+html[data-theme="light"] .agency-command .agency-card-header p,
+html[data-theme="light"] .agency-command .agency-metric small{font-size:12px!important;color:var(--agency-muted)!important}
+html[data-theme="light"] .agency-command .agency-metric span{font-size:11px!important;color:var(--agency-muted)!important}
+html[data-theme="light"] .agency-command .agency-metric>i{
+  background:var(--agency-accent-soft)!important;
+  border-color:rgba(var(--agency-accent-rgb),.28)!important;
+  color:var(--agency-accent)!important;
+}
+html[data-theme="light"] .agency-command.creative-command .agency-primary-button,
+html[data-theme="light"] .agency-command.creative-command .agency-timer-toggle{
+  background:#e3b900!important;
+  border-color:#e3b900!important;
+  color:#211b00!important;
+}
+html[data-theme="light"] .faith-command .agency-metric{background:var(--depth-surface-2)!important}
+html[data-theme="light"] .faith-command .agency-metric:nth-child(1)>i{background:#f8efcf!important;color:#806014!important}
+html[data-theme="light"] .faith-command .agency-metric:nth-child(2)>i{background:#f8e8eb!important;color:#a52f48!important;border-color:#dfb2bc!important}
+html[data-theme="light"] .faith-command .agency-metric:nth-child(3)>i{background:#eee8f6!important;color:#7753a0!important;border-color:#c9b9dc!important}
+html[data-theme="light"] .faith-command .agency-metric:nth-child(4)>i{background:#f8efcf!important;color:#806014!important}
+html[data-theme="light"] .faith-command .faith-preview-row>i,
+html[data-theme="light"] .faith-command .faith-avatar{
+  background:#f8efcf!important;
+  color:#806014!important;
+  border-color:#d8c27a!important;
+}
+html[data-theme="light"] .faith-command .faith-avatar.alt{background:#f8e8eb!important;color:#a52f48!important;border-color:#dfb2bc!important}
+html[data-theme="light"] .faith-command .faith-pipeline-progress,
+html[data-theme="light"] .faith-command .agency-progress-row>i{background:#dfe6df!important}
+
+/* Life and other panels inherit the same surface vocabulary. */
+html[data-theme="light"] #view-life.life-command-center{
+  --life-bg:var(--depth-canvas);
+  --life-header:var(--depth-surface-2);
+  --life-panel:var(--depth-surface-2);
+  --life-panel-2:var(--depth-surface-1);
+  --life-panel-3:var(--depth-surface-3);
+  --life-border:#d5ddd6;
+  --life-border-strong:#bcc8be;
+  --life-text:#172019;
+  --life-muted:#5f6c63;
+  --life-dim:#78847b;
+}
+html[data-theme="light"] #view-life.life-command-center .life-panel,
+html[data-theme="light"] #view-life.life-command-center .life-metric-card,
+html[data-theme="light"] #view-life.life-command-center .life-focus-card,
+html[data-theme="light"] #view-life.life-command-center .life-review-hero,
+html[data-theme="light"] #view-life.life-command-center .life-review-summary-card{
+  background:var(--depth-surface-2)!important;
+  border-color:var(--depth-line)!important;
+  box-shadow:var(--depth-raised)!important;
+}
+
+@media(max-width:768px){
+  html[data-theme="light"] #view-dashboard .today-focus,
+  html[data-theme="light"] #view-dashboard #briefMainRow>.bd-block,
+  html[data-theme="light"] #view-dashboard .dashboard-upcoming,
+  html[data-theme="light"] #view-dashboard .today-daily-brief,
+  html[data-theme="light"] .agency-command .agency-card,
+  html[data-theme="light"] #view-venture .jc-card{
+    box-shadow:inset 0 1px 0 #ffffff,0 3px 8px rgba(23,42,31,.08)!important;
+  }
+}
+
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{
+    scroll-behavior:auto!important;
+  }
+
+  .btn-t,.btn-o,.btn-primary,.today-add-btn,.quiet-add-task,
+  .calendar-page-add,.task-page-add,.review-page-complete,
+  .agency-primary-button,.jc-primary-button,.life-add-button,
+  .mobile-primary-button,.mobile-finance-add,
+  .side-panel .ni,.task-project-column,.mobile-workspace-card,
+  .life-metric-card,.jc-metric-card,.agency-metric{
+    transition:none!important;
+    transform:none!important;
+  }
+}
+
+@media(min-width:1081px){
+  .agency-command .agency-header{
+    grid-template-columns:minmax(280px,1fr) minmax(390px,500px) minmax(220px,1fr)!important;
+    min-height:112px!important;
+    gap:24px!important;
+    padding-top:24px!important;
+    padding-bottom:24px!important;
+  }
+
+  .agency-command .agency-brand-lockup{gap:16px!important}
+  .agency-command .agency-brand-lockup img,
+  .faith-command .faith-rings-logo{
+    width:56px!important;
+    height:56px!important;
+    flex-basis:56px!important;
+  }
+  .agency-command .agency-brand-lockup p{
+    margin-top:6px!important;
+    font-size:13px!important;
+  }
+  .agency-command .agency-primary-button{
+    min-height:46px!important;
+    padding-right:18px!important;
+    padding-left:18px!important;
+  }
+  .agency-command .agency-icon-button{
+    width:46px!important;
+    height:46px!important;
+  }
+
+  #view-life.life-command-center>.vh{
+    min-height:112px!important;
+    padding:24px var(--workspace-gutter)!important;
+  }
+  #view-life.life-command-center .life-review-button,
+  #view-life.life-command-center .life-add-button{min-height:46px!important}
+}
+
+@media(min-width:1081px) and (max-width:1360px){
+  .agency-command .agency-header{
+    grid-template-columns:minmax(240px,1fr) minmax(360px,460px) auto!important;
+  }
+}
+
+@media(min-width:769px){
+  .agency-command .agency-panel{
+    padding-top:20px!important;
+    padding-right:0!important;
+    padding-left:0!important;
+  }
+
+  #view-life.life-command-center>.vb{padding-right:0!important;padding-left:0!important}
+  #view-life.life-command-center .life-primary-nav,
+  #view-life.life-command-center .life-secondary-nav{
+    margin-right:var(--workspace-gutter)!important;
+    margin-left:var(--workspace-gutter)!important;
+  }
+  #view-life.life-command-center .life-content{
+    padding-right:var(--workspace-gutter)!important;
+    padding-left:var(--workspace-gutter)!important;
+  }
+
+  .app:not(.nav-collapsed) .side-utility-row{
+    display:flex!important;
+    width:100%!important;
+    height:50px!important;
+    align-items:center!important;
+    justify-content:center!important;
+    gap:12px!important;
+    padding:4px!important;
+  }
+  .app:not(.nav-collapsed) .side-utility-row .side-utility-item{
+    width:42px!important;
+    min-width:42px!important;
+    height:40px!important;
+    min-height:40px!important;
+    flex:0 0 42px!important;
+  }
+}
+
+@media(max-width:760px){
+  html[data-theme="light"] #view-life.life-command-center #cf-billtracker .btn-t{
+    min-width:94px!important;
+    white-space:nowrap!important;
+  }
+}
+
+html[data-theme="light"] #view-venture{
+  --jc-bg:#f4f5f2;
+  --jc-surface:#ffffff;
+  --jc-surface-raised:#f7f8f5;
+  --jc-surface-hover:#edf0eb;
+  --jc-border:#dfe3dd;
+  --jc-border-strong:#c5ccc4;
+  --jc-text:#181b18;
+  --jc-muted:#687068;
+  --jc-subtle:#858d85;
+  --jc-blue:#3448d8;
+  --jc-blue-bright:#3148d4;
+  --jc-blue-soft:#e7ebff;
+  background:var(--jc-bg)!important;
+  color:var(--jc-text)!important;
+}
+html[data-theme="light"] #view-venture .jc-shell{background:var(--jc-bg)!important}
+html[data-theme="light"] #view-venture .jc-header{
+  border-color:var(--jc-border)!important;
+  background:rgba(255,255,255,.98)!important;
+}
+html[data-theme="light"] #view-venture .jc-action-menu{
+  border-color:var(--jc-border)!important;
+  background:#ffffff!important;
+}
+html[data-theme="light"] #view-venture .jc-attention-title b{
+  background:#f7e5e9!important;
+  color:#9b2942!important;
+}
+html[data-theme="light"] #view-venture .jc-priority-high,
+html[data-theme="light"] #view-venture .jc-attention-group>small em,
+html[data-theme="light"] #view-venture .jc-attention-group time{color:#b4233f!important}
+html[data-theme="light"] .sidebar-brand-name{color:#181b18!important}
+html[data-theme="light"] .sidebar-brand-name span{color:#687068!important}
+
+#view-life.life-command-center .vs{
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+  white-space:nowrap!important;
+}
+
+@media(max-width:768px){
+  .agency-command .agency-panel{
+    padding-right:0!important;
+    padding-left:0!important;
+  }
+  #view-life.life-command-center>.vb{padding-right:0!important;padding-left:0!important}
+  #view-life.life-command-center .life-primary-nav,
+  #view-life.life-command-center .life-secondary-nav{
+    margin-right:var(--workspace-gutter-mobile)!important;
+    margin-left:var(--workspace-gutter-mobile)!important;
+  }
+  #view-life.life-command-center .life-content{
+    padding-right:var(--workspace-gutter-mobile)!important;
+    padding-left:var(--workspace-gutter-mobile)!important;
+  }
+}
+
+/* Final light-shell contrast guardrails. */
+html[data-theme="light"] .sidebar-brand .sidebar-brand-name{
+  color:#f5f7f4!important;
+}
+html[data-theme="light"] .sidebar-brand .sidebar-brand-name span{
+  color:#aeb8b1!important;
+}
+html[data-theme="light"] .side-panel .ni.active:not(.world-ni){
+  background:#123d35!important;
+  border-color:#1b7564!important;
+  color:#f4faf7!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 4px 10px rgba(0,0,0,.18)!important;
+}
+html[data-theme="light"] .side-panel .ni.active:not(.world-ni) .nav-label{
+  color:#f4faf7!important;
+}
+
+/* Life workspace: readable, layered light-mode command center. */
+html[data-theme="light"] #view-life.life-command-center{
+  --life-bg:#edf1ec;
+  --life-header:#f8faf7;
+  --life-panel:#ffffff;
+  --life-panel-2:#f3f6f2;
+  --life-panel-3:#e6ece6;
+  --life-border:#d3dcd4;
+  --life-border-strong:#aebdaf;
+  --life-text:#172019;
+  --life-muted:#526158;
+  --life-dim:#6d7b71;
+  --life-green:#0f7d68;
+  --life-red:#c53452;
+  --life-yellow:#896900;
+  --life-blue:#3567c5;
+  --life-category-income:#087663;
+  --life-category-danger:#b82e4a;
+  --life-category-purple:#70479a;
+  --life-category-blue:#315fae;
+  --life-category-yellow:#806000;
+  --life-category-neutral:#526158;
+  color-scheme:light;
+  background:#edf1ec!important;
+}
+html[data-theme="light"] #view-life.life-command-center>.vh{
+  background:#f8faf7!important;
+  border-color:#d5ddd6!important;
+  box-shadow:inset 0 -1px 0 #d5ddd6,0 5px 16px rgba(28,47,35,.06)!important;
+}
+html[data-theme="light"] #view-life.life-command-center>.life-page-scroll,
+html[data-theme="light"] #view-life.life-command-center .life-content{
+  background:#edf1ec!important;
+}
+html[data-theme="light"] #view-life.life-command-center #domainTimer-life .agency-timer-card{
+  background:#ffffff!important;
+  border-color:#cdd8cf!important;
+  box-shadow:inset 0 1px 0 #ffffff,0 7px 18px rgba(25,49,34,.10)!important;
+}
+html[data-theme="light"] #view-life.life-command-center #domainTimer-life .agency-timer-toggle,
+html[data-theme="light"] #view-life.life-command-center .life-add-button,
+html[data-theme="light"] #view-life.life-command-center .life-focus-actions button:not(.secondary),
+html[data-theme="light"] #view-life.life-command-center .life-review-hero-actions>button,
+html[data-theme="light"] #view-life.life-command-center .life-review-complete,
+html[data-theme="light"] #view-life.life-command-center .life-content .btn-t{
+  background:#0f715f!important;
+  border-color:#0f715f!important;
+  color:#ffffff!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 5px 12px rgba(15,113,95,.18)!important;
+}
+html[data-theme="light"] #view-life.life-command-center #domainTimer-life .agency-timer-reset,
+html[data-theme="light"] #view-life.life-command-center .life-review-button{
+  background:#ffffff!important;
+  border-color:#c8d3ca!important;
+  color:#243229!important;
+}
+html[data-theme="light"] #view-life.life-command-center .life-primary-nav{
+  background:#ffffff!important;
+  border-color:#d1dbd3!important;
+  box-shadow:inset 0 1px 0 #ffffff,0 6px 16px rgba(26,48,34,.09)!important;
+}
+html[data-theme="light"] #view-life.life-command-center .life-primary-nav button{
+  color:#536158!important;
+}
+html[data-theme="light"] #view-life.life-command-center .life-primary-nav button:hover{
+  background:#edf3ee!important;
+  color:#172019!important;
+}
+html[data-theme="light"] #view-life.life-command-center .life-primary-nav button.is-active{
+  background:#123d35!important;
+  border-color:#1b7564!important;
+  color:#ffffff!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.12),0 4px 10px rgba(18,61,53,.20)!important;
+}
+html[data-theme="light"] #view-life.life-command-center .life-primary-nav button.is-active i{color:#9be65e!important}
+html[data-theme="light"] #view-life.life-command-center .life-secondary-nav{
+  background:#dfe7e0!important;
+  border-color:#c9d4cb!important;
+  box-shadow:inset 0 1px 3px rgba(32,55,40,.08)!important;
+}
+html[data-theme="light"] #view-life.life-command-center .life-secondary-nav button{
+  background:transparent!important;
+  border-color:transparent!important;
+  color:#526158!important;
+}
+html[data-theme="light"] #view-life.life-command-center .life-secondary-nav button.is-active{
+  background:#ffffff!important;
+  border-color:#9cb6a2!important;
+  color:#0d6958!important;
+  box-shadow:0 3px 8px rgba(28,54,37,.10)!important;
+}
+html[data-theme="light"] #view-life.life-command-center .life-panel,
+html[data-theme="light"] #view-life.life-command-center .life-metric-card,
+html[data-theme="light"] #view-life.life-command-center .life-focus-card,
+html[data-theme="light"] #view-life.life-command-center .life-review-hero,
+html[data-theme="light"] #view-life.life-command-center .life-review-summary-card,
+html[data-theme="light"] #view-life.life-command-center .life-content .hc,
+html[data-theme="light"] #view-life.life-command-center .life-content .bd-block,
+html[data-theme="light"] #view-life.life-command-center .life-account-card,
+html[data-theme="light"] #view-life.life-command-center .life-account-add{
+  background:#ffffff!important;
+  border-color:#d1dad2!important;
+  box-shadow:inset 0 1px 0 #ffffff,0 7px 18px rgba(25,49,34,.08)!important;
+}
+html[data-theme="light"] #view-life.life-command-center .life-focus-card,
+html[data-theme="light"] #view-life.life-command-center .life-review-hero{
+  background:linear-gradient(135deg,#f6faf5 0%,#ffffff 60%)!important;
+  border-color:#c5d4c8!important;
+}
+html[data-theme="light"] #view-life.life-command-center .life-metric-icon,
+html[data-theme="light"] #view-life.life-command-center .life-wellbeing-grid button>i,
+html[data-theme="light"] #view-life.life-command-center .life-account-add i,
+html[data-theme="light"] #view-life.life-command-center .life-review-summary-card>span{
+  background:#e2f0e7!important;
+  color:#0f715f!important;
+}
+html[data-theme="light"] #view-life.life-command-center .tone-red .life-metric-icon,
+html[data-theme="light"] #view-life.life-command-center .life-review-summary-card>span.is-red{background:#f9e6ea!important;color:#b82e4a!important}
+html[data-theme="light"] #view-life.life-command-center .tone-blue .life-metric-icon,
+html[data-theme="light"] #view-life.life-command-center .life-review-summary-card>span.is-blue{background:#e7edf9!important;color:#315fae!important}
+html[data-theme="light"] #view-life.life-command-center .life-chart-panel,
+html[data-theme="light"] #view-life.life-command-center .life-mini-list,
+html[data-theme="light"] #view-life.life-command-center .life-action-list,
+html[data-theme="light"] #view-life.life-command-center .life-home-links,
+html[data-theme="light"] #view-life.life-command-center .life-upcoming-list,
+html[data-theme="light"] #view-life.life-command-center .life-wellbeing-grid button,
+html[data-theme="light"] #view-life.life-command-center .life-account-stat{
+  background:#f3f6f2!important;
+  border-color:#d8e0d9!important;
+  box-shadow:inset 0 1px 3px rgba(29,52,36,.04)!important;
+}
+html[data-theme="light"] #view-life.life-command-center #cashFilterRow select,
+html[data-theme="light"] #view-life.life-command-center #cashFilterRow input,
+html[data-theme="light"] #view-life.life-command-center #cashFilterRow button,
+html[data-theme="light"] #view-life.life-command-center .life-account-actions .btn,
+html[data-theme="light"] #view-life.life-command-center .life-review-reflection textarea{
+  background:#ffffff!important;
+  border-color:#c9d4cb!important;
+  color:#172019!important;
+}
+html[data-theme="light"] #view-life.life-command-center #cashTransactionTable{
+  background:#ffffff!important;
+  border-color:#d1dad2!important;
+}
+html[data-theme="light"] #view-life.life-command-center #cashTransactionTable th{
+  background:#e8eee9!important;
+  border-color:#d1dad2!important;
+  color:#4e5d53!important;
+}
+html[data-theme="light"] #view-life.life-command-center #cashTransactionTable td{
+  background:#ffffff!important;
+  border-color:#dce3dd!important;
+  color:#253229!important;
+}
+html[data-theme="light"] #view-life.life-command-center #cashTransactionTable tbody tr:hover td{background:#f0f5f1!important}
+html[data-theme="light"] #view-life.life-command-center .life-insight{
+  background:#123d35!important;
+  border-color:#1b7564!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 8px 18px rgba(18,61,53,.18)!important;
+}
+html[data-theme="light"] #view-life.life-command-center .life-insight p,
+html[data-theme="light"] #view-life.life-command-center .life-insight button{color:#e5eee9!important}
+html[data-theme="light"] #view-life.life-command-center .life-insight small{color:#9be65e!important}
+
+/* Expanded sidebar utilities share the complete available row. */
+@media(min-width:769px){
+  .app:not(.nav-collapsed) .side-utility-row{
+    display:grid!important;
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    width:100%!important;
+    height:auto!important;
+    gap:8px!important;
+    padding:5px!important;
+  }
+  .app:not(.nav-collapsed) .side-utility-row .side-utility-item{
+    display:flex!important;
+    width:100%!important;
+    min-width:0!important;
+    min-height:42px!important;
+    height:42px!important;
+    flex:1 1 0!important;
+    align-items:center!important;
+    justify-content:center!important;
+    gap:7px!important;
+    margin:0!important;
+    padding:0 8px!important;
+  }
+  .app:not(.nav-collapsed) .side-utility-label{
+    display:inline!important;
+    overflow:hidden;
+    font-size:10px;
+    font-weight:650;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+  }
+}
