@@ -246,7 +246,7 @@ function _syncBillToCalendar(bill){
   let ev=DB.calEvents.find(e=>e._billId===bill.id);
   if(bill.status==='paid'){
     // Paid bills don't need a reminder sitting on the calendar anymore
-    if(ev){DB.calEvents=DB.calEvents.filter(e=>e._billId!==bill.id);sbFetch('cal_events','DELETE',null,`id=eq.${ev.id}`).catch(()=>{});}
+    if(ev){DB.calEvents=DB.calEvents.filter(e=>e._billId!==bill.id);SB.remove('cal_events',ev.id,'calEvents');}
     return;
   }
   if(ev){
@@ -281,7 +281,7 @@ function toggleBillPaid(billId){
 async function deleteBill(billId){
   if(!await jelixConfirm('Delete this bill?','Delete'))return;
   const ev=DB.calEvents.find(e=>e._billId===billId);
-  if(ev){DB.calEvents=DB.calEvents.filter(e=>e._billId!==billId);sbFetch('cal_events','DELETE',null,`id=eq.${ev.id}`).catch(()=>{});}
+  if(ev){DB.calEvents=DB.calEvents.filter(e=>e._billId!==billId);SB.remove('cal_events',ev.id,'calEvents');}
   DB.bills=DB.bills.filter(b=>b.id!==billId);
   save('bills');
   renderBillTracker();

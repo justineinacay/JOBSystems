@@ -35,7 +35,8 @@ async function sbFetch(table,method='GET',body=null,match=null){
   try{
     const session=await getAuthSession();
     const authToken=session?session.access_token:SB_KEY;
-    const opts={method,headers:{'apikey':SB_KEY,'Authorization':'Bearer '+authToken,'Content-Type':'application/json','Prefer':(method==='POST'||method==='PATCH')?'return=representation':''}};
+    const prefer=method==='POST'?'resolution=merge-duplicates,return=representation':method==='PATCH'?'return=representation':'';
+    const opts={method,headers:{'apikey':SB_KEY,'Authorization':'Bearer '+authToken,'Content-Type':'application/json','Prefer':prefer}};
     if(body)opts.body=JSON.stringify(body);
     const res=await fetch(url,opts);
     if(!res.ok){
@@ -232,14 +233,9 @@ async function checkAuthGate(){
 }
 
 const SYNC_TOMBSTONE_KEY='j-sync-tombstones-v1';
-const SYNC_TOMBSTONE_MAX_AGE=180*24*60*60*1000;
 function readSyncTombstones(){
   let tombstones={};
   try{tombstones=JSON.parse(localStorage.getItem(SYNC_TOMBSTONE_KEY)||'{}')||{};}catch(e){}
-  const cutoff=Date.now()-SYNC_TOMBSTONE_MAX_AGE;
-  let changed=false;
-  Object.keys(tombstones).forEach(key=>{if(Number(tombstones[key])<cutoff){delete tombstones[key];changed=true;}});
-  if(changed)localStorage.setItem(SYNC_TOMBSTONE_KEY,JSON.stringify(tombstones));
   return tombstones;
 }
 function syncTombstoneKeys(table,record){
@@ -251,20 +247,74 @@ function syncTombstoneKeys(table,record){
   if(record.google_event_id)keys.push('cal_events:google:'+String(record.google_event_id));
   return keys;
 }
-function rememberSyncDeletion(table,record){
+function cloudSyncTombstoneId(table,record){
+  const uid=getAuthUserId();
+  if(!uid||!record||record.id==null)return'';
+  const entity=table==='cal_events'?'cal_events':'tasks';
+  return uid+':'+entity+':'+String(record.id);
+}
+function cloudSyncGoogleId(table,record){
+  if(!record)return null;
+  return table==='cal_events'?(record.google_event_id||null):(record.google_task_id||null);
+}
+async function persistSyncDeletion(table,record){
+  const uid=getAuthUserId();
+  const id=cloudSyncTombstoneId(table,record);
+  if(!uid||!id)return;
+  const entity=table==='cal_events'?'cal_events':'tasks';
+  try{
+    await sbFetch('sync_tombstones','POST',{id,user_id:uid,entity_type:entity,record_id:record.id,google_id:cloudSyncGoogleId(entity,record),active:true,deleted_at:new Date().toISOString(),cleared_at:null});
+  }catch(error){console.warn('[Sync] Could not persist deletion marker',error);}
+}
+async function removePersistedSyncDeletion(table,record){
+  const id=cloudSyncTombstoneId(table,record);if(!id)return;
+  try{await sbFetch('sync_tombstones','PATCH',{active:false,cleared_at:new Date().toISOString()},'id=eq.'+encodeURIComponent(id));}catch(error){console.warn('[Sync] Could not clear deletion marker',error);}
+}
+function rememberSyncDeletion(table,record,persist=true){
   const keys=syncTombstoneKeys(table,record);if(!keys.length)return;
   const tombstones=readSyncTombstones();
   keys.forEach(key=>{tombstones[key]=Date.now();});
   localStorage.setItem(SYNC_TOMBSTONE_KEY,JSON.stringify(tombstones));
+  if(persist)persistSyncDeletion(table,record);
 }
 function isSyncTombstoned(table,record){
   const tombstones=readSyncTombstones();
   return syncTombstoneKeys(table,record).some(key=>Boolean(tombstones[key]));
 }
-function clearSyncTombstone(table,record){
+function clearSyncTombstone(table,record,persist=true){
   const tombstones=readSyncTombstones();let changed=false;
   syncTombstoneKeys(table,record).forEach(key=>{if(tombstones[key]){delete tombstones[key];changed=true;}});
   if(changed)localStorage.setItem(SYNC_TOMBSTONE_KEY,JSON.stringify(tombstones));
+  if(persist)removePersistedSyncDeletion(table,record);
+}
+function recordFromCloudSyncTombstone(row){
+  const record={id:row.record_id};
+  if(row.entity_type==='tasks')record.google_task_id=row.google_id||null;
+  if(row.entity_type==='cal_events')record.google_event_id=row.google_id||null;
+  return record;
+}
+function removeSyncDeletedRecordLocally(entity,record){
+  const key=entity==='cal_events'?'calEvents':'tasks';
+  DB[key]=(DB[key]||[]).filter(item=>{
+    if(String(item.id)===String(record.id))return false;
+    if(record.google_task_id&&item.google_task_id===record.google_task_id)return false;
+    if(record.google_event_id&&item.google_event_id===record.google_event_id)return false;
+    return true;
+  });
+  save(key);
+}
+async function loadCloudSyncTombstones(){
+  try{
+    const rows=await sbFetch('sync_tombstones');
+    (rows||[]).forEach(row=>{
+      const record=recordFromCloudSyncTombstone(row);
+      if(row.active===false)clearSyncTombstone(row.entity_type,record,false);
+      else{
+        rememberSyncDeletion(row.entity_type,record,false);
+        removeSyncDeletedRecordLocally(row.entity_type,record);
+      }
+    });
+  }catch(error){console.warn('[Sync] Cloud deletion markers unavailable',error);}
 }
 
 const SB={
@@ -881,7 +931,8 @@ const REALTIME_TABLES=[
   {name:'pricing',           key:'pricing'},
   {name:'credentials',       key:'credentials'},
   {name:'agent_tasks',       key:'agentTasks'},
-  {name:'agent_log',         key:'agentLog'}
+  {name:'agent_log',         key:'agentLog'},
+  {name:'sync_tombstones',   key:null}
 ];
 
 function initRealtime(){
@@ -910,6 +961,16 @@ function initRealtime(){
     var oldRecord=msg.payload.old_record;
     var type=msg.payload.type;
     var key=tableMap.key;
+    if(tableName==='sync_tombstones'){
+      var tombstoneRecord=record||oldRecord;
+      if(!tombstoneRecord)return;
+      var sourceRecord=recordFromCloudSyncTombstone(tombstoneRecord);
+      if((type==='INSERT'||type==='UPDATE')&&tombstoneRecord.active!==false){
+        rememberSyncDeletion(tombstoneRecord.entity_type,sourceRecord,false);
+        removeSyncDeletedRecordLocally(tombstoneRecord.entity_type,sourceRecord);Store.notify();
+      }else clearSyncTombstone(tombstoneRecord.entity_type,sourceRecord,false);
+      return;
+    }
     if((tableName==='tasks'||tableName==='cal_events')&&(type==='INSERT'||type==='UPDATE')&&isSyncTombstoned(tableName,record)){
       if(record&&record.id!=null)sbFetch(tableName,'DELETE',null,`id=eq.${record.id}`).catch(()=>{});
       return;
@@ -957,6 +1018,7 @@ function initRealtime(){
 
 async function loadAllFromSupabase(){
   showToast('↻ Syncing with Supabase...');
+  await loadCloudSyncTombstones();
   await Promise.all([SB.load('tasks','tasks'),SB.load('clients','clients'),SB.load('venture','venture'),SB.load('faith','faith'),SB.load('cashflow','cashflow'),SB.load('cal_events','calEvents'),SB.load('journal','journal'),SB.load('notes','notes'),SB.load('memories','memories'),SB.load('sides','sides'),SB.load('history','history'),SB.load('loans','loans'),SB.load('accounts','accounts'),SB.load('collateral','collateral'),SB.load('social_posts','socialPosts'),SB.load('creative_projects','creativeProjects'),SB.load('pipeline','pipeline'),SB.load('campaigns','campaigns'),SB.load('influencers','influencers'),SB.load('pricing','pricing'),SB.load('credentials','credentials'),SB.load('saved_links','savedLinks'),SB.load('item_links','itemLinks'),SB.load('projects','projects'),_pullWorldsFromCloud()]);
   reRenderAll();if(typeof renderTagsDatalist==='function')renderTagsDatalist();if(typeof updateInboxBadge==='function')updateInboxBadge();showToast('✓ Supabase synced');speak('All systems synced.');
 }
