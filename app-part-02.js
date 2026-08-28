@@ -1548,7 +1548,14 @@ function renderGoogleSyncStatus(){
   if(el)el.textContent=getGoogleLastSyncText();
 }
 
-async function pullGoogleTasks(){
+let _googleTasksPullPromise=null;
+function pullGoogleTasks(){
+  if(_googleTasksPullPromise)return _googleTasksPullPromise;
+  _googleTasksPullPromise=_pullGoogleTasksOnce().finally(()=>{_googleTasksPullPromise=null;});
+  return _googleTasksPullPromise;
+}
+function _googleTaskSyncKey(taskId,listId){return String(listId||'@default')+':'+String(taskId||'');}
+async function _pullGoogleTasksOnce(){
   if(!isGoogleWorkspaceConnected())return;
   const r=await fetchGoogleTasks();
   if(!r.ok){_markGoogleSyncError('Tasks',r.error);return;}
@@ -1561,8 +1568,9 @@ async function pullGoogleTasks(){
       deleteGoogleTask(gt.id,gt._listId||'@default').catch(()=>{});
       continue;
     }
-    seenGoogleIds.add(gt.id);
-    const local=DB.tasks.find(t=>t.google_task_id===gt.id);
+    const googleTaskKey=_googleTaskSyncKey(gt.id,gt._listId);
+    seenGoogleIds.add(googleTaskKey);
+    const local=DB.tasks.find(t=>_googleTaskSyncKey(t.google_task_id,t.google_task_list_id)===googleTaskKey);
     const wantStatus=gt.status==='completed'?'Done':null;
     if(local){
       const patch={};
@@ -1586,7 +1594,7 @@ async function pullGoogleTasks(){
     }
   }
   // Deleted on Google's side since the last poll → remove locally too.
-  const toRemove=DB.tasks.filter(t=>t.google_task_id&&!seenGoogleIds.has(t.google_task_id));
+  const toRemove=DB.tasks.filter(t=>t.google_task_id&&!seenGoogleIds.has(_googleTaskSyncKey(t.google_task_id,t.google_task_list_id)));
   for(const t of toRemove){
     DB.tasks=DB.tasks.filter(x=>x.id!==t.id);
     _jelixSyncingFromGoogle=true;
@@ -1597,7 +1605,13 @@ async function pullGoogleTasks(){
   if(changed){save('tasks');try{renderTasks();renderBrief();}catch(e){}}
 }
 
-async function pullGoogleCalendarEvents(){
+let _googleCalendarPullPromise=null;
+function pullGoogleCalendarEvents(){
+  if(_googleCalendarPullPromise)return _googleCalendarPullPromise;
+  _googleCalendarPullPromise=_pullGoogleCalendarEventsOnce().finally(()=>{_googleCalendarPullPromise=null;});
+  return _googleCalendarPullPromise;
+}
+async function _pullGoogleCalendarEventsOnce(){
   if(!isGoogleWorkspaceConnected())return;
   const r=await fetchGoogleCalendarEvents(100);
   if(!r.ok){_markGoogleSyncError('Calendar',r.error);return;}
