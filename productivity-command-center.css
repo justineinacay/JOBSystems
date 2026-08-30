@@ -1,0 +1,294 @@
+/* Approved J.O.B Systems productivity command center
+   Loaded last so these focused refinements can safely sit above the legacy theme. */
+
+:root{
+  --command-bg:#151715;
+  --command-panel:#1d201d;
+  --command-panel-soft:#232723;
+  --command-panel-deep:#191b19;
+  --command-line:#343a34;
+  --command-line-strong:#465046;
+  --command-muted:#929a92;
+  --command-copy:#cbd0ca;
+  --command-lime:#c9f45a;
+  --command-lime-soft:rgba(201,244,90,.11);
+  --command-teal:#38c7a2;
+  --command-teal-soft:rgba(56,199,162,.11);
+  --command-purple:#a884f7;
+  --command-purple-soft:rgba(168,132,247,.12);
+  --command-danger:#ff6b78;
+  --command-warning:#edbd52;
+  --command-radius:14px;
+}
+
+/* Navigation gains a clearer active state without changing its structure. */
+@media(min-width:769px){
+  .side-panel .ni{position:relative}
+  .side-panel .ni.active::before{
+    position:absolute;left:-8px;top:8px;bottom:8px;width:3px;border-radius:3px;
+    background:var(--command-lime);content:"";
+  }
+  .side-panel .ni.active>i{color:var(--command-lime)!important}
+  .side-panel .ni.active{background:#232823!important;border-color:#3f4a3f!important}
+}
+
+.dashboard-panel-hidden{display:none!important}
+
+/* Today */
+#view-dashboard .quiet-dashboard-header{position:relative!important;z-index:100!important;overflow:visible!important}
+#view-dashboard .vb{position:relative;z-index:1}
+#view-dashboard .quiet-dashboard-header .va{display:flex!important;align-items:center!important;gap:9px!important}
+.dashboard-customize-wrap{position:relative}
+.dashboard-customize-trigger{
+  min-height:40px!important;padding:0 13px!important;border-color:var(--command-line)!important;
+  background:var(--command-panel)!important;color:var(--command-copy)!important;font-size:11px!important;
+}
+.dashboard-customize-trigger:hover,.dashboard-customize-trigger[aria-expanded="true"]{
+  border-color:var(--command-line-strong)!important;background:var(--command-panel-soft)!important;color:var(--text1)!important;
+}
+.dashboard-customize-menu{
+  position:absolute;z-index:120;top:calc(100% + 8px);right:0;width:230px;padding:10px;
+  border:1px solid var(--command-line-strong);border-radius:12px;background:#1b1e1b;
+  box-shadow:0 20px 60px rgba(0,0,0,.4);
+}
+.dashboard-customize-menu[hidden]{display:none!important}
+.dashboard-customize-heading{display:flex;flex-direction:column;gap:2px;padding:4px 5px 9px;border-bottom:1px solid var(--command-line)}
+.dashboard-customize-heading span{font-size:12px;font-weight:700;color:var(--text1)}
+.dashboard-customize-heading small{font-size:9px;color:var(--command-muted)}
+.dashboard-customize-menu label{display:flex;align-items:center;gap:9px;min-height:36px;padding:0 6px;border-radius:8px;color:var(--command-copy);font-size:11px;cursor:pointer}
+.dashboard-customize-menu label:hover{background:var(--command-panel-soft);color:var(--text1)}
+.dashboard-customize-menu input{
+  appearance:auto!important;width:15px!important;height:15px!important;min-width:15px!important;min-height:15px!important;
+  max-width:15px!important;max-height:15px!important;flex:0 0 15px!important;padding:0!important;accent-color:var(--command-lime)
+}
+
+#view-dashboard .today-focus{
+  grid-template-columns:58px minmax(0,1fr) auto!important;gap:18px!important;
+  background:var(--command-panel)!important;border-color:#414941!important;
+}
+#view-dashboard .focus-marker{
+  position:relative!important;display:grid!important;width:58px!important;height:58px!important;place-items:center!important;
+  border:0!important;border-radius:50%!important;
+  background:conic-gradient(var(--command-lime) var(--focus-progress,0%),#303630 0)!important;
+  box-shadow:0 0 0 1px #465146,0 0 24px rgba(201,244,90,.08)!important;
+}
+#view-dashboard .focus-marker::before{
+  position:absolute!important;inset:6px!important;width:auto!important;height:auto!important;border:0!important;border-radius:50%!important;
+  background:var(--command-panel)!important;content:""!important;
+}
+#view-dashboard .focus-marker>span{display:none!important}
+#view-dashboard .focus-marker strong{position:relative;z-index:1;color:var(--command-lime);font-size:12px;font-weight:750;font-variant-numeric:tabular-nums}
+#view-dashboard .today-focus h2{text-wrap:balance}
+#view-dashboard .today-focus-action{min-width:150px!important;justify-content:center!important}
+
+#view-dashboard .today-lower-grid{
+  display:grid!important;grid-template-columns:minmax(200px,.8fr) minmax(220px,.95fr) minmax(380px,1.6fr)!important;
+  gap:12px!important;
+}
+#view-dashboard .today-jelix-insight{
+  display:flex;min-height:162px;flex-direction:column;padding:18px!important;
+  border:1px solid rgba(168,132,247,.25)!important;border-radius:var(--command-radius)!important;
+  background:var(--command-panel)!important;overflow:hidden;
+}
+.today-jelix-insight-heading{display:flex;align-items:center;gap:10px}
+.today-jelix-mark{display:grid;width:34px;height:34px;place-items:center;border:1px solid rgba(168,132,247,.3);border-radius:9px;background:var(--command-purple-soft);color:var(--command-purple)}
+.today-jelix-insight-heading>div{display:flex;min-width:0;flex-direction:column;gap:2px}
+.today-jelix-insight-heading>div>span{color:var(--text1);font-size:12px;font-weight:700}
+.today-jelix-insight-heading small{color:var(--command-muted);font-size:9px}
+.today-jelix-insight-body{display:flex;flex:1;align-items:center;padding:14px 0 10px;color:var(--command-copy);font-size:12px;line-height:1.5;text-wrap:pretty}
+.today-jelix-insight-body strong{color:var(--command-purple);font-weight:700}
+.today-jelix-insight-action{align-self:flex-start;padding:0;border:0;background:transparent;color:var(--command-purple);font:600 10px var(--font);cursor:pointer}
+.today-jelix-insight-action:hover{color:#c5aff8}
+
+/* Shared intelligence cards */
+.command-side-card{
+  display:flex;min-width:0;flex-direction:column;gap:12px;padding:15px;
+  border:1px solid var(--command-line);border-radius:var(--command-radius);background:var(--command-panel);
+}
+.command-side-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;color:var(--text1);font-size:11px;font-weight:700}
+.command-side-heading>span{display:flex;align-items:center;gap:7px}
+.command-side-heading i{color:var(--command-teal);font-size:14px}
+.command-side-heading small{color:var(--command-muted);font-size:9px;font-weight:550}
+.command-side-heading button{padding:0;border:0;background:transparent;color:var(--command-teal);font:600 9px var(--font);cursor:pointer}
+.command-side-action{
+  display:flex;min-height:36px;align-items:center;justify-content:center;gap:7px;border:1px solid var(--command-line-strong);
+  border-radius:9px;background:var(--command-panel-soft);color:var(--command-copy);font:650 10px var(--font);cursor:pointer;
+}
+.command-side-action:hover{border-color:#5a665a;background:#2a302a;color:var(--text1)}
+.command-side-action:disabled{cursor:wait;opacity:.6}
+
+/* Tasks */
+#view-tasks .task-page-shell{max-width:1680px!important;padding:28px 30px 34px!important;gap:14px!important}
+.task-kpi-strip{
+  display:grid;grid-template-columns:repeat(6,minmax(128px,1fr));gap:9px;flex-shrink:0;
+}
+.task-kpi-card{
+  display:flex;min-width:0;min-height:72px;align-items:center;gap:11px;padding:12px 13px;
+  border:1px solid var(--command-line);border-radius:12px;background:var(--command-panel);color:inherit;text-align:left;
+}
+button.task-kpi-card{cursor:pointer;transition:transform 160ms ease,border-color 160ms ease,background 160ms ease}
+button.task-kpi-card:hover{transform:translateY(-1px);border-color:var(--command-line-strong);background:var(--command-panel-soft)}
+button.task-kpi-card:active{transform:translateY(0) scale(.985)}
+.task-kpi-card>span:last-child{display:flex;min-width:0;flex-direction:column;gap:4px}
+.task-kpi-card small{overflow:hidden;color:var(--command-muted);font-size:9px;font-weight:650;letter-spacing:.04em;text-overflow:ellipsis;white-space:nowrap}
+.task-kpi-card strong{color:var(--text1);font-size:20px;font-weight:680;line-height:1;font-variant-numeric:tabular-nums}
+.task-kpi-icon{display:grid;width:34px;height:34px;flex:0 0 34px;place-items:center;border-radius:9px;background:var(--command-teal-soft);color:var(--command-teal);font-size:16px}
+.task-kpi-icon.overdue{background:rgba(255,107,120,.1);color:var(--command-danger)}
+.task-kpi-icon.today{background:rgba(237,189,82,.1);color:var(--command-warning)}
+.task-kpi-icon.complete{background:var(--command-lime-soft);color:var(--command-lime)}
+.task-kpi-icon.focus{background:var(--command-purple-soft);color:var(--command-purple)}
+
+.task-workspace-grid{
+  display:grid;grid-template-columns:minmax(0,1fr) 282px;gap:14px;flex:1;min-height:0;
+}
+#view-tasks .task-workspace-grid>.board-shell{min-width:0!important}
+#view-tasks .board-toolbar{
+  grid-template-columns:minmax(0,1fr)!important;
+  grid-template-areas:"primary" "smart" "filters"!important;
+  overflow:visible!important;
+}
+#view-tasks #smartViewRow,#view-tasks #taskFilterRow{min-width:0}
+.task-intelligence{display:flex;min-width:0;flex-direction:column;gap:10px;overflow-y:auto;scrollbar-width:thin}
+.task-overview-visual{display:grid;grid-template-columns:102px minmax(0,1fr);align-items:center;gap:12px}
+.task-overview-ring{
+  display:grid;width:96px;height:96px;place-content:center;border-radius:50%;
+  background:radial-gradient(circle at center,var(--command-panel) 61%,transparent 62%),conic-gradient(var(--command-lime) var(--task-progress,0%),#303630 0);
+  box-shadow:inset 0 0 0 1px #3a423a;text-align:center;
+}
+.task-overview-ring strong{color:var(--text1);font-size:18px;font-weight:700;font-variant-numeric:tabular-nums}
+.task-overview-ring span{color:var(--command-muted);font-size:8px}
+.task-overview-legend{display:flex;min-width:0;flex-direction:column;gap:8px}
+.task-overview-legend div{display:grid;grid-template-columns:7px minmax(0,1fr) auto;align-items:center;gap:7px;color:var(--command-muted);font-size:9px}
+.task-overview-legend i{width:7px;height:7px;border-radius:2px;background:var(--legend-color)}
+.task-overview-legend strong{color:var(--command-copy);font-size:10px;font-variant-numeric:tabular-nums}
+.task-side-list,.calendar-side-list{display:flex;min-width:0;flex-direction:column}
+.task-side-item,.calendar-side-item{
+  display:grid;grid-template-columns:9px minmax(0,1fr) auto;align-items:center;gap:8px;min-height:42px;
+  padding:7px 0;border:0;border-bottom:1px solid var(--command-line);background:transparent;color:inherit;text-align:left;cursor:pointer;
+}
+.task-side-item:last-child,.calendar-side-item:last-child{border-bottom:0}
+.task-side-item:hover .side-item-title,.calendar-side-item:hover .side-item-title{color:var(--command-teal)}
+.side-item-dot{width:7px;height:7px;border-radius:50%;background:var(--item-color,var(--command-teal))}
+.side-item-copy{display:flex;min-width:0;flex-direction:column;gap:3px}
+.side-item-title{overflow:hidden;color:var(--command-copy);font-size:10px;font-weight:620;text-overflow:ellipsis;white-space:nowrap}
+.side-item-meta{overflow:hidden;color:var(--command-muted);font-size:8px;text-overflow:ellipsis;white-space:nowrap}
+.side-item-date{color:var(--command-muted);font-size:8px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.side-list-empty{padding:12px 0;color:var(--command-muted);font-size:9px;line-height:1.5}
+.task-productivity-copy{color:var(--command-copy);font-size:10px;line-height:1.55;text-wrap:pretty}
+.task-productivity-copy strong{color:var(--command-lime)}
+.smart-overdue-card{display:grid;grid-template-columns:34px minmax(0,1fr);gap:9px;background:#211e1e;border-color:#453537}
+.smart-overdue-icon{display:grid;width:34px;height:34px;grid-row:1/span 2;place-items:center;border-radius:9px;background:rgba(255,107,120,.1);color:var(--command-danger)}
+.smart-overdue-card>div:nth-child(2){display:flex;min-width:0;flex-direction:column;gap:3px}
+.smart-overdue-card strong{color:var(--text1);font-size:10px}
+.smart-overdue-card span{color:var(--command-muted);font-size:8px;line-height:1.45}
+.smart-overdue-card button{grid-column:1/-1;min-height:34px;border:1px solid #5a4245;border-radius:9px;background:#2a2223;color:#ff9099;font:650 9px var(--font);cursor:pointer}
+.smart-overdue-card.is-clear{background:var(--command-panel);border-color:var(--command-line)}
+.smart-overdue-card.is-clear .smart-overdue-icon{background:var(--command-lime-soft);color:var(--command-lime)}
+.smart-overdue-card.is-clear button{display:none}
+
+/* Calendar */
+#view-calendar .calendar-page-shell{max-width:1680px!important;padding:28px 30px 34px!important;gap:14px!important}
+.calendar-workspace-grid{
+  display:grid;grid-template-columns:minmax(0,1fr) 282px;gap:14px;flex:1;min-height:0;
+}
+#view-calendar .calendar-workspace-grid>.cal-shell{min-width:0!important}
+.calendar-intelligence{display:flex;min-width:0;flex-direction:column;gap:10px;overflow-y:auto;scrollbar-width:thin}
+.calendar-domain-filter-row{
+  display:flex;width:100%;min-height:37px;align-items:center;gap:9px;padding-top:7px;border-top:1px solid var(--command-line);
+}
+.calendar-domain-filter-row>span{display:flex;align-items:center;gap:5px;color:var(--command-muted);font-size:9px;font-weight:650;white-space:nowrap}
+.calendar-domain-chips{display:flex;min-width:0;align-items:center;gap:5px;overflow-x:auto;scrollbar-width:none}
+.calendar-domain-chips::-webkit-scrollbar{display:none}
+#view-calendar .calendar-domain-chips .cal-ctx-pill{
+  min-height:28px!important;padding:0 9px!important;border-width:1px!important;border-radius:8px!important;
+  font-size:9px!important;font-weight:620!important;white-space:nowrap;
+}
+#view-calendar .calendar-domain-chips .cal-ctx-pill:not(.on){background:var(--command-panel-deep)!important;color:var(--command-muted)!important;border-color:var(--command-line)!important}
+#view-calendar .calendar-domain-chips .cal-ctx-pill.on{box-shadow:inset 0 0 0 1px rgba(255,255,255,.06)}
+.sync-health-dot{width:8px;height:8px;border-radius:50%;background:var(--command-warning);box-shadow:0 0 0 4px rgba(237,189,82,.08)}
+.sync-health-dot.connected{background:var(--command-lime);box-shadow:0 0 0 4px rgba(201,244,90,.08)}
+.sync-health-dot.disconnected{background:var(--command-danger);box-shadow:0 0 0 4px rgba(255,107,120,.08)}
+.calendar-sync-summary{color:var(--command-copy);font-size:10px;line-height:1.5}
+.calendar-sync-summary small{display:block;margin-top:3px;color:var(--command-muted);font-size:8px}
+.calendar-summary-metrics{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.calendar-summary-metrics div{display:flex;min-width:0;min-height:66px;flex-direction:column;justify-content:center;gap:4px;padding:10px;border:1px solid var(--command-line);border-radius:10px;background:var(--command-panel-deep)}
+.calendar-summary-metrics strong{color:var(--text1);font-size:20px;font-weight:680;font-variant-numeric:tabular-nums}
+.calendar-summary-metrics span{color:var(--command-muted);font-size:8px}
+.calendar-domain-summary{display:flex;flex-wrap:wrap;gap:5px}
+.calendar-domain-summary span{display:inline-flex;align-items:center;gap:5px;padding:4px 6px;border:1px solid var(--command-line);border-radius:7px;color:var(--command-muted);font-size:8px}
+.calendar-domain-summary i{width:6px;height:6px;border-radius:2px;background:var(--domain-color)}
+
+/* Light mode remains supported and intentionally restrained. */
+html[data-theme="light"]{
+  --command-bg:#f4f5f2;--command-panel:#ffffff;--command-panel-soft:#f1f4ef;--command-panel-deep:#f7f8f5;
+  --command-line:#dce1da;--command-line-strong:#c7cec5;--command-muted:#727a72;--command-copy:#3f463f;
+}
+html[data-theme="light"] .dashboard-customize-menu{background:#fff;box-shadow:0 18px 55px rgba(42,52,42,.15)}
+html[data-theme="light"] #view-dashboard .focus-marker::before{background:#fff!important}
+html[data-theme="light"] .task-kpi-card,
+html[data-theme="light"] .command-side-card,
+html[data-theme="light"] #view-dashboard .today-jelix-insight{background:#fff!important;border-color:var(--command-line)!important}
+html[data-theme="light"] .task-overview-ring{background:radial-gradient(circle at center,#fff 61%,transparent 62%),conic-gradient(#78a929 var(--task-progress,0%),#e6eae3 0)}
+html[data-theme="light"] .smart-overdue-card{background:#fff8f8!important;border-color:#efcfd2!important}
+html[data-theme="light"] .smart-overdue-card.is-clear{background:#fff!important;border-color:var(--command-line)!important}
+
+@media(min-width:769px) and (max-width:1320px){
+  .task-workspace-grid,.calendar-workspace-grid{grid-template-columns:minmax(0,1fr) 250px}
+  .task-kpi-strip{grid-template-columns:repeat(3,1fr)}
+  #view-tasks .filter-hide-mobile{display:none!important}
+  #view-dashboard .today-lower-grid{grid-template-columns:1fr 1fr!important}
+  #view-dashboard .today-timeline-card{grid-column:1/-1}
+  #view-calendar .cal-body{grid-template-columns:220px minmax(0,1fr)!important}
+}
+
+@media(max-width:960px){
+  .task-workspace-grid,.calendar-workspace-grid{grid-template-columns:1fr}
+  .task-intelligence,.calendar-intelligence{
+    display:grid;grid-template-columns:repeat(2,minmax(0,1fr));overflow:visible;
+  }
+  .task-workspace-grid>.board-shell,.calendar-workspace-grid>.cal-shell{min-height:620px}
+}
+
+@media(max-width:768px){
+  #view-dashboard .quiet-dashboard-header .va{gap:7px!important}
+  #view-dashboard .quiet-dashboard-header .dashboard-customize-trigger{
+    width:40px!important;min-width:40px!important;max-width:40px!important;padding:0!important;font-size:0!important
+  }
+  .dashboard-customize-trigger i{font-size:16px!important}
+  .dashboard-customize-menu{position:fixed;top:72px;right:12px;width:min(260px,calc(100vw - 24px))}
+  #view-dashboard .today-focus{grid-template-columns:48px minmax(0,1fr)!important;gap:13px!important}
+  #view-dashboard .focus-marker{width:48px!important;height:48px!important}
+  #view-dashboard .focus-marker strong{font-size:10px}
+  #view-dashboard .today-focus-action{grid-column:1/-1!important;width:100%!important}
+  #view-dashboard .today-lower-grid{grid-template-columns:1fr!important}
+  #view-dashboard .today-timeline-card{grid-column:auto}
+
+  #view-tasks .task-page-shell,#view-calendar .calendar-page-shell{padding:20px 12px 108px!important;gap:12px!important}
+  .task-kpi-strip{display:flex;gap:8px;overflow-x:auto;padding-bottom:2px;scroll-snap-type:x proximity;scrollbar-width:none}
+  .task-kpi-strip::-webkit-scrollbar{display:none}
+  .task-kpi-card{min-width:142px;min-height:64px;scroll-snap-align:start}
+  .task-kpi-card strong{font-size:18px}
+  .task-workspace-grid,.calendar-workspace-grid{display:flex;flex-direction:column;overflow:visible}
+  .task-intelligence,.calendar-intelligence{display:flex;flex-direction:row;gap:9px;overflow-x:auto;scroll-snap-type:x proximity;scrollbar-width:none}
+  .task-intelligence::-webkit-scrollbar,.calendar-intelligence::-webkit-scrollbar{display:none}
+  .task-intelligence .command-side-card,.calendar-intelligence .command-side-card{min-width:min(286px,82vw);scroll-snap-align:start}
+  .task-overview-visual{grid-template-columns:94px minmax(0,1fr)}
+  .task-overview-ring{width:88px;height:88px}
+  .task-workspace-grid>.board-shell{order:2;min-height:560px!important}
+  .task-intelligence{order:1}
+  .calendar-workspace-grid>.cal-shell{order:2;min-height:680px!important}
+  .calendar-intelligence{order:1}
+  #view-calendar .cal-shell{height:auto!important}
+  #view-calendar .cal-toolbar{overflow:visible!important}
+  #view-calendar .calendar-domain-filter-row{display:none}
+}
+
+@media(max-width:430px){
+  .task-kpi-card{min-width:132px;padding:10px}
+  .task-kpi-icon{width:30px;height:30px;flex-basis:30px}
+  #view-dashboard .today-jelix-insight{min-height:148px}
+}
+
+@media(prefers-reduced-motion:reduce){
+  button.task-kpi-card{transition:none}
+}
