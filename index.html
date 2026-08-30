@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1231,13 +1232,27 @@ if (window.top !== window.self) {
           <div class="vs" id="briefSub" style="margin-top:4px">Loading...</div>
         </div>
         <div class="va">
+          <div class="dashboard-customize-wrap">
+            <button class="btn btn-g dashboard-customize-trigger" type="button" onclick="toggleDashboardCustomize(event)" aria-expanded="false" aria-controls="dashboardCustomizeMenu"><i class="ti ti-adjustments-horizontal"></i> Customize</button>
+            <div class="dashboard-customize-menu" id="dashboardCustomizeMenu" hidden>
+              <div class="dashboard-customize-heading"><span>Dashboard layout</span><small>Choose what stays in view</small></div>
+              <label><input type="checkbox" data-dashboard-panel="focus" checked onchange="setDashboardPanelVisibility('focus',this.checked)"><span>Smart focus</span></label>
+              <label><input type="checkbox" data-dashboard-panel="actions" checked onchange="setDashboardPanelVisibility('actions',this.checked)"><span>Next actions</span></label>
+              <label><input type="checkbox" data-dashboard-panel="finance" checked onchange="setDashboardPanelVisibility('finance',this.checked)"><span>Money today</span></label>
+              <label><input type="checkbox" data-dashboard-panel="insights" checked onchange="setDashboardPanelVisibility('insights',this.checked)"><span>Daily intelligence</span></label>
+              <label><input type="checkbox" data-dashboard-panel="timeline" checked onchange="setDashboardPanelVisibility('timeline',this.checked)"><span>Today timeline</span></label>
+            </div>
+          </div>
           <button class="btn btn-t quiet-add-task" onclick="openModal('taskModal')"><i class="ti ti-plus"></i> Add task</button>
         </div>
       </div>
       <div class="vb" style="padding:10px 14px;display:flex;flex-direction:column;gap:10px;overflow-y:auto;-webkit-overflow-scrolling:touch">
 
-        <section class="today-focus" aria-labelledby="todayFocusTitle">
-          <div class="focus-marker" aria-hidden="true"><span></span></div>
+        <section class="today-focus" aria-labelledby="todayFocusTitle" data-dashboard-panel="focus">
+          <div class="focus-marker" id="todayFocusProgressRing" aria-label="Focus progress">
+            <span aria-hidden="true"></span>
+            <strong id="todayFocusProgressValue">0%</strong>
+          </div>
           <div class="today-focus-copy">
             <div class="today-kicker">Focus for today</div>
             <h2 id="todayFocusTitle">A clear place to begin</h2>
@@ -1272,7 +1287,7 @@ if (window.top !== window.self) {
         <div id="briefMainRow" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;flex-shrink:0;min-height:200px">
 
           <!-- TO DO NOW — HIGH PRIORITY -->
-          <div class="bd-block quiet-actions-card" style="display:flex;flex-direction:column;overflow:hidden">
+          <div class="bd-block quiet-actions-card" data-dashboard-panel="actions" style="display:flex;flex-direction:column;overflow:hidden">
             <div class="bd-h today-card-heading" style="margin-bottom:8px;flex-shrink:0">
               <span><i class="ti ti-list-check" style="color:var(--teal)"></i>Next actions</span>
               <button class="quiet-card-link compact" type="button" onclick="setView('tasks')">View all tasks <i class="ti ti-arrow-right"></i></button>
@@ -1281,7 +1296,7 @@ if (window.top !== window.self) {
           </div>
 
           <!-- FINANCE SNAPSHOT -->
-          <div class="bd-block oc quiet-money-card" style="display:flex;flex-direction:column;overflow:hidden">
+          <div class="bd-block oc quiet-money-card" data-dashboard-panel="finance" style="display:flex;flex-direction:column;overflow:hidden">
             <div class="bd-h" style="justify-content:space-between;margin-bottom:10px;flex-shrink:0">
               <span style="display:flex;align-items:center;gap:5px"><i class="ti ti-wallet"></i>Money today</span>
               <button class="quiet-card-link compact" onclick="setView('life')">Open finances <i class="ti ti-arrow-up-right"></i></button>
@@ -1296,7 +1311,7 @@ if (window.top !== window.self) {
 
         <!-- ROW 3: DAILY BRIEF + TIMELINE -->
         <div class="today-lower-grid">
-          <aside class="bd-block today-daily-brief" aria-labelledby="todayDailyBriefTitle">
+          <aside class="bd-block today-daily-brief" data-dashboard-panel="insights" aria-labelledby="todayDailyBriefTitle">
             <div class="today-daily-brief-heading">
               <i class="ti ti-speakerphone"></i>
               <span id="todayDailyBriefTitle">Daily brief</span>
@@ -1308,7 +1323,16 @@ if (window.top !== window.self) {
             <button type="button" class="today-daily-brief-action" onclick="setView('review')">Open review <i class="ti ti-arrow-right"></i></button>
           </aside>
 
-          <section class="bd-block dashboard-upcoming today-timeline-card" style="flex-shrink:0;padding:10px 14px">
+          <aside class="bd-block today-jelix-insight" data-dashboard-panel="insights" aria-labelledby="todayJelixInsightTitle">
+            <div class="today-jelix-insight-heading">
+              <span class="today-jelix-mark"><i class="ti ti-sparkles"></i></span>
+              <div><span id="todayJelixInsightTitle">J.E.L.I.X. insight</span><small>Based on your live workspace</small></div>
+            </div>
+            <div id="todayJelixInsight" class="today-jelix-insight-body">Reviewing your tasks and schedule.</div>
+            <button type="button" class="today-jelix-insight-action" onclick="setView('ai')">Think this through <i class="ti ti-arrow-up-right"></i></button>
+          </aside>
+
+          <section class="bd-block dashboard-upcoming today-timeline-card" data-dashboard-panel="timeline" style="flex-shrink:0;padding:10px 14px">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
               <div style="display:flex;align-items:center;gap:6px">
                 <i class="ti ti-calendar-week" style="color:var(--teal);font-size:var(--text-sm);line-height:1;display:block"></i>
@@ -2250,6 +2274,7 @@ if (window.top !== window.self) {
           </div>
           <button class="btn btn-t calendar-page-add" onclick="openCalEventModal()"><i class="ti ti-plus"></i> New event</button>
         </header>
+        <div class="calendar-workspace-grid">
         <div class="cal-shell">
 
         <!-- TOOLBAR -->
@@ -2297,6 +2322,10 @@ if (window.top !== window.self) {
               <button class="cal-vt active" id="cvt-agenda2" onclick="setCalView('agenda')" style="padding:6px 14px;min-height:32px">Agenda</button>
             </div>
           </div>
+          <div class="calendar-domain-filter-row" aria-label="Filter calendar by domain">
+            <span><i class="ti ti-filter"></i> Domains</span>
+            <div id="calCtxFilters" class="calendar-domain-chips"></div>
+          </div>
         </div>
 
         <!-- BODY -->
@@ -2336,6 +2365,30 @@ if (window.top !== window.self) {
 
         </div><!-- /cal-body -->
         </div><!-- /cal-shell -->
+        <aside class="calendar-intelligence" aria-label="Calendar overview">
+          <section class="command-side-card calendar-sync-card">
+            <div class="command-side-heading"><span><i class="ti ti-cloud-check"></i> Calendar sync</span><span class="sync-health-dot" id="calendarSyncHealthDot"></span></div>
+            <div id="calendarSyncSummary" class="calendar-sync-summary">Checking Google Workspace connection.</div>
+            <button class="command-side-action" id="calendarSyncAction" type="button" onclick="runCalendarSync()"><i class="ti ti-refresh"></i><span>Sync calendar</span></button>
+          </section>
+          <section class="command-side-card">
+            <div class="command-side-heading"><span><i class="ti ti-chart-donut"></i> Event summary</span><small id="calendarSummaryDate">Today</small></div>
+            <div class="calendar-summary-metrics">
+              <div><strong id="calendarTodayEvents">0</strong><span>events today</span></div>
+              <div><strong id="calendarTodayHours">0h</strong><span>scheduled</span></div>
+            </div>
+            <div id="calendarDomainSummary" class="calendar-domain-summary"></div>
+          </section>
+          <section class="command-side-card">
+            <div class="command-side-heading"><span><i class="ti ti-sun"></i> Today at a glance</span></div>
+            <div id="calendarTodayGlance" class="calendar-side-list"></div>
+          </section>
+          <section class="command-side-card">
+            <div class="command-side-heading"><span><i class="ti ti-flag"></i> Upcoming deadlines</span><button type="button" onclick="setView('tasks')">View tasks</button></div>
+            <div id="calendarUpcomingDeadlines" class="calendar-side-list"></div>
+          </section>
+        </aside>
+        </div><!-- /calendar-workspace-grid -->
       </div><!-- /calendar-page-shell -->
 
       <!-- EVENT DETAIL POPOVER -->
@@ -2363,6 +2416,15 @@ if (window.top !== window.self) {
             <i class="ti ti-plus"></i> New task
           </button>
         </header>
+        <div class="task-kpi-strip" aria-label="Task overview">
+          <button type="button" class="task-kpi-card" onclick="clearBoardFilters()"><span class="task-kpi-icon total"><i class="ti ti-stack-2"></i></span><span><small>Total tasks</small><strong id="taskKpiTotal">0</strong></span></button>
+          <button type="button" class="task-kpi-card" onclick="setTaskStatusFilter('In Progress')"><span class="task-kpi-icon progress"><i class="ti ti-progress-check"></i></span><span><small>In progress</small><strong id="taskKpiProgress">0</strong></span></button>
+          <button type="button" class="task-kpi-card" onclick="applySmartView('overdue')"><span class="task-kpi-icon overdue"><i class="ti ti-alert-triangle"></i></span><span><small>Overdue</small><strong id="taskKpiOverdue">0</strong></span></button>
+          <button type="button" class="task-kpi-card" onclick="applySmartView('today')"><span class="task-kpi-icon today"><i class="ti ti-calendar-event"></i></span><span><small>Due today</small><strong id="taskKpiToday">0</strong></span></button>
+          <button type="button" class="task-kpi-card" onclick="setTaskStatusFilter('Done')"><span class="task-kpi-icon complete"><i class="ti ti-circle-check"></i></span><span><small>Completed</small><strong id="taskKpiCompleted">0</strong></span></button>
+          <div class="task-kpi-card"><span class="task-kpi-icon focus"><i class="ti ti-timer"></i></span><span><small>Focus time</small><strong id="taskKpiFocus">0m</strong></span></div>
+        </div>
+      <div class="task-workspace-grid">
       <div class="board-shell">
         <!-- BOARD TOOLBAR -->
         <div class="board-toolbar" style="flex-direction:column;align-items:stretch;gap:0;padding:0">
@@ -2521,6 +2583,29 @@ if (window.top !== window.self) {
           <div id="mobileTaskContainer" style="flex:1;overflow-y:auto;overscroll-behavior-y:contain;padding-bottom:80px"></div>
         </div>
       </div>
+      <aside class="task-intelligence" aria-label="Task intelligence">
+        <section class="command-side-card task-overview-card">
+          <div class="command-side-heading"><span><i class="ti ti-chart-donut-3"></i> Task overview</span><small id="taskOverviewLabel">All tasks</small></div>
+          <div class="task-overview-visual">
+            <div class="task-overview-ring" id="taskOverviewRing"><strong id="taskOverviewPercent">0%</strong><span>complete</span></div>
+            <div class="task-overview-legend" id="taskOverviewLegend"></div>
+          </div>
+        </section>
+        <section class="command-side-card">
+          <div class="command-side-heading"><span><i class="ti ti-calendar-due"></i> Upcoming deadlines</span><button type="button" onclick="applySmartView('week')">This week</button></div>
+          <div id="taskUpcomingDeadlines" class="task-side-list"></div>
+        </section>
+        <section class="command-side-card task-productivity-card">
+          <div class="command-side-heading"><span><i class="ti ti-sparkles"></i> Productivity insight</span></div>
+          <div id="taskProductivityInsight" class="task-productivity-copy">Reviewing your workload.</div>
+        </section>
+        <section class="command-side-card smart-overdue-card" id="smartOverdueCard">
+          <div class="smart-overdue-icon"><i class="ti ti-wand"></i></div>
+          <div><strong id="smartOverdueTitle">Overdue action</strong><span id="smartOverdueText">Your overdue queue is clear.</span></div>
+          <button type="button" onclick="applySmartView('overdue')">Review overdue <i class="ti ti-arrow-right"></i></button>
+        </section>
+      </aside>
+      </div><!-- /task-workspace-grid -->
       </div>
     </div>
 
@@ -3444,6 +3529,8 @@ if (window.top !== window.self) {
 <script src="mobile-command-center.js?v=20260826-3"></script>
 
 <script src="mobile-viewport.js?v=20260827-1"></script>
+<link rel="stylesheet" href="productivity-command-center.css?v=20260830-1">
+<script src="productivity-command-center.js?v=20260830-1"></script>
 
 </body>
 </html>
