@@ -125,8 +125,22 @@
     if(typeof window.renderTasks==='function')window.renderTasks();
   };
 
+  function normalizeTaskKpiStrip(){
+    const strip=document.querySelector('#view-tasks .task-kpi-strip');
+    if(!strip)return;
+    const seen=new Set();
+    strip.querySelectorAll('.task-kpi-card').forEach(card=>{
+      const label=(card.querySelector('small')?.textContent||'').trim().toLowerCase();
+      const key=label||card.dataset.taskKpi;
+      if(!key)return;
+      if(seen.has(key))card.remove();
+      else seen.add(key);
+    });
+  }
+
   function renderTaskCommandCenter(){
     if(typeof DB==='undefined')return;
+    normalizeTaskKpiStrip();
     const tasks=Array.isArray(DB.tasks)?DB.tasks:[];
     const today=todayString();
     const open=tasks.filter(task=>task.status!=='Done');
