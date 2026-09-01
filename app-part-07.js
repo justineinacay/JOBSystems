@@ -710,8 +710,6 @@ function loadOS(){
     try{speak(buildDailyBriefSummary());}
     catch(e){console.warn('Brief summary error:',e);}
   },2500);
-  // Auto morning intelligence (once per day)
-  setTimeout(scheduleAutoBrief, 3500);
 }
 
 async function runBootSequence(){
@@ -1178,9 +1176,9 @@ function jilSaveKey(key,data){localStorage.setItem(key,JSON.stringify(data));}
 // ── Patch setView to handle JIL views ────────────────────────────────────
 const _origSetViewJIL = window.setView;
 window.setView = function(v){
+  if(v==='jarvis-morning')v='dashboard';
   _origSetViewJIL(v);
   const jilR={
-    'jarvis-morning':renderMorningBrief,
     'jarvis-capture':renderCaptureView,
     'jarvis-connect':renderConnectionsView,
     'jarvis-weekly':renderWeeklyView,
@@ -1194,9 +1192,9 @@ window.setView = function(v){
 
 // Patch NAV_MAP for voice navigation
 if(typeof NAV_MAP!=='undefined'){
-  NAV_MAP['morning intelligence']='jarvis-morning';
-  NAV_MAP['morning intelligenceing']='jarvis-morning';
-  NAV_MAP['jarvis brief']='jarvis-morning';
+  NAV_MAP['morning intelligence']='dashboard';
+  NAV_MAP['morning intelligenceing']='dashboard';
+  NAV_MAP['jarvis brief']='dashboard';
   NAV_MAP['capture']='jarvis-capture';
   NAV_MAP['capture processor']='jarvis-capture';
   NAV_MAP['connections']='jarvis-connect';
@@ -1218,7 +1216,7 @@ const _origReRenderJIL = window.reRenderAll;
 window.reRenderAll = function(){
   if(_origReRenderJIL) _origReRenderJIL.apply(this,arguments);
   // Refresh JIL views only if currently active
-  const jilViews=['jarvis-morning','jarvis-capture','jarvis-connect','jarvis-weekly','jarvis-context','jarvis-pattern','jarvis-decision','jarvis-claude'];
+  const jilViews=['jarvis-capture','jarvis-connect','jarvis-weekly','jarvis-context','jarvis-pattern','jarvis-decision','jarvis-claude'];
   if(jilViews.includes(window.currentView||'')){
     setView(window.currentView);
   }
@@ -2034,9 +2032,9 @@ const CLAUDE_MD_DEFAULTS={
   currentBeliefs:`- Consistency beats intensity for creative output\n- Systems multiply individual effort\n- Faith-driven work produces better results than fear-driven work\n- Pre-revenue focus is correct — build before billing\n- Sleep protection is non-negotiable for shift-based life`,
   activeQuestions:`- What decision needs attention next?\n- Which commitments are at risk?\n- What should be simplified or removed?`,
   outputStandards:`- Warm, direct, colleague-style tone — no formal address\n- Lead with solution, no preamble\n- Markdown, bold headers, bullets for structured output\n- Clear and analytical, zero fluff\n- Include hook + value + CTA for all marketing content\n- Premium but approachable tone`,
-  permissions:`- Access all six life worlds freely\n- Reference past context from memory\n- Proactively flag conflicts between worlds\n- Surface decisions pending review\n- Run morning intelligence on request`,
+  permissions:`- Access all six life worlds freely\n- Reference past context from memory\n- Proactively flag conflicts between worlds\n- Surface decisions pending review`,
   memoryRules:`- Always update when location, role, or project status changes\n- Tag all memories with world and date\n- Never store passwords or credentials\n- Prioritise recent context over older memory\n- Flag conflicts between memory and current input`,
-  updateProtocol:`- Update CLAUDE.md when: role changes, project launches/closes, belief updates confirmed, location changes\n- Run weekly synthesis every Sunday 7PM\n- Run morning intelligence on shift start (2AM)\n- Run pattern detector monthly`
+  updateProtocol:`- Update CLAUDE.md when: role changes, project launches/closes, belief updates confirmed, location changes\n- Run weekly synthesis every Sunday 7PM\n- Run pattern detector monthly`
 };
 
 const CLAUDE_MD_SECTIONS=[
@@ -2120,7 +2118,6 @@ function renderClaudeMD(){
 // ═══════════════════════════════════════════════════════════════════════════
 (function(){
   const jilCmds=[
-    {label:'Morning Intelligence',sub:'J.O.B Systems daily intelligence report',icon:'ti-sunrise',action:()=>setView('jarvis-morning'),group:'Intelligence'},
     {label:'Capture',sub:'Classify and route a new capture',icon:'ti-bolt',action:()=>{setView('jarvis-capture');setTimeout(openCaptureModal,200);},group:'Intelligence'},
     {label:'Connection Finder',sub:'Scan 48hr activity for links',icon:'ti-link',action:()=>setView('jarvis-connect'),group:'Intelligence'},
     {label:'Weekly Synthesis',sub:'Full week in one report',icon:'ti-chart-bar',action:()=>setView('jarvis-weekly'),group:'Intelligence'},
@@ -2128,7 +2125,6 @@ function renderClaudeMD(){
     {label:'Pattern Detector',sub:'Find recurring themes',icon:'ti-trending-up',action:()=>setView('jarvis-pattern'),group:'Intelligence'},
     {label:'Decision Intel',sub:'Structured decision log',icon:'ti-scale',action:()=>setView('jarvis-decision'),group:'Intelligence'},
     {label:'CLAUDE.md',sub:'Live intelligence profile',icon:'ti-id-badge-2',action:()=>setView('jarvis-claude'),group:'Intelligence'},
-    {label:'Run Morning Intelligence',sub:'Generate now',icon:'ti-sun',action:()=>{setView('jarvis-morning');setTimeout(runMorningIntelligence,200);},group:'Intelligence'},
     {label:'Log Decision',sub:'Open decision modal',icon:'ti-scale',action:()=>{setView('jarvis-decision');setTimeout(openDecisionModal,200);},group:'Intelligence'},
     {label:'Context Engine',sub:'Open context snapshot',icon:'ti-brain',action:()=>setView('jarvis-context'),group:'Intelligence'},
     {label:'Detect Patterns',sub:'Run monthly pattern scan',icon:'ti-trending-up',action:()=>{setView('jarvis-pattern');setTimeout(runPatternDetector,200);},group:'Intelligence'},
@@ -2144,7 +2140,6 @@ function renderClaudeMD(){
 // JIL VOICE COMMANDS
 // ═══════════════════════════════════════════════════════════════════════════
 const JIL_VOICE_INTENTS=[
-  {re:/^(run|generate|show)\s+(morning\s+)?brief/i,    action:'jil_morning_brief'},
   {re:/^(log|add|record)\s+(a\s+)?(belief|believe)/i,  action:'jil_belief'},
   {re:/^(log|add|record)\s+(a\s+)?decision/i,          action:'jil_decision'},
   {re:/^(find|run|scan)\s+(connections?|links?)/i,     action:'jil_connect'},
@@ -2162,7 +2157,6 @@ window.executeVoiceCommand=function(rawText){
     if(!m)continue;
     const g=m.groups||{};
     switch(intent.action){
-      case'jil_morning_brief':setView('jarvis-morning');setTimeout(runMorningIntelligence,300);setVcState('idle');showVcResult('Morning Intelligence running.');speak('Generating your morning intelligence.');return;
       case'jil_belief':setView('jarvis-belief');setTimeout(openBeliefModal,300);setVcState('idle');showVcResult('Belief log open.');return;
       case'jil_decision':setView('jarvis-decision');setTimeout(openDecisionModal,300);setVcState('idle');showVcResult('Decision log open.');return;
       case'jil_connect':setView('jarvis-connect');setTimeout(runConnectionFinder,300);setVcState('idle');showVcResult('Finding connections.');return;
@@ -2190,7 +2184,7 @@ window.executeVoiceCommand=function(rawText){
 };
 
 // ═══════════════════════════════════════════════════════════════════════════
-// BOOT BRIEF — auto-run morning intelligence on load if it's a new day
+// STARTUP PRIORITY NUDGE — surface high-priority work once per day
 // ═══════════════════════════════════════════════════════════════════════════
 (function scheduleBootBrief(){
   const lastBrief=localStorage.getItem('j-last-brief-date');
@@ -2211,7 +2205,6 @@ window.executeVoiceCommand=function(rawText){
   const moreMenu=document.getElementById('mobileMoreMenu');
   if(!moreMenu)return;
   const jilItems=[
-    {view:'jarvis-morning',icon:'ti-sun',label:'Brief'},
     {view:'jarvis-capture',icon:'ti-capture',label:'Capture'},
     {view:'jarvis-decision',icon:'ti-scale',label:'Decisions'},
     {view:'jarvis-belief',icon:'ti-shield-check',label:'Beliefs'},
@@ -2233,7 +2226,7 @@ window.executeVoiceCommand=function(rawText){
   const s=document.createElement('style');
   s.textContent=`
     /* JIL view transitions */
-    #view-jarvis-morning .vb,#view-jarvis-capture .vb,#view-jarvis-connect .vb,
+    #view-jarvis-capture .vb,#view-jarvis-connect .vb,
     #view-jarvis-weekly .vb,#view-jarvis-pattern .vb,
     #view-jarvis-decision .vb{overflow-y:auto;-webkit-overflow-scrolling:touch}
 
@@ -2268,8 +2261,6 @@ window.executeVoiceCommand=function(rawText){
 .ni[data-view="memory"]:hover,.ni[data-view="memory"].active{background:rgba(0,255,242,.07);color:var(--teal)}
 .ni[data-view="history"]:hover,.ni[data-view="history"].active{background:rgba(0,255,242,.07);color:var(--teal)}
 /* Intelligence — per-item colors matching their icon colors */
-.ni[data-view="jarvis-morning"]:hover,.ni[data-view="jarvis-morning"].active{background:rgba(245,158,11,.08);color:var(--amber)}
-.ni[data-view="jarvis-morning"].active::after{background:var(--amber);content:"";width:5px;height:5px;border-radius:50%;margin-left:auto;flex-shrink:0;display:block}
 .ni[data-view="jarvis-capture"]:hover,.ni[data-view="jarvis-capture"].active{background:rgba(0,255,242,.07);color:var(--teal)}
 .ni[data-view="jarvis-capture"].active::after{background:var(--teal);content:"";width:5px;height:5px;border-radius:50%;margin-left:auto;flex-shrink:0;display:block}
 .ni[data-view="jarvis-connect"]:hover,.ni[data-view="jarvis-connect"].active{background:rgba(168,85,247,.08);color:var(--purple)}
@@ -2288,9 +2279,6 @@ window.executeVoiceCommand=function(rawText){
 .ni.world-ni:hover{background:color-mix(in srgb,var(--ni-color,var(--teal)) 8%,transparent);color:var(--ni-color,var(--teal))}
 .ni.world-ni.active{background:color-mix(in srgb,var(--ni-color,var(--teal)) 10%,transparent);color:var(--ni-color,var(--teal));font-weight:700}
 .ni.world-ni.active::after{background:var(--ni-color,var(--teal));width:5px;height:5px;border-radius:50%;margin-left:auto;flex-shrink:0;display:block}
-
-    /* Morning brief amber accent */
-    #view-jarvis-morning .vh{border-bottom-color:var(--orange2)}
 
     /* Mobile responsive */
     @media(max-width:768px){
@@ -2435,9 +2423,9 @@ window.executeVoiceCommand = function(rawText){
         setVcState('idle'); showVcResult(result); speak(result); _safeChime('chimeSuccess'); return;
       }
       case 'daily_brief':{
-        setView('jarvis-morning');
-        setTimeout(()=>{ runMorningIntelligence(); speakSlow(_lastMorningIntelligence||'Morning brief ready.'); _safeChime('chimeSuccess'); }, 400);
-        setVcState('idle'); return;
+        setView('dashboard');
+        const result=buildDailyBriefSummary();
+        setVcState('idle');showVcResult(result);speak(result);_safeChime('chimeSuccess');return;
       }
       case 'update_task_status_done':{
         const target=(g.target||'').trim();
@@ -2483,22 +2471,6 @@ window.executeVoiceCommand = function(rawText){
 
 // Patch original voice handler to use chimes for success/error
 const _origExecVC2 = window.executeVoiceCommand;
-
-// ── ENHANCEMENT 4b: Auto daily brief on first open of the day ─────────────
-// scheduleAutoBrief is called inside loadOS() post-unlock
-function scheduleAutoBrief(){
-  const lastKey='j-auto-brief-shown';
-  const today=localDateStr(new Date());
-  if(localStorage.getItem(lastKey)===today) return;
-  localStorage.setItem(lastKey,today);
-  setTimeout(()=>{
-    try{
-      runMorningIntelligence();
-      chimeboot();
-      setTimeout(()=>speak(_lastMorningIntelligence||'Good morning. Daily brief is ready.'),1200);
-    }catch(e){}
-  },3000);
-}
 
 // ── ENHANCEMENT 5: Voice Biometric Lock ───────────────────────────────────
 const VBL = {

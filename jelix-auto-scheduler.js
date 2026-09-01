@@ -1,16 +1,11 @@
 // === JELIX AUTO-SCHEDULER ===
-// Morning Intelligence: daily 10AM | Weekly Synthesis: Monday 10AM
+// Weekly Synthesis: Monday 10AM
 (function(){
   function check(){
     var now=new Date(),h=now.getHours(),m=now.getMinutes(),day=now.getDay();
     var key=localDateStr(now);
-    if(h===10&&m===0){
-      if(!localStorage.getItem('j-brief-'+key)){
-        localStorage.setItem('j-brief-'+key,'1');
-        if(typeof showToast==='function')showToast('⏰ Morning Intelligence starting...');
-        setTimeout(function(){if(typeof setView==='function')setView('jarvis-morning');},1500);
-      }
-      if(day===1&&!localStorage.getItem('j-synth-'+key)){
+    if(h===10&&m===0&&day===1){
+      if(!localStorage.getItem('j-synth-'+key)){
         localStorage.setItem('j-synth-'+key,'1');
         setTimeout(function(){if(typeof showToast==='function')showToast('Weekly Synthesis starting...');if(typeof setView==='function')setView('jarvis-weekly');},5000);
       }

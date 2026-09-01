@@ -118,7 +118,7 @@
 .command-side-action:disabled{cursor:wait;opacity:.6}
 
 /* Tasks */
-#view-tasks .task-page-shell{max-width:1680px!important;padding:28px 30px 34px!important;gap:14px!important}
+#view-tasks .task-page-shell{width:100%!important;max-width:none!important;margin:0!important;padding:28px 30px 34px!important;gap:14px!important;box-sizing:border-box!important}
 .task-kpi-strip{
   display:grid;grid-template-columns:repeat(6,minmax(128px,1fr));gap:9px;flex-shrink:0;
 }
@@ -187,7 +187,7 @@ button.task-kpi-card:active{transform:translateY(0) scale(.985)}
 .smart-overdue-card.is-clear button{display:none}
 
 /* Calendar */
-#view-calendar .calendar-page-shell{max-width:1680px!important;padding:28px 30px 34px!important;gap:14px!important}
+#view-calendar .calendar-page-shell{width:100%!important;max-width:none!important;margin:0!important;padding:28px 30px 34px!important;gap:14px!important;box-sizing:border-box!important}
 .calendar-workspace-grid{
   display:grid;grid-template-columns:minmax(0,1fr) 282px;gap:14px;flex:1;min-height:0;
 }
@@ -247,6 +247,64 @@ html[data-theme="light"] .smart-overdue-card.is-clear{background:#fff!important;
     display:grid;grid-template-columns:repeat(2,minmax(0,1fr));overflow:visible;
   }
   .task-workspace-grid>.board-shell,.calendar-workspace-grid>.cal-shell{min-height:620px}
+}
+
+/* A collapsed desktop rail stays icon-only, including while hovered. */
+@media(min-width:769px){
+  .app.nav-collapsed,
+  .app.nav-collapsed:has(.side-panel:hover){grid-template-columns:76px minmax(0,1fr)!important}
+  .app.nav-collapsed .side-panel,
+  .app.nav-collapsed .side-panel:hover{
+    width:76px!important;min-width:76px!important;max-width:76px!important;
+    padding:0 8px 14px!important;overflow-x:hidden!important;box-shadow:none!important;
+  }
+  .app.nav-collapsed .topbar,
+  .app.nav-collapsed:has(.side-panel:hover) .topbar{padding-left:100px!important}
+  .app.nav-collapsed .topbar::before,
+  .app.nav-collapsed:has(.side-panel:hover) .topbar::before{width:76px!important}
+  .app.nav-collapsed .sidebar-brand,
+  .app.nav-collapsed .side-panel:hover .sidebar-brand{
+    width:60px!important;min-width:60px!important;max-width:60px!important;
+    justify-content:center!important;padding:0!important;
+  }
+  .app.nav-collapsed .sidebar-brand-name,
+  .app.nav-collapsed .side-panel:hover .sidebar-brand-name,
+  .app.nav-collapsed .side-panel .nav-label,
+  .app.nav-collapsed .side-panel:hover .nav-label,
+  .app.nav-collapsed .side-panel .ni>span:not(.nbadge),
+  .app.nav-collapsed .side-panel:hover .ni>span:not(.nbadge),
+  .app.nav-collapsed .side-panel .nav-shortcut,
+  .app.nav-collapsed .side-panel:hover .nav-shortcut,
+  .app.nav-collapsed .side-panel .side-utility-label,
+  .app.nav-collapsed .side-panel:hover .side-utility-label,
+  .app.nav-collapsed .side-panel .nav-section-action,
+  .app.nav-collapsed .side-panel:hover .nav-section-action,
+  .app.nav-collapsed .side-panel .nav-more-chevron,
+  .app.nav-collapsed .side-panel:hover .nav-more-chevron,
+  .app.nav-collapsed .side-panel #navWorldsLabel>span,
+  .app.nav-collapsed .side-panel:hover #navWorldsLabel>span,
+  .app.nav-collapsed .side-panel .world-ni>span,
+  .app.nav-collapsed .side-panel:hover .world-ni>span,
+  .app.nav-collapsed .side-panel #navProfileCard .np-text,
+  .app.nav-collapsed .side-panel:hover #navProfileCard .np-text,
+  .app.nav-collapsed .side-panel .vsbtn>span,
+  .app.nav-collapsed .side-panel:hover .vsbtn>span{display:none!important}
+  .app.nav-collapsed .side-panel .ni,
+  .app.nav-collapsed .side-panel:hover .ni{
+    display:grid!important;grid-template-columns:1fr!important;place-items:center!important;
+    width:44px!important;min-width:44px!important;height:42px!important;min-height:42px!important;
+    margin:2px auto!important;padding:0!important;gap:0!important;font-size:0!important;
+  }
+  .app.nav-collapsed .side-panel .ni>i,
+  .app.nav-collapsed .side-panel:hover .ni>i,
+  .app.nav-collapsed .side-panel .workspace-nav-logo,
+  .app.nav-collapsed .side-panel:hover .workspace-nav-logo{grid-column:1!important;margin:0!important}
+  .app.nav-collapsed .side-panel .ngl,
+  .app.nav-collapsed .side-panel:hover .ngl{
+    display:flex!important;justify-content:center!important;padding:14px 0 5px!important;font-size:0!important;
+  }
+  .app.nav-collapsed .side-panel .side-bottom,
+  .app.nav-collapsed .side-panel:hover .side-bottom{align-items:center!important;padding:8px 0 10px!important}
 }
 
 @media(max-width:768px){

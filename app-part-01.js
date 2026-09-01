@@ -575,7 +575,7 @@ const JELIX_AGENTS={
       return{monthRevenue:debits,monthSpend:credits,taskCompletionRate:totalTasks?Math.round(100*doneTasks/totalTasks)+'%':'n/a',
         activeSocialPosts:(DB.socialPosts||[]).length,openPipelineDeals:(DB.pipeline||[]).length};
     }},
-  AURA:{name:'AURA',domain:'Habits, morning intelligence, goals, reflection, personal growth',provider:'chatgpt',
+  AURA:{name:'AURA',domain:'Habits, goals, reflection, personal growth',provider:'chatgpt',
     context:()=>({journal:_jelixCompact(DB.journal,['title','mood','date'],5),
       faith:_jelixCompact(DB.faith,['title','date'],3)})},
   SPARK:{name:'SPARK',domain:'Brainstorming, research, strategy, innovation',provider:'chatgpt',
@@ -1050,7 +1050,6 @@ const Store={
     memory:()=>{try{renderMemory();}catch(e){}},
     history:()=>{try{renderHistory();}catch(e){}},
     review:()=>{try{renderReviewView();}catch(e){}},
-    'jarvis-morning':()=>{},
     ai:()=>{try{renderAiHero();}catch(e){}},
     'worlds-settings':()=>{try{renderWorldsSettings();}catch(e){}},
     settings:()=>{try{renderSettingsView();}catch(e){}},
@@ -1149,7 +1148,7 @@ function renderSideNav(){
   document.querySelectorAll('[data-view]').forEach(function(el){
     el.classList.toggle('active',el.dataset.view===currentView);
   });
-  const moreViews=['tasks','inbox','notes','links','all-files','memory','history','jarvis-morning','jarvis-capture','jarvis-connect','jarvis-weekly','jarvis-context','jarvis-pattern','jarvis-decision','jarvis-claude'];
+  const moreViews=['tasks','inbox','notes','links','all-files','memory','history','jarvis-capture','jarvis-connect','jarvis-weekly','jarvis-context','jarvis-pattern','jarvis-decision','jarvis-claude'];
   const moreGroup=document.querySelector('.nav-more-group');
   const moreToggle=moreGroup?.querySelector('.nav-more-toggle');
   if(moreGroup){moreGroup.classList.toggle('open',moreViews.includes(currentView));if(moreToggle)moreToggle.setAttribute('aria-expanded',String(moreViews.includes(currentView)));}
