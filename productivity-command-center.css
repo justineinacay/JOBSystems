@@ -250,6 +250,21 @@ html[data-theme="light"] .smart-overdue-card.is-clear{background:#fff!important;
 }
 
 /* A collapsed desktop rail stays icon-only, including while hovered. */
+.app.nav-collapsed .side-panel .nav-label,
+.app.nav-collapsed .side-panel:hover .nav-label,
+.app.nav-collapsed .side-panel .ni>span:not(.nbadge),
+.app.nav-collapsed .side-panel:hover .ni>span:not(.nbadge),
+.app.nav-collapsed .side-panel .nav-shortcut,
+.app.nav-collapsed .side-panel:hover .nav-shortcut,
+.app.nav-collapsed .side-panel .side-utility-label,
+.app.nav-collapsed .side-panel:hover .side-utility-label,
+.app.nav-collapsed .side-panel #navWorldsLabel>span,
+.app.nav-collapsed .side-panel:hover #navWorldsLabel>span,
+.app.nav-collapsed .side-panel .world-ni>span,
+.app.nav-collapsed .side-panel:hover .world-ni>span,
+.app.nav-collapsed .side-panel .vsbtn>span,
+.app.nav-collapsed .side-panel:hover .vsbtn>span{display:none!important}
+
 @media(min-width:769px){
   .app.nav-collapsed,
   .app.nav-collapsed:has(.side-panel:hover){grid-template-columns:76px minmax(0,1fr)!important}
