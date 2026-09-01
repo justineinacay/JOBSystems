@@ -695,7 +695,7 @@ function runCapture(){
     'SIDES':'sides','VENTURE':'venture','LIFE':'life'};
   const NM={'dashboard':'dashboard','home':'dashboard','tasks':'tasks','notes':'notes',
     'calendar':'calendar','cal':'calendar','ai':'ai','memory':'memory',
-    'history':'history','settings':'settings','health':'life','morning':'jarvis-morning'};
+    'history':'history','settings':'settings','health':'life','morning':'dashboard'};
   const m=raw.match(/^\/([a-z]+(?:-[a-z]+)?)\s*([\s\S]*)/i);
   if(!m){
     showToast('✓ Saved to Inbox — triage it when ready');
@@ -1866,8 +1866,6 @@ document.addEventListener('DOMContentLoaded',()=>{
     if(k.startsWith('j-modsize-static-')||k.startsWith('j-staticorder-')||k.startsWith('j-staticgroup-'))localStorage.removeItem(k);
   });
   _initTextSelectionToolbar();
-  _checkAutoMorningIntelligence();
-  setInterval(_checkAutoMorningIntelligence,10*60*1000);
   // Make the Intelligence nav section drag-reorderable, restoring any saved order
   makeNavSectionSortable('navIntelligenceList','j-nav-intelligence-order');
   // Restore the floating timer badge if a timer was left running from a previous session
