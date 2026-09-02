@@ -781,6 +781,7 @@ function logWater(n){
   if(!d[today])d[today]={};
   d[today].water=n;
   saveWellnessData(d);
+  if(typeof window.renderHealthGameDashboard==='function')window.renderHealthGameDashboard();
 }
 // ── Restore today's check-in when Bio Monitor tab opens (was previously always blank) ──
 function restoreTodayWellness(){
@@ -846,6 +847,7 @@ function saveWellness(){
   const today=localDateStr(new Date());
   d[today]=todayWellness;
   saveWellnessData(d);
+  if(typeof window.renderHealthGameDashboard==='function')window.renderHealthGameDashboard();
   syncWellnessToSupabase(todayWellness,today);
   showToast('✓ Wellness check-in saved.');
 }
@@ -1028,6 +1030,7 @@ function renderHealth(){
     :'<div style="padding:20px;text-align:center;color:var(--text3);font-size:var(--text-sm)">No entries in this category.</div>';
   }
   renderHealthTrend();
+  if(typeof window.renderHealthGameDashboard==='function')window.renderHealthGameDashboard();
 }
 function deleteHealthEntry(id){
   const logs=getHealthLogs().filter(l=>l.id!==id);

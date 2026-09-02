@@ -311,6 +311,7 @@
       setLegacyTab(state.money);
     }else if(state.section==='health'){
       setLegacyTab('biomonitor');
+      if(typeof window.renderHealthGameDashboard==='function')window.renderHealthGameDashboard();
     }else if(state.section==='fitness'){
       setLegacyTab('overview');
       hideLegacyPanels();
@@ -523,6 +524,7 @@
     if(!initialized)return;
     if(state.section==='today')renderLifeToday();
     if(state.section==='review')renderLifeReview();
+    if(state.section==='health'&&typeof window.renderHealthGameDashboard==='function')window.renderHealthGameDashboard();
     if(state.section==='fitness'&&typeof window.renderFitnessCommandCenter==='function')window.renderFitnessCommandCenter();
   }
 
