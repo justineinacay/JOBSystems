@@ -1168,6 +1168,33 @@ function applyCollapsedNavStyling(){
   toggle.setAttribute('title',collapsed?'Expand navigation':'Collapse navigation');
   const icon=toggle.querySelector('i');
   if(icon)icon.className=collapsed?'ti ti-layout-sidebar-left-expand':'ti ti-layout-sidebar-left-collapse';
+  // Native title tooltips duplicate the visible labels and make the collapsed
+  // rail feel expanded on hover. Preserve their text for expanded mode while
+  // using aria-labels to keep icon-only controls accessible when collapsed.
+  const sidePanel=document.getElementById('sidePanel');
+  if(!sidePanel)return;
+  sidePanel.querySelectorAll('[title],[data-expanded-title]').forEach(el=>{
+    if(collapsed){
+      const label=el.getAttribute('title');
+      if(label!==null){
+        if(!el.dataset.expandedTitle)el.dataset.expandedTitle=label;
+        el.removeAttribute('title');
+        if(!el.hasAttribute('aria-label')){
+          el.setAttribute('aria-label',label);
+          el.dataset.collapsedAriaLabel='1';
+        }
+      }
+      return;
+    }
+    if(el.dataset.expandedTitle){
+      el.setAttribute('title',el.dataset.expandedTitle);
+      delete el.dataset.expandedTitle;
+    }
+    if(el.dataset.collapsedAriaLabel==='1'){
+      el.removeAttribute('aria-label');
+      delete el.dataset.collapsedAriaLabel;
+    }
+  });
 }
 
 // ── Urgent notifications strip (bottom of desktop nav) ──────────────────
