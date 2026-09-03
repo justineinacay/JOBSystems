@@ -1011,6 +1011,22 @@
 }
 
 @media(max-width:520px){
+  #view-life.life-command-center>.vh{grid-template-columns:minmax(0,1fr) auto!important;min-height:0!important;gap:10px 12px!important;padding:12px 14px 10px!important}
+  #view-life.life-command-center .vt{font-size:22px!important}
+  #view-life.life-command-center .vs{display:none!important}
+  #view-life.life-command-center .life-header-actions{gap:7px}
+  #view-life.life-command-center .life-review-button,
+  #view-life.life-command-center .life-add-button{min-height:40px;padding:0 11px}
+  #view-life.life-command-center .life-review-button span{display:none}
+  #view-life.life-command-center>.vh>#domainTimer-life{grid-column:1/-1!important;grid-row:2!important;width:100%!important;padding:0!important}
+  #view-life.life-command-center #domainTimer-life .agency-timer-card{display:flex!important;width:100%!important;min-height:46px!important;height:46px!important;gap:9px!important;margin:0!important;padding:5px 7px 5px 11px!important}
+  #view-life.life-command-center #domainTimer-life .agency-timer-label{font-size:0!important}
+  #view-life.life-command-center #domainTimer-life .agency-timer-label i{font-size:16px!important}
+  #view-life.life-command-center #domainTimer-life .agency-timer-card>strong{font-size:17px!important}
+  #view-life.life-command-center #domainTimer-life .agency-timer-note,
+  #view-life.life-command-center #domainTimer-life .agency-timer-reset{display:none!important}
+  #view-life.life-command-center #domainTimer-life .agency-timer-toggle{width:36px!important;min-width:36px!important;height:36px!important;margin-left:auto!important;padding:0!important;font-size:0!important}
+  #view-life.life-command-center #domainTimer-life .agency-timer-toggle i{font-size:17px!important}
   #view-life.life-command-center .life-metric-grid{grid-template-columns:1fr}
   #view-life.life-command-center .life-metric-card{min-height:110px}
   #view-life.life-command-center .life-wellbeing-grid{grid-template-columns:1fr 1fr}
