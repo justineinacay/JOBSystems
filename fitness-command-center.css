@@ -12,7 +12,7 @@
   width:100%;
   flex-direction:column;
   gap:14px;
-  padding:18px var(--life-shell-edge) 28px;
+  padding:18px 0 28px;
   color:var(--life-text);
 }
 
@@ -226,7 +226,7 @@
 }
 
 @media(max-width:768px){
-  #view-life .fitness-dashboard{gap:10px;padding:12px 12px 96px}
+  #view-life .fitness-dashboard{gap:10px;padding:12px 0 96px}
   #view-life .fitness-overview{grid-template-columns:1fr;padding:16px}
   #view-life .fitness-title h1{font-size:29px}
   #view-life .fitness-profile-metrics{grid-column:auto;grid-row:auto;display:flex;gap:0;overflow-x:auto;padding-bottom:2px}
