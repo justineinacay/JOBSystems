@@ -1,0 +1,272 @@
+#view-life.life-command-center .life-primary-nav{grid-template-columns:repeat(6,minmax(0,1fr))}
+
+#view-life .fitness-dashboard{
+  --fitness-lime:#b7f300;
+  --fitness-lime-soft:#273315;
+  --fitness-blue:#48aef2;
+  --fitness-orange:#ff6d38;
+  --fitness-panel:#171a17;
+  --fitness-panel-2:#1d211d;
+  --fitness-line:#343a34;
+  display:flex;
+  width:100%;
+  flex-direction:column;
+  gap:14px;
+  padding:18px var(--life-shell-edge) 28px;
+  color:var(--life-text);
+}
+
+#view-life .fitness-dashboard button,
+#view-life .fitness-dashboard input,
+#view-life .fitness-dashboard select{font:inherit}
+
+#view-life .fitness-overview{
+  display:grid;
+  grid-template-columns:minmax(230px,.8fr) minmax(520px,1.8fr) 112px 38px;
+  align-items:center;
+  gap:18px;
+  min-height:116px;
+  padding:18px 20px;
+  border:1px solid var(--fitness-line);
+  border-radius:14px;
+  background:#121512;
+}
+
+#view-life .fitness-title{min-width:0}
+#view-life .fitness-title small{
+  color:var(--life-muted);
+  font-size:9px;
+  font-weight:720;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+}
+#view-life .fitness-title h1{margin:5px 0 3px;font-size:34px;line-height:1;font-weight:790;letter-spacing:-.05em}
+#view-life .fitness-title p{margin:0;color:var(--life-muted);font-size:10px}
+#view-life .fitness-title p strong{margin-left:5px;color:var(--fitness-lime);font-size:12px;text-transform:uppercase;letter-spacing:.07em}
+
+#view-life .fitness-profile-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0}
+#view-life .fitness-profile-metrics>div{display:grid;grid-template-columns:38px minmax(0,1fr);align-items:center;gap:10px;min-width:0;padding:6px 18px;border-left:1px solid var(--fitness-line)}
+#view-life .fitness-profile-metrics>div:first-child{border-left:0}
+#view-life .fitness-profile-metrics>div>i{color:var(--fitness-lime);font-size:28px}
+#view-life .fitness-profile-metrics span{display:flex;min-width:0;flex-direction:column;gap:3px}
+#view-life .fitness-profile-metrics small{color:var(--life-muted);font-size:8px;font-weight:650;text-transform:uppercase;letter-spacing:.08em}
+#view-life .fitness-profile-metrics strong{overflow:hidden;font-size:16px;line-height:1.1;text-overflow:ellipsis;white-space:nowrap;font-variant-numeric:tabular-nums}
+#view-life .fitness-profile-metrics em{color:var(--life-dim);font-size:9px;font-style:normal}
+
+#view-life .fitness-week-ring,
+#view-life .fitness-month-ring{
+  display:grid;
+  place-items:center;
+  border-radius:50%;
+  background:conic-gradient(var(--fitness-lime) var(--fitness-week,0%),#303530 0);
+  box-shadow:inset 0 0 0 1px #424842;
+}
+#view-life .fitness-week-ring{width:90px;height:90px}
+#view-life .fitness-week-ring>div,
+#view-life .fitness-month-ring{position:relative}
+#view-life .fitness-week-ring>div{display:flex;width:68px;height:68px;align-items:center;justify-content:center;flex-direction:column;border-radius:50%;background:#151815}
+#view-life .fitness-month-ring:before{position:absolute;inset:10px;z-index:0;border-radius:50%;background:#151815;content:""}
+#view-life .fitness-week-ring strong,
+#view-life .fitness-week-ring small,
+#view-life .fitness-month-ring strong,
+#view-life .fitness-month-ring small{position:relative;z-index:1}
+#view-life .fitness-week-ring strong{font-size:18px;font-variant-numeric:tabular-nums}
+#view-life .fitness-week-ring small{margin-top:2px;color:var(--life-muted);font-size:7px;text-transform:uppercase;letter-spacing:.08em}
+#view-life .fitness-icon-button{display:grid;width:36px;height:36px;place-items:center;border:1px solid var(--fitness-line);border-radius:10px;background:var(--fitness-panel-2);color:var(--life-muted);cursor:pointer}
+#view-life .fitness-icon-button:hover{border-color:var(--fitness-lime);color:var(--fitness-lime)}
+
+#view-life .fitness-profile-form{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr)) auto;
+  gap:10px;
+  padding:14px;
+  border:1px solid var(--fitness-line);
+  border-radius:12px;
+  background:var(--fitness-panel);
+}
+#view-life .fitness-profile-form[hidden],
+#view-life .fitness-progress form[hidden]{display:none!important}
+#view-life .fitness-profile-form label{display:flex;min-width:0;flex-direction:column;gap:6px}
+#view-life .fitness-profile-form label>span{color:var(--life-muted);font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+#view-life .fitness-profile-form input,
+#view-life .fitness-profile-form select,
+#view-life .fitness-progress input{width:100%;min-height:38px;padding:0 10px;border:1px solid var(--fitness-line);border-radius:9px;outline:0;background:#111411;color:var(--life-text)}
+#view-life .fitness-profile-form input:focus,
+#view-life .fitness-profile-form select:focus,
+#view-life .fitness-progress input:focus{border-color:var(--fitness-lime)}
+#view-life .fitness-profile-form>button,
+#view-life .fitness-progress form button{align-self:end;min-height:38px;padding:0 14px;border:1px solid var(--fitness-lime);border-radius:9px;background:var(--fitness-lime);color:#111510;font-size:10px;font-weight:760;cursor:pointer}
+
+#view-life .fitness-top-grid,
+#view-life .fitness-bottom-grid{display:grid;grid-template-columns:minmax(0,1.08fr) minmax(0,.92fr);gap:14px;align-items:stretch}
+#view-life .fitness-panel{min-width:0;padding:16px;border:1px solid var(--fitness-line);border-radius:14px;background:var(--fitness-panel)}
+#view-life .fitness-panel-heading{display:flex;align-items:flex-start;gap:10px;margin-bottom:14px}
+#view-life .fitness-panel-heading>span{display:grid;min-width:28px;height:24px;place-items:center;border-radius:6px;background:var(--fitness-lime);color:#111510;font-size:10px;font-weight:850;font-variant-numeric:tabular-nums}
+#view-life .fitness-panel-heading>div{display:flex;min-width:0;flex:1;align-items:baseline;justify-content:space-between;gap:12px}
+#view-life .fitness-panel-heading h2{margin:1px 0 0;color:var(--fitness-lime);font-size:14px;line-height:1.1;font-weight:780;text-transform:uppercase;letter-spacing:.015em}
+#view-life .fitness-panel-heading p{margin:0;color:var(--life-dim);font-size:8px;white-space:nowrap}
+
+#view-life .fitness-warmup{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));border-top:1px solid var(--fitness-line);border-bottom:1px solid var(--fitness-line)}
+#view-life .fitness-warmup>div{position:relative;display:flex;min-width:0;min-height:128px;align-items:center;justify-content:center;flex-direction:column;gap:7px;padding:14px 7px;border-left:1px solid var(--fitness-line);text-align:center}
+#view-life .fitness-warmup>div:first-child{border-left:0}
+#view-life .fitness-warmup>div>span{position:absolute;top:9px;left:8px;display:grid;width:18px;height:18px;place-items:center;border:1px solid var(--fitness-lime);border-radius:50%;color:var(--fitness-lime);font-size:8px;font-weight:750}
+#view-life .fitness-warmup>div>i{color:var(--fitness-lime);font-size:31px}
+#view-life .fitness-warmup strong{font-size:9px;line-height:1.25;text-transform:uppercase}
+#view-life .fitness-warmup small{color:var(--life-muted);font-size:10px;font-variant-numeric:tabular-nums}
+#view-life .fitness-today-actions{display:grid;grid-template-columns:minmax(190px,1fr) auto auto;align-items:center;gap:10px;margin-top:14px}
+#view-life .fitness-primary,
+#view-life .fitness-secondary{display:inline-flex;min-height:42px;align-items:center;justify-content:center;gap:8px;border-radius:10px;font-size:11px;font-weight:760;cursor:pointer}
+#view-life .fitness-primary{border:1px solid var(--fitness-lime);background:var(--fitness-lime);color:#111510}
+#view-life .fitness-primary:disabled{cursor:default;opacity:.7}
+#view-life .fitness-secondary{padding:0 13px;border:1px solid var(--fitness-line);background:#121512;color:var(--life-muted)}
+#view-life .fitness-today-actions>span{display:flex;align-items:center;gap:6px;color:var(--life-muted);font-size:10px;font-variant-numeric:tabular-nums}
+#view-life .fitness-today-actions>span i{color:var(--fitness-lime)}
+
+#view-life .fitness-schedule{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;height:calc(100% - 38px)}
+#view-life .fitness-schedule>button{display:flex;min-width:0;min-height:190px;align-items:center;justify-content:center;flex-direction:column;gap:8px;padding:14px 8px;border:1px solid var(--fitness-line);border-radius:11px;background:#121512;color:var(--life-text);cursor:pointer;text-align:center;transition:border-color .16s ease,background-color .16s ease,transform .16s ease}
+#view-life .fitness-schedule>button:hover{transform:translateY(-1px);border-color:#505850}
+#view-life .fitness-schedule>button>span{color:var(--fitness-lime);font-size:11px;font-weight:780;text-transform:uppercase}
+#view-life .fitness-schedule>button.tone-blue>span,
+#view-life .fitness-schedule>button.tone-blue>i{color:var(--fitness-blue)}
+#view-life .fitness-schedule>button>i{color:var(--fitness-lime);font-size:34px}
+#view-life .fitness-schedule strong{max-width:130px;font-size:11px;line-height:1.35;text-transform:uppercase}
+#view-life .fitness-schedule small{color:var(--fitness-lime);font-size:9px;font-weight:700;text-transform:uppercase}
+#view-life .fitness-schedule>button.tone-blue small{color:var(--fitness-blue)}
+#view-life .fitness-schedule em{display:flex;align-items:center;gap:5px;margin-top:4px;color:var(--life-dim);font-size:8px;font-style:normal}
+#view-life .fitness-schedule .is-complete{border-color:#607036;background:#1c2416}
+#view-life .fitness-schedule .is-complete em{color:var(--fitness-lime)}
+
+#view-life .fitness-roadmap{overflow:hidden}
+#view-life .fitness-roadmap-track{height:4px;margin:0 0 14px;overflow:hidden;border-radius:999px;background:#303530}
+#view-life .fitness-roadmap-track>span{display:block;height:100%;border-radius:inherit;background:var(--fitness-lime);transition:width .22s ease}
+#view-life .fitness-phases{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+#view-life .fitness-phases>article{display:flex;min-width:0;flex-direction:column;border:1px solid var(--fitness-line);border-radius:11px;background:#121512;opacity:.72}
+#view-life .fitness-phases>article.is-active{opacity:1}
+#view-life .fitness-phases>article.tone-orange.is-active{border-color:var(--fitness-orange)}
+#view-life .fitness-phases>article.tone-blue.is-active{border-color:var(--fitness-blue)}
+#view-life .fitness-phases>article.tone-lime.is-active{border-color:var(--fitness-lime)}
+#view-life .fitness-phases header{display:flex;align-items:center;justify-content:space-between;padding:9px 11px;border-bottom:1px solid var(--fitness-line)}
+#view-life .fitness-phases header span{font-size:10px;font-weight:780;text-transform:uppercase}
+#view-life .fitness-phases header em{color:var(--life-dim);font-size:9px;font-style:normal;font-variant-numeric:tabular-nums}
+#view-life .fitness-phases>article.tone-orange header span{color:var(--fitness-orange)}
+#view-life .fitness-phases>article.tone-blue header span{color:var(--fitness-blue)}
+#view-life .fitness-phases>article.tone-lime header span{color:var(--fitness-lime)}
+#view-life .fitness-phases>article>div{display:grid;grid-template-columns:1fr 1fr;gap:0 14px;padding:7px 11px 10px}
+#view-life .fitness-phases p{display:flex;min-width:0;align-items:center;justify-content:space-between;gap:8px;margin:0;padding:6px 0;border-bottom:1px solid #292e29}
+#view-life .fitness-phases p b{overflow:hidden;font-size:8px;font-weight:620;text-overflow:ellipsis;white-space:nowrap}
+#view-life .fitness-phases p small{color:var(--life-muted);font-size:7px;white-space:nowrap}
+#view-life .fitness-phases footer{display:flex;align-items:center;justify-content:flex-end;gap:5px;margin-top:auto;padding:8px 11px;color:var(--life-dim);font-size:7px;text-transform:uppercase;letter-spacing:.05em}
+
+#view-life .fitness-food-guide{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+#view-life .fitness-food-guide>div{display:flex;min-width:0;min-height:112px;align-items:center;justify-content:center;flex-direction:column;gap:7px;padding:12px;border:1px solid var(--fitness-line);border-radius:10px;background:#121512;text-align:center}
+#view-life .fitness-food-guide i{color:var(--fitness-lime);font-size:25px}
+#view-life .fitness-food-guide strong{font-size:9px;text-transform:uppercase}
+#view-life .fitness-food-guide small{max-width:150px;color:var(--life-muted);font-size:8px;line-height:1.4}
+#view-life .fitness-hydration{display:grid;grid-template-columns:minmax(110px,.7fr) minmax(220px,1.5fr) auto;align-items:center;gap:13px;margin-top:10px;padding-top:12px;border-top:1px solid var(--fitness-line)}
+#view-life .fitness-hydration>div:first-child{display:flex;flex-direction:column;gap:4px}
+#view-life .fitness-hydration strong{font-size:9px;text-transform:uppercase}
+#view-life .fitness-hydration small{color:var(--life-muted);font-size:8px}
+#view-life .fitness-water-buttons{display:grid;grid-template-columns:repeat(8,1fr);gap:3px}
+#view-life .fitness-water-buttons button{display:grid;min-width:0;height:30px;place-items:center;padding:0;border:0;background:transparent;color:#3e4840;cursor:pointer}
+#view-life .fitness-water-buttons button.is-filled{color:var(--fitness-blue)}
+#view-life .fitness-water-buttons i{font-size:18px}
+#view-life .fitness-hydration>button{display:inline-flex;min-height:36px;align-items:center;justify-content:center;gap:6px;padding:0 11px;border:1px solid var(--fitness-line);border-radius:9px;background:#121512;color:var(--life-text);font-size:9px;font-weight:700;cursor:pointer;white-space:nowrap}
+
+#view-life .fitness-progress-grid{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(145px,.6fr);gap:10px}
+#view-life .fitness-weight-card,
+#view-life .fitness-month-card{min-width:0;min-height:170px;padding:13px;border:1px solid var(--fitness-line);border-radius:10px;background:#121512}
+#view-life .fitness-weight-card>header{display:flex;align-items:center;justify-content:space-between;gap:10px}
+#view-life .fitness-weight-card>header span{display:flex;flex-direction:column;gap:4px}
+#view-life .fitness-weight-card>header small{color:var(--life-muted);font-size:8px;text-transform:uppercase}
+#view-life .fitness-weight-card>header strong{font-size:17px;font-variant-numeric:tabular-nums}
+#view-life .fitness-weight-card>header button{display:inline-flex;min-height:30px;align-items:center;gap:5px;padding:0 9px;border:1px solid var(--fitness-line);border-radius:8px;background:var(--fitness-panel-2);color:var(--life-muted);font-size:8px;cursor:pointer}
+#view-life .fitness-weight-chart{display:block;width:100%;height:98px;margin-top:5px;color:var(--fitness-lime)}
+#view-life .fitness-weight-chart circle{fill:#121512;stroke:var(--fitness-lime);stroke-width:2}
+#view-life .fitness-chart-empty{display:flex;min-height:98px;align-items:center;justify-content:center;flex-direction:column;gap:4px;color:var(--life-dim);text-align:center}
+#view-life .fitness-chart-empty i{color:var(--fitness-lime);font-size:21px}
+#view-life .fitness-chart-empty strong{font-size:9px}
+#view-life .fitness-chart-empty span{font-size:7px}
+#view-life .fitness-progress form{display:grid;grid-template-columns:1fr auto;gap:6px;margin-top:7px}
+#view-life .fitness-progress form input{min-height:34px}
+#view-life .fitness-progress form button{min-height:34px}
+#view-life .fitness-month-card{display:flex;align-items:center;justify-content:center;flex-direction:column;gap:11px;text-align:center}
+#view-life .fitness-month-ring{--fitness-week:var(--fitness-month);width:96px;height:96px;background:conic-gradient(var(--fitness-lime) var(--fitness-month,0%),#303530 0)}
+#view-life .fitness-month-ring{display:flex;align-items:center;justify-content:center;flex-direction:column}
+#view-life .fitness-month-ring strong{font-size:17px;font-variant-numeric:tabular-nums}
+#view-life .fitness-month-ring small{color:var(--life-muted);font-size:7px;text-transform:uppercase}
+#view-life .fitness-month-card>span{display:flex;flex-direction:column;gap:3px}
+#view-life .fitness-month-card>span strong{color:var(--fitness-lime);font-size:14px}
+#view-life .fitness-month-card>span small{color:var(--life-muted);font-size:8px}
+
+#view-life .fitness-footer{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:12px;padding:13px 16px;border-top:1px solid var(--fitness-line);color:var(--fitness-lime)}
+#view-life .fitness-footer>i{font-size:22px}
+#view-life .fitness-footer span{display:flex;min-width:0;flex-direction:column;gap:3px}
+#view-life .fitness-footer strong{font-size:10px;text-transform:uppercase;letter-spacing:.07em}
+#view-life .fitness-footer small{color:var(--life-muted);font-size:8px}
+#view-life .fitness-footer em{font-size:9px;font-style:normal;font-weight:750;text-transform:uppercase;letter-spacing:.12em;white-space:nowrap}
+
+@media(max-width:1280px){
+  #view-life .fitness-overview{grid-template-columns:minmax(210px,.8fr) minmax(430px,1.6fr) 90px 36px;gap:12px}
+  #view-life .fitness-profile-metrics>div{grid-template-columns:30px minmax(0,1fr);padding-inline:12px}
+  #view-life .fitness-profile-metrics>div>i{font-size:23px}
+  #view-life .fitness-top-grid{grid-template-columns:1fr}
+  #view-life .fitness-schedule>button{min-height:160px}
+}
+
+@media(max-width:1020px){
+  #view-life.life-command-center .life-primary-nav{grid-template-columns:repeat(6,minmax(118px,1fr))}
+  #view-life .fitness-overview{grid-template-columns:1fr auto;align-items:start}
+  #view-life .fitness-profile-metrics{grid-column:1/-1;grid-row:2}
+  #view-life .fitness-week-ring{grid-column:2;grid-row:1}
+  #view-life .fitness-icon-button{position:absolute;top:14px;right:14px}
+  #view-life .fitness-overview{position:relative;padding-right:62px}
+  #view-life .fitness-profile-form{grid-template-columns:1fr 1fr}
+  #view-life .fitness-profile-form>button{align-self:stretch}
+  #view-life .fitness-bottom-grid{grid-template-columns:1fr}
+}
+
+@media(max-width:768px){
+  #view-life .fitness-dashboard{gap:10px;padding:12px 12px 96px}
+  #view-life .fitness-overview{grid-template-columns:1fr;padding:16px}
+  #view-life .fitness-title h1{font-size:29px}
+  #view-life .fitness-profile-metrics{grid-column:auto;grid-row:auto;display:flex;gap:0;overflow-x:auto;padding-bottom:2px}
+  #view-life .fitness-profile-metrics>div{min-width:150px;padding:8px 12px}
+  #view-life .fitness-profile-metrics>div:first-child{padding-left:0}
+  #view-life .fitness-week-ring{position:absolute;top:14px;right:56px;width:74px;height:74px;grid-column:auto;grid-row:auto}
+  #view-life .fitness-week-ring>div{width:56px;height:56px}
+  #view-life .fitness-icon-button{top:14px;right:14px}
+  #view-life .fitness-profile-form{grid-template-columns:1fr}
+  #view-life .fitness-top-grid,#view-life .fitness-bottom-grid{grid-template-columns:1fr;gap:10px}
+  #view-life .fitness-panel{padding:13px}
+  #view-life .fitness-panel-heading>div{align-items:flex-start;flex-direction:column;gap:4px}
+  #view-life .fitness-warmup{display:flex;overflow-x:auto;scroll-snap-type:x proximity}
+  #view-life .fitness-warmup>div{min-width:126px;scroll-snap-align:start}
+  #view-life .fitness-today-actions{grid-template-columns:1fr auto}
+  #view-life .fitness-secondary{grid-column:1/-1}
+  #view-life .fitness-schedule{display:flex;overflow-x:auto;scroll-snap-type:x proximity}
+  #view-life .fitness-schedule>button{min-width:180px;min-height:175px;scroll-snap-align:start}
+  #view-life .fitness-phases{display:flex;overflow-x:auto;scroll-snap-type:x proximity}
+  #view-life .fitness-phases>article{min-width:290px;scroll-snap-align:start}
+  #view-life .fitness-food-guide{display:flex;overflow-x:auto}
+  #view-life .fitness-food-guide>div{min-width:150px}
+  #view-life .fitness-hydration{grid-template-columns:1fr}
+  #view-life .fitness-water-buttons{order:3}
+  #view-life .fitness-progress-grid{grid-template-columns:1fr}
+  #view-life .fitness-month-card{min-height:150px;flex-direction:row}
+  #view-life .fitness-footer{grid-template-columns:auto 1fr}
+  #view-life .fitness-footer em{grid-column:2}
+}
+
+@media(max-width:430px){
+  #view-life .fitness-overview{padding-top:104px}
+  #view-life .fitness-overview .fitness-week-ring{top:14px;right:auto;left:16px}
+  #view-life .fitness-profile-metrics>div{min-width:138px}
+  #view-life .fitness-today-actions{grid-template-columns:1fr}
+  #view-life .fitness-today-actions>span{justify-content:center}
+  #view-life .fitness-secondary{grid-column:auto}
+  #view-life .fitness-phases>article{min-width:270px}
+}
+
+@media(prefers-reduced-motion:reduce){
+  #view-life .fitness-dashboard *{scroll-behavior:auto!important;transition:none!important}
+}

@@ -132,7 +132,7 @@
     var title=header&&header.querySelector('.vt');
     var subtitle=header&&header.querySelector('.vs');
     if(title)title.innerHTML='<i class="ti ti-leaf"></i>LIFE';
-    if(subtitle)subtitle.textContent='Money · Health · Home · Personal growth';
+    if(subtitle)subtitle.textContent='Money · Health · Fitness · Home · Personal growth';
     var legacyActions=header&&header.querySelector('.va');
     if(legacyActions)legacyActions.classList.add('life-legacy-actions');
     if(header&&!header.querySelector('.life-header-actions')){
@@ -165,6 +165,7 @@
         ['today','ti-layout-dashboard','Today'],
         ['money','ti-wallet','Money'],
         ['health','ti-heartbeat','Health'],
+        ['fitness','ti-barbell','Fitness'],
         ['home','ti-home','Home & Admin'],
         ['review','ti-checklist','Review']
       ].map(function(item){return '<button data-life-section="'+item[0]+'" onclick="lifeSetSection(\''+item[0]+'\')"><i class="ti '+item[1]+'"></i><span>'+item[2]+'</span></button>';}).join('');
@@ -187,6 +188,11 @@
       review.className='life-custom-panel';
       review.innerHTML='<div id="lifeReviewContent"></div>';
       legacyContent.insertBefore(review,today.nextSibling);
+      var fitness=document.createElement('section');
+      fitness.id='life-fitness-dashboard';
+      fitness.className='life-custom-panel';
+      fitness.innerHTML='<div id="lifeFitnessContent"></div>';
+      legacyContent.insertBefore(fitness,review.nextSibling);
     }
 
     document.addEventListener('click',function(event){
@@ -246,11 +252,19 @@
   }
 
   function updatePrimaryNavigation(){
+    var activeButton=null;
     document.querySelectorAll('#view-life [data-life-section]').forEach(function(button){
       var active=button.getAttribute('data-life-section')===state.section;
       button.classList.toggle('is-active',active);
       button.setAttribute('aria-current',active?'page':'false');
+      if(active)activeButton=button;
     });
+    var nav=activeButton&&activeButton.closest('.life-primary-nav');
+    if(nav&&nav.scrollWidth>nav.clientWidth){
+      requestAnimationFrame(function(){
+        nav.scrollLeft=Math.max(0,activeButton.offsetLeft-(nav.clientWidth-activeButton.offsetWidth)/2);
+      });
+    }
   }
 
   function renderSecondaryNavigation(){
@@ -273,7 +287,8 @@
   function applySection(scrollTop){
     var today=document.getElementById('life-today-dashboard');
     var review=document.getElementById('life-review-dashboard');
-    if(!today||!review)return;
+    var fitness=document.getElementById('life-fitness-dashboard');
+    if(!today||!review||!fitness)return;
     var view=document.getElementById('view-life');
     var body=view&&view.querySelector('.vb');
     if(scrollTop!==false&&body)body.scrollTop=0;
@@ -281,6 +296,7 @@
     renderSecondaryNavigation();
     today.hidden=state.section!=='today';
     review.hidden=state.section!=='review';
+    fitness.hidden=state.section!=='fitness';
     hideLegacyPanels();
 
     if(state.section==='today'){
@@ -295,6 +311,11 @@
       setLegacyTab(state.money);
     }else if(state.section==='health'){
       setLegacyTab('biomonitor');
+      if(typeof window.renderHealthGameDashboard==='function')window.renderHealthGameDashboard();
+    }else if(state.section==='fitness'){
+      setLegacyTab('overview');
+      hideLegacyPanels();
+      if(typeof window.renderFitnessCommandCenter==='function')window.renderFitnessCommandCenter();
     }else if(state.section==='home'){
       setLegacyTab(state.home);
     }
@@ -503,10 +524,12 @@
     if(!initialized)return;
     if(state.section==='today')renderLifeToday();
     if(state.section==='review')renderLifeReview();
+    if(state.section==='health'&&typeof window.renderHealthGameDashboard==='function')window.renderHealthGameDashboard();
+    if(state.section==='fitness'&&typeof window.renderFitnessCommandCenter==='function')window.renderFitnessCommandCenter();
   }
 
   window.lifeSetSection=function(section){
-    if(['today','money','health','home','review'].indexOf(section)<0)section='today';
+    if(['today','money','health','fitness','home','review'].indexOf(section)<0)section='today';
     state.section=section;
     applySection(true);
   };
