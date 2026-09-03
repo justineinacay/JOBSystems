@@ -10,7 +10,7 @@
 // hadn't changed and CACHE_VERSION was never bumped to force a purge. That's
 // what caused an already-fixed bug (the driveLink Supabase column error) to
 // keep reappearing on-device after the source was already correct.
-const CACHE_VERSION = 'jobsystems-v36';
+const CACHE_VERSION = 'jobsystems-v37';
 const APP_SHELL = [
   './',
   './index.html',
@@ -37,19 +37,19 @@ const APP_SHELL = [
   './faith-command-center.css?v=20260824-2',
   './life-command-center.css?v=20260902-1',
   './fitness-command-center.css?v=20260902-1',
-  './health-game-dashboard.css?v=20260902-1',
+  './health-game-dashboard.css?v=20260903-1',
   './interface-layout-fixes.css?v=20260824-2',
   './ui-coherence-fixes.css?v=20260826-6',
   './today-command-center.css?v=20260826-2',
-  './mobile-command-center.css?v=20260826-3',
+  './mobile-command-center.css?v=20260903-1',
   './workspace-layout.css?v=20260827-1',
   './ui-depth-system.css?v=20260828-3',
-  './productivity-command-center.css?v=20260901-3',
+  './productivity-command-center.css?v=20260903-1',
   './agency-command-centers.js?v=20260823-1',
   './faith-command-center.js?v=20260824-2',
   './life-command-center.js?v=20260902-1',
   './fitness-command-center.js?v=20260902-1',
-  './health-game-dashboard.js?v=20260902-1',
+  './health-game-dashboard.js?v=20260903-1',
   './mobile-command-center.js?v=20260826-3',
   './productivity-command-center.js?v=20260831-4',
 ];

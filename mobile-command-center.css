@@ -136,11 +136,15 @@
   #view-dashboard .today-focus-action{width:auto!important;min-height:42px!important;padding:9px 12px!important;border-color:var(--mobile-accent)!important;border-radius:11px!important;background:transparent!important;color:var(--mobile-accent)!important;white-space:nowrap!important}
   #briefMainRow{grid-template-columns:1fr!important;gap:12px!important}
   #briefMainRow>.bd-block{height:auto!important;min-height:0!important;padding:16px!important;border-radius:18px!important;background:var(--navy2)!important;border-color:var(--border)!important}
-  .quiet-actions-card{max-height:328px!important}
-  #briefToDo{min-height:0!important;max-height:238px!important;overflow-y:auto!important;overscroll-behavior:contain!important}
+  .quiet-actions-card{max-height:none!important}
+  #briefToDo{min-height:0!important;max-height:none!important;overflow:visible!important}
   .next-action-row{min-height:54px!important;grid-template-columns:18px minmax(0,1fr) auto!important;gap:10px!important;padding:8px 2px!important}
   .next-action-copy strong{font-size:13px!important;white-space:normal!important;display:-webkit-box!important;-webkit-line-clamp:2!important;-webkit-box-orient:vertical!important}
   .next-action-due{font-size:10px!important}
+  /* The dashboard is a quick decision surface on a phone. Keep the short
+     action list fully above the fixed navigation; the existing View all
+     tasks control remains the route to the complete queue. */
+  #briefToDo .next-action-row:nth-child(n+4){display:none!important}
   .quiet-money-card{max-height:none!important}
   #briefFinances{overflow:visible!important}
   .money-topline{padding-bottom:13px!important}
