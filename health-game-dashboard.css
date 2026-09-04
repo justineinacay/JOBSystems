@@ -16,7 +16,7 @@
 #cf-biomonitor .health-game-grid{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(260px,.8fr);gap:12px;margin-top:12px}
 #cf-biomonitor .health-game-card{min-width:0;border:1px solid var(--health-game-line);border-radius:13px;background:var(--health-game-panel);overflow:hidden}
 #cf-biomonitor .health-game-card-title{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 16px 0}
-#cf-biomonitor .health-game-card-title>span{display:flex;align-items:center;gap:7px;font-size:13px;font-weight:760}
+#cf-biomonitor .health-game-card-title>span{display:flex;align-items:center;gap:7px;font-size:14px;font-weight:760}
 #cf-biomonitor .health-game-card-title>span i{color:var(--health-game-lime);font-size:16px}
 #cf-biomonitor .health-game-card-title small{color:var(--text3,#95a4a1);font-size:9px}
 #cf-biomonitor .health-game-card-subtitle{margin:6px 16px 12px;color:var(--text3,#95a4a1);font-size:10px}
@@ -82,21 +82,22 @@
 #cf-biomonitor .health-game-achievement small{color:var(--text3,#95a4a1);font-size:9px}
 #cf-biomonitor .health-game-achievement b{font-size:13px}
 #cf-biomonitor .health-game-achievement strong{color:var(--health-game-lime);font-size:9px;white-space:nowrap}
-#cf-biomonitor .health-game-trend-card{grid-column:1;display:grid;grid-template-columns:minmax(0,1fr) minmax(190px,.46fr);column-gap:18px;padding-bottom:14px}
+#cf-biomonitor .health-game-trend-card{grid-column:1;display:grid;grid-template-columns:minmax(0,1fr) minmax(240px,.52fr);column-gap:24px;padding-bottom:18px}
 #cf-biomonitor .health-game-trend-card>.health-game-card-title{grid-column:1/-1;width:100%}
-#cf-biomonitor .health-game-trend-card select{width:auto!important;min-width:112px!important;max-width:160px!important;flex:0 0 auto!important;border:1px solid var(--health-game-line);border-radius:7px;background:#111615;color:var(--text2,#d7dfdb);font:inherit;font-size:9px;padding:6px 8px}
-#cf-biomonitor .health-game-chart-wrap{padding:8px 16px 0}
-#cf-biomonitor .health-game-chart{display:block;width:100%;height:150px;overflow:visible}
+#cf-biomonitor .health-game-trend-card select{width:auto!important;min-width:138px!important;max-width:180px!important;flex:0 0 auto!important;border:1px solid var(--health-game-line);border-radius:8px;background:#111615;color:var(--text2,#d7dfdb);font:inherit;font-size:11px;padding:9px 10px}
+#cf-biomonitor .health-game-chart-wrap{padding:14px 18px 0}
+#cf-biomonitor .health-game-chart-plot{position:relative;height:168px}
+#cf-biomonitor .health-game-chart{position:absolute;inset:0;display:block;width:100%;height:100%;overflow:visible}
 #cf-biomonitor .health-game-grid path.health-game-grid{fill:none;stroke:rgba(188,221,218,.1);stroke-dasharray:2 4}
-#cf-biomonitor .health-game-chart polyline{fill:none;stroke:var(--health-game-lime);stroke-width:2}
-#cf-biomonitor .health-game-chart circle{fill:var(--health-game-lime);stroke:#111615;stroke-width:2}
-#cf-biomonitor .health-game-chart-highlight rect{fill:#20271f;stroke:rgba(183,243,0,.55);stroke-width:1}
-#cf-biomonitor .health-game-chart-highlight text{fill:var(--health-game-lime);font-size:8px;font-weight:750;text-anchor:middle}
-#cf-biomonitor .health-game-chart-labels{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));align-items:center;color:var(--text2,#d7dfdb);font-size:8px;font-weight:650;text-align:center;text-transform:uppercase}
-#cf-biomonitor .health-game-stat-rows{display:grid;align-content:center;gap:9px;padding:10px 16px}
-#cf-biomonitor .health-game-stat-rows span{display:grid;grid-template-columns:20px 1fr auto;align-items:center;gap:5px;color:var(--text3,#95a4a1);font-size:10px}
-#cf-biomonitor .health-game-stat-rows i{color:var(--health-game-teal);font-size:14px}
-#cf-biomonitor .health-game-stat-rows strong{color:var(--text2,#d7dfdb);font-size:10px}
+#cf-biomonitor .health-game-chart polyline{fill:none;stroke:var(--health-game-lime);stroke-width:1.6;vector-effect:non-scaling-stroke}
+#cf-biomonitor .health-game-chart-point{position:absolute;left:var(--point-x);top:var(--point-y);width:14px;height:14px;transform:translate(-50%,-50%)}
+#cf-biomonitor .health-game-chart-point i{position:absolute;inset:3px;border:2px solid #111615;border-radius:50%;background:var(--health-game-lime)}
+#cf-biomonitor .health-game-chart-peak{position:absolute;left:var(--point-x);top:var(--point-y);min-width:58px;padding:5px 9px;transform:translate(-50%,calc(-100% - 10px));border:1px solid rgba(183,243,0,.55);border-radius:7px;background:#20271f;color:var(--health-game-lime);font-size:10px;font-weight:780;text-align:center;white-space:nowrap}
+#cf-biomonitor .health-game-chart-labels{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));align-items:center;margin-top:2px;color:var(--text2,#d7dfdb);font-size:10px;font-weight:700;text-align:center;text-transform:uppercase}
+#cf-biomonitor .health-game-stat-rows{display:grid;align-content:center;gap:13px;padding:14px 18px}
+#cf-biomonitor .health-game-stat-rows span{display:grid;grid-template-columns:24px 1fr auto;align-items:center;gap:7px;color:var(--text3,#95a4a1);font-size:12px}
+#cf-biomonitor .health-game-stat-rows i{color:var(--health-game-teal);font-size:17px}
+#cf-biomonitor .health-game-stat-rows strong{color:var(--text2,#d7dfdb);font-size:12px}
 #cf-biomonitor .health-game-badges-card{display:flex;grid-column:2;align-self:stretch;flex-direction:column;padding:0 0 14px}
 #cf-biomonitor .health-game-badges-card .health-game-card-title{padding:14px 16px 0}
 #cf-biomonitor .health-game-badges{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat(3,minmax(48px,1fr));align-content:stretch;gap:8px;flex:1;padding:14px 16px 0}
@@ -129,7 +130,9 @@
   #cf-biomonitor .health-game-badges-card{display:block}
 }
 @media(max-width:620px){
-  #cf-biomonitor #healthGameDashboard{margin-inline:-8px}
+  #cf-biomonitor{min-width:0;overflow-x:hidden}
+  #cf-biomonitor #healthGameDashboard{width:calc(100% + 16px);max-width:calc(100% + 16px);min-width:0;margin-inline:-8px;overflow-x:hidden}
+  #cf-biomonitor .health-game-grid,#cf-biomonitor .health-game-card{width:100%;max-width:100%}
   #cf-biomonitor .health-game-header{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:start;gap:14px;padding:16px}
   #cf-biomonitor .health-game-header h2{font-size:22px}
   #cf-biomonitor .health-game-head-stats{display:grid;grid-column:1/-1;grid-template-columns:repeat(2,minmax(0,1fr));align-items:flex-start;gap:12px;width:100%}
@@ -143,6 +146,10 @@
   #cf-biomonitor .health-game-score-wrap{grid-template-columns:96px minmax(0,1fr);gap:14px}
   #cf-biomonitor .health-game-score-ring{width:96px;height:96px;flex-basis:96px}
   #cf-biomonitor .health-game-trend-card{display:block}
+  #cf-biomonitor .health-game-trend-card>.health-game-card-title{align-items:stretch;flex-direction:column}
+  #cf-biomonitor .health-game-trend-card select{width:100%!important;max-width:none!important}
+  #cf-biomonitor .health-game-chart-plot{height:150px}
+  #cf-biomonitor .health-game-chart-labels{font-size:9px}
   #cf-biomonitor .health-game-stat-rows{padding-top:12px}
   #cf-biomonitor .health-game-badges-card{display:block;padding:0 0 14px}
   #cf-biomonitor .health-game-badges-card .health-game-card-title{padding:14px 14px 0}

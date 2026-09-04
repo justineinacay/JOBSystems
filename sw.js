@@ -10,7 +10,7 @@
 // hadn't changed and CACHE_VERSION was never bumped to force a purge. That's
 // what caused an already-fixed bug (the driveLink Supabase column error) to
 // keep reappearing on-device after the source was already correct.
-const CACHE_VERSION = 'jobsystems-v40';
+const CACHE_VERSION = 'jobsystems-v41';
 const APP_SHELL = [
   './',
   './index.html',
@@ -26,7 +26,7 @@ const APP_SHELL = [
   './app-part-02.js?v=20260901-1',
   './app-part-03.js?v=20260827-1',
   './app-part-04.js?v=20260827-1',
-  './app-part-05.js?v=20260828-1',
+  './app-part-05.js?v=20260904-2',
   './app-part-06.js?v=20260827-2',
   './app-part-07.js?v=20260902-2',
   './pwa-runtime.js?v=20260827-1',
@@ -36,9 +36,9 @@ const APP_SHELL = [
   './agency-command-centers.css?v=20260823-1',
   './faith-command-center.css?v=20260824-2',
   './life-command-center.css?v=20260903-1',
-  './fitness-command-center.css?v=20260903-1',
-  './health-game-dashboard.css?v=20260903-4',
-  './interface-layout-fixes.css?v=20260824-2',
+  './fitness-command-center.css?v=20260904-2',
+  './health-game-dashboard.css?v=20260904-5',
+  './interface-layout-fixes.css?v=20260904-3',
   './ui-coherence-fixes.css?v=20260826-6',
   './today-command-center.css?v=20260826-2',
   './mobile-command-center.css?v=20260903-2',
@@ -49,7 +49,7 @@ const APP_SHELL = [
   './faith-command-center.js?v=20260824-2',
   './life-command-center.js?v=20260902-1',
   './fitness-command-center.js?v=20260902-1',
-  './health-game-dashboard.js?v=20260903-3',
+  './health-game-dashboard.js?v=20260904-4',
   './mobile-command-center.js?v=20260826-3',
   './productivity-command-center.js?v=20260831-4',
 ];

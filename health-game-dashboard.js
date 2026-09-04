@@ -48,9 +48,12 @@
     return {days:days,values:activity,max:max};
   }
   function chartMarkup(){
-    var data=trend(),peakValue=Math.max.apply(Math,data.values),peakIndex=data.values.indexOf(peakValue),peakX=21+peakIndex*43,peakY=90-(peakValue/data.max*60),points=data.values.map(function(value,index){var x=21+index*43;var y=90-(value/data.max*60);return x+','+y;}).join(' ');
-    var peakLabel=peakValue>0?'<g class="health-game-chart-highlight"><rect x="'+(peakX-24)+'" y="'+(peakY-25)+'" width="48" height="17" rx="5"></rect><text x="'+peakX+'" y="'+(peakY-13)+'">'+peakValue+' '+(peakValue===1?'log':'logs')+'</text></g>':'';
-    return '<div class="health-game-chart-wrap"><svg class="health-game-chart" viewBox="0 0 300 112" role="img" aria-label="Seven-day health activity trend"><path class="health-game-grid" d="M21 30H279M21 60H279M21 90H279"></path><polyline points="'+points+'"></polyline>'+data.values.map(function(value,index){var x=21+index*43;var y=90-(value/data.max*60),label=dateObj(data.days[index]).toLocaleDateString('en-PH',{weekday:'long'});return '<circle cx="'+x+'" cy="'+y+'" r="3"><title>'+label+': '+value+' health '+(value===1?'log':'logs')+'</title></circle>';}).join('')+peakLabel+'</svg><div class="health-game-chart-labels">'+data.days.map(function(day){return '<span>'+dateObj(day).toLocaleDateString('en-PH',{weekday:'short'}).slice(0,2)+'</span>';}).join('')+'</div></div>';
+    var data=trend(),peakValue=Math.max.apply(Math,data.values),peakIndex=data.values.indexOf(peakValue);
+    var positions=data.values.map(function(value,index){return {x:7.15+index*14.285,y:82-(value/data.max*58)};});
+    var points=positions.map(function(point){return point.x+','+point.y;}).join(' ');
+    var dots=data.values.map(function(value,index){var point=positions[index],label=dateObj(data.days[index]).toLocaleDateString('en-PH',{weekday:'long'});return '<span class="health-game-chart-point" style="--point-x:'+point.x+'%;--point-y:'+point.y+'%" role="img" aria-label="'+label+': '+value+' health '+(value===1?'log':'logs')+'"><i></i></span>';}).join('');
+    var peak=peakValue>0?'<span class="health-game-chart-peak" style="--point-x:'+positions[peakIndex].x+'%;--point-y:'+positions[peakIndex].y+'%">'+peakValue+' '+(peakValue===1?'log':'logs')+'</span>':'';
+    return '<div class="health-game-chart-wrap"><div class="health-game-chart-plot"><svg class="health-game-chart" viewBox="0 0 100 100" preserveAspectRatio="none" role="img" aria-label="Seven-day health activity trend"><path class="health-game-grid" d="M7.15 24H92.86M7.15 53H92.86M7.15 82H92.86"></path><polyline points="'+points+'"></polyline></svg>'+dots+peak+'</div><div class="health-game-chart-labels">'+data.days.map(function(day){return '<span>'+dateObj(day).toLocaleDateString('en-PH',{weekday:'short'}).slice(0,2)+'</span>';}).join('')+'</div></div>';
   }
   function dayLabel(day){return dateObj(day).toLocaleDateString('en-PH',{weekday:'short'}).toUpperCase();}
   function weeklyMarkup(){

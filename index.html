@@ -44,9 +44,9 @@ if (window.top !== window.self) {
 <link rel="stylesheet" href="agency-command-centers.css?v=20260823-1">
 <link rel="stylesheet" href="faith-command-center.css?v=20260824-2">
 <link rel="stylesheet" href="life-command-center.css?v=20260903-1">
-<link rel="stylesheet" href="fitness-command-center.css?v=20260903-1">
-<link rel="stylesheet" href="health-game-dashboard.css?v=20260903-4">
-<link rel="stylesheet" href="interface-layout-fixes.css?v=20260824-2">
+<link rel="stylesheet" href="fitness-command-center.css?v=20260904-2">
+<link rel="stylesheet" href="health-game-dashboard.css?v=20260904-5">
+<link rel="stylesheet" href="interface-layout-fixes.css?v=20260904-3">
 <script>
 (()=>{const defaultVersion='dark-default-v1';const applied=localStorage.getItem('j-theme-default-version')===defaultVersion;if(!applied){localStorage.setItem('j-theme','dark');localStorage.removeItem('j-theme-user-set');localStorage.setItem('j-theme-default-version',defaultVersion);}const stored=localStorage.getItem('j-theme');const explicitlyChosen=localStorage.getItem('j-theme-user-set')==='true';document.documentElement.dataset.theme=explicitlyChosen&&stored==='light'?'light':'dark';})();
 </script>
@@ -2053,7 +2053,7 @@ if (window.top !== window.self) {
             <!-- Charts inline at bottom of overview -->
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
               <div class="hc" style="min-height:220px"><div class="cl" style="margin-bottom:8px">Monthly Cash Flow</div><div style="height:180px;position:relative"><canvas id="cashflowChart"></canvas></div></div>
-              <div class="hc" style="min-height:220px"><div class="cl" style="margin-bottom:8px">Expenses by Category</div><div style="height:180px;position:relative"><canvas id="catChart"></canvas></div></div>
+              <div class="hc" style="min-height:220px"><div class="cl" style="margin-bottom:8px">Expenses by Category</div><div class="cf-category-chart" id="catChartWrap"><canvas id="catChart"></canvas><div class="cf-chart-empty" id="catChartEmpty" hidden><i class="ti ti-chart-donut"></i><strong>No expenses to chart this month</strong><span>Add an expense and its category breakdown will appear here.</span><button type="button" onclick="openCashModal('Credit')"><i class="ti ti-plus"></i>Add expense</button></div></div></div>
             </div>
             <div class="hc" style="margin-bottom:12px">
               <div class="cl" style="margin-bottom:8px">Income vs Expense — 6 Month Trend</div>
@@ -3286,7 +3286,7 @@ if (window.top !== window.self) {
 <script src="app-part-02.js?v=20260901-1"></script>
 <script src="app-part-03.js?v=20260827-1"></script>
 <script src="app-part-04.js?v=20260827-1"></script>
-<script src="app-part-05.js?v=20260828-1"></script>
+<script src="app-part-05.js?v=20260904-2"></script>
 <script src="app-part-06.js?v=20260827-2"></script>
   <script src="app-part-07.js?v=20260902-2"></script>
 
@@ -3511,7 +3511,7 @@ if (window.top !== window.self) {
 <script src="faith-command-center.js?v=20260824-2"></script>
 <script src="life-command-center.js?v=20260902-1"></script>
 <script src="fitness-command-center.js?v=20260902-1"></script>
-<script src="health-game-dashboard.js?v=20260903-3"></script>
+<script src="health-game-dashboard.js?v=20260904-4"></script>
 <script src="mobile-command-center.js?v=20260826-3"></script>
 
 <script src="mobile-viewport.js?v=20260827-1"></script>

@@ -852,8 +852,14 @@ function renderCashCharts(){
   const selectedMonth=`${overviewYear}-${String(overviewMonth+1).padStart(2,'0')}`;
   (DB.cashflow||[]).filter(t=>isLifeExpenseTransaction(t)&&(t.date||'').startsWith(selectedMonth)).forEach(t=>{cats[t.category]=(cats[t.category]||0)+(t.amount||0);});
   const ctx2=document.getElementById('catChart');
+  const catEmpty=document.getElementById('catChartEmpty');
+  const hasCategoryData=Object.keys(cats).length>0;
   if(ctx2){
     if(cfCharts.cat) cfCharts.cat.destroy();
+    cfCharts.cat=null;
+    ctx2.hidden=!hasCategoryData;
+    if(catEmpty) catEmpty.hidden=hasCategoryData;
+    if(!hasCategoryData) return renderCashTrendChart();
     const colors=['rgba(239,68,68,.7)','rgba(255,140,0,.7)','rgba(168,85,247,.7)','rgba(34,197,94,.7)','rgba(245,158,11,.7)','rgba(0,212,200,.7)','rgba(255,40,160,.7)','rgba(59,130,246,.7)'];
     cfCharts.cat=new Chart(ctx2,{
     type:'doughnut',
@@ -869,6 +875,11 @@ function renderCashCharts(){
   });
   }
 
+  renderCashTrendChart();
+}
+
+function renderCashTrendChart(){
+  const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   // 6-month trend line
   const now=new Date(); const curMonth=now.getMonth(); const curYear=now.getFullYear();
   const trendLabels=[],trendIn=[],trendOut=[];
