@@ -1,0 +1,225 @@
+/* Mobile density and readability fixes
+   Keeps the primary actions visible while returning more of the viewport to content. */
+@media (max-width: 768px){
+  /* LIFE: one compact command row instead of a large header plus a full-width timer row. */
+  #view-life.life-command-center > .vh{
+    box-sizing:border-box!important;
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr) auto auto!important;
+    grid-template-rows:auto!important;
+    align-items:center!important;
+    gap:8px!important;
+    min-height:0!important;
+    padding:10px 12px!important;
+  }
+  #view-life.life-command-center > .vh > div:first-child,
+  #view-life.life-command-center .life-title-block{
+    grid-column:1!important;
+    grid-row:1!important;
+    min-width:0!important;
+  }
+  #view-life.life-command-center > .vh > div:first-child .vs,
+  #view-life.life-command-center .life-title-block .life-eyebrow,
+  #view-life.life-command-center .life-title-block p{display:none!important}
+  #view-life.life-command-center > .vh > div:first-child .vt,
+  #view-life.life-command-center .life-title-block h1{
+    margin:0!important;
+    font-size:22px!important;
+    line-height:1!important;
+    white-space:nowrap!important;
+  }
+  #view-life.life-command-center > .vh > div:first-child .vt i,
+  #view-life.life-command-center .life-title-block h1 i{font-size:22px!important}
+  #view-life.life-command-center > .vh > #domainTimer-life{
+    grid-column:2!important;
+    grid-row:1!important;
+    width:auto!important;
+    min-width:0!important;
+    justify-self:end!important;
+    padding:0!important;
+  }
+  #view-life.life-command-center #domainTimer-life .agency-timer-card{
+    display:flex!important;
+    width:auto!important;
+    min-width:112px!important;
+    min-height:40px!important;
+    height:40px!important;
+    align-items:center!important;
+    gap:6px!important;
+    margin:0!important;
+    padding:4px 4px 4px 9px!important;
+    border-radius:12px!important;
+  }
+  #view-life.life-command-center #domainTimer-life .agency-timer-label,
+  #view-life.life-command-center #domainTimer-life .agency-timer-note,
+  #view-life.life-command-center #domainTimer-life .agency-timer-reset{display:none!important}
+  #view-life.life-command-center #domainTimer-life .agency-timer-card > strong{
+    margin:0!important;
+    font-size:14px!important;
+    line-height:1!important;
+    font-variant-numeric:tabular-nums!important;
+    white-space:nowrap!important;
+  }
+  #view-life.life-command-center #domainTimer-life .agency-timer-toggle{
+    width:32px!important;
+    min-width:32px!important;
+    height:32px!important;
+    margin-left:auto!important;
+    padding:0!important;
+    border-radius:9px!important;
+    font-size:0!important;
+  }
+  #view-life.life-command-center #domainTimer-life .agency-timer-toggle i{font-size:15px!important}
+  #view-life.life-command-center .life-header-actions{
+    grid-column:3!important;
+    grid-row:1!important;
+    gap:6px!important;
+  }
+  #view-life.life-command-center .life-review-button{
+    width:38px!important;
+    min-width:38px!important;
+    height:40px!important;
+    min-height:40px!important;
+    padding:0!important;
+    border-radius:11px!important;
+  }
+  #view-life.life-command-center .life-add-button{
+    min-width:68px!important;
+    min-height:40px!important;
+    height:40px!important;
+    padding:0 10px!important;
+    border-radius:11px!important;
+    font-size:11px!important;
+  }
+
+  /* TASKS: keep the title/action compact and make all six KPIs one swipeable row. */
+  #view-tasks .task-page-shell{padding-top:12px!important}
+  #view-tasks .task-page-header{
+    align-items:center!important;
+    gap:10px!important;
+    margin-bottom:10px!important;
+  }
+  #view-tasks .task-page-eyebrow,
+  #view-tasks .task-page-header p{display:none!important}
+  #view-tasks .task-page-header h1{
+    margin:0!important;
+    font-size:28px!important;
+    line-height:1!important;
+  }
+  #view-tasks .task-page-add{
+    min-height:40px!important;
+    padding:8px 12px!important;
+    border-radius:11px!important;
+    font-size:11px!important;
+  }
+  #view-tasks .task-kpi-strip{
+    display:flex!important;
+    gap:7px!important;
+    margin:0 0 10px!important;
+    padding:0 0 4px!important;
+    overflow-x:auto!important;
+    overflow-y:hidden!important;
+    scroll-snap-type:x proximity!important;
+    scrollbar-width:none!important;
+    -webkit-overflow-scrolling:touch!important;
+  }
+  #view-tasks .task-kpi-strip::-webkit-scrollbar{display:none!important}
+  #view-tasks .task-kpi-card{
+    flex:0 0 112px!important;
+    width:112px!important;
+    min-width:112px!important;
+    min-height:52px!important;
+    height:52px!important;
+    grid-template-columns:30px minmax(0,1fr)!important;
+    gap:7px!important;
+    padding:6px 8px!important;
+    border-radius:12px!important;
+    scroll-snap-align:start!important;
+  }
+  #view-tasks .task-kpi-icon{
+    width:30px!important;
+    height:30px!important;
+    border-radius:9px!important;
+    font-size:15px!important;
+  }
+  #view-tasks .task-kpi-card small{
+    font-size:8px!important;
+    line-height:1.1!important;
+    white-space:nowrap!important;
+  }
+  #view-tasks .task-kpi-card strong{
+    margin-top:2px!important;
+    font-size:17px!important;
+    line-height:1!important;
+  }
+
+  /* TODAY: give each task its own rows so metadata can never collide. */
+  #view-dashboard #briefMainRow > .quiet-actions-card{
+    height:auto!important;
+    min-height:0!important;
+    max-height:none!important;
+    padding:14px!important;
+  }
+  #view-dashboard .quiet-actions-card .today-card-heading{margin-bottom:4px!important}
+  #view-dashboard .quiet-actions-card .today-card-heading h3{font-size:14px!important}
+  #view-dashboard .quiet-actions-card .quiet-card-link{
+    min-height:34px!important;
+    padding:7px 9px!important;
+    font-size:10px!important;
+  }
+  #view-dashboard #briefToDo{overflow:visible!important}
+  #view-dashboard #briefToDo .next-action-row{
+    display:grid!important;
+    grid-template-columns:20px minmax(0,1fr)!important;
+    grid-template-areas:"check copy" ". due"!important;
+    align-items:start!important;
+    column-gap:10px!important;
+    row-gap:5px!important;
+    min-height:0!important;
+    height:auto!important;
+    padding:11px 0!important;
+  }
+  #view-dashboard #briefToDo .next-action-check{
+    grid-area:check!important;
+    width:18px!important;
+    height:18px!important;
+    margin-top:1px!important;
+  }
+  #view-dashboard #briefToDo .next-action-copy{
+    grid-area:copy!important;
+    min-width:0!important;
+  }
+  #view-dashboard #briefToDo .next-action-copy strong{
+    display:block!important;
+    overflow:visible!important;
+    font-size:13px!important;
+    line-height:1.28!important;
+    text-overflow:clip!important;
+    white-space:normal!important;
+  }
+  #view-dashboard #briefToDo .next-action-copy small{
+    display:block!important;
+    margin-top:3px!important;
+    font-size:10px!important;
+    line-height:1.25!important;
+  }
+  #view-dashboard #briefToDo .next-action-due{
+    grid-area:due!important;
+    display:flex!important;
+    align-items:center!important;
+    justify-content:flex-start!important;
+    gap:5px!important;
+    margin:0!important;
+    font-size:10px!important;
+    line-height:1.2!important;
+    white-space:nowrap!important;
+  }
+}
+
+@media (max-width: 374px){
+  #view-life.life-command-center > .vh > div:first-child .vt,
+  #view-life.life-command-center .life-title-block h1{font-size:19px!important}
+  #view-life.life-command-center #domainTimer-life .agency-timer-card{min-width:102px!important}
+  #view-life.life-command-center #domainTimer-life .agency-timer-card > strong{font-size:13px!important}
+  #view-life.life-command-center .life-review-button{display:none!important}
+}
