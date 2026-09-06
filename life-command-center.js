@@ -132,7 +132,7 @@
     var title=header&&header.querySelector('.vt');
     var subtitle=header&&header.querySelector('.vs');
     if(title)title.innerHTML='<i class="ti ti-leaf"></i>LIFE';
-    if(subtitle)subtitle.textContent='Money · Health · Fitness · Home · Personal growth';
+    if(subtitle)subtitle.textContent='Money · Health Log · Training · Home · Personal growth';
     var legacyActions=header&&header.querySelector('.va');
     if(legacyActions)legacyActions.classList.add('life-legacy-actions');
     if(header&&!header.querySelector('.life-header-actions')){
@@ -164,8 +164,8 @@
       navigation.innerHTML=[
         ['today','ti-layout-dashboard','Today'],
         ['money','ti-wallet','Money'],
-        ['health','ti-heartbeat','Health'],
-        ['fitness','ti-barbell','Fitness'],
+        ['health','ti-heartbeat','Health Log'],
+        ['fitness','ti-barbell','Training'],
         ['home','ti-home','Home & Admin'],
         ['review','ti-checklist','Review']
       ].map(function(item){return '<button data-life-section="'+item[0]+'" onclick="lifeSetSection(\''+item[0]+'\')"><i class="ti '+item[1]+'"></i><span>'+item[2]+'</span></button>';}).join('');

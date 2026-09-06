@@ -1,0 +1,280 @@
+/* Consolidated accessibility and readability layer — September 2026 audit. */
+:root{--text4:#707070}
+html[data-theme="dark"]{--text3:#b0b0b0;--text4:#919191}
+.noscript-message{position:fixed;inset:20px;z-index:100000;display:grid;max-width:520px;height:max-content;margin:auto;gap:8px;padding:22px;border:1px solid var(--border2);border-radius:16px;background:var(--navy2);color:var(--text1);box-shadow:0 18px 60px rgba(0,0,0,.45)}
+.noscript-message strong{font-size:18px}
+.noscript-message span{color:var(--text2);font-size:14px;line-height:1.5}
+
+.task-primary-fields{grid-template-columns:minmax(0,1.25fr) minmax(150px,.8fr) minmax(130px,.65fr)}
+.task-more-details{margin-top:12px;border:1px solid var(--border);border-radius:12px;background:var(--navy3)}
+.task-more-details>summary{display:flex;min-height:48px;align-items:center;justify-content:space-between;gap:14px;padding:11px 14px;color:var(--text2);cursor:pointer;list-style:none}
+.task-more-details>summary::-webkit-details-marker{display:none}
+.task-more-details>summary span{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700}
+.task-more-details>summary span i{color:var(--teal)}
+.task-more-details>summary small{color:var(--text3);font-size:12px;text-align:right}
+.task-more-details[open]>summary{border-bottom:1px solid var(--border);color:var(--text1)}
+.task-more-fields{padding:14px}
+
+.mov[role="dialog"] .modal{max-height:min(90dvh,860px)}
+.mov[role="dialog"] .mb{overscroll-behavior:contain}
+[role="button"]:focus-visible,summary:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
+.view small{font-size:12px!important;line-height:1.35}
+
+#view-tasks .task-kpi-strip{scroll-snap-type:x proximity;scrollbar-width:thin}
+#view-tasks .task-kpi-card{scroll-snap-align:start}
+#view-tasks .smart-view-pill,
+#view-tasks .bvt,
+#view-tasks .board-view-tabs .bvt{font-size:12px!important}
+#view-dashboard .dashboard-customize-trigger,
+#view-dashboard .quiet-card-link.compact,
+#view-dashboard .today-focus-meta,
+#view-dashboard .money-range,
+#view-dashboard .money-range-select,
+#view-dashboard .money-chart-head,
+#view-dashboard .money-chart-head span,
+#view-dashboard .money-chart-head small,
+#view-dashboard .money-available span,
+#view-dashboard .money-available small,
+#view-dashboard .money-totals span,
+#view-dashboard .money-totals small,
+#view-dashboard .money-note,
+#view-dashboard .today-daily-brief-body span,
+#view-dashboard .today-daily-brief-action,
+#view-dashboard .today-jelix-insight-action{font-size:12px!important;line-height:1.35}
+#view-calendar .cal-vt,
+#view-calendar .calendar-domain-filter-row>span,
+#view-calendar .cal-mini-month,
+#view-calendar .cal-legend-item span{font-size:12px!important;line-height:1.35}
+#view-review .os-review-stat span,
+#view-review .os-review-stat small,
+#view-review .os-review-reset-copy span,
+#view-review .os-review-reset-copy p,
+#view-review .os-review-actions .btn,
+#view-review .os-review-panel-head span,
+#view-review .os-review-panel-head>button,
+#view-review .os-review-item-copy span,
+#view-review .os-review-state,
+#view-review .os-review-empty span,
+#view-review .review-panel-count,
+#view-review .review-capture-card>p,
+#view-review .review-capture-row,
+#view-review .review-capture-clear,
+#view-review .review-panel-action,
+#view-review .review-unsorted-link,
+#view-review .review-rhythm-row strong,
+#view-review .review-rhythm-next,
+#view-review .review-rhythm-next strong{font-size:12px!important;line-height:1.4}
+
+#cf-biomonitor .health-game-kicker,
+#cf-biomonitor .health-game-head-stats small,
+#cf-biomonitor .health-game-card-title small,
+#cf-biomonitor .health-game-card-subtitle,
+#cf-biomonitor .health-game-level span,
+#cf-biomonitor .health-game-level small,
+#cf-biomonitor .health-game-xp-row span,
+#cf-biomonitor .health-game-xp p,
+#cf-biomonitor .health-game-mini-stats small,
+#cf-biomonitor .health-game-score-ring small,
+#cf-biomonitor .health-game-score-wrap p,
+#cf-biomonitor .health-game-score-wrap button,
+#cf-biomonitor .health-game-quest small,
+#cf-biomonitor .health-game-quest>strong,
+#cf-biomonitor .health-game-quest-total,
+#cf-biomonitor .health-game-week-strip span,
+#cf-biomonitor .health-game-week-strip span b,
+#cf-biomonitor .health-game-week-strip span small,
+#cf-biomonitor .health-game-challenge-row,
+#cf-biomonitor .health-game-achievement small,
+#cf-biomonitor .health-game-achievement strong,
+#cf-biomonitor .health-game-chart-peak,
+#cf-biomonitor .health-game-chart-labels,
+#cf-biomonitor .health-game-badge span,
+#cf-biomonitor .health-game-how,
+#cf-biomonitor .health-game-details small{font-size:12px}
+#cf-biomonitor .health-game-quest b{font-size:13px}
+#cf-biomonitor .health-game-score-copy>strong{font-size:14px}
+#cf-biomonitor .health-game-score-formula{margin-top:0;color:var(--text3);font-size:12px;line-height:1.45}
+#cf-biomonitor .health-game-badges{grid-template-rows:none;align-content:start;flex:0 0 auto}
+#cf-biomonitor .health-game-details span{font-size:12px}
+#cf-biomonitor .health-game-how strong{font-size:12px}
+
+#view-life .fitness-dashboard small,
+#view-life .fitness-dashboard em,
+#view-life .fitness-panel-heading p,
+#view-life .fitness-title p,
+#view-life .fitness-warmup strong,
+#view-life .fitness-food-guide strong,
+#view-life .fitness-hydration strong,
+#view-life .fitness-chart-empty strong,
+#view-life .fitness-chart-empty span,
+#view-life .fitness-footer strong{font-size:12px!important;line-height:1.35}
+#view-life .fitness-dashboard button,
+#view-life .fitness-panel-heading>span,
+#view-life .fitness-warmup>div>span,
+#view-life .fitness-warmup strong,
+#view-life .fitness-today-actions>span,
+#view-life .fitness-schedule>button>span,
+#view-life .fitness-schedule strong,
+#view-life .fitness-phases p b{font-size:12px!important}
+#view-life .fitness-profile-metrics small,
+#view-life .fitness-profile-metrics em{white-space:normal}
+#view-life.life-command-center #domainTimer-life .agency-timer-label span,
+#view-life.life-command-center #domainTimer-life .agency-timer-note{font-size:12px!important}
+#view-life.life-command-center .mood-btn span{font-size:12px!important}
+html[data-theme="light"] #cf-biomonitor #healthGameDashboard{
+  --text1:#f4f7f5;
+  --text2:#d1d9d5;
+  --text3:#a6b0ab;
+  --text4:#89948e;
+}
+html[data-theme="light"] #view-life .fitness-dashboard{
+  --life-text:#f4f7f5;
+  --life-muted:#aeb8b2;
+  --life-dim:#89948e;
+}
+
+.command-side-heading,
+.command-side-heading button,
+.task-overview-ring span,
+.task-overview-legend div,
+.task-overview-legend strong,
+.side-item-title,
+.side-item-meta,
+.side-item-date,
+.side-list-empty,
+.task-productivity-copy,
+.smart-overdue-card strong,
+.smart-overdue-card span,
+.smart-overdue-card button,
+.calendar-sync-summary,
+.calendar-summary-metrics span,
+.calendar-domain-summary span{font-size:12px!important;line-height:1.35}
+#view-tasks .task-intelligence .command-side-card span,
+#view-tasks .task-intelligence .command-side-card button,
+#view-calendar .calendar-intelligence .command-side-card span,
+#view-calendar .calendar-intelligence .command-side-card button{font-size:12px!important;line-height:1.35}
+
+@media(max-width:768px){
+  body{font-size:14px}
+  button,.btn,input,select,textarea,summary,[role="button"]{min-height:44px!important}
+  .mobile-bottom-nav button,.mobile-bottom-nav [role="button"]{min-height:44px!important}
+  #mobileTopBar button,#mobileTopBar [role="button"]{min-width:44px;min-height:44px!important}
+  #mobileTopBar{min-height:52px}
+  #mobileDate,#mobileWeather{font-size:12px!important}
+  .mobile-bottom-nav .mbn-tab span,.mobile-bottom-nav .mbn-center span{font-size:12px!important}
+  #view-dashboard .today-kicker,
+  #view-dashboard .next-action-copy small,
+  #view-dashboard .next-action-due,
+  #view-tasks #mobileTaskBar>div:nth-child(2)>span,
+  #view-calendar .cal-agenda-event .ae-time,
+  #view-calendar .cal-agenda-event .ae-sub,
+  #view-review .os-review-stat span,
+  #view-review .os-review-stat small,
+  #view-review .os-review-state{font-size:12px!important}
+  #view-tasks #mobileTaskBar>div:nth-child(2) .bvt{min-height:40px!important;font-size:12px!important}
+  #view-tasks .task-page-add,
+  #view-calendar .calendar-page-add,
+  #view-life.life-command-center .life-add-button,
+  #view-life.life-command-center .life-add-button span{font-size:12px!important}
+  #view-life.life-command-center .life-review-button,
+  #view-life.life-command-center .life-add-button{
+    min-height:44px!important;
+    height:44px!important;
+  }
+  #view-tasks .task-page-add,
+  #view-tasks #mobileTaskBar .bvt{min-height:44px!important;height:44px!important}
+  #view-tasks .task-kpi-card{
+    width:118px!important;
+    min-width:118px!important;
+    flex-basis:118px!important;
+    grid-template-columns:24px minmax(0,1fr)!important;
+    gap:5px!important;
+    padding-inline:6px!important;
+  }
+  #view-tasks .task-kpi-icon{width:24px!important;height:28px!important}
+  #view-tasks .task-kpi-card small{font-size:12px!important;line-height:1.2!important;letter-spacing:0!important}
+  #view-calendar .cal-vt,
+  #view-calendar .cal-toolbar-title,
+  #view-calendar .cal-agenda-empty{font-size:12px!important}
+  #view-calendar .cal-toolbar button,
+  #view-calendar .cal-view-toggle button,
+  #view-calendar button[onclick="calNavToday()"],
+  .btn[onclick="calNavToday()"],
+  #view-calendar #calToolbarRow1>.btn[onclick="calNavToday()"]{
+    min-height:44px!important;
+    height:44px!important;
+  }
+  #view-calendar #calToolbarRow1 + div>div{
+    width:100%!important;
+    min-width:0!important;
+  }
+  #view-calendar #calToolbarRow1 + div .cal-vt{
+    min-width:0!important;
+    flex:1 1 0!important;
+    padding-inline:5px!important;
+  }
+  #view-dashboard .quiet-add-task,
+  #view-dashboard .quiet-card-link.compact,
+  #view-dashboard .today-focus-meta,
+  #view-dashboard .money-range,
+  #view-dashboard .money-range-select,
+  #view-dashboard .money-chart-head,
+  #view-dashboard .money-chart-head span,
+  #view-dashboard .money-chart-head small,
+  #view-dashboard .money-available span,
+  #view-dashboard .money-available small,
+  #view-dashboard .money-totals span,
+  #view-dashboard .money-totals small,
+  #view-dashboard .money-note,
+  #view-dashboard .today-daily-brief-body span,
+  #view-dashboard .today-daily-brief-action,
+  #view-dashboard .today-jelix-insight-action{font-size:12px!important;line-height:1.35}
+  #view-dashboard .quiet-card-link.compact{min-height:44px!important}
+  #view-dashboard .focus-marker strong{font-size:12px!important}
+  #view-review .review-page-complete,
+  #view-review .os-review-reset-copy span,
+  #view-review .os-review-reset-copy p,
+  #view-review .os-review-actions .btn,
+  #view-review .os-review-panel-head span,
+  #view-review .os-review-panel-head>button,
+  #view-review .os-review-item-copy span,
+  #view-review .os-review-empty span,
+  #view-review .review-panel-count,
+  #view-review .review-capture-card>p,
+  #view-review .review-capture-row,
+  #view-review .review-capture-clear,
+  #view-review .review-panel-action,
+  #view-review .review-unsorted-link,
+  #view-review .review-rhythm-row strong,
+  #view-review .review-rhythm-next,
+  #view-review .review-rhythm-next strong{font-size:12px!important;line-height:1.4}
+  #view-review .os-review-panel-head>button,
+  #view-review .os-review-actions .btn,
+  #view-review .os-review-check,
+  #view-review .review-panel-action,
+  #view-review .review-unsorted-link,
+  #view-review .review-rhythm-row{min-height:44px!important;height:auto!important}
+  #view-review .os-review-item{grid-template-columns:44px minmax(0,1fr) auto!important}
+  #view-review .os-review-check{width:44px!important;height:44px!important}
+  #view-life.life-command-center .life-content [data-health-game-details] span,
+  #view-life.life-command-center .life-content .health-game-chart-labels span{font-size:12px!important}
+  .task-primary-fields{grid-template-columns:1fr 1fr}
+  .task-primary-fields>.fg:first-child{grid-column:1/-1}
+  .task-more-details>summary{align-items:flex-start;flex-direction:column;gap:3px}
+  .task-more-details>summary small{text-align:left}
+  #cf-biomonitor .health-game-card-title{align-items:flex-start}
+  #cf-biomonitor .health-game-chart-labels{font-size:12px}
+}
+
+@media(max-width:390px){
+  .task-primary-fields{grid-template-columns:1fr}
+  .task-primary-fields>.fg:first-child{grid-column:auto}
+  #cf-biomonitor .health-game-progress-main{grid-template-columns:92px minmax(0,1fr)}
+  #cf-biomonitor .health-game-level{min-height:118px}
+  #cf-biomonitor .health-game-score-wrap{grid-template-columns:88px minmax(0,1fr);gap:12px}
+  #cf-biomonitor .health-game-score-ring{width:88px;height:88px;flex-basis:88px}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .task-more-details,*{scroll-behavior:auto!important}
+}

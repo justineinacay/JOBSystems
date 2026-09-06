@@ -811,6 +811,11 @@ async function speakSlow(text){
 }
 
 function lockOS(){
+  if(!hasSystemPin()){
+    setView('settings');
+    showToast('Set a 4-digit PIN in Settings before locking this device.');
+    return;
+  }
   speechSynthesis.cancel();
   if(currentAudio){currentAudio.pause();currentAudio=null;}
   currentPinInput='';
@@ -1740,8 +1745,47 @@ async function setJelixAPIKey(){
 // J.O.B. SECURITY ENGINE — PIN + WebAuthn Biometric
 // ═══════════════════════════════════════════════════════════════════════════
 let currentPinInput='';
-function getSystemPin(){return localStorage.getItem('j-sys-pin')||'0000';}
-function setSystemPin(p){localStorage.setItem('j-sys-pin',p);}
+const SYSTEM_PIN_HASH_KEY='j-sys-pin-hash';
+const LEGACY_SYSTEM_PIN_KEY='j-sys-pin';
+function hasSystemPin(){return !!(localStorage.getItem(SYSTEM_PIN_HASH_KEY)||localStorage.getItem(LEGACY_SYSTEM_PIN_KEY));}
+function _pinBytesToBase64(bytes){return btoa(String.fromCharCode(...bytes));}
+function _pinBase64ToBytes(value){return Uint8Array.from(atob(value),char=>char.charCodeAt(0));}
+async function _deriveLegacySystemPinHash(pin,salt){
+  if(!window.crypto||!window.crypto.subtle)throw new Error('Secure PIN storage is unavailable in this browser.');
+  const input=new Uint8Array(salt.length+pin.length);
+  input.set(salt);input.set(new TextEncoder().encode(pin),salt.length);
+  return _pinBytesToBase64(new Uint8Array(await window.crypto.subtle.digest('SHA-256',input)));
+}
+async function _deriveSystemPinHash(pin,salt,iterations){
+  if(!window.crypto||!window.crypto.subtle)throw new Error('Secure PIN storage is unavailable in this browser.');
+  const material=await window.crypto.subtle.importKey('raw',new TextEncoder().encode(pin),'PBKDF2',false,['deriveBits']);
+  const bits=await window.crypto.subtle.deriveBits({name:'PBKDF2',hash:'SHA-256',salt,iterations},material,256);
+  return _pinBytesToBase64(new Uint8Array(bits));
+}
+async function setSystemPin(pin){
+  const salt=window.crypto.getRandomValues(new Uint8Array(16));
+  const iterations=150000;
+  const record={version:2,iterations,salt:_pinBytesToBase64(salt),hash:await _deriveSystemPinHash(pin,salt,iterations)};
+  localStorage.setItem(SYSTEM_PIN_HASH_KEY,JSON.stringify(record));
+  localStorage.removeItem(LEGACY_SYSTEM_PIN_KEY);
+}
+async function verifySystemPin(pin){
+  const encoded=localStorage.getItem(SYSTEM_PIN_HASH_KEY);
+  if(encoded){
+    try{
+      const record=JSON.parse(encoded);
+      const salt=_pinBase64ToBytes(record.salt);
+      const valid=record.version===1
+        ?(await _deriveLegacySystemPinHash(pin,salt))===record.hash
+        :(await _deriveSystemPinHash(pin,salt,Math.max(100000,Number(record.iterations)||150000)))===record.hash;
+      if(valid&&record.version===1)await setSystemPin(pin);
+      return valid;
+    }catch(error){console.error('[Device lock] Stored PIN could not be verified',error);return false;}
+  }
+  const legacy=localStorage.getItem(LEGACY_SYSTEM_PIN_KEY);
+  if(legacy&&pin===legacy){await setSystemPin(pin);return true;}
+  return false;
+}
 
 // ── Hardware keyboard PIN trap ──────────────────────────────────────────
 // Single authoritative handler. rawPinInput is readonly — no oninput, no onkeydown.
@@ -1784,9 +1828,9 @@ function enterPin(num){
   _safeChime('chimeNotify');
   if(currentPinInput.length===4) _checkPin();
 }
-function _checkPin(){
-  const correct=getSystemPin();
-  if(currentPinInput===correct){
+async function _checkPin(){
+  if(!hasSystemPin()){clearPin();unlockSystem();return;}
+  if(await verifySystemPin(currentPinInput)){
     clearPin();_safeChime('chimeSuccess');unlockSystem();
   }else{
     const display=document.getElementById('pinDisplay');
@@ -1890,12 +1934,17 @@ document.addEventListener('DOMContentLoaded',()=>{
 // ═══════════════════════════════════════════════════════════════════════════
 // SETTINGS CONTROLLERS
 // ═══════════════════════════════════════════════════════════════════════════
-function updateSystemPin(){
+async function updateSystemPin(){
   const input=document.getElementById('set-new-pin')?.value||'';
   if(/^\d{4}$/.test(input)){
-    setSystemPin(input);
-    document.getElementById('set-new-pin').value='';
-    showToast('✓ System PIN updated.');
+    try{
+      await setSystemPin(input);
+      document.getElementById('set-new-pin').value='';
+      showToast('✓ System PIN updated securely.');
+    }catch(error){
+      showToast('⚠ Secure PIN storage is unavailable in this browser.');
+      console.error('[Device lock] Could not save PIN',error);
+    }
   }else{
     showToast('⚠ PIN must be exactly 4 digits.');
   }
@@ -2052,9 +2101,9 @@ async function renderSettingsView(){
     bioBtn.innerHTML='<i class="ti ti-scan" style="font-size:var(--text-sm);line-height:1;display:inline-block;margin-right:5px"></i>'+(enabled?'Disable FaceID / TouchID':'Enable FaceID / TouchID');
   }
   // PIN setup hint
-  const hasPin=localStorage.getItem('j-sys-pin');
+  const hasPin=hasSystemPin();
   const pinHint=document.getElementById('pinSetHint');
-  if(pinHint)pinHint.textContent=hasPin?'PIN configured ✓':'PIN not set — using system default';
+  if(pinHint)pinHint.textContent=hasPin?'PIN configured ✓':'PIN not set — device lock is disabled';
   renderSettingsWorldsList();
   loadPrefs();
   renderSystemHealth();

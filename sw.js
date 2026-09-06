@@ -10,7 +10,7 @@
 // hadn't changed and CACHE_VERSION was never bumped to force a purge. That's
 // what caused an already-fixed bug (the driveLink Supabase column error) to
 // keep reappearing on-device after the source was already correct.
-const CACHE_VERSION = 'jobsystems-v42';
+const CACHE_VERSION = 'jobsystems-v44';
 const APP_SHELL = [
   './',
   './index.html',
@@ -22,10 +22,10 @@ const APP_SHELL = [
   './app-dark-theme.css?v=20260827-1',
   './app-job-command-center.css?v=20260827-1',
   './app-prelude.js?v=20260827-2',
-  './app-part-01.js?v=20260901-2',
-  './app-part-02.js?v=20260901-1',
+  './app-part-01.js?v=20260905-1',
+  './app-part-02.js?v=20260905-1',
   './app-part-03.js?v=20260827-1',
-  './app-part-04.js?v=20260827-1',
+  './app-part-04.js?v=20260905-1',
   './app-part-05.js?v=20260904-2',
   './app-part-06.js?v=20260827-2',
   './app-part-07.js?v=20260902-2',
@@ -48,13 +48,29 @@ const APP_SHELL = [
   './productivity-command-center.css?v=20260903-2',
   './agency-command-centers.js?v=20260823-1',
   './faith-command-center.js?v=20260824-2',
-  './life-command-center.js?v=20260902-1',
+  './life-command-center.js?v=20260905-1',
   './fitness-command-center.js?v=20260902-1',
-  './health-game-dashboard.js?v=20260904-4',
+  './health-game-dashboard.js?v=20260905-1',
   './mobile-command-center.js?v=20260826-3',
   './productivity-command-center.js?v=20260831-4',
+  './audit-hardening.css?v=20260905-1',
+  './accessibility-hardening.js?v=20260905-1',
+  './jobsystems-logo.png',
+  './icons/icon-192.png',
+  './icons/icon-512.png',
+  './icons/apple-touch-icon.png',
+  './assets/workspace-logos/job-collectives.png',
+  './assets/workspace-logos/code-collectives.png',
+  './assets/workspace-logos/creative-collectives.png',
+  './assets/workspace-logos/faith.png',
+  './assets/workspace-logos/personal.png',
 ];
 const APP_SHELL_PATHS = new Set(APP_SHELL.map((p) => new URL(p, self.location.href).href));
+const EXTERNAL_SHELL = [
+  'https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css',
+  'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js',
+  'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Roboto:wght@300;400;500;700&display=swap',
+];
 
 // Supabase requests should always try the network first — cached financial/task
 // data going stale silently would be worse than a failed offline request.
@@ -65,22 +81,31 @@ const NETWORK_FIRST_HOSTS = [
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_VERSION).then((cache) => cache.addAll(APP_SHELL))
+    caches.open(CACHE_VERSION).then(async (cache) => {
+      // Local files are required for installation. Third-party presentation
+      // assets are cached best-effort so a newly installed PWA still has its
+      // icons and charts when the next launch is offline.
+      await cache.addAll(APP_SHELL);
+      await Promise.allSettled(
+        EXTERNAL_SHELL.map((url) => cache.add(new Request(url, { mode: 'no-cors' })))
+      );
+    })
   );
   self.skipWaiting();
 });
 
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then((keys) =>
-      Promise.all(
-        keys
-          .filter((key) => key !== CACHE_VERSION)
-          .map((key) => caches.delete(key))
+    caches.keys()
+      .then((keys) =>
+        Promise.all(
+          keys
+            .filter((key) => key !== CACHE_VERSION)
+            .map((key) => caches.delete(key))
+        )
       )
-    )
+      .then(() => self.clients.claim())
   );
-  self.clients.claim();
 });
 
 self.addEventListener('fetch', (event) => {
@@ -113,8 +138,13 @@ self.addEventListener('fetch', (event) => {
     caches.match(request).then((cached) => {
       if (cached) return cached;
       return fetch(request).then((response) => {
-        // Only cache successful, same-origin responses
-        if (response.ok && url.origin === self.location.origin) {
+        // Cache successful static resources, including the pinned icon/chart
+        // CDNs used by the installed PWA. Supabase data remains network-first.
+        const cacheableCrossOrigin =
+          url.hostname === 'cdn.jsdelivr.net' ||
+          url.hostname === 'fonts.googleapis.com' ||
+          url.hostname === 'fonts.gstatic.com';
+        if (response.ok && (url.origin === self.location.origin || cacheableCrossOrigin)) {
           const clone = response.clone();
           caches.open(CACHE_VERSION).then((cache) => cache.put(request, clone));
         }

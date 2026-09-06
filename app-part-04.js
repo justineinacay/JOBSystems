@@ -78,6 +78,13 @@ function openModal(id){
     if(tc)tc.innerHTML=(typeof calEditingId!=='undefined'&&calEditingId!=null)?renderTagsSection('event',calEditingId):'<div style="font-size:var(--text-xs);color:var(--text3)">Save the event first, then come back to tag it.</div>';
   }
   document.getElementById(id).classList.add('open');
+  if(id==='taskModal'){
+    const more=document.getElementById('taskMoreDetails');
+    if(more){
+      const advanced=['tf-project','tf-start-date','tf-start-time','tf-end-time','tf-platform','tf-client','tf-notes','tf-drive-link'];
+      more.open=editingTaskId!=null||advanced.some(fieldId=>{const field=document.getElementById(fieldId);return field&&String(field.value||'').trim();});
+    }
+  }
 }
 function closeModal(id){document.getElementById(id).classList.remove('open');editingTaskId=null;editingClientId=null;editingFaithId=null;editingVentureId=null;editingJournalId=null;editingCashId=null;_flushPendingShapeSaves();const focusBtn=document.getElementById('tf-focus-btn');if(focusBtn)focusBtn.style.display='none';}
 function openTaskFor(world){document.getElementById('tf-world').value=world;document.getElementById('taskModalTitle').textContent='New Task';openModal('taskModal');}

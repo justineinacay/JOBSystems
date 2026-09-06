@@ -52,6 +52,12 @@ if (window.top !== window.self) {
 </script>
 </head>
 <body>
+<noscript>
+  <div class="noscript-message" role="alert">
+    <strong>J.O.B Systems needs JavaScript to work.</strong>
+    <span>Enable JavaScript, then reload this page to access your dashboard and saved workflows.</span>
+  </div>
+</noscript>
 <datalist id="allTagsDatalist"></datalist>
 <div class="tstack" id="tstack" role="status" aria-live="polite" aria-atomic="true"></div>
 
@@ -64,20 +70,23 @@ if (window.top !== window.self) {
 </div>
 
 <!-- TASK MODAL -->
-<div class="mov" id="taskModal">
+<div class="mov" id="taskModal" role="dialog" aria-modal="true" aria-labelledby="taskModalTitle">
   <div class="modal">
     <div class="mh"><div class="mt" id="taskModalTitle">New Task</div><button class="mc" onclick="closeModal('taskModal')">×</button></div>
     <div class="mb">
       <div class="fg"><label class="fl">Title</label><input id="tf-title" placeholder="Task title..."></div>
-      <div class="fr">
+      <div class="fr task-primary-fields">
         <div class="fg"><label class="fl">Domain</label><select id="tf-world" onchange="updateTaskClientDropdown(this.value);refreshProjectSelect('tf-project',this.value,'')"><option value="LIFE">LIFE</option><option value="VENTURE">VENTURE</option><option value="BUILD">BUILD</option><option value="SIDES">SIDES</option><option value="FAITH">FAITH</option><option value="WORK-CS">WORK — Chainsmoker & Sweetheart</option></select></div>
+        <div class="fg"><label class="fl">Deadline</label><input type="date" id="tf-due"></div>
         <div class="fg"><label class="fl">Priority</label><select id="tf-prio"><option>High</option><option>Medium</option><option>Low</option></select></div>
-        <div class="fg"><label class="fl">Project</label><select id="tf-project" onchange="handleProjectSelectChange(this,document.getElementById('tf-world').value)"></select></div>
       </div>
+      <details class="task-more-details" id="taskMoreDetails">
+        <summary><span><i class="ti ti-adjustments-horizontal"></i> More details</span><small>Project, schedule, people, notes and links</small></summary>
+        <div class="task-more-fields">
       <div class="fr">
+        <div class="fg"><label class="fl">Project</label><select id="tf-project" onchange="handleProjectSelectChange(this,document.getElementById('tf-world').value)"></select></div>
         <div class="fg"><label class="fl">Status</label><select id="tf-status"><option>Todo</option><option>In Progress</option><option>No Progress</option><option>Done</option></select></div>
         <div class="fg"><label class="fl">Start Date</label><input type="date" id="tf-start-date"></div>
-        <div class="fg"><label class="fl">Deadline (End)</label><input type="date" id="tf-due"></div>
       </div>
       <div class="fr">
         <div class="fg"><label class="fl">Start Time</label><input type="time" id="tf-start-time"></div>
@@ -99,6 +108,8 @@ if (window.top !== window.self) {
       <div class="fg"><label class="fl"><i class="ti ti-brand-google-drive" style="font-size:var(--text-sm);color:#4285F4"></i> Google Drive Link</label><div style="display:flex;gap:8px"><input id="tf-drive-link" placeholder="https://drive.google.com/..." style="flex:1"><button type="button" class="btn btn-g" onclick="openDrivePicker(f=>{document.getElementById('tf-drive-link').value=f.webViewLink;})" style="flex-shrink:0"><i class="ti ti-search"></i> Browse</button></div></div>
       <div class="fg"><label class="fl"><i class="ti ti-link" style="font-size:var(--text-sm)"></i> Related</label><div id="tf-related"></div></div>
       <div class="fg"><label class="fl"><i class="ti ti-tag" style="font-size:var(--text-sm)"></i> Tags</label><div id="tf-tags"></div></div>
+        </div>
+      </details>
     </div>
     <div class="mf" style="justify-content:space-between">
       <button class="btn btn-g" id="tf-focus-btn" style="display:none" onclick="startFocusTimer(editingTaskId)"><i class="ti ti-clock-play"></i> Start Focus Timer</button>
@@ -1075,18 +1086,18 @@ if (window.top !== window.self) {
   <div id="pinError" style="font-size:var(--text-xs);color:var(--red);letter-spacing:.04em;height:16px;margin-bottom:10px;opacity:0;transition:opacity .2s;text-align:center"></div>
 
   <div class="pin-pad" id="pinPad">
-    <div class="pin-btn" onclick="enterPin(1)">1</div>
-    <div class="pin-btn" onclick="enterPin(2)">2</div>
-    <div class="pin-btn" onclick="enterPin(3)">3</div>
-    <div class="pin-btn" onclick="enterPin(4)">4</div>
-    <div class="pin-btn" onclick="enterPin(5)">5</div>
-    <div class="pin-btn" onclick="enterPin(6)">6</div>
-    <div class="pin-btn" onclick="enterPin(7)">7</div>
-    <div class="pin-btn" onclick="enterPin(8)">8</div>
-    <div class="pin-btn" onclick="enterPin(9)">9</div>
-    <div class="pin-btn" onclick="clearPin()" style="font-size:var(--text-sm);color:var(--text3);border:none;background:transparent">CLR</div>
-    <div class="pin-btn" onclick="enterPin(0)">0</div>
-    <div class="pin-btn" style="border:none;background:transparent;visibility:hidden"></div>
+    <button type="button" class="pin-btn" onclick="enterPin(1)" aria-label="Enter 1">1</button>
+    <button type="button" class="pin-btn" onclick="enterPin(2)" aria-label="Enter 2">2</button>
+    <button type="button" class="pin-btn" onclick="enterPin(3)" aria-label="Enter 3">3</button>
+    <button type="button" class="pin-btn" onclick="enterPin(4)" aria-label="Enter 4">4</button>
+    <button type="button" class="pin-btn" onclick="enterPin(5)" aria-label="Enter 5">5</button>
+    <button type="button" class="pin-btn" onclick="enterPin(6)" aria-label="Enter 6">6</button>
+    <button type="button" class="pin-btn" onclick="enterPin(7)" aria-label="Enter 7">7</button>
+    <button type="button" class="pin-btn" onclick="enterPin(8)" aria-label="Enter 8">8</button>
+    <button type="button" class="pin-btn" onclick="enterPin(9)" aria-label="Enter 9">9</button>
+    <button type="button" class="pin-btn" onclick="clearPin()" style="font-size:var(--text-sm);color:var(--text3);border:none;background:transparent">Clear</button>
+    <button type="button" class="pin-btn" onclick="enterPin(0)" aria-label="Enter 0">0</button>
+    <span aria-hidden="true"></span>
   </div>
 
   <div style="margin-top:28px;font-size:var(--text-xs);color:var(--text3);letter-spacing:.04em">
@@ -1180,51 +1191,51 @@ if (window.top !== window.self) {
   <div id="topNotifPanel" onmouseenter="cancelHideNotifPreview()" onmouseleave="scheduleHideNotifPreview()" style="display:none;position:absolute;top:calc(100% + 10px);right:0;width:340px;background:var(--navy2);border:1px solid var(--border);border-radius:16px;box-shadow:var(--card-shadow),0 12px 32px rgba(20,20,30,.12);z-index:99991;overflow:hidden"></div>
 
   <!-- SIDE PANEL -->
-  <div class="side-panel" id="sidePanel">
+  <nav class="side-panel" id="sidePanel" aria-label="Primary navigation">
     <div class="sidebar-brand" aria-label="J.O.B Systems home">
       <img class="sidebar-brand-logo" src="jobsystems-logo.png" alt="">
       <span class="sidebar-brand-name">J.O.B <span>Systems</span></span>
     </div>
     <div class="side-nav">
       <div class="ngl nav-section-heading">Essentials</div>
-      <div class="ni active" onclick="setView('dashboard')" data-view="dashboard" title="Today"><i class="ti ti-home"></i><span class="nav-label">Today</span></div>
-      <div class="ni" onclick="setView('tasks')" data-view="tasks" title="Tasks"><i class="ti ti-checklist"></i><span class="nav-label">Tasks</span><span class="nbadge" id="taskBadge">0</span></div>
-      <div class="ni" onclick="setView('calendar')" data-view="calendar" title="Calendar"><i class="ti ti-calendar"></i><span class="nav-label">Calendar</span></div>
-      <div class="ni" onclick="setView('review')" data-view="review" title="Review"><i class="ti ti-circle-check"></i><span class="nav-label">Review</span></div>
-      <div class="ni" onclick="setView('settings')" data-view="settings" title="Settings"><i class="ti ti-settings"></i><span class="nav-label">Settings</span></div>
+      <div class="ni active" onclick="setView('dashboard')" data-view="dashboard"><i class="ti ti-home"></i><span class="nav-label">Today</span></div>
+      <div class="ni" onclick="setView('tasks')" data-view="tasks"><i class="ti ti-checklist"></i><span class="nav-label">Tasks</span><span class="nbadge" id="taskBadge">0</span></div>
+      <div class="ni" onclick="setView('calendar')" data-view="calendar"><i class="ti ti-calendar"></i><span class="nav-label">Calendar</span></div>
+      <div class="ni" onclick="setView('review')" data-view="review"><i class="ti ti-circle-check"></i><span class="nav-label">Review</span></div>
+      <div class="ni" onclick="setView('settings')" data-view="settings"><i class="ti ti-settings"></i><span class="nav-label">Settings</span></div>
 
       <div class="ngl nav-section-heading nav-workspaces-heading" id="navWorldsLabel"><span>Workspaces</span><button class="nav-section-action" onclick="openWorldModal()" title="Add workspace" aria-label="Add workspace"><i class="ti ti-plus"></i></button></div>
       <div id="navWorldsList"></div>
 
-      <div class="ni nav-ai-entry" onclick="setView('ai')" data-view="ai" title="J.E.L.I.X"><i class="ti ti-sparkles"></i><span class="nav-label">J.E.L.I.X</span></div>
+      <div class="ni nav-ai-entry" onclick="setView('ai')" data-view="ai"><i class="ti ti-sparkles"></i><span class="nav-label">J.E.L.I.X</span></div>
 
       <div class="nav-more-group">
-        <div class="ni nav-more-toggle" onclick="toggleDesktopMore(this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleDesktopMore(this)}" role="button" tabindex="0" aria-expanded="false" title="More"><i class="ti ti-dots"></i><span class="nav-label">More</span><i class="ti ti-chevron-right nav-more-chevron"></i></div>
+        <div class="ni nav-more-toggle" onclick="toggleDesktopMore(this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleDesktopMore(this)}" role="button" tabindex="0" aria-expanded="false"><i class="ti ti-dots"></i><span class="nav-label">More</span><i class="ti ti-chevron-right nav-more-chevron"></i></div>
         <div class="nav-more-items" id="desktopMoreItems">
-          <div class="ni" onclick="setView('inbox')" data-view="inbox" title="Inbox"><i class="ti ti-inbox"></i><span class="nav-label">Inbox</span><span class="nbadge" id="inboxBadge">0</span></div>
-          <div class="ni" onclick="setView('notes')" data-view="notes" title="Notes"><i class="ti ti-notes"></i><span class="nav-label">Notes</span></div>
-          <div class="ni" onclick="setView('links')" data-view="links" title="Links"><i class="ti ti-link"></i><span class="nav-label">Links</span></div>
-          <div class="ni" onclick="setView('all-files')" data-view="all-files" title="Files"><i class="ti ti-files"></i><span class="nav-label">Files</span></div>
-          <div class="ni" onclick="setView('memory')" data-view="memory" title="Memory"><i class="ti ti-brain"></i><span class="nav-label">Memory</span></div>
-          <div class="ni" onclick="setView('history')" data-view="history" title="Activity History"><i class="ti ti-history"></i><span class="nav-label">Activity History</span></div>
-          <div class="ni" onclick="openCmd()" title="Command Palette"><i class="ti ti-command"></i><span class="nav-label">Command Palette</span><span class="nav-shortcut">⌘K</span></div>
-          <div class="ni" onclick="openModal('taskModal')" title="New Task"><i class="ti ti-plus"></i><span class="nav-label">New Task</span></div>
+          <div class="ni" onclick="setView('inbox')" data-view="inbox"><i class="ti ti-inbox"></i><span class="nav-label">Inbox</span><span class="nbadge" id="inboxBadge">0</span></div>
+          <div class="ni" onclick="setView('notes')" data-view="notes"><i class="ti ti-notes"></i><span class="nav-label">Notes</span></div>
+          <div class="ni" onclick="setView('links')" data-view="links"><i class="ti ti-link"></i><span class="nav-label">Links</span></div>
+          <div class="ni" onclick="setView('all-files')" data-view="all-files"><i class="ti ti-files"></i><span class="nav-label">Files</span></div>
+          <div class="ni" onclick="setView('memory')" data-view="memory"><i class="ti ti-brain"></i><span class="nav-label">Memory</span></div>
+          <div class="ni" onclick="setView('history')" data-view="history"><i class="ti ti-history"></i><span class="nav-label">Activity History</span></div>
+          <div class="ni" onclick="openCmd()"><i class="ti ti-command"></i><span class="nav-label">Command Palette</span><span class="nav-shortcut">⌘K</span></div>
+          <div class="ni" onclick="openModal('taskModal')"><i class="ti ti-plus"></i><span class="nav-label">New Task</span></div>
         </div>
       </div>
     </div>
     <div class="side-bottom">
       <div class="side-utility-row">
-        <div class="ni side-utility-item" onclick="openHelpAssistant()" title="Help & Support" aria-label="Help & Support"><i class="ti ti-help-circle"></i><span class="side-utility-label">Help</span></div>
-        <div class="ni side-utility-item" onclick="toggleTheme()" id="navThemeToggleBtn" title="Toggle color mode" aria-label="Toggle color mode"><i class="ti ti-moon" id="navThemeToggleIcon"></i><span class="side-utility-label" id="navThemeToggleLabel">Light mode</span></div>
+        <div class="ni side-utility-item" onclick="openHelpAssistant()" aria-label="Help & Support"><i class="ti ti-help-circle"></i><span class="side-utility-label">Help</span></div>
+        <div class="ni side-utility-item" onclick="toggleTheme()" id="navThemeToggleBtn" aria-label="Toggle color mode"><i class="ti ti-moon" id="navThemeToggleIcon"></i><span class="side-utility-label" id="navThemeToggleLabel">Light mode</span></div>
       </div>
       <button class="vsbtn" id="vsbtn" onclick="toggleVoice()">
         <i class="ti ti-microphone" style="font-size:var(--text-xs);line-height:1;display:block"></i>
         <span id="vsbtnTxt">VOICE · SPACE</span>
       </button>
     </div>
-  </div>
+  </nav>
 
-  <div class="main">
+  <main class="main" id="mainContent" tabindex="-1">
 
     <!-- ===== DAILY BRIEF ===== -->
     <div class="view active" id="view-dashboard" style="position:relative">
@@ -3067,7 +3078,7 @@ if (window.top !== window.self) {
             <input type="password" id="set-new-pin" placeholder="New 4-digit PIN" maxlength="4" pattern="[0-9]*" inputmode="numeric" style="flex:1;max-width:220px">
             <button class="btn btn-t" onclick="updateSystemPin()">Update PIN</button>
           </div>
-          <div style="font-size:var(--text-xs);color:var(--text3);margin-bottom:14px" id="pinSetHint">PIN not set — using system default</div>
+          <div style="font-size:var(--text-xs);color:var(--text3);margin-bottom:14px" id="pinSetHint">PIN not set — device lock is disabled</div>
           <div style="padding-top:12px;border-top:1px solid var(--border);display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:10px">
             <button class="btn btn-o" onclick="toggleBiometricSetting()" id="bioToggleBtn" style="font-size:var(--text-sm)"><i class="ti ti-scan" style="font-size:var(--text-sm);line-height:1;display:inline-block;margin-right:5px"></i>Enable FaceID / TouchID</button>
             <span style="font-size:var(--text-xs);color:var(--text3)">Requires device biometric hardware (Face ID / Touch ID).</span>
@@ -3280,12 +3291,15 @@ if (window.top !== window.self) {
   </div>
 </div>
 
+  </main>
+</div><!-- end appRoot -->
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="app-prelude.js?v=20260827-2"></script>
-<script src="app-part-01.js?v=20260901-2"></script>
-<script src="app-part-02.js?v=20260901-1"></script>
+<script src="app-part-01.js?v=20260905-1"></script>
+<script src="app-part-02.js?v=20260905-1"></script>
 <script src="app-part-03.js?v=20260827-1"></script>
-<script src="app-part-04.js?v=20260827-1"></script>
+<script src="app-part-04.js?v=20260905-1"></script>
 <script src="app-part-05.js?v=20260904-2"></script>
 <script src="app-part-06.js?v=20260827-2"></script>
   <script src="app-part-07.js?v=20260902-2"></script>
@@ -3322,7 +3336,7 @@ if (window.top !== window.self) {
   </div>
 </div>
 
-<div class="mobile-bottom-nav" id="mobileBottomNav">
+  <nav class="mobile-bottom-nav" id="mobileBottomNav" aria-label="Mobile navigation">
   <!-- Quick-add FAB — mirrors the voice button on the opposite side -->
   <button id="mbnAddBtn" onclick="toggleMobileQuickAdd()" style="position:absolute;bottom:calc(100% + 10px);left:18px;width:46px;height:46px;border-radius:50%;background:rgba(5,10,18,.95);border:1.5px solid rgba(128,255,250,.3);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--teal);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);box-shadow:0 4px 16px rgba(0,0,0,.5);transition:all .2s;pointer-events:all;-webkit-tap-highlight-color:transparent">
     <i class="ti ti-plus" id="mbnAddIcon" style="font-size:22px;line-height:1;display:block;transition:transform .2s"></i>
@@ -3359,7 +3373,7 @@ if (window.top !== window.self) {
       <span>Workspaces</span>
     </button>
   </div>
-</div>
+</nav>
 
 <!-- MOBILE STATUS STRIP — live data shown in background behind sheet -->
 <div class="mmm-status-strip" id="mmmStatusStrip" style="display:none">
@@ -3509,15 +3523,17 @@ if (window.top !== window.self) {
 <link rel="stylesheet" href="ui-depth-system.css?v=20260828-3">
 <script src="agency-command-centers.js?v=20260823-1"></script>
 <script src="faith-command-center.js?v=20260824-2"></script>
-<script src="life-command-center.js?v=20260902-1"></script>
+<script src="life-command-center.js?v=20260905-1"></script>
 <script src="fitness-command-center.js?v=20260902-1"></script>
-<script src="health-game-dashboard.js?v=20260904-4"></script>
+<script src="health-game-dashboard.js?v=20260905-1"></script>
 <script src="mobile-command-center.js?v=20260826-3"></script>
 
 <script src="mobile-viewport.js?v=20260827-1"></script>
 <link rel="stylesheet" href="productivity-command-center.css?v=20260903-2">
 <link rel="stylesheet" href="mobile-density-fixes.css?v=20260905-1">
 <script src="productivity-command-center.js?v=20260831-4"></script>
+<link rel="stylesheet" href="audit-hardening.css?v=20260905-1">
+<script src="accessibility-hardening.js?v=20260905-1"></script>
 
 </body>
 </html>

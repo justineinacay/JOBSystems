@@ -1,0 +1,8 @@
+{
+  "name": "jobsystems-pwa",
+  "private": true,
+  "scripts": {
+    "test": "node tests/audit-regression.mjs",
+    "test:render": "node tests/render-smoke.mjs"
+  }
+}

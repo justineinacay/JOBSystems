@@ -219,6 +219,11 @@ async function submitAuthForm(){
   proceedToLockScreen();
 }
 function proceedToLockScreen(){
+  if(!localStorage.getItem('j-sys-pin-hash')&&!localStorage.getItem('j-sys-pin')){
+    unlockSystem();
+    setTimeout(()=>showToast('Set a PIN in Settings to enable the device lock.'),700);
+    return;
+  }
   const ls=document.getElementById('lockScreen');
   if(ls)ls.style.display='flex';
 }
@@ -458,7 +463,13 @@ const SB={
     }
   },
   async addHistory(e){
-    try{await sbFetch('history','POST',e);}catch(err){/* silent */}
+    const uid=getAuthUserId();
+    if(!uid)return;
+    try{
+      await sbFetch('history','POST',{...e,user_id:uid});
+    }catch(err){
+      console.error('[History sync] Could not save activity',err);
+    }
   }
 };
 
@@ -584,7 +595,7 @@ const JELIX_AGENTS={
     context:g=>({overdueTasks:g.dueSoon.filter(t=>t.due<g.today).length,upcomingWeekEvents:g.upcomingEvents.length})},
   SENTRY:{name:'SENTRY',domain:'Permissions, security, system health, monitoring',provider:'chatgpt',
     context:()=>({googleWorkspaceConnected:isGoogleWorkspaceConnected(),hasAIKey:hasAnyAIKey(),
-      pinConfigured:!!localStorage.getItem('j-sys-pin'),realtimeActive:!!(realtimeSocket&&realtimeSocket.readyState===1)})}
+      pinConfigured:!!(localStorage.getItem('j-sys-pin-hash')||localStorage.getItem('j-sys-pin')),realtimeActive:!!(realtimeSocket&&realtimeSocket.readyState===1)})}
 };
 
 // ── Intent Router — decides which specialist(s) this request needs ──────────
