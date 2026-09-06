@@ -2136,15 +2136,39 @@ function applyTheme(theme){
   localStorage.setItem('j-theme',next);
   const meta=document.querySelector('meta[name="theme-color"]');if(meta)meta.content=next==='dark'?'#111311':'#F5F5F3';
   const icon=document.getElementById('navThemeToggleIcon'),button=document.getElementById('navThemeToggleBtn'),labelText=document.getElementById('navThemeToggleLabel');
-  if(icon)icon.className=next==='dark'?'ti ti-sun':'ti ti-moon';
+  if(icon)icon.dataset.theme=next;
   if(labelText)labelText.textContent=next==='dark'?'Light':'Dark';
   if(button){const label=next==='dark'?'Switch to light mode':'Switch to dark mode';button.title=label;button.setAttribute('aria-label',label);}
 }
-function toggleTheme(){
+let themeTransitionActive=false;
+function toggleTheme(event){
+  if(themeTransitionActive)return Promise.resolve();
   localStorage.setItem('j-theme-user-set','true');
-  applyTheme(getTheme()==='dark'?'light':'dark');
-  if(currentView==='life'&&typeof renderLife==='function')requestAnimationFrame(()=>renderLife());
-  showToast(getTheme()==='dark'?'Dark mode on':'Light mode on');
+  const next=getTheme()==='dark'?'light':'dark';
+  const root=document.documentElement;
+  const trigger=event?.currentTarget||document.getElementById('navThemeToggleBtn');
+  const rect=trigger?.getBoundingClientRect();
+  const x=rect?rect.left+rect.width/2:window.innerWidth/2;
+  const y=rect?rect.top+rect.height/2:window.innerHeight/2;
+  const radius=Math.hypot(Math.max(x,window.innerWidth-x),Math.max(y,window.innerHeight-y));
+  const update=()=>{
+    applyTheme(next);
+    if(currentView==='life'&&typeof renderLife==='function')requestAnimationFrame(()=>renderLife());
+    showToast(next==='dark'?'Dark mode on':'Light mode on');
+  };
+  const reducedMotion=window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+  if(!document.startViewTransition||reducedMotion){update();return Promise.resolve();}
+  root.style.setProperty('--theme-sweep-x',x+'px');
+  root.style.setProperty('--theme-sweep-y',y+'px');
+  root.style.setProperty('--theme-sweep-radius',Math.ceil(radius)+'px');
+  root.setAttribute('data-theme-transition','');
+  themeTransitionActive=true;
+  const transition=document.startViewTransition(update);
+  transition.finished.finally(()=>{
+    themeTransitionActive=false;
+    root.removeAttribute('data-theme-transition');
+  });
+  return transition.finished;
 }
 applyTheme(document.documentElement.dataset.theme||'dark');
 function savePref(id){

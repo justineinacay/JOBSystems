@@ -87,6 +87,10 @@ try{
   assert.equal(await evaluate("!!document.querySelector('.noscript-message')?.getClientRects().length"),true,'the no-JavaScript recovery message must be visible');
   await send('Emulation.setScriptExecutionDisabled',{value:false});
   await openApp();
+  assert.equal(await evaluate(`document.documentElement.dataset.theme`),'dark','a fresh install must open in dark mode');
+  const themeSwitch=await evaluate(`toggleTheme({currentTarget:document.getElementById('navThemeToggleBtn')}).then(()=>({theme:document.documentElement.dataset.theme,icon:document.getElementById('navThemeToggleIcon').dataset.theme,label:document.getElementById('navThemeToggleBtn').getAttribute('aria-label'),userSet:localStorage.getItem('j-theme-user-set')}))`);
+  assert.deepEqual(themeSwitch,{theme:'light',icon:'light',label:'Switch to dark mode',userSet:'true'},'the animated toggle must update its theme, icon, accessible label, and saved preference');
+  await evaluate(`applyTheme('dark')`);
   assert.equal(await evaluate(`(()=>{const elements=[...document.querySelectorAll('[onclick]:not(button):not(a):not(input):not(select):not(textarea):not(summary)')];return elements.every(element=>element.getAttribute('role')==='button'&&element.tabIndex===0)})()`),true,'non-native click targets need keyboard semantics');
   const accessibleNames=await evaluate(`(()=>{const text=element=>(element.getAttribute('aria-label')||element.getAttribute('aria-labelledby')||(element.textContent||'').trim());return{fields:[...document.querySelectorAll('input:not([type="hidden"]),select,textarea')].filter(field=>!field.getAttribute('aria-label')&&!field.getAttribute('aria-labelledby')&&!(field.labels&&field.labels.length)).length,buttons:[...document.querySelectorAll('button,[role="button"]')].filter(element=>!text(element)).length,dialogs:[...document.querySelectorAll('.mov')].filter(modal=>modal.getAttribute('role')!=='dialog'||modal.getAttribute('aria-modal')!=='true'||!modal.getAttribute('aria-labelledby')).map(modal=>modal.id||modal.className)}})()`);
   assert.deepEqual(accessibleNames,{fields:0,buttons:0,dialogs:[]},`interactive controls and dialogs need accessible names: ${JSON.stringify(accessibleNames)}`);
@@ -135,9 +139,15 @@ try{
   const workerState=await evaluate(`navigator.serviceWorker.getRegistrations().then(registrations=>({controlled:!!navigator.serviceWorker.controller,href:location.href,registrations:registrations.map(registration=>({scope:registration.scope,active:registration.active?.state,waiting:registration.waiting?.state,installing:registration.installing?.state}))}))`);
   assert.equal(workerState.controlled,true,`the installed app must be controlled by its service worker: ${JSON.stringify(workerState)}`);
   await send('Network.emulateNetworkConditions',{offline:true,latency:0,downloadThroughput:0,uploadThroughput:0});
-  await send('Page.reload',{ignoreCache:true});await sleep(1200);
-  assert.match(await evaluate('document.title'),/J\.O\.B Systems/,'the installed app shell must reopen offline');
-  assert.equal(await evaluate("!!document.querySelector('label[for=\"auth-email\"]')"),true,'the offline shell must remain usable');
+  await send('Page.reload',{ignoreCache:true});
+  let offlineState={title:'',ready:false};
+  for(let attempt=0;attempt<50;attempt+=1){
+    await sleep(100);
+    offlineState=await evaluate(`({title:document.title,ready:!!document.querySelector('label[for="auth-email"]')})`);
+    if(/J\.O\.B Systems/.test(offlineState.title)&&offlineState.ready)break;
+  }
+  assert.match(offlineState.title,/J\.O\.B Systems/,'the installed app shell must reopen offline');
+  assert.equal(offlineState.ready,true,'the offline shell must finish initializing and remain usable');
   await send('Network.emulateNetworkConditions',{offline:false,latency:0,downloadThroughput:-1,uploadThroughput:-1});
 
   await viewport(1440,900,false);await send('Page.reload',{ignoreCache:true});await sleep(2400);

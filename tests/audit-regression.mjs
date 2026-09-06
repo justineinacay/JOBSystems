@@ -21,6 +21,11 @@ assert.match(html,/<nav class="side-panel"[^>]+aria-label="Primary navigation"/,
 assert.match(html,/<details class="task-more-details"/,'task capture must keep secondary fields behind progressive disclosure');
 assert.match(html,/accessibility-hardening\.js\?v=20260905-1/,'accessibility runtime must be loaded');
 assert.match(html,/audit-hardening\.css\?v=20260905-1/,'readability styles must be loaded');
+assert.match(html,/theme-transition\.css\?v=20260906-1/,'the animated theme transition must be loaded');
+assert.match(html,/class="theme-glyph"[^>]+data-theme="dark"/,'the theme control must use the animated sun and moon glyph');
+assert.match(html,/const defaultVersion='dark-default-v1'/,'a fresh install must default to dark mode');
+assert.match(security,/document\.startViewTransition\(update\)/,'supported browsers must use a circular theme reveal');
+assert.match(security,/prefers-reduced-motion: reduce/,'theme changes must respect reduced-motion preferences');
 assert.match(html,/<noscript>[\s\S]*J\.O\.B Systems needs JavaScript/,'a disabled-JavaScript launch must explain how to recover');
 assert.doesNotMatch(html,/class="ni[^\"]*"[^>]*title=/,'collapsed navigation must not expose hover-only text labels');
 
