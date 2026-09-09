@@ -2135,10 +2135,10 @@ function applyTheme(theme){
   document.documentElement.dataset.theme=next;
   localStorage.setItem('j-theme',next);
   const meta=document.querySelector('meta[name="theme-color"]');if(meta)meta.content=next==='dark'?'#111311':'#F5F5F3';
-  const icon=document.getElementById('navThemeToggleIcon'),button=document.getElementById('navThemeToggleBtn'),labelText=document.getElementById('navThemeToggleLabel');
-  if(icon)icon.dataset.theme=next;
-  if(labelText)labelText.textContent=next==='dark'?'Light':'Dark';
-  if(button){const label=next==='dark'?'Switch to light mode':'Switch to dark mode';button.title=label;button.setAttribute('aria-label',label);}
+  const label=next==='dark'?'Switch to light mode':'Switch to dark mode';
+  document.querySelectorAll('[data-theme-toggle-icon]').forEach(icon=>{icon.dataset.theme=next;});
+  document.querySelectorAll('[data-theme-toggle-label]').forEach(labelText=>{labelText.textContent=next==='dark'?'Light':'Dark';});
+  document.querySelectorAll('[data-theme-toggle-button]').forEach(button=>{button.title=label;button.setAttribute('aria-label',label);});
 }
 let themeTransitionActive=false;
 function toggleTheme(event){
@@ -2171,6 +2171,9 @@ function toggleTheme(event){
   return transition.finished;
 }
 applyTheme(document.documentElement.dataset.theme||'dark');
+if(document.readyState==='loading'){
+  document.addEventListener('DOMContentLoaded',()=>applyTheme(getTheme()),{once:true});
+}
 function savePref(id){
   const el=document.getElementById(id);if(!el)return;
   localStorage.setItem('j-'+id,el.value);

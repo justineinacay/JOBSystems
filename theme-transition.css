@@ -3,10 +3,33 @@
   --theme-sweep-x:50%;
   --theme-sweep-y:50%;
   --theme-sweep-radius:150vmax;
-  --theme-motion-ease:cubic-bezier(.22,1,.36,1);
+  --theme-sweep-ease:cubic-bezier(.55,0,.15,1);
+  --theme-glyph-ease:cubic-bezier(.22,1,.36,1);
 }
 
-.theme-mode-toggle{--theme-glyph-cut:#171a17}
+.theme-mode-toggle{
+  --theme-glyph-cut:#171a17;
+  appearance:none;
+  font:inherit;
+  text-align:left;
+  cursor:pointer;
+}
+.mobile-theme-toggle{
+  --theme-glyph-cut:var(--navy3);
+  position:relative;
+  display:flex;
+  width:34px;
+  height:26px;
+  flex:0 0 34px;
+  align-items:center;
+  justify-content:center;
+  padding:0;
+  border:1px solid var(--border2);
+  border-radius:999px;
+  background:var(--navy3);
+  color:var(--teal);
+}
+.mobile-theme-toggle:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
 .theme-glyph{
   display:block;
   width:18px;
@@ -14,14 +37,14 @@
   flex:0 0 18px;
   overflow:visible;
   transform:rotate(0deg);
-  transition:transform 600ms var(--theme-motion-ease);
+  transition:transform 600ms var(--theme-glyph-ease);
 }
 .theme-glyph__cut,
 .theme-glyph__disc,
 .theme-glyph__rays{
   transform-box:fill-box;
   transform-origin:center;
-  transition:transform 600ms var(--theme-motion-ease),opacity 260ms ease-out;
+  transition:transform 600ms var(--theme-glyph-ease),opacity 300ms ease-out;
 }
 .theme-glyph__cut{
   fill:var(--theme-glyph-cut);
@@ -39,7 +62,7 @@
 html[data-theme-transition]::view-transition-old(root){animation:none;z-index:1}
 html[data-theme-transition]::view-transition-new(root){
   z-index:2;
-  animation:jobsystems-theme-sweep 760ms var(--theme-motion-ease) both;
+  animation:jobsystems-theme-sweep 1200ms var(--theme-sweep-ease) both;
 }
 @keyframes jobsystems-theme-sweep{
   from{clip-path:circle(0 at var(--theme-sweep-x) var(--theme-sweep-y))}
