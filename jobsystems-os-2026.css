@@ -500,3 +500,45 @@ tr:hover td{background:rgba(255,255,255,.018)!important}
   .os-metric-strip{gap:7px}
   .os-project-stats{font-size:10px}
 }
+
+
+/* Finance */
+.os-finance-metrics .os-balance-metric{border-color:rgba(166,255,0,.16)!important}
+.os-income{color:#78DB9A!important}
+.os-expense{color:#FF7A87!important}
+.os-cashflow-chart{
+  height:132px;display:flex;align-items:flex-end;gap:9px;padding:10px 4px 0;
+  border-bottom:1px solid var(--os-border);
+}
+.os-cashflow-day{flex:1;min-width:0;height:112px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:6px}
+.os-cashflow-day>span{display:block;width:min(22px,70%);min-height:8px;border-radius:6px 6px 2px 2px;background:var(--os-lime-muted);opacity:.9}
+.os-cashflow-day>span.negative{background:var(--os-danger)}
+.os-cashflow-day small{font-size:9px;color:var(--os-text-3);line-height:1}
+.os-transaction-list{display:flex;flex-direction:column}
+.os-transaction-row,.os-account-row,.os-bill-row{
+  min-height:56px;display:flex;align-items:center;gap:11px;padding:9px 0;border-bottom:1px solid var(--os-border);
+}
+.os-transaction-row{cursor:pointer}
+.os-transaction-row:last-child,.os-account-row:last-child,.os-bill-row:last-child{border-bottom:0}
+.os-transaction-row:hover .os-item-title{color:var(--os-lime)}
+.os-transaction-row>strong,.os-account-row>strong,.os-bill-row>strong{font-size:11.5px;font-weight:700;white-space:nowrap}
+.os-item-icon.income{color:#78DB9A}
+.os-item-icon.expense{color:#FF7A87}
+.os-account-mark{
+  --account-accent:var(--os-job);width:34px;height:34px;display:grid;place-items:center;flex:0 0 auto;
+  border-radius:10px;background:color-mix(in srgb,var(--account-accent) 9%,transparent);
+  border:1px solid color-mix(in srgb,var(--account-accent) 22%,transparent);color:var(--account-accent);
+}
+.os-text-action{
+  min-height:30px;padding:0 8px;border:0;background:transparent!important;color:var(--os-text-2);
+  font-size:10.5px;font-weight:650;cursor:pointer;border-radius:8px;
+}
+.os-text-action:hover{background:var(--os-hover)!important;color:var(--os-text)}
+
+@media(max-width:767px){
+  .os-finance-metrics{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  .os-finance-metrics .os-balance-metric{grid-column:1/-1}
+  .os-cashflow-chart{height:118px;gap:6px}
+  .os-cashflow-day{height:100px}
+  .os-transaction-row,.os-account-row,.os-bill-row{min-height:54px}
+}
