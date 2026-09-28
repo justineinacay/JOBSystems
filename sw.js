@@ -168,7 +168,7 @@ self.addEventListener('fetch', (event) => {
 self.addEventListener('push', (event) => {
   let data = {};
   try { data = event.data ? event.data.json() : {}; } catch (e) {}
-  const title = data.title || 'J.O.B Systems';
+  const title = data.title || 'JOBSystems';
   const options = {
     body: data.body || '',
     icon: 'icons/icon-192.png',
