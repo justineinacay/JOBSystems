@@ -715,7 +715,7 @@ function buildDailyBriefSummary(){
   const urgent=(DB.clients||[]).filter(c=>c.status==='Urgent').length;
 
   let parts=[];
-  parts.push(`${greeting}. J.O.B Systems online. Today is ${day}.`);
+  parts.push(`${greeting}. JOBSystems online. Today is ${day}.`);
 
   if(overdue.length>0) parts.push(`You have ${overdue.length} overdue task${overdue.length>1?'s':''} past their deadline.`);
   if(highPrio.length>0) parts.push(`${highPrio.length} high-priority task${highPrio.length>1?'s require':' requires'} attention.`);
