@@ -126,6 +126,25 @@ try{
       writeFileSync(path.join(root,`output/playwright/smoke-mobile-light-${name}.png`),Buffer.from(screenshot.data,'base64'));
     }
   }
+  const verifyMobileShell=async label=>{
+    const state=await evaluate(`(()=>{const visible=selector=>{const element=document.querySelector(selector);return!!element&&getComputedStyle(element).display!=='none'&&element.getClientRects().length>0};return{width:innerWidth,sidebar:visible('.side-panel'),desktopTopbar:visible('.topbar'),mobileTopbar:visible('#mobileTopBar'),mobileNav:visible('#mobileBottomNav'),overflow:document.documentElement.scrollWidth-innerWidth}})()`);
+    assert.equal(state.sidebar,false,`${label} must not expose the desktop sidebar: ${JSON.stringify(state)}`);
+    assert.equal(state.desktopTopbar,false,`${label} must not expose the desktop top bar: ${JSON.stringify(state)}`);
+    assert.equal(state.mobileTopbar,true,`${label} must show the mobile top bar: ${JSON.stringify(state)}`);
+    assert.equal(state.mobileNav,true,`${label} must show the mobile bottom navigation: ${JSON.stringify(state)}`);
+    assert.equal(state.overflow,0,`${label} must not overflow horizontally: ${JSON.stringify(state)}`);
+  };
+  for(const [width,height,label] of [[462,682,'compact phone'],[768,1024,'768px boundary']]){
+    await viewport(width,height,true);await send('Page.reload',{ignoreCache:true});await sleep(1800);
+    await evaluate(`(()=>{['authScreen','bootScreen','lockScreen'].forEach(id=>{const element=document.getElementById(id);if(element)element.style.display='none'});const app=document.getElementById('appRoot');if(app){app.style.display='block';app.style.opacity='1';app.style.pointerEvents=''}document.body.classList.add('os-active');setView('dashboard');return true})()`);
+    await verifyMobileShell(label);
+    if(takeScreenshots){
+      const screenshot=await send('Page.captureScreenshot',{format:'png',captureBeyondViewport:false});
+      writeFileSync(path.join(root,`output/playwright/smoke-mobile-shell-${width}.png`),Buffer.from(screenshot.data,'base64'));
+    }
+  }
+  await viewport(390,844,true);await send('Page.reload',{ignoreCache:true});await sleep(1800);
+  await evaluate(`(()=>{['authScreen','bootScreen','lockScreen'].forEach(id=>{const element=document.getElementById(id);if(element)element.style.display='none'});const app=document.getElementById('appRoot');if(app){app.style.display='block';app.style.opacity='1';app.style.pointerEvents=''}document.body.classList.add('os-active');setView('life');lifeSetSection('health');document.documentElement.dataset.theme='light';return true})()`);
   const lightContrast=await evaluate(`(()=>{const rgb=value=>(value.match(/\\d+(?:\\.\\d+)?/g)||[]).slice(0,3).map(Number);const luminance=value=>{const channels=rgb(value).map(channel=>{channel/=255;return channel<=.04045?channel/12.92:Math.pow((channel+.055)/1.055,2.4)});return .2126*channels[0]+.7152*channels[1]+.0722*channels[2]};const ratio=(foreground,background)=>{const a=luminance(foreground),b=luminance(background);return (Math.max(a,b)+.05)/(Math.min(a,b)+.05)};const pair=(text,card)=>ratio(getComputedStyle(document.querySelector(text)).color,getComputedStyle(document.querySelector(card)).backgroundColor);return{health:pair('#cf-biomonitor .health-game-header h2','#cf-biomonitor .health-game-header'),training:pair('#view-life .fitness-title h1','#view-life .fitness-overview')}})()`);
   assert.ok(lightContrast.health>=4.5&&lightContrast.training>=4.5,`dark feature cards need readable text in light mode: ${JSON.stringify(lightContrast)}`);
   await evaluate(`document.documentElement.dataset.theme='dark';setView('tasks');document.querySelector('.task-page-add')?.focus();openModal('taskModal')`);

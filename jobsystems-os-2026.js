@@ -613,7 +613,7 @@
     var handler=function(){
       var view=window.JOBSystemsCurrentView||(typeof currentView!=='undefined'?currentView:'dashboard');
       osUpdateMobileChrome(view);
-      if(window.innerWidth<768&&view==='calendar'&&typeof setCalView==='function'){
+      if(window.innerWidth<=768&&view==='calendar'&&typeof setCalView==='function'){
         var selected=localStorage.getItem('j-os-mobile-cal-agenda-v1');
         if(!selected){
           try{setCalView('agenda');localStorage.setItem('j-os-mobile-cal-agenda-v1','1');}catch(e){}
