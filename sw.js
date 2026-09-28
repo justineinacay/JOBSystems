@@ -1,4 +1,4 @@
-// J.O.B Systems — Service Worker
+// JOBSystems — Service Worker
 // Strategy: Network-first for the app shell (index.html) and Supabase API
 // calls — always try to fetch the latest deploy, only fall back to cache if
 // genuinely offline. Cache-first for static assets that don't change on
@@ -10,7 +10,7 @@
 // hadn't changed and CACHE_VERSION was never bumped to force a purge. That's
 // what caused an already-fixed bug (the driveLink Supabase column error) to
 // keep reappearing on-device after the source was already correct.
-const CACHE_VERSION = 'jobsystems-v46';
+const CACHE_VERSION = 'jobsystems-v47';
 const APP_SHELL = [
   './',
   './index.html',
@@ -55,7 +55,7 @@ const APP_SHELL = [
   './productivity-command-center.js?v=20260831-4',
   './audit-hardening.css?v=20260905-1',
   './theme-transition.css?v=20260907-1',
-  './accessibility-hardening.js?v=20260905-1',
+  './accessibility-hardening.js?v=20260905-1',\n  './jobsystems-os-2026.css?v=20260929-1',\n  './jobsystems-os-2026.js?v=20260929-1',
   './jobsystems-logo.png',
   './icons/icon-192.png',
   './icons/icon-512.png',
