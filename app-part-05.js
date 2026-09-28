@@ -1710,7 +1710,7 @@ function checkReminders(){
         const utt=new SpeechSynthesisUtterance('JELIX reminder. '+e.title+' starts in '+Math.round(diffMin)+' minutes.');
         utt.rate=0.95;utt.pitch=1.1;window.speechSynthesis.speak(utt);
       }
-      _fireReminder('J.O.B Systems Reminder',e.title+' starts in '+Math.round(diffMin)+' min');
+      _fireReminder('JOBSystems Reminder',e.title+' starts in '+Math.round(diffMin)+' min');
     }
   });
   // Tasks due today/tomorrow, and unpaid bills due today/tomorrow -- these

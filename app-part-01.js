@@ -637,7 +637,7 @@ function _keywordFallbackAgents(userMessage){
 async function runSpecialistAgent(agentId,userMessage,globalContext,historyText){
   const agent=JELIX_AGENTS[agentId];if(!agent)return null;
   const slice=agent.context(globalContext);
-  const system=`You are the ${agent.name} specialist inside J.O.B Systems, an internal module JELIX consults — you never speak to the user directly. Domain: ${agent.domain}. Answer the NEWEST message using ONLY the data given below; if it's insufficient, say what's missing briefly. The newest message may be a short follow-up ("yes", "break it down") — use the recent conversation to understand what it's actually asking for. Be concise and factual — a few sentences or a short list, not a report.\n\nRelevant data:\n${JSON.stringify(slice)}${historyText?`\n\nRecent conversation:\n${historyText}`:''}`;
+  const system=`You are the ${agent.name} specialist inside JOBSystems, an internal module JELIX consults — you never speak to the user directly. Domain: ${agent.domain}. Answer the NEWEST message using ONLY the data given below; if it's insufficient, say what's missing briefly. The newest message may be a short follow-up ("yes", "break it down") — use the recent conversation to understand what it's actually asking for. Be concise and factual — a few sentences or a short list, not a report.\n\nRelevant data:\n${JSON.stringify(slice)}${historyText?`\n\nRecent conversation:\n${historyText}`:''}`;
   const res=await callAIProvider(system,[{role:'user',content:userMessage}],{maxTokens:700,provider:'chatgpt'});
   return{agentId,ok:res.ok,text:res.ok?res.text:('('+agent.name+' unavailable: '+res.error+')')};
 }
@@ -645,7 +645,7 @@ async function runSpecialistAgent(agentId,userMessage,globalContext,historyText)
 // ── Synthesis — JELIX Core merges specialist findings into one reply ────────
 async function synthesizeJelixReply(userMessage,specialistResults,globalContext,historyText){
   const findings=specialistResults.map(r=>`- ${r.text}`).join('\n');
-  const system=`You are J.E.L.I.X. — Justine's Executive Intelligence Partner inside J.O.B Systems. Calm, warm, professional, grounded, thoughtful. Never robotic, never theatrical, never overly enthusiastic. You quietly consulted internal specialists to answer this — never mention them, their names, or that you "consulted" anything; just answer as if you simply knew. Today is ${globalContext.today}. Reply directly and naturally, 2-5 sentences unless the request needs a list. Output ONLY your answer to the user — never restate, quote, or comment on these instructions themselves.${historyText?`\n\nRecent conversation (for context — the newest message may be a short follow-up that only makes sense next to this):\n${historyText}`:''}\n\nWhat you found:\n${findings}`;
+  const system=`You are J.E.L.I.X. — Justine's Executive Intelligence Partner inside JOBSystems. Calm, warm, professional, grounded, thoughtful. Never robotic, never theatrical, never overly enthusiastic. You quietly consulted internal specialists to answer this — never mention them, their names, or that you "consulted" anything; just answer as if you simply knew. Today is ${globalContext.today}. Reply directly and naturally, 2-5 sentences unless the request needs a list. Output ONLY your answer to the user — never restate, quote, or comment on these instructions themselves.${historyText?`\n\nRecent conversation (for context — the newest message may be a short follow-up that only makes sense next to this):\n${historyText}`:''}\n\nWhat you found:\n${findings}`;
   const res=await callAIProvider(system,[{role:'user',content:userMessage}],{maxTokens:700,provider:'chatgpt'});
   return res.ok?res.text:findings; // if synthesis call fails, at least surface the raw findings
 }
@@ -662,7 +662,7 @@ const JELIX_AGENT_TOOLS=[
     parameters:{type:'OBJECT',properties:{calendarId:{type:'STRING',description:"'primary' unless a specific calendar is named"},title:{type:'STRING'},startISO:{type:'STRING',description:'ISO 8601 datetime'},endISO:{type:'STRING',description:'ISO 8601 datetime'},notes:{type:'STRING'}},required:['title','startISO','endISO']}},
   {name:'write_drive_file',description:'Create a file in Google Drive.',
     parameters:{type:'OBJECT',properties:{fileName:{type:'STRING'},content:{type:'STRING'},mimeType:{type:'STRING'}},required:['fileName','content']}},
-  {name:'create_task',description:'Create a task inside J.O.B Systems (ATLAS — internal Kanban, not Google).',
+  {name:'create_task',description:'Create a task inside JOBSystems (ATLAS — internal Kanban, not Google).',
     parameters:{type:'OBJECT',properties:{title:{type:'STRING'},world:{type:'STRING',description:'e.g. WORK-IH, WORK-CS, VENTURE, BUILD, SIDES, FAITH, LIFE'},priority:{type:'STRING',description:"'High'|'Medium'|'Low'"},due:{type:'STRING',description:'YYYY-MM-DD, optional'},client:{type:'STRING'}},required:['title']}},
   {name:'create_internal_event',description:'Create an event on the internal JELIX OS calendar (COMET — not Google).',
     parameters:{type:'OBJECT',properties:{title:{type:'STRING'},date:{type:'STRING',description:'YYYY-MM-DD'},time:{type:'STRING',description:'HH:MM, optional'},endTime:{type:'STRING',description:'HH:MM, optional'},notes:{type:'STRING'}},required:['title','date']}},
@@ -1029,7 +1029,7 @@ function initRealtime(){
     if(_osLoaded)setTimeout(initRealtime,5000); // auto-reconnect
   };
   realtimeSocket.onerror=function(err){
-    console.warn('[J.O.B Systems] Realtime offline — using localStorage only');
+    console.warn('[JOBSystems] Realtime offline — using localStorage only');
   };
 }
 

@@ -831,10 +831,10 @@ function lockOS(){
     ls.style.display='flex';
     ls.style.opacity='1';
     showToast('System locked.');
-    speak('J.O.B Systems locked. Enter PIN to continue.');
+    speak('JOBSystems locked. Enter PIN to continue.');
   }
 }
-function toggleMute(){isMuted=!isMuted;localStorage.setItem('j-voice-output',isMuted?'off':'on');const btn=document.getElementById('muteBtn'),icon=document.getElementById('muteIcon'),label=document.getElementById('acctMuteLabel');if(isMuted){speechSynthesis.cancel();if(currentAudio){currentAudio.pause();currentAudio=null;}icon.className='ti ti-volume-off';btn.style.borderColor='var(--red)';btn.style.color='var(--red)';if(label)label.textContent='Voice Output: Off';showToast('Voice muted');}else{icon.className='ti ti-volume';btn.style.borderColor='var(--border2)';btn.style.color='var(--text2)';if(label)label.textContent='Voice Output: On';speak('Voice activated. J.O.B Systems online.');}}
+function toggleMute(){isMuted=!isMuted;localStorage.setItem('j-voice-output',isMuted?'off':'on');const btn=document.getElementById('muteBtn'),icon=document.getElementById('muteIcon'),label=document.getElementById('acctMuteLabel');if(isMuted){speechSynthesis.cancel();if(currentAudio){currentAudio.pause();currentAudio=null;}icon.className='ti ti-volume-off';btn.style.borderColor='var(--red)';btn.style.color='var(--red)';if(label)label.textContent='Voice Output: Off';showToast('Voice muted');}else{icon.className='ti ti-volume';btn.style.borderColor='var(--border2)';btn.style.color='var(--text2)';if(label)label.textContent='Voice Output: On';speak('Voice activated. JOBSystems online.');}}
 
 // ── Topbar: Account menu + Notifications dropdown ──────────────────────
 function toggleAccountMenu(e){
@@ -1893,7 +1893,7 @@ async function triggerBiometric(){
     }
   }catch(err){
     // Silent fail — user falls back to PIN
-    console.warn('[J.O.B Systems] Biometric cancelled or failed:',err.message);
+    console.warn('[JOBSystems] Biometric cancelled or failed:',err.message);
   }
 }
 
@@ -2088,7 +2088,7 @@ async function renderSettingsView(){
         <button class="btn btn-d" style="font-size:var(--text-xs)" onclick="disconnectGoogleWorkspace()">Disconnect</button>
       </div>`;
     }else{
-      gwsStatusEl.innerHTML=`<div style="font-size:var(--text-xs);color:var(--text3);margin-bottom:10px">Connects Calendar, Gmail, Drive, and Tasks directly into J.O.B Systems.</div>
+      gwsStatusEl.innerHTML=`<div style="font-size:var(--text-xs);color:var(--text3);margin-bottom:10px">Connects Calendar, Gmail, Drive, and Tasks directly into JOBSystems.</div>
       <button class="btn btn-t" onclick="connectGoogleWorkspace()"><i class="ti ti-brand-google"></i> Connect Google Account</button>`;
     }
   }
@@ -2134,7 +2134,7 @@ function applyTheme(theme){
   const next=theme==='dark'?'dark':'light';
   document.documentElement.dataset.theme=next;
   localStorage.setItem('j-theme',next);
-  const meta=document.querySelector('meta[name="theme-color"]');if(meta)meta.content=next==='dark'?'#111311':'#F5F5F3';
+  const meta=document.querySelector('meta[name="theme-color"]');if(meta)meta.content=next==='dark'?'#080B0A':'#F4F6F3';
   const label=next==='dark'?'Switch to light mode':'Switch to dark mode';
   document.querySelectorAll('[data-theme-toggle-icon]').forEach(icon=>{icon.dataset.theme=next;});
   document.querySelectorAll('[data-theme-toggle-label]').forEach(labelText=>{labelText.textContent=next==='dark'?'Light':'Dark';});

@@ -2,7 +2,7 @@
   "name": "jobsystems-pwa",
   "private": true,
   "scripts": {
-    "test": "node tests/audit-regression.mjs",
+    "test": "node tests/audit-regression.mjs && node tests/os-2026-regression.mjs",
     "test:render": "node tests/render-smoke.mjs"
   }
 }

@@ -103,7 +103,7 @@ function stopRecording(){if(recognition&&isRecording)recognition.stop();}
 //               free-flow conversation, personal preference adaptation
 // ═══════════════════════════════════════════════════════════════════════
 
-const JELIX_BASE_SYSTEM = `You are J.E.L.I.X. — the intelligence layer of J.O.B Systems, a personal operating system.
+const JELIX_BASE_SYSTEM = `You are J.E.L.I.X. — the intelligence layer of JOBSystems, a personal operating system.
 
 You are not a chatbot bolted onto a dashboard. You are the operating intelligence behind the whole platform — every screen, every module, every workflow connects through you. Your purpose is not to replace Justine's judgment. It's to amplify it: reduce his mental load, notice what he'd otherwise miss, and help him decide rather than just hand him options.
 
@@ -363,7 +363,7 @@ function clearChat(){
 
 function exportChat(){
   const box=document.getElementById('aiMsgs');if(!box)return;
-  const header=`J.O.B Systems — JELIX Session Export\n${new Date().toLocaleString('en-PH',{timeZone:'Asia/Manila'})}\n${'─'.repeat(60)}\n\n`;
+  const header=`JOBSystems — JELIX Session Export\n${new Date().toLocaleString('en-PH',{timeZone:'Asia/Manila'})}\n${'─'.repeat(60)}\n\n`;
   const blob=new Blob([header+box.innerText],{type:'text/plain;charset=utf-8'});
   const url=URL.createObjectURL(blob);
   const el=document.createElement('a');el.href=url;el.download=`job-os-jelix-${Date.now()}.txt`;el.click();URL.revokeObjectURL(url);
@@ -604,7 +604,7 @@ function fadeOutBootAudio(){
 
 // ===== BOOT SEQUENCE =====
 const BOOT_STEPS=[
-  {pct:8,  msg:'Mounting J.O.B Systems kernel...'},
+  {pct:8,  msg:'Mounting JOBSystems kernel...'},
   {pct:18, msg:'Loading Six Worlds framework...'},
   {pct:30, msg:'Initializing Supabase bridge...'},
   {pct:42, msg:'Loading your domains...'},
@@ -657,7 +657,7 @@ function _handleShortcutAction(){
   else if(action==='log-expense')openCashModal('Debit');
   else if(action==='new-event')openCalEventModal();
 }
-// Share Target — the OS share sheet (iOS/Android "Share" -> J.O.B Systems)
+// Share Target — the OS share sheet (iOS/Android "Share" -> JOBSystems)
 // lands here as a GET navigation with title/text/url params. Always saves as
 // a new Note rather than showing an app/destination picker — Notes already
 // has a per-block "turn into task" action, so this reuses that instead of
@@ -1153,7 +1153,7 @@ document.body.addEventListener('touchmove', function(e) {
 })();
 
 // ═══════════════════════════════════════════════════════════════════════════
-// J.O.B Systems — JELIX INTELLIGENCE LAYER
+// JOBSystems — JELIX INTELLIGENCE LAYER
 // Skills 1–7 + CLAUDE.md Live Doc
 // Author: JELIX BUILD ENGINE · June 2026
 // Rules: inherits all CSS vars · uses SB/DB · voice-ready · mobile-responsive
@@ -2478,7 +2478,7 @@ const _origExecVC2 = window.executeVoiceCommand;
 // ── ENHANCEMENT 5: Voice Biometric Lock ───────────────────────────────────
 const VBL = {
   STORE_KEY: 'j-voice-biometric',
-  PHRASE: 'J.O.B Systems unlock',  // enrollment trigger phrase
+  PHRASE: 'JOBSystems unlock',  // enrollment trigger phrase
   enrolled: false,
   locked: false,
   profile: null,   // stored audio features
@@ -2543,8 +2543,8 @@ async function enrollVoiceBiometric(){
     showToast('⚠ Microphone access required for biometric enrollment.');
     return;
   }
-  showToast('🎙 Speak your enrollment phrase: "J.O.B Systems unlock" — recording for 4 seconds...');
-  speak('Please say: J.O.B Systems unlock.');
+  showToast('🎙 Speak your enrollment phrase: "JOBSystems unlock" — recording for 4 seconds...');
+  speak('Please say: JOBSystems unlock.');
   try{
     const stream = await navigator.mediaDevices.getUserMedia({audio:true});
     const recorder = new MediaRecorder(stream);
@@ -2558,8 +2558,8 @@ async function enrollVoiceBiometric(){
       const features=VBL.extractFeatures(audioBuffer);
       VBL.saveProfile(features);
       _safeChime('chimeSuccess');
-      showToast('✓ Voice biometric enrolled. Only your voice can now unlock J.O.B Systems.');
-      speak('Voice biometric enrolled. J.O.B Systems is now locked to your voice.');
+      showToast('✓ Voice biometric enrolled. Only your voice can now unlock JOBSystems.');
+      speak('Voice biometric enrolled. JOBSystems is now locked to your voice.');
     };
     recorder.start();
     setTimeout(()=>recorder.stop(),4000);
@@ -2604,7 +2604,7 @@ window.clearVoiceBiometric=()=>VBL.clearProfile();
 // Add biometric controls to CMD palette
 if(Array.isArray(window.CMD_ITEMS)){
   window.CMD_ITEMS.push(
-    {label:'Enroll Voice Biometric',sub:'Lock J.O.B Systems to your voice',icon:'ti-microphone',action:enrollVoiceBiometric,group:'Security'},
+    {label:'Enroll Voice Biometric',sub:'Lock JOBSystems to your voice',icon:'ti-microphone',action:enrollVoiceBiometric,group:'Security'},
     {label:'Clear Voice Biometric',sub:'Remove voice lock',icon:'ti-lock-open',action:()=>VBL.clearProfile(),group:'Security'}
   );
 }
@@ -2654,8 +2654,8 @@ window.showVcResult=function(text){
   else if(text) _safeChime('chimeError');
 };
 
-console.log('[J.O.B Systems] Enhancement Layer v2 loaded — Taglish + Chimes + Biometric + Free-flow');
-console.log('[J.O.B Systems] JELIX Intelligence Layer loaded — Skills 1–7 + CLAUDE.md active.');
+console.log('[JOBSystems] Enhancement Layer v2 loaded — Taglish + Chimes + Biometric + Free-flow');
+console.log('[JOBSystems] JELIX Intelligence Layer loaded — Skills 1–7 + CLAUDE.md active.');
 
 // ═══════════════════════════════════════════════════════════════════════════
 // J.O.B. WAKE WORD — always-on passive listener
@@ -2810,7 +2810,7 @@ console.log('[J.O.B Systems] JELIX Intelligence Layer loaded — Skills 1–7 + 
     }
   };
 
-  console.log('[J.O.B Systems] Wake word listener ready — OFF by default. Mic closed.');
+  console.log('[JOBSystems] Wake word listener ready — OFF by default. Mic closed.');
 })();
 
 // runBootSequence() now called by unlockSystem() after PIN entry
