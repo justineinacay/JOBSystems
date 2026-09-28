@@ -15,7 +15,7 @@
   }
 
   // Resolve sw.js relative to the current page path so it works in subfolders
-  // e.g. https://justineinacay.github.io/JELIXOS/sw.js
+  // e.g. https://justineinacay.github.io/JOBSystems/sw.js
   var swPath = new URL('sw.js', location.href).href;
 
   // Verify sw.js exists before registering — avoids the console error when

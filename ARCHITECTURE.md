@@ -1,6 +1,6 @@
-# J.O.B Systems source structure
+# JOBSystems source structure
 
-J.O.B Systems remains a static PWA that can run directly on GitHub Pages. The
+JOBSystems remains a static PWA that can run directly on GitHub Pages. The
 application does not require a framework, package installation, or build step.
 
 ## Entry point

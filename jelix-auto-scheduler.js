@@ -32,7 +32,7 @@ window.addEventListener('beforeinstallprompt', e => {
       item.innerHTML = `
         <i class="ti ti-device-mobile" style="font-size:16px;color:var(--teal);line-height:1;display:block;flex-shrink:0"></i>
         <div style="flex:1;min-width:0">
-          <div style="font-size:var(--text-sm);font-weight:700;color:var(--teal)">Install J.O.B Systems</div>
+          <div style="font-size:var(--text-sm);font-weight:700;color:var(--teal)">Install JOBSystems</div>
           <div style="font-size:var(--text-xs);color:var(--text3);margin-top:2px">Add to home screen for fullscreen app experience</div>
         </div>
         <button id="pwaInstallBtn" style="background:var(--teal);color:var(--navy);border:none;border-radius:8px;padding:4px 10px;font-size:var(--text-xs);font-weight:700;cursor:pointer;flex-shrink:0;white-space:nowrap">Install</button>
@@ -42,8 +42,8 @@ window.addEventListener('beforeinstallprompt', e => {
         _pwaInstallEvent.prompt();
         const { outcome } = await _pwaInstallEvent.userChoice;
         if(outcome === 'accepted'){
-          showToast('✓ J.O.B Systems installed.');
-          speak('J.O.B Systems installed. Welcome to the app.');
+          showToast('✓ JOBSystems installed.');
+          speak('JOBSystems installed. Welcome to the app.');
         }
         _pwaInstallEvent = null;
         item.remove();
@@ -58,8 +58,8 @@ window.addEventListener('beforeinstallprompt', e => {
 // Detect already installed
 window.addEventListener('appinstalled', () => {
   _pwaInstallEvent = null;
-  console.log('[J.O.B Systems] App installed successfully.');
-  showToast('✓ J.O.B Systems is now installed as an app.');
+  console.log('[JOBSystems] App installed successfully.');
+  showToast('✓ JOBSystems is now installed as an app.');
 });
 
 // iOS install instruction (Safari doesn't fire beforeinstallprompt)
@@ -79,7 +79,7 @@ window.addEventListener('appinstalled', () => {
         <i class="ti ti-brand-apple" style="font-size:16px;color:var(--teal);line-height:1;display:block;flex-shrink:0"></i>
         <div style="flex:1;min-width:0">
           <div style="font-size:var(--text-sm);font-weight:700;color:var(--teal)">Install on iPhone / iPad</div>
-          <div style="font-size:var(--text-xs);color:var(--text3);margin-top:2px">Tap <strong style="color:var(--text2)">Share</strong> → <strong style="color:var(--text2)">Add to Home Screen</strong> to install J.O.B Systems</div>
+          <div style="font-size:var(--text-xs);color:var(--text3);margin-top:2px">Tap <strong style="color:var(--text2)">Share</strong> → <strong style="color:var(--text2)">Add to Home Screen</strong> to install JOBSystems</div>
         </div>
         <button onclick="this.parentNode.remove()" style="background:transparent;border:1px solid var(--border2);border-radius:8px;color:var(--text3);font-size:var(--text-xs);padding:3px 8px;cursor:pointer;flex-shrink:0">Got it</button>
       `;

@@ -1,5 +1,5 @@
 -- ============================================================================
--- J.O.B Systems — Domains (Worlds) cloud sync
+-- JOBSystems — Domains (Worlds) cloud sync
 -- ============================================================================
 -- Domains have never been synced to Supabase at all. Every save('worlds')
 -- call site (29 of them) only ever wrote to localStorage. This is why

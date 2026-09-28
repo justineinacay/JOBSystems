@@ -6,7 +6,7 @@ product
 
 ## Users
 
-J.O.B Systems is a private personal operating system for a founder managing daily priorities, businesses, finances, faith commitments, personal administration, and AI-assisted planning across desktop and mobile PWA contexts.
+JOBSystems is a private personal operating system for a founder managing daily priorities, businesses, finances, faith commitments, personal administration, and AI-assisted planning across desktop and mobile PWA contexts.
 
 ## Product Purpose
 

@@ -1,5 +1,5 @@
 -- ============================================================================
--- J.O.B Systems — Google Tasks / Calendar two-way sync columns
+-- JOBSystems — Google Tasks / Calendar two-way sync columns
 -- ============================================================================
 -- Adds the mapping columns the app needs to know "this local task/event IS
 -- this Google Task/Event" so sync can update instead of duplicate, and so

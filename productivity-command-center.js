@@ -273,7 +273,7 @@
     if(dot)dot.className='sync-health-dot '+(connected?'connected':'disconnected');
     if(summary){
       const last=typeof window.getGoogleLastSyncText==='function'?window.getGoogleLastSyncText():(connected?'Connected':'Not connected');
-      summary.innerHTML=connected?'Google Calendar is connected.<small>'+esc(last)+' · background sync checks every 90 seconds</small>':'Google Calendar is not connected.<small>Connect from here to bring external events into J.O.B Systems.</small>';
+      summary.innerHTML=connected?'Google Calendar is connected.<small>'+esc(last)+' · background sync checks every 90 seconds</small>':'Google Calendar is not connected.<small>Connect from here to bring external events into JOBSystems.</small>';
     }
     if(button&&!button.disabled)button.innerHTML=connected?'<i class="ti ti-refresh"></i><span>Sync calendar</span>':'<i class="ti ti-brand-google"></i><span>Connect Google Calendar</span>';
   }

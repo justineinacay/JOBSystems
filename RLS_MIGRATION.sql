@@ -1,5 +1,5 @@
 -- ============================================================================
--- J.O.B Systems — Row Level Security hardening
+-- JOBSystems — Row Level Security hardening
 -- ============================================================================
 -- Context: every table currently has RLS "enabled" but every policy is
 -- USING (true) / WITH CHECK (true) for the anon role — meaning RLS is on in

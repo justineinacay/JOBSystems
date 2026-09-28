@@ -10,7 +10,7 @@
 // hadn't changed and CACHE_VERSION was never bumped to force a purge. That's
 // what caused an already-fixed bug (the driveLink Supabase column error) to
 // keep reappearing on-device after the source was already correct.
-const CACHE_VERSION = 'jobsystems-v47';
+const CACHE_VERSION = 'jobsystems-v48';
 const APP_SHELL = [
   './',
   './index.html',
@@ -30,7 +30,7 @@ const APP_SHELL = [
   './app-part-06.js?v=20260827-2',
   './app-part-07.js?v=20260902-2',
   './pwa-runtime.js?v=20260827-1',
-  './jelix-auto-scheduler.js?v=20260901-1',
+  './jelix-auto-scheduler.js?v=20260929-2',
   './ui-runtime.js?v=20260827-1',
   './mobile-viewport.js?v=20260827-1',
   './agency-command-centers.css?v=20260823-1',
@@ -52,11 +52,11 @@ const APP_SHELL = [
   './fitness-command-center.js?v=20260902-1',
   './health-game-dashboard.js?v=20260905-1',
   './mobile-command-center.js?v=20260826-3',
-  './productivity-command-center.js?v=20260831-4',
+  './productivity-command-center.js?v=20260929-2',
   './audit-hardening.css?v=20260905-1',
   './theme-transition.css?v=20260907-1',
   './accessibility-hardening.js?v=20260905-1',
-  './jobsystems-os-2026.css?v=20260929-1',
+  './jobsystems-os-2026.css?v=20260929-2',
   './jobsystems-os-2026.js?v=20260929-1',
   './jobsystems-logo.png',
   './icons/icon-192.png',
