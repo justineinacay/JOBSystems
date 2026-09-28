@@ -1,12 +1,12 @@
 {
-  "name": "J.O.B Systems",
-  "short_name": "JELIX",
-  "description": "Personal Operating System — Justine Luis Inacay",
-  "start_url": ".",
-  "scope": ".",
+  "name": "JOBSystems",
+  "short_name": "JOBSystems",
+  "description": "Personal Operating System",
+  "start_url": "./",
+  "scope": "./",
   "display": "standalone",
-  "background_color": "#111311",
-  "theme_color": "#111311",
+  "background_color": "#080B0A",
+  "theme_color": "#080B0A",
   "orientation": "any",
   "icons": [
     {
@@ -34,7 +34,10 @@
       "purpose": "maskable"
     }
   ],
-  "categories": ["productivity", "utilities"],
+  "categories": [
+    "productivity",
+    "utilities"
+  ],
   "lang": "en-PH",
   "share_target": {
     "action": "./",
@@ -51,21 +54,36 @@
       "short_name": "New Task",
       "description": "Add a new task",
       "url": "./?action=new-task",
-      "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }]
+      "icons": [
+        {
+          "src": "icons/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
     },
     {
       "name": "Log Expense",
       "short_name": "Log Expense",
       "description": "Add a debit transaction",
       "url": "./?action=log-expense",
-      "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }]
+      "icons": [
+        {
+          "src": "icons/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
     },
     {
       "name": "New Event",
       "short_name": "New Event",
       "description": "Schedule a calendar event",
       "url": "./?action=new-event",
-      "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }]
+      "icons": [
+        {
+          "src": "icons/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
     }
   ]
 }
