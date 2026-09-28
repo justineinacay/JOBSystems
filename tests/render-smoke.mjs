@@ -126,6 +126,25 @@ try{
       writeFileSync(path.join(root,`output/playwright/smoke-mobile-light-${name}.png`),Buffer.from(screenshot.data,'base64'));
     }
   }
+  const verifyMobileShell=async label=>{
+    const state=await evaluate(`(()=>{const visible=selector=>{const element=document.querySelector(selector);return!!element&&getComputedStyle(element).display!=='none'&&element.getClientRects().length>0};return{width:innerWidth,sidebar:visible('.side-panel'),desktopTopbar:visible('.topbar'),mobileTopbar:visible('#mobileTopBar'),mobileNav:visible('#mobileBottomNav'),overflow:document.documentElement.scrollWidth-innerWidth}})()`);
+    assert.equal(state.sidebar,false,`${label} must not expose the desktop sidebar: ${JSON.stringify(state)}`);
+    assert.equal(state.desktopTopbar,false,`${label} must not expose the desktop top bar: ${JSON.stringify(state)}`);
+    assert.equal(state.mobileTopbar,true,`${label} must show the mobile top bar: ${JSON.stringify(state)}`);
+    assert.equal(state.mobileNav,true,`${label} must show the mobile bottom navigation: ${JSON.stringify(state)}`);
+    assert.equal(state.overflow,0,`${label} must not overflow horizontally: ${JSON.stringify(state)}`);
+  };
+  for(const [width,height,label] of [[462,682,'compact phone'],[768,1024,'768px boundary']]){
+    await viewport(width,height,true);await send('Page.reload',{ignoreCache:true});await sleep(1800);
+    await evaluate(`(()=>{['authScreen','bootScreen','lockScreen'].forEach(id=>{const element=document.getElementById(id);if(element)element.style.display='none'});const app=document.getElementById('appRoot');if(app){app.style.display='block';app.style.opacity='1';app.style.pointerEvents=''}document.body.classList.add('os-active');setView('dashboard');return true})()`);
+    await verifyMobileShell(label);
+    if(takeScreenshots){
+      const screenshot=await send('Page.captureScreenshot',{format:'png',captureBeyondViewport:false});
+      writeFileSync(path.join(root,`output/playwright/smoke-mobile-shell-${width}.png`),Buffer.from(screenshot.data,'base64'));
+    }
+  }
+  await viewport(390,844,true);await send('Page.reload',{ignoreCache:true});await sleep(1800);
+  await evaluate(`(()=>{['authScreen','bootScreen','lockScreen'].forEach(id=>{const element=document.getElementById(id);if(element)element.style.display='none'});const app=document.getElementById('appRoot');if(app){app.style.display='block';app.style.opacity='1';app.style.pointerEvents=''}document.body.classList.add('os-active');setView('life');lifeSetSection('health');document.documentElement.dataset.theme='light';return true})()`);
   const lightContrast=await evaluate(`(()=>{const rgb=value=>(value.match(/\\d+(?:\\.\\d+)?/g)||[]).slice(0,3).map(Number);const luminance=value=>{const channels=rgb(value).map(channel=>{channel/=255;return channel<=.04045?channel/12.92:Math.pow((channel+.055)/1.055,2.4)});return .2126*channels[0]+.7152*channels[1]+.0722*channels[2]};const ratio=(foreground,background)=>{const a=luminance(foreground),b=luminance(background);return (Math.max(a,b)+.05)/(Math.min(a,b)+.05)};const pair=(text,card)=>ratio(getComputedStyle(document.querySelector(text)).color,getComputedStyle(document.querySelector(card)).backgroundColor);return{health:pair('#cf-biomonitor .health-game-header h2','#cf-biomonitor .health-game-header'),training:pair('#view-life .fitness-title h1','#view-life .fitness-overview')}})()`);
   assert.ok(lightContrast.health>=4.5&&lightContrast.training>=4.5,`dark feature cards need readable text in light mode: ${JSON.stringify(lightContrast)}`);
   await evaluate(`document.documentElement.dataset.theme='dark';setView('tasks');document.querySelector('.task-page-add')?.focus();openModal('taskModal')`);
@@ -171,6 +190,19 @@ try{
       const screenshot=await send('Page.captureScreenshot',{format:'png',captureBeyondViewport:false});
       writeFileSync(path.join(root,`output/playwright/smoke-desktop-${name}.png`),Buffer.from(screenshot.data,'base64'));
     }
+  }
+  await evaluate(`setView('dashboard');if(!document.getElementById('appRoot').classList.contains('nav-collapsed'))toggleNav()`);await sleep(250);
+  const collapsedPolish=await evaluate(`(()=>{const rect=selector=>document.querySelector(selector)?.getBoundingClientRect();const sidebar=rect('.side-panel');const firstNav=rect('.side-nav>.ni');const header=rect('#view-dashboard .quiet-dashboard-header');const main=rect('.main');const action=rect('.today-focus-action');const card=rect('.today-focus');const icons=[...document.querySelectorAll('.side-nav>.ni:not(.nav-more-toggle)>i:first-child')];const coloredIcons=icons.filter(icon=>getComputedStyle(icon).backgroundColor!=='rgba(0, 0, 0, 0)').length;return{sidebarGap:Math.round(firstNav.top-sidebar.top),headerInset:Math.round(header.left-main.left),themeVisible:!!rect('.topbar-theme-toggle')?.width,helpButtons:[...document.querySelectorAll('button,[role="button"],.ni')].filter(element=>(element.textContent||'').trim()==='Help'&&element.getClientRects().length).length,icons:icons.length,coloredIcons,actionFits:action.left>=card.left&&action.right<=card.right&&action.top>=card.top&&action.bottom<=card.bottom,overflow:document.documentElement.scrollWidth-innerWidth}})()`);
+  assert.ok(collapsedPolish.sidebarGap<=58,`collapsed navigation starts too low: ${JSON.stringify(collapsedPolish)}`);
+  assert.ok(collapsedPolish.headerInset<=24,`dashboard header has excessive leading space: ${JSON.stringify(collapsedPolish)}`);
+  assert.equal(collapsedPolish.themeVisible,true,`header theme control must remain visible: ${JSON.stringify(collapsedPolish)}`);
+  assert.equal(collapsedPolish.helpButtons,0,`Help button should not remain in the shell: ${JSON.stringify(collapsedPolish)}`);
+  assert.equal(collapsedPolish.coloredIcons,collapsedPolish.icons,`primary navigation icons need consistent color treatment: ${JSON.stringify(collapsedPolish)}`);
+  assert.equal(collapsedPolish.actionFits,true,`Ask J.E.L.I.X. must fit within the focus card: ${JSON.stringify(collapsedPolish)}`);
+  assert.equal(collapsedPolish.overflow,0,`collapsed dashboard must not overflow: ${JSON.stringify(collapsedPolish)}`);
+  if(takeScreenshots){
+    const screenshot=await send('Page.captureScreenshot',{format:'png',captureBeyondViewport:false});
+    writeFileSync(path.join(root,'output/playwright/smoke-desktop-collapsed-today.png'),Buffer.from(screenshot.data,'base64'));
   }
   console.log(`PASS: ${views.length} core views pass dark/light phone layout, tablet/desktop overflow, keyboard-dialog, no-JavaScript, and offline-shell checks.`);
 }finally{

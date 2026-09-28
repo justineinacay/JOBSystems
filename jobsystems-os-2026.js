@@ -572,8 +572,7 @@
       '<button type="button" onclick="setView(\'knowledge\')"><i class="ti ti-book-2"></i><span>Knowledge</span></button>'+
       '<button type="button" onclick="setView(\'review\')"><i class="ti ti-refresh"></i><span>Reviews</span></button>'+
       '<button type="button" onclick="setView(\'ai\')"><i class="ti ti-sparkles"></i><span>J.E.L.I.X.</span></button>'+
-      '<button type="button" onclick="setView(\'settings\')"><i class="ti ti-settings"></i><span>Settings</span></button>'+
-      '<button type="button" onclick="openHelpAssistant()"><i class="ti ti-help"></i><span>Help</span></button>';
+      '<button type="button" onclick="setView(\'settings\')"><i class="ti ti-settings"></i><span>Settings</span></button>';
     scroll.insertBefore(primary,scroll.firstChild);
   }
 
@@ -613,7 +612,7 @@
     var handler=function(){
       var view=window.JOBSystemsCurrentView||(typeof currentView!=='undefined'?currentView:'dashboard');
       osUpdateMobileChrome(view);
-      if(window.innerWidth<768&&view==='calendar'&&typeof setCalView==='function'){
+      if(window.innerWidth<=768&&view==='calendar'&&typeof setCalView==='function'){
         var selected=localStorage.getItem('j-os-mobile-cal-agenda-v1');
         if(!selected){
           try{setCalView('agenda');localStorage.setItem('j-os-mobile-cal-agenda-v1','1');}catch(e){}
