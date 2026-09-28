@@ -214,6 +214,16 @@
         '</div>';
       main.appendChild(knowledge);
     }
+    var finance=document.getElementById('view-finances');
+    if(finance&&!finance.dataset.osFinanceShell){
+      finance.dataset.osFinanceShell='1';
+      finance.innerHTML=
+        '<div class="os-page-shell">'+
+          '<header class="os-page-header"><div class="os-page-header-copy"><div class="os-page-eyebrow">Personal finance</div><h1>Finance</h1><p>Know where your money is going.</p></div>'+
+          '<button class="os-button primary" type="button" onclick="openCashModal(\'Credit\')"><i class="ti ti-plus"></i> Add transaction</button></header>'+
+          '<div id="osFinanceBody"></div>'+
+        '</div>';
+    }
     var newProject=document.getElementById('osProjectNew');
     if(newProject&&!newProject.dataset.bound){
       newProject.dataset.bound='1';
@@ -415,6 +425,88 @@
     });
   }
 
+  function osRenderFinance(){
+    var body=document.getElementById('osFinanceBody');
+    if(!body||typeof DB==='undefined')return;
+    var now=new Date();
+    var today=osToday();
+    var monthStart=today.slice(0,8)+'01';
+    var all=(DB.cashflow||[]).slice();
+    var month=all.filter(function(t){return t.date&&t.date>=monthStart&&t.date<=today;});
+    var income=month.filter(function(t){return t.type==='Debit';}).reduce(function(sum,t){return sum+(Number(t.amount)||0);},0);
+    var expenses=month.filter(function(t){return t.type==='Credit'||t.type==='Payment';}).reduce(function(sum,t){return sum+(Number(t.amount)||0);},0);
+    var net=income-expenses;
+    var fallback=all.reduce(function(sum,t){return sum+(t.type==='Debit'?(Number(t.amount)||0):-(Number(t.amount)||0));},0);
+    var names=typeof getAccountNames==='function'?getAccountNames():[];
+    var balance=(names.length&&typeof getTotalPortfolioBalance==='function')?getTotalPortfolioBalance():fallback;
+
+    var dates=[];
+    for(var i=6;i>=0;i--){var d=new Date(now);d.setDate(now.getDate()-i);dates.push(d);}
+    var daily=dates.map(function(date){
+      var key=typeof localDateStr==='function'?localDateStr(date):date.toISOString().slice(0,10);
+      return all.filter(function(t){return t.date===key;}).reduce(function(sum,t){return sum+(t.type==='Debit'?(Number(t.amount)||0):-(Number(t.amount)||0));},0);
+    });
+    var max=Math.max.apply(null,daily.map(function(v){return Math.abs(v);}).concat([1]));
+    var bars=dates.map(function(date,index){
+      var value=daily[index];
+      var height=Math.max(8,Math.round(Math.abs(value)/max*86));
+      var label=date.toLocaleDateString('en-PH',{weekday:'short'}).slice(0,1);
+      return '<div class="os-cashflow-day" title="'+osEsc(osFmtDate(typeof localDateStr==='function'?localDateStr(date):date.toISOString().slice(0,10))+' · '+osMoney(value))+'"><span class="'+(value<0?'negative':'positive')+'" style="height:'+height+'px"></span><small>'+label+'</small></div>';
+    }).join('');
+
+    var recent=all.slice().sort(function(a,b){return String(b.date||'').localeCompare(String(a.date||''));}).slice(0,7);
+    var recentHtml=recent.length?recent.map(function(t){
+      var isIncome=t.type==='Debit';
+      return '<div class="os-transaction-row" data-os-cash-id="'+osEsc(t.id)+'"><div class="os-item-icon '+(isIncome?'income':'expense')+'"><i class="ti ti-'+(isIncome?'arrow-down-left':'arrow-up-right')+'"></i></div>'+
+        '<div class="os-item-copy"><div class="os-item-title">'+osEsc(t.desc||t.description||'Transaction')+'</div><div class="os-item-sub">'+osEsc(t.category||t.account||'Uncategorised')+' · '+osEsc(t.date||'No date')+'</div></div>'+
+        '<strong class="'+(isIncome?'os-income':'os-expense')+'">'+(isIncome?'+':'−')+osMoney(t.amount)+'</strong></div>';
+    }).join(''):'<div class="os-empty" style="min-height:120px"><div><i class="ti ti-receipt"></i><strong>No transactions yet</strong><span>Add a real transaction to start the finance view.</span></div></div>';
+
+    var accountHtml=names.length?names.slice(0,6).map(function(name,index){
+      var value=typeof getAccountBalance==='function'?getAccountBalance(name):0;
+      return '<div class="os-account-row"><span class="os-account-mark" style="--account-accent:'+[ 'var(--os-job)','var(--os-code)','var(--os-creative)','var(--os-personal)' ][index%4]+'"><i class="ti ti-wallet"></i></span><div class="os-item-copy"><div class="os-item-title">'+osEsc(name)+'</div><div class="os-item-sub">Account balance</div></div><strong class="'+(value<0?'os-expense':'')+'">'+osMoney(value)+'</strong></div>';
+    }).join(''):'<div style="color:var(--os-text-3);font-size:11px;line-height:1.5">No accounts yet. Add accounts from the Personal workspace finance tools.</div>';
+
+    var bills=(DB.bills||[]).filter(function(b){return b.status!=='paid';}).sort(function(a,b){return String(a.dueDate||'9999').localeCompare(String(b.dueDate||'9999'));}).slice(0,5);
+    var billHtml=bills.length?bills.map(function(b){
+      var overdue=b.dueDate&&b.dueDate<today;
+      return '<div class="os-bill-row"><div class="os-item-copy"><div class="os-item-title">'+osEsc(b.name||'Bill')+'</div><div class="os-item-sub">'+(overdue?'Overdue · ':'Due ')+osEsc(osFmtDate(b.dueDate))+'</div></div><strong class="'+(overdue?'os-expense':'')+'">'+osMoney(b.amount)+'</strong></div>';
+    }).join(''):'<div style="color:var(--os-text-3);font-size:11px;line-height:1.5">No unpaid bills are currently recorded.</div>';
+
+    body.innerHTML=
+      '<div class="os-metric-strip os-finance-metrics">'+
+        '<div class="os-metric os-balance-metric"><small>Available balance</small><strong class="'+(balance<0?'os-expense':'')+'">'+osMoney(balance)+'</strong></div>'+
+        '<div class="os-metric"><small>Income · this month</small><strong class="os-income">'+osMoney(income)+'</strong></div>'+
+        '<div class="os-metric"><small>Expenses · this month</small><strong class="os-expense">'+osMoney(expenses)+'</strong></div>'+
+        '<div class="os-metric"><small>Net cash flow</small><strong class="'+(net<0?'os-expense':'os-income')+'">'+osMoney(net)+'</strong></div>'+
+      '</div>'+
+      '<div class="os-page-grid">'+
+        '<div class="os-main-column">'+
+          '<section class="os-panel"><div class="os-section-heading"><h2>Cash flow</h2><small>Last 7 days</small></div><div class="os-cashflow-chart">'+bars+'</div></section>'+
+          '<section class="os-panel"><div class="os-section-heading"><h2>Recent transactions</h2><button class="os-text-action" type="button" data-os-finance-detail="transactions">View all</button></div><div class="os-transaction-list">'+recentHtml+'</div></section>'+
+        '</div>'+
+        '<aside class="os-context-column">'+
+          '<section class="os-panel"><div class="os-section-heading"><h2>Accounts</h2><button class="os-text-action" type="button" data-os-finance-detail="accounts">Manage</button></div>'+accountHtml+'</section>'+
+          '<section class="os-panel"><div class="os-section-heading"><h2>Upcoming bills</h2><small>'+bills.length+' open</small></div>'+billHtml+'</section>'+
+        '</aside>'+
+      '</div>';
+
+    body.querySelectorAll('[data-os-cash-id]').forEach(function(row){
+      row.addEventListener('click',function(){
+        var id=row.dataset.osCashId;
+        var record=all.find(function(t){return String(t.id)===String(id);});
+        if(record&&typeof editCash==='function')editCash(record.id);
+      });
+    });
+    body.querySelectorAll('[data-os-finance-detail]').forEach(function(btn){
+      btn.addEventListener('click',function(){
+        var tab=btn.dataset.osFinanceDetail;
+        if(typeof openMobileFinanceDetail==='function')openMobileFinanceDetail(tab);
+        else if(typeof setView==='function')setView('life');
+      });
+    });
+  }
+
   function osInstallTodayQuickActions(){
     var body=document.querySelector('#view-dashboard>.vb');
     var focus=body&&body.querySelector('.today-focus');
@@ -510,6 +602,7 @@
       window.JOBSystemsCurrentView=target;
       if(target==='projects')osRenderProjects();
       if(target==='knowledge')osRenderKnowledge();
+      if(target==='finances')osRenderFinance();
       if(target==='worlds-settings')osInstallMorePrimary();
       osUpdateMobileChrome(target);
       osNormalizeWorkspaceNav();
@@ -560,6 +653,7 @@
     window.osSetKnowledgeQuery=osSetKnowledgeQuery;
     window.renderJOBSystemsProjects=osRenderProjects;
     window.renderJOBSystemsKnowledge=osRenderKnowledge;
+    window.renderJOBSystemsFinance=osRenderFinance;
 
     var initial=typeof currentView!=='undefined'?currentView:'dashboard';
     window.JOBSystemsCurrentView=initial;
@@ -567,6 +661,7 @@
     osNormalizeWorkspaceNav();
     if(initial==='projects')osRenderProjects();
     if(initial==='knowledge')osRenderKnowledge();
+    if(initial==='finances')osRenderFinance();
 
     document.addEventListener('click',function(e){
       if(e.target.closest('#navWorldsList'))setTimeout(osNormalizeWorkspaceNav,0);
