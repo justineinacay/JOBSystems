@@ -1,4 +1,4 @@
-# J.O.B Systems — Security Posture
+# JOBSystems — Security Posture
 
 Personal, private operating system for Justine Luis Inacay. This file is the honest
 record of what's actually secured, what isn't yet, and exactly what to do about it.

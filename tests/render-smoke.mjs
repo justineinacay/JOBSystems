@@ -64,19 +64,22 @@ try{
   const openApp=async()=>{
     await send('Page.navigate',{url:`http://127.0.0.1:${appPort}/index.html?render-smoke=1`});
     await sleep(2600);
-    assert.match(await evaluate('document.title'),/J\.O\.B Systems/);
+    assert.match(await evaluate('document.title'),/^JOBSystems\b/);
     assert.equal(await evaluate("!!document.querySelector('label[for=\"auth-email\"]')&&!!document.querySelector('label[for=\"auth-password\"]')"),true,'sign-in fields need associated labels');
     await evaluate(`(()=>{['authScreen','bootScreen','lockScreen'].forEach(id=>{const element=document.getElementById(id);if(element)element.style.display='none'});const app=document.getElementById('appRoot');if(app){app.style.display='grid';app.style.opacity='1';app.style.pointerEvents=''}document.body.classList.add('os-active');try{reRenderAll()}catch(error){}return true})()`);
   };
   const views=[
     ['tasks',"setView('tasks')"],
     ['today',"setView('dashboard')"],
+    ['projects',"setView('projects')"],
+    ['finance',"setView('finances')"],
+    ['knowledge',"setView('knowledge')"],
     ['health',"setView('life');lifeSetSection('health')"],
     ['training',"setView('life');lifeSetSection('fitness')"],
     ['calendar',"setView('calendar')"],
     ['review',"setView('review')"]
   ];
-  const inspectMobile=()=>evaluate(`(()=>{const active=document.querySelector('.view.active');if(!active)throw new Error('No active view');const visible=element=>{const style=getComputedStyle(element);return element.getClientRects().length&&style.visibility!=='hidden'&&style.opacity!=='0'&&!element.closest('.mov:not(.open),[hidden]')};const intentionallyIconOnly=element=>element.matches('.dashboard-customize-trigger,.agency-timer-toggle')&&parseFloat(getComputedStyle(element).fontSize)===0;const tiny=[...active.querySelectorAll('small,p,label,button,span,strong,b,em')].filter(element=>visible(element)&&!intentionallyIconOnly(element)&&(element.textContent||'').trim()&&parseFloat(getComputedStyle(element).fontSize)<12).map(element=>(element.textContent||'').replace(/\\s+/g,' ').trim().slice(0,50));const shortControls=[...active.querySelectorAll('button,[role=button]')].filter(element=>visible(element)&&element.getBoundingClientRect().height<43).map(element=>{const style=getComputedStyle(element);return{name:(element.getAttribute('aria-label')||element.textContent||'control').replace(/\\s+/g,' ').trim().slice(0,50),className:element.className,height:Math.round(element.getBoundingClientRect().height),minHeight:style.minHeight,maxHeight:style.maxHeight,transform:style.transform,onclick:element.getAttribute('onclick'),parent:element.parentElement?.id||element.parentElement?.className}});const nav=document.querySelector('#mobileBottomNav .mbn-bar').getBoundingClientRect();return{overflow:document.documentElement.scrollWidth-innerWidth,navBottom:Math.round(nav.bottom),tiny,shortControls}})()`);
+  const inspectMobile=()=>evaluate(`(()=>{const active=document.querySelector('.view.active');if(!active)throw new Error('No active view');const visible=element=>{const style=getComputedStyle(element);return element.getClientRects().length&&style.visibility!=='hidden'&&style.opacity!=='0'&&!element.closest('.mov:not(.open),[hidden]')};const intentionallyIconOnly=element=>element.matches('.dashboard-customize-trigger,.agency-timer-toggle')&&parseFloat(getComputedStyle(element).fontSize)===0;const tiny=[...active.querySelectorAll('small,p,label,button,span,strong,b,em')].filter(element=>visible(element)&&!intentionallyIconOnly(element)&&(element.textContent||'').trim()&&parseFloat(getComputedStyle(element).fontSize)<12).map(element=>(element.textContent||'').replace(/\\s+/g,' ').trim().slice(0,50));const shortControls=[...active.querySelectorAll('button,[role=button]')].filter(element=>visible(element)&&element.getBoundingClientRect().height<43).map(element=>{const style=getComputedStyle(element);return{name:(element.getAttribute('aria-label')||element.textContent||'control').replace(/\\s+/g,' ').trim().slice(0,50),className:element.className,height:Math.round(element.getBoundingClientRect().height),minHeight:style.minHeight,maxHeight:style.maxHeight,transform:style.transform,onclick:element.getAttribute('onclick'),parent:element.parentElement?.id||element.parentElement?.className}});const navElement=document.querySelector('#mobileBottomNav .mbn-bar')||document.getElementById('mobileBottomNav');if(!navElement)throw new Error('Mobile navigation is missing');const nav=navElement.getBoundingClientRect();return{overflow:document.documentElement.scrollWidth-innerWidth,navBottom:Math.round(nav.bottom),tiny,shortControls}})()`);
   const inspectTinyText=()=>evaluate(`(()=>{const active=document.querySelector('.view.active');const visible=element=>{const style=getComputedStyle(element);return element.getClientRects().length&&style.visibility!=='hidden'&&style.opacity!=='0'&&!element.closest('.mov:not(.open),[hidden]')};return[...active.querySelectorAll('small,p,label,button,span,strong,b,em')].filter(element=>visible(element)&&(element.textContent||'').trim()&&parseFloat(getComputedStyle(element).fontSize)>0&&parseFloat(getComputedStyle(element).fontSize)<12).map(element=>({text:(element.textContent||'').replace(/\\s+/g,' ').trim().slice(0,42),className:element.className,size:getComputedStyle(element).fontSize,parent:element.parentElement?.className,control:element.closest('button')?.className})).slice(0,40)})()`);
 
   await send('Page.enable');await send('Runtime.enable');
@@ -144,11 +147,18 @@ try{
   for(let attempt=0;attempt<50;attempt+=1){
     await sleep(100);
     offlineState=await evaluate(`({title:document.title,ready:!!document.querySelector('label[for="auth-email"]')})`);
-    if(/J\.O\.B Systems/.test(offlineState.title)&&offlineState.ready)break;
+    if(/^JOBSystems\b/.test(offlineState.title)&&offlineState.ready)break;
   }
-  assert.match(offlineState.title,/J\.O\.B Systems/,'the installed app shell must reopen offline');
+  assert.match(offlineState.title,/^JOBSystems\b/,'the installed app shell must reopen offline');
   assert.equal(offlineState.ready,true,'the offline shell must finish initializing and remain usable');
   await send('Network.emulateNetworkConditions',{offline:false,latency:0,downloadThroughput:-1,uploadThroughput:-1});
+
+  await viewport(834,1112,false);await send('Page.reload',{ignoreCache:true});await sleep(2400);
+  await evaluate(`(()=>{['authScreen','bootScreen','lockScreen'].forEach(id=>{const element=document.getElementById(id);if(element)element.style.display='none'});const app=document.getElementById('appRoot');if(app){app.style.display='grid';app.style.opacity='1';app.style.pointerEvents=''}document.body.classList.add('os-active');return true})()`);
+  for(const [name,action] of views){
+    await evaluate(action);await sleep(250);
+    assert.equal(await evaluate('document.documentElement.scrollWidth-innerWidth'),0,`${name} overflows the tablet viewport`);
+  }
 
   await viewport(1440,900,false);await send('Page.reload',{ignoreCache:true});await sleep(2400);
   await evaluate(`(()=>{['authScreen','bootScreen','lockScreen'].forEach(id=>{const element=document.getElementById(id);if(element)element.style.display='none'});const app=document.getElementById('appRoot');if(app){app.style.display='grid';app.style.opacity='1';app.style.pointerEvents=''}document.body.classList.add('os-active');return true})()`);
@@ -162,7 +172,7 @@ try{
       writeFileSync(path.join(root,`output/playwright/smoke-desktop-${name}.png`),Buffer.from(screenshot.data,'base64'));
     }
   }
-  console.log(`PASS: ${views.length} core views pass dark/light phone layout, keyboard-dialog, no-JavaScript, offline-shell, and desktop overflow checks.`);
+  console.log(`PASS: ${views.length} core views pass dark/light phone layout, tablet/desktop overflow, keyboard-dialog, no-JavaScript, and offline-shell checks.`);
 }finally{
   if(socket?.readyState===WebSocket.OPEN)socket.close();
   chrome.kill('SIGTERM');

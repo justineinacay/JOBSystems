@@ -1,5 +1,5 @@
 -- ============================================================================
--- J.O.B Systems — Gmail-to-task sync + multi-list Google Tasks support
+-- JOBSystems — Gmail-to-task sync + multi-list Google Tasks support
 -- ============================================================================
 -- Run in Supabase SQL Editor. Idempotent, safe to re-run.
 -- ============================================================================
