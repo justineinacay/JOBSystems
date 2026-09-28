@@ -191,6 +191,19 @@ try{
       writeFileSync(path.join(root,`output/playwright/smoke-desktop-${name}.png`),Buffer.from(screenshot.data,'base64'));
     }
   }
+  await evaluate(`setView('dashboard');if(!document.getElementById('appRoot').classList.contains('nav-collapsed'))toggleNav()`);await sleep(250);
+  const collapsedPolish=await evaluate(`(()=>{const rect=selector=>document.querySelector(selector)?.getBoundingClientRect();const sidebar=rect('.side-panel');const firstNav=rect('.side-nav>.ni');const header=rect('#view-dashboard .quiet-dashboard-header');const main=rect('.main');const action=rect('.today-focus-action');const card=rect('.today-focus');const icons=[...document.querySelectorAll('.side-nav>.ni:not(.nav-more-toggle)>i:first-child')];const coloredIcons=icons.filter(icon=>getComputedStyle(icon).backgroundColor!=='rgba(0, 0, 0, 0)').length;return{sidebarGap:Math.round(firstNav.top-sidebar.top),headerInset:Math.round(header.left-main.left),themeVisible:!!rect('.topbar-theme-toggle')?.width,helpButtons:[...document.querySelectorAll('button,[role="button"],.ni')].filter(element=>(element.textContent||'').trim()==='Help'&&element.getClientRects().length).length,icons:icons.length,coloredIcons,actionFits:action.left>=card.left&&action.right<=card.right&&action.top>=card.top&&action.bottom<=card.bottom,overflow:document.documentElement.scrollWidth-innerWidth}})()`);
+  assert.ok(collapsedPolish.sidebarGap<=58,`collapsed navigation starts too low: ${JSON.stringify(collapsedPolish)}`);
+  assert.ok(collapsedPolish.headerInset<=24,`dashboard header has excessive leading space: ${JSON.stringify(collapsedPolish)}`);
+  assert.equal(collapsedPolish.themeVisible,true,`header theme control must remain visible: ${JSON.stringify(collapsedPolish)}`);
+  assert.equal(collapsedPolish.helpButtons,0,`Help button should not remain in the shell: ${JSON.stringify(collapsedPolish)}`);
+  assert.equal(collapsedPolish.coloredIcons,collapsedPolish.icons,`primary navigation icons need consistent color treatment: ${JSON.stringify(collapsedPolish)}`);
+  assert.equal(collapsedPolish.actionFits,true,`Ask J.E.L.I.X. must fit within the focus card: ${JSON.stringify(collapsedPolish)}`);
+  assert.equal(collapsedPolish.overflow,0,`collapsed dashboard must not overflow: ${JSON.stringify(collapsedPolish)}`);
+  if(takeScreenshots){
+    const screenshot=await send('Page.captureScreenshot',{format:'png',captureBeyondViewport:false});
+    writeFileSync(path.join(root,'output/playwright/smoke-desktop-collapsed-today.png'),Buffer.from(screenshot.data,'base64'));
+  }
   console.log(`PASS: ${views.length} core views pass dark/light phone layout, tablet/desktop overflow, keyboard-dialog, no-JavaScript, and offline-shell checks.`);
 }finally{
   if(socket?.readyState===WebSocket.OPEN)socket.close();
