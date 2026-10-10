@@ -348,21 +348,32 @@ const SB={
         stale.forEach(row=>sbFetch(table,'DELETE',null,`id=eq.${row.id}`).catch(()=>{}));
       }
       if(rows&&((table==='tasks'||table==='cal_events')||rows.length)){
-        if(table==='cashflow')DB[key]=rows.map(r=>({...r,desc:r.description||r.desc||''}));
+        if(table==='cashflow')DB[key]=rows.map(r=>{
+          // Transfers use two accounts. Older descriptions carry a recoverable destination.
+          const legacy=String(r.description||'').match(/^Transfer:\s*(.*?)\s*→\s*(.*?)\s*$/);
+          return {...r,desc:r.description||r.desc||'',
+            _fromAccount:r.from_account||(r.type==='Transfer'?r.account:null),
+            _toAccount:r.to_account||(legacy?legacy[2]:null)};
+        });
         else if(table==='saved_links')DB[key]=rows.map(r=>({...r,previewImage:r.preview_image,worldId:r.world_id,projectId:r.project_id}));
         else if(table==='item_links')DB[key]=rows.map(r=>({...r,fromType:r.from_type,fromId:r.from_id,toType:r.to_type,toId:r.to_id}));
         else if(table==='cal_events')DB[key]=rows.map(r=>({...r,recurExceptions:r.recur_exceptions||{}}));
         else if(table==='projects')DB[key]=rows.map(r=>({...r,worldId:r.world_id}));
         else DB[key]=rows;
         save(key);
+      }else if(Array.isArray(rows)&&!rows.length&&Array.isArray(DB[key])&&DB[key].length){
+        // Do not erase possible unsynced local edits without a durable reconciliation queue.
+        // Also do not claim this data group is synced: server and local copies disagree.
+        (window.JOBSystemsSyncWarnings||(window.JOBSystemsSyncWarnings=[])).push(table);
       }
     }catch(err){
-      // Silent — Supabase unavailable, using localStorage fallback
+      (window.JOBSystemsSyncFailures||(window.JOBSystemsSyncFailures=[])).push(table+': '+err.message);
+      console.warn('[JOBSystems sync] Cloud read failed for '+table+'; kept local data.',err);
     }
   },
   async upsert(table,row,key){
     let r=this._sanitizeDates(row);
-    if(table==='cashflow'){r.description=row.desc;delete r.desc;delete r._fromAccount;delete r._toAccount;delete r._runBal;}
+    if(table==='cashflow'){r.description=row.desc||row.description;r.from_account=row._fromAccount||row.from_account||(row.type==='Transfer'?row.account:null);r.to_account=row._toAccount||row.to_account||null;delete r.desc;delete r._fromAccount;delete r._toAccount;delete r._runBal;}
     if(table==='cal_events'){r.recur_exceptions=row.recurExceptions||{};delete r.recurExceptions;delete r._expandedDate;delete r._recurring;delete r._taskId;delete r._isTask;delete r._billId;delete r._isBill;}
     if(table==='projects'){r.world_id=row.worldId;delete r.worldId;}
     if(table==='memories'){delete r.source;}
@@ -389,7 +400,7 @@ const SB={
   },
   async update(table,id,changes,key){
     let c=this._sanitizeDates(changes);
-    if(table==='cashflow'){if(c.desc){c.description=c.desc;delete c.desc;}delete c._fromAccount;delete c._toAccount;delete c._runBal;}
+    if(table==='cashflow'){if(c.desc!==undefined){c.description=c.desc;delete c.desc;}if(c._fromAccount!==undefined)c.from_account=c._fromAccount;if(c._toAccount!==undefined)c.to_account=c._toAccount;delete c._fromAccount;delete c._toAccount;delete c._runBal;}
     if(table==='cal_events'){if(c.recurExceptions!==undefined){c.recur_exceptions=c.recurExceptions;delete c.recurExceptions;}delete c._expandedDate;delete c._recurring;delete c._taskId;delete c._isTask;delete c._billId;delete c._isBill;}
     if(table==='projects'&&c.worldId!==undefined){c.world_id=c.worldId;delete c.worldId;}
     if(table==='memories'){delete c.source;}
@@ -1034,10 +1045,12 @@ function initRealtime(){
 }
 
 async function loadAllFromSupabase(){
+  window.JOBSystemsSyncFailures=[];
+  window.JOBSystemsSyncWarnings=[];
   showToast('↻ Syncing with Supabase...');
   await loadCloudSyncTombstones();
   await Promise.all([SB.load('tasks','tasks'),SB.load('clients','clients'),SB.load('venture','venture'),SB.load('faith','faith'),SB.load('cashflow','cashflow'),SB.load('cal_events','calEvents'),SB.load('journal','journal'),SB.load('notes','notes'),SB.load('memories','memories'),SB.load('sides','sides'),SB.load('history','history'),SB.load('loans','loans'),SB.load('accounts','accounts'),SB.load('collateral','collateral'),SB.load('social_posts','socialPosts'),SB.load('creative_projects','creativeProjects'),SB.load('pipeline','pipeline'),SB.load('campaigns','campaigns'),SB.load('influencers','influencers'),SB.load('pricing','pricing'),SB.load('credentials','credentials'),SB.load('saved_links','savedLinks'),SB.load('item_links','itemLinks'),SB.load('projects','projects'),_pullWorldsFromCloud()]);
-  reRenderAll();if(typeof renderTagsDatalist==='function')renderTagsDatalist();if(typeof updateInboxBadge==='function')updateInboxBadge();showToast('✓ Supabase synced');speak('All systems synced.');
+  reRenderAll();if(typeof renderTagsDatalist==='function')renderTagsDatalist();if(typeof updateInboxBadge==='function')updateInboxBadge();if(window.JOBSystemsSyncFailures.length||window.JOBSystemsSyncWarnings.length){showToast('⚠ Sync needs attention: '+window.JOBSystemsSyncFailures.length+' failed and '+window.JOBSystemsSyncWarnings.length+' local/cloud conflicts. Local data was preserved.');}else{showToast('✓ Supabase synced');speak('All systems synced.');}
 }
 // ═══════════════════════════════════════════════════════════════════════════
 // STORE — Centralized render bus
