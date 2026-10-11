@@ -39,7 +39,7 @@ if (window.top !== window.self) {
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="app-shell-01.css?v=20260827-1">
+<link rel="stylesheet" href="app-shell-01.css?v=20261011-1">
 <link rel="stylesheet" href="app-shell-02.css?v=20260827-1">
 <link rel="stylesheet" href="agency-command-centers.css?v=20260823-1">
 <link rel="stylesheet" href="faith-command-center.css?v=20260824-2">
@@ -3305,13 +3305,13 @@ if (window.top !== window.self) {
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="app-prelude.js?v=20260827-2"></script>
-<script src="app-part-01.js?v=20260905-1"></script>
+<script src="app-part-01.js?v=20261011-1"></script>
 <script src="app-part-02.js?v=20260907-1"></script>
 <script src="app-part-03.js?v=20260827-1"></script>
 <script src="app-part-04.js?v=20260905-1"></script>
 <script src="app-part-05.js?v=20260904-2"></script>
 <script src="app-part-06.js?v=20260827-2"></script>
-  <script src="app-part-07.js?v=20260902-2"></script>
+  <script src="app-part-07.js?v=20261011-1"></script>
 
 <!-- MOBILE BOTTOM HUD NAV -->
 <!-- MOBILE SEARCH OVERLAY -->
@@ -3459,9 +3459,9 @@ if (window.top !== window.self) {
 <div class="vbar" id="vBar">
   <div class="vresult" id="vResult"></div>
   <div class="vpill" id="vPill">
-    <div class="vorb idle" id="vOrb" onclick="toggleVoice()">
+    <button type="button" class="vorb idle" id="vOrb" onclick="toggleVoice()" aria-label="Start voice capture" aria-pressed="false">
       <i class="ti ti-microphone" id="vOrbIcon" style="font-size:var(--text-sm);line-height:1;display:block"></i>
-    </div>
+    </button>
     <div class="siri-wave" id="siriWave">
       <div class="siri-bar"></div>
       <div class="siri-bar"></div>
@@ -3471,7 +3471,7 @@ if (window.top !== window.self) {
     </div>
     <div style="flex:1;min-width:0">
       <div class="vlabel" id="vLabel">Ready</div>
-      <div class="vtranscript" id="vTranscript">Space to talk...</div>
+      <div class="vtranscript" id="vTranscript">Mic off · Press Space to talk</div>
     </div>
     <button onclick="closeVBar()" style="background:var(--hover-tint);border:1px solid rgba(255,255,255,.1);border-radius:100px;width:30px;height:22px;color:var(--text3);font-size:var(--text-sm);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;line-height:1">×</button>
   </div>

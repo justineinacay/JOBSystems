@@ -101,6 +101,10 @@ const providerError = (payload: Record<string, unknown> | null) => {
     type: limitText(source.type, 80) || "provider_error",
   };
 };
+const providerCreditsUnavailable = (error: { code: string; type: string }) =>
+  error.code === "credit_balance_exhausted" || error.code === "insufficient_quota" || error.type === "insufficient_quota";
+const transientProviderFailure = (status: number, error: { code: string; type: string }) =>
+  !providerCreditsUnavailable(error) && [429, 500, 502, 503, 504].includes(status);
 
 Deno.serve(async (request) => {
   const origin = allowedOrigin(request);
@@ -155,13 +159,15 @@ Deno.serve(async (request) => {
     body: JSON.stringify({ model, store: false, instructions, input }),
   };
   let openaiResponse = await fetch("https://api.openai.com/v1/responses", openaiOptions);
-  if ([429, 500, 502, 503, 504].includes(openaiResponse.status)) {
+  let openaiPayload = await readJson(openaiResponse) as Record<string, unknown> | null;
+  let safeProviderError = providerError(openaiPayload);
+  if (transientProviderFailure(openaiResponse.status, safeProviderError)) {
     await delay(650);
     openaiResponse = await fetch("https://api.openai.com/v1/responses", openaiOptions);
+    openaiPayload = await readJson(openaiResponse) as Record<string, unknown> | null;
+    safeProviderError = providerError(openaiPayload);
   }
-  const openaiPayload = await readJson(openaiResponse) as Record<string, unknown> | null;
   const text = openaiPayload ? responseText(openaiPayload) : "";
-  const safeProviderError = providerError(openaiPayload);
   const logUrl = `${supabaseUrl}/rest/v1/ai_requests`;
   await fetch(logUrl, {
     method: "POST",
@@ -170,8 +176,11 @@ Deno.serve(async (request) => {
   }).catch(() => undefined);
   if (!openaiResponse.ok) {
     console.error(JSON.stringify({ request_id: requestId, provider_status: openaiResponse.status, provider_code: safeProviderError.code, provider_type: safeProviderError.type, model }));
+    if (providerCreditsUnavailable(safeProviderError)) {
+      return json({ error: "J.E.L.I.X.'s secure AI account needs attention.", code: "AI_PROVIDER_CREDITS_UNAVAILABLE", retryable: false, request_id: requestId }, 503, origin);
+    }
     const status = openaiResponse.status === 429 ? 429 : 502;
-    return json({ error: "The AI service could not complete that request.", code: safeProviderError.code, retryable: [429, 500, 502, 503, 504].includes(openaiResponse.status), request_id: requestId }, status, origin);
+    return json({ error: "The AI service could not complete that request.", code: safeProviderError.code, retryable: transientProviderFailure(openaiResponse.status, safeProviderError), request_id: requestId }, status, origin);
   }
   return json({ ok: true, text: text || "I couldn't produce a response for that yet.", request_id: requestId }, 200, origin);
 });

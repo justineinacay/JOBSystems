@@ -8,6 +8,8 @@ function setVcState(state){
   const pill=document.getElementById('vPill'),orb=document.getElementById('vOrb'),label=document.getElementById('vLabel'),oi=document.getElementById('vOrbIcon'),wave=document.getElementById('siriWave');
   if(pill)pill.className='vpill'+(state==='listening'?' listening':'');
   if(orb)orb.className='vorb '+state;
+  if(orb){orb.setAttribute('aria-pressed',state==='listening'?'true':'false');orb.setAttribute('aria-label',state==='listening'?'Stop voice capture':'Start voice capture');}
+  const bar=document.getElementById('vBar');if(bar)bar.dataset.voiceState=state;
   if(label)label.className='vlabel'+(state==='error'?' error':state==='listening'?' listening':'');
   const vsb=document.getElementById('vsbtn'),vst=document.getElementById('vsbtnTxt');
   // voiceFab lived in the desktop topbar — removed when the topbar was decluttered,
@@ -32,7 +34,7 @@ function setVcState(state){
     if(fi)fi.className='ti ti-microphone';
     if(sd)sd.className='hdot';if(st)st.textContent='ONLINE';
     if(state==='processing'){if(label)label.textContent='PROCESSING';if(vst)vst.textContent='PROCESSING';}
-    else if(state==='idle'||state==='executing'){if(label)label.textContent='JELIX';const vt=document.getElementById('vTranscript');if(vt)vt.textContent='Space to talk...';if(vst)vst.textContent='VOICE · SPACE';}
+    else if(state==='idle'||state==='executing'){if(label)label.textContent='READY';const vt=document.getElementById('vTranscript');if(vt)vt.textContent='Mic off · Press Space to talk';if(vst)vst.textContent='VOICE · SPACE';}
     else if(state==='error'){if(label)label.textContent='UNCLEAR';if(vst)vst.textContent='VOICE · SPACE';}
   }
 }

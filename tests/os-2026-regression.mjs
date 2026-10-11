@@ -20,7 +20,7 @@ assert.equal(manifest.name,'JOBSystems');
 assert.equal(manifest.short_name,'JOBSystems');
 assert.equal(manifest.display,'standalone');
 assert.equal(manifest.theme_color,'#080B0A');
-assert.match(sw,/jobsystems-v50/,'service worker cache must be bumped for the visual polish release');
+assert.match(sw,/jobsystems-v52/,'service worker cache must include the latest J.E.L.I.X. and voice fixes');
 assert.match(sw,/jobsystems-os-2026\.css\?v=20260929-4/,'service worker must cache OS CSS');
 assert.match(sw,/jobsystems-os-2026\.js\?v=20260929-4/,'service worker must cache OS JS');
 assert.match(js,/view-projects/,'Projects must be a first-class global view');
@@ -29,8 +29,8 @@ assert.match(js,/function osRenderFinance\(/,'Finance must render from live JOBS
 assert.match(js,/osMbnToday/);
 assert.match(js,/osMbnTasks/);
 assert.match(js,/osMbnCalendar/);
-assert.match(js,/osMbnProjects/);
 assert.match(js,/osMbnMore/);
+assert.match(js,/osMbnQuickAdd/);
 assert.match(css,/--os-lime:#A6FF00/,'JOBSystems lime token must be defined');
 assert.match(css,/@media\(max-width:768px\)/,'mobile layout must align with the legacy 768px breakpoint');
 assert.match(css,/\.app\.nav-collapsed \.side-panel[^}]*display:none!important/,'collapsed desktop navigation must never leak into the mobile shell');
