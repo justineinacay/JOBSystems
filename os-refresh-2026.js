@@ -22,7 +22,8 @@
   var openTasks=function(){return tasks().filter(function(t){return t.status!=='Done'&&t.status!=='Cancelled';});};
   var normalizeWorld=function(w){
     var s=String(w||'').toLowerCase().trim();
-    if(/venture|job.collective|work|agency|business|client/.test(s))return 'venture';
+    if(/^work([_-]|$)/.test(s))return 'work';
+    if(/venture|job.collective|agency|business|client/.test(s))return 'venture';
     if(/build|code.collective|coding|development/.test(s))return 'build';
     if(/sides|creative.collective|creatives/.test(s))return 'sides';
     if(/faith|church|buklod|ledc|inc/.test(s))return 'faith';
@@ -53,7 +54,7 @@
     if(d===today())return 'Due today';
     return 'Due '+esc(d);
   };
-  var worldName=function(id){var w=WORLD_INFO.find(function(x){return x.id===id;});return w?w.name:'Personal';};
+  var worldName=function(id){var w=WORLD_INFO.find(function(x){return x.id===id;});return w?w.name:(id==='work'?'Other work':'Personal');};
   var workspaceTag=function(t){var w=taskWorld(t);return '<span class="osr-dot '+esc(w)+'"></span>'+esc(worldName(w));};
   var card=function(title,body,cls,footer){
     return '<section class="osr-card '+(cls||'')+'"><div class="osr-card-head"><h3>'+title+'</h3>'+(footer||'')+'</div>'+body+'</section>';
@@ -113,6 +114,8 @@
     var until=soon.getFullYear()+'-'+String(soon.getMonth()+1).padStart(2,'0')+'-'+String(soon.getDate()).padStart(2,'0');
     var upcoming=bills.filter(function(b){var d=String(b.dueDate||b.due||'').slice(0,10);return d>=today()&&d<=until&&!b.paid;});
     var badges=[];
+    var incomplete=transactions().filter(function(t){return t.type==='Transfer'&&!(t._toAccount||t.to_account);}).length;
+    if(incomplete)badges.push({icon:'alert-triangle',tone:'red',name:incomplete+' transfer'+(incomplete===1?'':'s')+' needs review',caption:'Destination account missing; balance may be understated',view:'finances'});
     if(overdue.length)badges.push({icon:'alert-circle',tone:'red',name:overdue.length+' overdue task'+(overdue.length===1?'':'s'),caption:'Review your deadlines',view:'tasks'});
     if(upcoming.length)badges.push({icon:'receipt',tone:'amber',name:upcoming.length+' bill'+(upcoming.length===1?'':'s')+' due this week',caption:'Check payment schedule',view:'finances'});
     if(high.length)badges.push({icon:'flag',tone:'orange',name:high.length+' high-priority open',caption:'Review next steps',view:'tasks'});
@@ -129,16 +132,19 @@
     var total=0;
     try{if(typeof getTotalPortfolioBalance==='function')total=getTotalPortfolioBalance();}catch(e){}
     var diff=ins-outs;
+    var incomplete=transactions().filter(function(t){return t.type==='Transfer'&&!(t._toAccount||t.to_account);}).length;
     return card('Financial snapshot','<div class="osr-money-body"><div class="osr-money-balance"><span>Total account balance</span><strong>'+fmt(total)+'</strong><small>From your recorded accounts and transactions</small></div>'+
+      +(incomplete?'<p class="osr-finance-warning">'+incomplete+' transfer'+(incomplete===1?'':'s')+' has an unknown destination. Review your finance records.</p>':'')+
       '<div class="osr-money-stats"><div><span class="osr-money-mark in"></span><span>Money in</span><strong>'+fmt(ins)+'</strong></div><div><span class="osr-money-mark out"></span><span>Money out</span><strong>'+fmt(outs)+'</strong></div><div><span class="osr-money-mark '+(diff>=0?'in':'out')+'"></span><span>Month net</span><strong>'+fmt(diff)+'</strong></div></div></div>','osr-money-card','<button type="button" class="osr-text-button" data-osr-view="finances">View Finance <i class="ti ti-arrow-up-right"></i></button>');
   }
   function renderPulse(){
     var ts=openTasks(),projects=typeof DB!=='undefined'&&Array.isArray(DB.projects)?DB.projects:[];
-    var rows=WORLD_INFO.map(function(w){
+    var workspaces=WORLD_INFO.slice();if(ts.some(function(t){return taskWorld(t)==='work';}))workspaces.push({id:'work',name:'Other work',tone:'other',icon:'briefcase-2'});
+    var rows=workspaces.map(function(w){
       var mine=ts.filter(function(t){return taskWorld(t)===w.id;});
       var risks=mine.filter(function(t){return t.due&&String(t.due).slice(0,10)<today();}).length;
       var projs=projects.filter(function(p){return normalizeWorld(p.worldId||p.world_id||p.world)===w.id;}).length;
-      return '<button type="button" class="osr-pulse osr-pulse-'+w.tone+'" data-osr-view="'+w.id+'"><span class="osr-pulse-title"><i class="ti ti-'+w.icon+'"></i><strong>'+w.name+'</strong></span><span class="osr-pulse-count">'+mine.length+' open tasks</span><small>'+projs+' projects'+(risks?' · '+risks+' overdue':' · On track')+'</small></button>';
+      return '<button type="button" class="osr-pulse osr-pulse-'+w.tone+'" data-osr-view="'+(w.id==='work'?'work-cs':w.id)+'"><span class="osr-pulse-title"><i class="ti ti-'+w.icon+'"></i><strong>'+w.name+'</strong></span><span class="osr-pulse-count">'+mine.length+' open tasks</span><small>'+projs+' projects'+(risks?' · '+risks+' overdue':' · On track')+'</small></button>';
     }).join('');
     return card('Workspace pulse','<div class="osr-pulse-grid">'+rows+'</div>','osr-pulse-card','<button type="button" class="osr-text-button" data-osr-view="projects">View Projects <i class="ti ti-arrow-up-right"></i></button>');
   }
@@ -174,6 +180,7 @@
     }).join('');
     state.dialog.innerHTML='<form method="dialog" class="osr-dialog-panel"><div class="osr-dialog-head"><h2>Choose today’s Top 3</h2><button type="button" class="osr-dialog-close" data-osr-dialog-close aria-label="Close"><i class="ti ti-x"></i></button></div><p>Pin your three most important tasks. This choice is saved on this device for today.</p>'+
       fields+'<div class="osr-dialog-actions"><button type="button" data-osr-dialog-close>Cancel</button><button type="submit" value="save" class="osr-dialog-save">Save priorities</button></div></form>';
+    state.dialog.returnValue='';
     state.dialog.showModal();
     state.dialog.querySelector('select').focus();
   }
