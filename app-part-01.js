@@ -129,14 +129,15 @@ async function requestJobAI({message,history='',world='',purpose='dashboard_assi
   try{
     const requestOptions={method:'POST',headers:{'apikey':SB_KEY,'Authorization':'Bearer '+session.access_token,'Content-Type':'application/json'},body:JSON.stringify({message,history,world,purpose,system})};
     let res=await fetch(JOB_AI_URL,requestOptions);
-    if([429,502,503,504].includes(res.status)){
+    let data=await res.json().catch(()=>({}));
+    if(data?.retryable===true&&[429,502,503,504].includes(res.status)){
       await _jelixDelay(700);
       res=await fetch(JOB_AI_URL,requestOptions);
+      data=await res.json().catch(()=>({}));
     }
-    const data=await res.json().catch(()=>({}));
     if(!res.ok){
-      const text=res.status===401?'Your J.E.L.I.X. session has expired. Please sign in again.':res.status===429?'J.E.L.I.X. is receiving too many requests right now.':res.status>=500?'J.E.L.I.X. cannot reach the secure AI service right now.':data?.error||'J.E.L.I.X. is unavailable right now.';
-      return{ok:false,text,status:res.status,code:data?.code||'AI_REQUEST_FAILED',retryable:[429,502,503,504].includes(res.status),request_id:data?.request_id};
+      const text=res.status===401?'Your J.E.L.I.X. session has expired. Please sign in again.':data?.code==='AI_PROVIDER_CREDITS_UNAVAILABLE'?"J.E.L.I.X.'s secure AI account needs attention. Local dashboard summaries are still available.":res.status===429?'J.E.L.I.X. is receiving too many requests right now.':res.status>=500?'J.E.L.I.X. cannot reach the secure AI service right now.':data?.error||'J.E.L.I.X. is unavailable right now.';
+      return{ok:false,text,status:res.status,code:data?.code||'AI_REQUEST_FAILED',retryable:data?.retryable===true,request_id:data?.request_id};
     }
     return{ok:true,text:data?.text||'No response.',request_id:data?.request_id};
   }catch(error){
@@ -818,10 +819,10 @@ function jelixDriveWrite(fileName,content,mimeType,world){return runJelixIntent(
 async function askJelixAgent(userMessage,world){
   const result=await requestJobAI({message:userMessage,history:_getRecentChatHistory(8),world:world||'',purpose:'jelix_chat'});
   if(result.ok||result.status===401||result.text==='Sign in to use J.E.L.I.X.')return result;
-  return{ok:true,text:_jelixLocalContinuityReply(userMessage,world),degraded:true,service_error:result.code};
+  return{ok:true,text:_jelixLocalContinuityReply(userMessage,world,result.code),degraded:true,service_error:result.code,request_id:result.request_id};
 
 }
-function _jelixLocalContinuityReply(userMessage,world){
+function _jelixLocalContinuityReply(userMessage,world,serviceError){
   const message=String(userMessage||'').toLowerCase();
   const context=gatherJelixContext();
   const worldId=String(world||'').toUpperCase();
@@ -835,7 +836,9 @@ function _jelixLocalContinuityReply(userMessage,world){
   const income=monthTransactions.filter(item=>item.type==='Debit').reduce((sum,item)=>sum+(Number(item.amount)||0),0);
   const expenses=monthTransactions.filter(item=>item.type==='Credit').reduce((sum,item)=>sum+(Number(item.amount)||0),0);
   const peso=value=>'₱'+Number(value||0).toLocaleString('en-PH',{minimumFractionDigits:2,maximumFractionDigits:2});
-  const prefix='The secure AI service is temporarily unavailable, but I can still read the dashboard data already on this device.';
+  const prefix=serviceError==='AI_PROVIDER_CREDITS_UNAVAILABLE'
+    ? "J.E.L.I.X.'s secure AI account needs attention, but I can still read dashboard data already on this device."
+    : 'The secure AI service is temporarily unavailable, but I can still read the dashboard data already on this device.';
   if(/task|todo|priority|overdue|next action|what.*do/.test(message)){
     const taskList=nextTasks.length?nextTasks.map(item=>item.title+(item.due?' — '+item.due:'')).join('; '):'No open tasks are currently visible.';
     return `${prefix} You have ${openTasks.length} open task${openTasks.length===1?'':'s'}${overdue.length?`, including ${overdue.length} overdue`:''}. Next visible items: ${taskList}`;

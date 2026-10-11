@@ -10,13 +10,13 @@
 // hadn't changed and CACHE_VERSION was never bumped to force a purge. That's
 // what caused an already-fixed bug (the driveLink Supabase column error) to
 // keep reappearing on-device after the source was already correct.
-const CACHE_VERSION = 'jobsystems-v51';
+const CACHE_VERSION = 'jobsystems-v52';
 const APP_SHELL = [
   './',
   './index.html',
   './os-refresh-2026.css?v=20261011-1',
   './os-refresh-2026.js?v=20261011-1',
-  './app-shell-01.css?v=20260827-1',
+  './app-shell-01.css?v=20261011-1',
   './app-shell-02.css?v=20260827-1',
   './app-boot.css?v=20260827-1',
   './app-jelix-01.css?v=20260827-1',
@@ -24,13 +24,13 @@ const APP_SHELL = [
   './app-dark-theme.css?v=20260827-1',
   './app-job-command-center.css?v=20260827-1',
   './app-prelude.js?v=20260827-2',
-  './app-part-01.js?v=20260905-1',
+  './app-part-01.js?v=20261011-1',
   './app-part-02.js?v=20260907-1',
   './app-part-03.js?v=20260827-1',
   './app-part-04.js?v=20260905-1',
   './app-part-05.js?v=20260904-2',
   './app-part-06.js?v=20260827-2',
-  './app-part-07.js?v=20260902-2',
+  './app-part-07.js?v=20261011-1',
   './pwa-runtime.js?v=20260827-1',
   './jelix-auto-scheduler.js?v=20260929-2',
   './ui-runtime.js?v=20260827-1',
