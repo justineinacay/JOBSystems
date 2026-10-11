@@ -77,8 +77,8 @@ function getAccountBalance(account){
   const starting=acctObj?(acctObj.startingBalance||0):0;
   return (DB.cashflow||[]).reduce((sum,t)=>{
     if(t.type==='Transfer'){
-      if(matches(t._fromAccount))return sum-(t.amount||0);
-      if(matches(t._toAccount))return sum+(t.amount||0);
+      if(matches(t._fromAccount||t.from_account||t.account))return sum-(Number(t.amount)||0);
+      if(matches(t._toAccount||t.to_account))return sum+(Number(t.amount)||0);
       return sum;
     }
     if(!matches(t.account))return sum;

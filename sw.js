@@ -10,10 +10,12 @@
 // hadn't changed and CACHE_VERSION was never bumped to force a purge. That's
 // what caused an already-fixed bug (the driveLink Supabase column error) to
 // keep reappearing on-device after the source was already correct.
-const CACHE_VERSION = 'jobsystems-v50';
+const CACHE_VERSION = 'jobsystems-v51';
 const APP_SHELL = [
   './',
   './index.html',
+  './os-refresh-2026.css?v=20261011-1',
+  './os-refresh-2026.js?v=20261011-1',
   './app-shell-01.css?v=20260827-1',
   './app-shell-02.css?v=20260827-1',
   './app-boot.css?v=20260827-1',
@@ -116,8 +118,14 @@ self.addEventListener('fetch', (event) => {
   if (request.method !== 'GET') return; // never cache writes
 
   const url = new URL(request.url);
+  // Personal data and authenticated API responses must NEVER enter Cache Storage.
+  // A failed API request is an error, not a request for the app's index.html.
+  if (NETWORK_FIRST_HOSTS.some((host) => url.hostname === host || url.hostname.endsWith('.' + host))) {
+    event.respondWith(fetch(request));
+    return;
+  }
+
   const isNetworkFirst =
-    NETWORK_FIRST_HOSTS.some((host) => url.hostname.includes(host)) ||
     APP_SHELL_PATHS.has(request.url) ||
     request.mode === 'navigate'; // any page-load navigation gets the freshest shell
 
@@ -126,11 +134,19 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(
       fetch(request)
         .then((response) => {
-          const clone = response.clone();
-          caches.open(CACHE_VERSION).then((cache) => cache.put(request, clone));
+          // Cache only successful same-origin application files.
+          if (response.ok && url.origin === self.location.origin) {
+            const clone = response.clone();
+            event.waitUntil(caches.open(CACHE_VERSION).then((cache) => cache.put(request, clone)));
+          }
           return response;
         })
-        .catch(() => caches.match(request).then((cached) => cached || caches.match('./index.html')))
+        .catch(async () => {
+          const cached = await caches.match(request);
+          if (cached) return cached;
+          if (request.mode === 'navigate') return (await caches.match('./index.html')) || Response.error();
+          return Response.error();
+        })
     );
     return;
   }

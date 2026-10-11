@@ -90,7 +90,7 @@
       var spec=OS_WORKSPACES[w.id];
       if(!spec)return;
       if(w.label!==spec.label){w.label=spec.label;changed=true;}
-      if(w.color!==spec.color){w.color=spec.color;changed=true;}
+      // A user's workspace color choice is intentional; never overwrite it on startup.
     });
     if(changed&&typeof save==='function'){
       try{save('worlds');}catch(e){console.warn('[JOBSystems OS] Workspace presentation migration stayed local.',e);}
@@ -548,8 +548,8 @@
         '<button class="os-mbn-tab active" id="osMbnToday" type="button" onclick="setView(\'dashboard\')"><i class="ti ti-home"></i><span>Today</span></button>'+
         '<button class="os-mbn-tab" id="osMbnTasks" type="button" onclick="setView(\'tasks\')"><i class="ti ti-checklist"></i><span>Tasks</span></button>'+
         '<button class="os-mbn-tab" id="osMbnCalendar" type="button" onclick="setView(\'calendar\')"><i class="ti ti-calendar"></i><span>Calendar</span></button>'+
-        '<button class="os-mbn-tab" id="osMbnProjects" type="button" onclick="setView(\'projects\')"><i class="ti ti-folders"></i><span>Projects</span></button>'+
-        '<button class="os-mbn-tab" id="osMbnMore" type="button" onclick="setView(\'worlds-settings\')"><i class="ti ti-grid-dots"></i><span>More</span></button>';
+        '<button class="os-mbn-tab" id="osMbnMore" type="button" onclick="setView(\'worlds-settings\')"><i class="ti ti-layout-grid"></i><span>Workspaces</span></button>'+
+        '<button class="os-mbn-tab os-mbn-add" id="osMbnQuickAdd" type="button" onclick="osRefreshOpenQuickAdd()"><i class="ti ti-plus"></i><span>Add</span></button>';
     }
     if(!document.querySelector('.os-mobile-jelix')){
       var jelix=document.createElement('button');
@@ -568,6 +568,7 @@
     var primary=document.createElement('div');
     primary.className='os-more-primary';
     primary.innerHTML=
+      '<button type="button" onclick="setView(\'projects\')"><i class="ti ti-folders"></i><span>Projects</span></button>'+ 
       '<button type="button" onclick="setView(\'finances\')"><i class="ti ti-wallet"></i><span>Finance</span></button>'+
       '<button type="button" onclick="setView(\'knowledge\')"><i class="ti ti-book-2"></i><span>Knowledge</span></button>'+
       '<button type="button" onclick="setView(\'review\')"><i class="ti ti-refresh"></i><span>Reviews</span></button>'+
@@ -580,7 +581,7 @@
     var title=document.getElementById('osMobilePageTitle');
     if(title)title.textContent=OS_VIEW_TITLES[view]||OS_VIEW_TITLES[String(view||'').toLowerCase()]||'JOBSystems';
     var map={
-      dashboard:'osMbnToday',tasks:'osMbnTasks',calendar:'osMbnCalendar',projects:'osMbnProjects',
+      dashboard:'osMbnToday',tasks:'osMbnTasks',calendar:'osMbnCalendar',projects:'osMbnMore',
       finances:'osMbnMore',knowledge:'osMbnMore',review:'osMbnMore',ai:'osMbnMore',
       settings:'osMbnMore','worlds-settings':'osMbnMore',venture:'osMbnMore',build:'osMbnMore',
       sides:'osMbnMore',faith:'osMbnMore',life:'osMbnMore',notes:'osMbnMore',memory:'osMbnMore',
