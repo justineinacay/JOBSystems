@@ -166,3 +166,15 @@ body.os-refresh-active:not(.os-refresh-expanded) #view-dashboard>.vb>*:not(#osRe
 }
 @media(max-width:360px){.osr-pulse-grid{grid-template-columns:1fr}.osr-money-stats strong{font-size:11px}}
 @media(prefers-reduced-motion:reduce){.osr-add-button,.osr-priority,.osr-pulse{transition:none!important;transform:none!important}}
+
+/* v2.1: Mobile add affordance and data-reconciliation clarity */
+.osr-finance-warning{font-size:10px!important;font-weight:640;line-height:1.5;color:var(--os-warning)!important;padding:9px 10px;border-radius:8px;background:rgba(245,190,53,.07);border:1px solid rgba(245,190,53,.18);margin:-9px 0 15px!important}
+.osr-dot.work{background:#94a3b8}
+.osr-pulse-other .osr-pulse-title i{color:#94a3b8}
+.osr-pulse-grid{grid-template-columns:repeat(auto-fit,minmax(118px,1fr))}
+@media(max-width:1050px){.osr-pulse-grid{grid-template-columns:repeat(auto-fit,minmax(118px,1fr))}}
+@media(max-width:768px){
+  #mobileBottomNav .os-mbn-add i{display:grid;place-items:center;width:32px;height:32px;border-radius:10px;background:var(--os-lime);color:#101908;font-size:22px;font-weight:700;margin-top:-2px}
+  #mobileBottomNav .os-mbn-add span{font-weight:780;color:var(--os-text)}
+  .osr-pulse-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
