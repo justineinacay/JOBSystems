@@ -14,8 +14,8 @@ function _syncBadgeUpdate(){
   let cls,title,html;
   if(_syncPending>0){
     cls='syncing';title='';html='<i class="ti ti-refresh"></i><span>Syncing…</span>';
-  } else if(_syncLastError){
-    cls='error';title=_syncLastError;html='<i class="ti ti-alert-triangle"></i><span>Sync issue</span>';
+  } else if(_syncLastError||(window.JOBSystemsSyncFailures&&window.JOBSystemsSyncFailures.length)||(window.JOBSystemsSyncWarnings&&window.JOBSystemsSyncWarnings.length)){
+    cls='error';title=_syncLastError||'Some data could not be confirmed in the cloud; review sync status.';html='<i class="ti ti-alert-triangle"></i><span>Sync issue</span>';
   } else {
     cls='idle';
     title=_syncLastOkAt?('Last synced '+_syncLastOkAt.toLocaleTimeString('en-PH',{hour:'2-digit',minute:'2-digit',timeZone:'Asia/Manila'})):'';
@@ -1050,7 +1050,7 @@ async function loadAllFromSupabase(){
   showToast('↻ Syncing with Supabase...');
   await loadCloudSyncTombstones();
   await Promise.all([SB.load('tasks','tasks'),SB.load('clients','clients'),SB.load('venture','venture'),SB.load('faith','faith'),SB.load('cashflow','cashflow'),SB.load('cal_events','calEvents'),SB.load('journal','journal'),SB.load('notes','notes'),SB.load('memories','memories'),SB.load('sides','sides'),SB.load('history','history'),SB.load('loans','loans'),SB.load('accounts','accounts'),SB.load('collateral','collateral'),SB.load('social_posts','socialPosts'),SB.load('creative_projects','creativeProjects'),SB.load('pipeline','pipeline'),SB.load('campaigns','campaigns'),SB.load('influencers','influencers'),SB.load('pricing','pricing'),SB.load('credentials','credentials'),SB.load('saved_links','savedLinks'),SB.load('item_links','itemLinks'),SB.load('projects','projects'),_pullWorldsFromCloud()]);
-  reRenderAll();if(typeof renderTagsDatalist==='function')renderTagsDatalist();if(typeof updateInboxBadge==='function')updateInboxBadge();if(window.JOBSystemsSyncFailures.length||window.JOBSystemsSyncWarnings.length){showToast('⚠ Sync needs attention: '+window.JOBSystemsSyncFailures.length+' failed and '+window.JOBSystemsSyncWarnings.length+' local/cloud conflicts. Local data was preserved.');}else{showToast('✓ Supabase synced');speak('All systems synced.');}
+  reRenderAll();if(typeof renderTagsDatalist==='function')renderTagsDatalist();if(typeof updateInboxBadge==='function')updateInboxBadge();_syncBadgeUpdate();if(window.JOBSystemsSyncFailures.length||window.JOBSystemsSyncWarnings.length){showToast('⚠ Sync needs attention: '+window.JOBSystemsSyncFailures.length+' failed and '+window.JOBSystemsSyncWarnings.length+' local/cloud conflicts. Local data was preserved.');}else{showToast('✓ Supabase synced');speak('All systems synced.');}
 }
 // ═══════════════════════════════════════════════════════════════════════════
 // STORE — Centralized render bus
