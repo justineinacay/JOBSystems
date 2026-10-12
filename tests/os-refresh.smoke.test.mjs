@@ -13,11 +13,11 @@ test('all changed application scripts parse as JavaScript',()=>{
 
 test('main HTML and installable worker include command center assets',()=>{
   const html=read('index.html'),worker=read('sw.js');
-  for(const asset of ['os-refresh-2026.js?v=20261011-1','os-refresh-2026.css?v=20261012-1']){
+  for(const asset of ['os-refresh-2026.js?v=20261011-1','os-refresh-2026.css?v=20261013-1']){
     assert.ok(html.includes(asset),'HTML must load '+asset);
     assert.ok(worker.includes(asset),'worker must precache '+asset);
   }
-  assert.ok(worker.includes("jobsystems-v53"),'cache version should rotate for deployments');
+  assert.ok(worker.includes("jobsystems-v54"),'cache version should rotate for deployments');
 });
 
 test('Supabase API GETs always bypass cache and never substitute HTML',()=>{
@@ -74,4 +74,5 @@ test('responsive design includes accessible dialogs and mobile safe area',()=>{
   assert.match(css,/:focus-visible/);
   assert.match(js,/state\.dialog\.showModal\(\)/);
   assert.match(js,/aria-label="Quick add"/);
+  assert.match(css,/#lockScreen\{background:#151615!important;color:#f4f4f1!important\}/,'the PIN screen must keep readable contrast before optional styles load');
 });
