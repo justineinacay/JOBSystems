@@ -26,6 +26,9 @@ assert.match(sw,/jobsystems-os-2026\.js\?v=20260929-4/,'service worker must cach
 assert.match(js,/view-projects/,'Projects must be a first-class global view');
 assert.match(js,/view-knowledge/,'Knowledge must be a first-class global view');
 assert.match(js,/function osRenderFinance\(/,'Finance must render from live JOBSystems data');
+assert.doesNotMatch(js,/nav-label">(?:Finance|Knowledge|Reviews?)</,'Finance, Knowledge, and Reviews must stay out of the desktop navigation');
+assert.doesNotMatch(js,/<span>(?:Finance|Knowledge|Reviews?)<\/span><\/button>/,'Finance, Knowledge, and Reviews must stay out of the mobile workspace menu');
+assert.doesNotMatch(html,/nav-label">Review</,'the legacy sidebar must not flash a Review shortcut before the OS shell loads');
 assert.match(js,/osMbnToday/);
 assert.match(js,/osMbnTasks/);
 assert.match(js,/osMbnCalendar/);

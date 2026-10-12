@@ -126,9 +126,6 @@
       '<div class="ni" onclick="setView(\'tasks\')" data-view="tasks"><i class="ti ti-checklist"></i><span class="nav-label">Tasks</span><span class="nbadge" id="taskBadge">0</span></div>'+
       '<div class="ni" onclick="setView(\'calendar\')" data-view="calendar"><i class="ti ti-calendar"></i><span class="nav-label">Calendar</span></div>'+
       '<div class="ni" onclick="setView(\'projects\')" data-view="projects"><i class="ti ti-folders"></i><span class="nav-label">Projects</span></div>'+
-      '<div class="ni" onclick="setView(\'finances\')" data-view="finances"><i class="ti ti-wallet"></i><span class="nav-label">Finance</span></div>'+
-      '<div class="ni" onclick="setView(\'knowledge\')" data-view="knowledge"><i class="ti ti-book-2"></i><span class="nav-label">Knowledge</span></div>'+
-      '<div class="ni" onclick="setView(\'review\')" data-view="review"><i class="ti ti-refresh"></i><span class="nav-label">Reviews</span></div>'+
       '<div class="ngl nav-section-heading nav-workspaces-heading" id="navWorldsLabel"><span>Workspaces</span><button class="nav-section-action" onclick="openWorldModal()" title="Add workspace" aria-label="Add workspace"><i class="ti ti-plus"></i></button></div>'+
       '<div id="navWorldsList"></div>'+
       '<div class="ngl nav-section-heading">System</div>'+
@@ -569,9 +566,6 @@
     primary.className='os-more-primary';
     primary.innerHTML=
       '<button type="button" onclick="setView(\'projects\')"><i class="ti ti-folders"></i><span>Projects</span></button>'+ 
-      '<button type="button" onclick="setView(\'finances\')"><i class="ti ti-wallet"></i><span>Finance</span></button>'+
-      '<button type="button" onclick="setView(\'knowledge\')"><i class="ti ti-book-2"></i><span>Knowledge</span></button>'+
-      '<button type="button" onclick="setView(\'review\')"><i class="ti ti-refresh"></i><span>Reviews</span></button>'+
       '<button type="button" onclick="setView(\'ai\')"><i class="ti ti-sparkles"></i><span>J.E.L.I.X.</span></button>'+
       '<button type="button" onclick="setView(\'settings\')"><i class="ti ti-settings"></i><span>Settings</span></button>';
     scroll.insertBefore(primary,scroll.firstChild);
