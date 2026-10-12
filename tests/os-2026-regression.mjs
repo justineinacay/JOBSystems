@@ -20,7 +20,7 @@ assert.equal(manifest.name,'JOBSystems');
 assert.equal(manifest.short_name,'JOBSystems');
 assert.equal(manifest.display,'standalone');
 assert.equal(manifest.theme_color,'#080B0A');
-assert.match(sw,/jobsystems-v50/,'service worker cache must be bumped for the visual polish release');
+assert.match(sw,/jobsystems-v53/,'service worker cache must be bumped for the performance release');
 assert.match(sw,/jobsystems-os-2026\.css\?v=20260929-4/,'service worker must cache OS CSS');
 assert.match(sw,/jobsystems-os-2026\.js\?v=20260929-4/,'service worker must cache OS JS');
 assert.match(js,/view-projects/,'Projects must be a first-class global view');
@@ -29,7 +29,7 @@ assert.match(js,/function osRenderFinance\(/,'Finance must render from live JOBS
 assert.match(js,/osMbnToday/);
 assert.match(js,/osMbnTasks/);
 assert.match(js,/osMbnCalendar/);
-assert.match(js,/osMbnProjects/);
+assert.match(js,/osMbnQuickAdd/);
 assert.match(js,/osMbnMore/);
 assert.match(css,/--os-lime:#A6FF00/,'JOBSystems lime token must be defined');
 assert.match(css,/@media\(max-width:768px\)/,'mobile layout must align with the legacy 768px breakpoint');
@@ -42,5 +42,10 @@ assert.doesNotMatch(read('productivity-command-center.js'),/J\.O\.B Systems/,'ca
 assert.doesNotMatch(html,/\\n<link|\\n<script/,'final assets must not be separated by literal escaped newline text');
 assert.match(html,/jelix-auto-scheduler\.js\?v=20260929-2/,'install prompt changes must use a new asset version');
 assert.match(html,/productivity-command-center\.js\?v=20260929-2/,'calendar branding changes must use a new asset version');
+assert.doesNotMatch(html,/<script src="https:\/\/cdn\.jsdelivr\.net\/npm\/chart\.js/,'Chart.js must not block initial startup');
+assert.doesNotMatch(html,/<script src="(?:agency|faith|life|fitness|health-game)-command-center/,'workspace enhancements must not block initial startup');
+assert.match(read('app-prelude.js'),/function ensureViewAssets\(view\)/,'workspace assets must have a shared lazy loader');
+assert.match(read('app-part-07.js'),/loadAllFromSupabase\(\{progressive:true\}\)/,'startup must use progressive cloud sync');
+assert.match(read('app-part-07.js'),/Store\.notify\(currentView\)/,'startup must render the active view instead of every view');
 
 console.log('PASS: JOBSystems Personal Operating System shell, global views, branding, responsive navigation, and PWA cache checks verified.');

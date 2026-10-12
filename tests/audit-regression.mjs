@@ -41,8 +41,9 @@ for(const entry of entries){
 for(const required of ['assets/workspace-logos/faith.png','assets/workspace-logos/personal.png','icons/icon-192.png','icons/icon-512.png']){
   assert.ok(entries.some((entry)=>entry.split('?')[0].replace(/^\.\//,'')===required),`${required} must be available offline`);
 }
-assert.match(sw,/const EXTERNAL_SHELL = \[[\s\S]*chart\.umd\.min\.js/,'the installed shell must pre-cache its chart runtime');
-assert.match(sw,/Promise\.allSettled\([\s\S]*EXTERNAL_SHELL/,'third-party presentation assets must be cached without blocking installation');
+assert.match(sw,/const OPTIONAL_ON_DEMAND = new Set\(/,'heavy workspace assets must stay outside the install-critical shell');
+assert.match(sw,/cache\.addAll\(CORE_SHELL\)/,'service-worker installation must wait only for the core shell');
+assert.match(sw,/url\.hostname === 'cdn\.jsdelivr\.net'/,'third-party presentation assets must be cached after first use');
 
 const ids=[...html.matchAll(/\sid="([^"]+)"/g)].map((match)=>match[1]);
 assert.equal(new Set(ids).size,ids.length,'HTML IDs must be unique');

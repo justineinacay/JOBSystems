@@ -10,11 +10,11 @@
 // hadn't changed and CACHE_VERSION was never bumped to force a purge. That's
 // what caused an already-fixed bug (the driveLink Supabase column error) to
 // keep reappearing on-device after the source was already correct.
-const CACHE_VERSION = 'jobsystems-v51';
+const CACHE_VERSION = 'jobsystems-v53';
 const APP_SHELL = [
   './',
   './index.html',
-  './os-refresh-2026.css?v=20261011-1',
+  './os-refresh-2026.css?v=20261012-1',
   './os-refresh-2026.js?v=20261011-1',
   './app-shell-01.css?v=20260827-1',
   './app-shell-02.css?v=20260827-1',
@@ -23,14 +23,14 @@ const APP_SHELL = [
   './app-jelix-02.css?v=20260827-1',
   './app-dark-theme.css?v=20260827-1',
   './app-job-command-center.css?v=20260827-1',
-  './app-prelude.js?v=20260827-2',
-  './app-part-01.js?v=20260905-1',
-  './app-part-02.js?v=20260907-1',
+  './app-prelude.js?v=20261012-1',
+  './app-part-01.js?v=20261012-1',
+  './app-part-02.js?v=20261012-1',
   './app-part-03.js?v=20260827-1',
   './app-part-04.js?v=20260905-1',
-  './app-part-05.js?v=20260904-2',
+  './app-part-05.js?v=20261012-1',
   './app-part-06.js?v=20260827-2',
-  './app-part-07.js?v=20260902-2',
+  './app-part-07.js?v=20261012-1',
   './pwa-runtime.js?v=20260827-1',
   './jelix-auto-scheduler.js?v=20260929-2',
   './ui-runtime.js?v=20260827-1',
@@ -71,6 +71,16 @@ const APP_SHELL = [
   './assets/workspace-logos/personal.png',
 ];
 const APP_SHELL_PATHS = new Set(APP_SHELL.map((p) => new URL(p, self.location.href).href));
+const OPTIONAL_ON_DEMAND = new Set([
+  './app-jelix-01.css?v=20260827-1','./app-jelix-02.css?v=20260827-1',
+  './app-job-command-center.css?v=20260827-1','./jelix-auto-scheduler.js?v=20260929-2',
+  './agency-command-centers.css?v=20260823-1','./agency-command-centers.js?v=20260823-1',
+  './faith-command-center.css?v=20260824-2','./faith-command-center.js?v=20260824-2',
+  './life-command-center.css?v=20260903-1','./life-command-center.js?v=20260905-1',
+  './fitness-command-center.css?v=20260904-2','./fitness-command-center.js?v=20260902-1',
+  './health-game-dashboard.css?v=20260904-5','./health-game-dashboard.js?v=20260905-1'
+]);
+const CORE_SHELL = APP_SHELL.filter(path => !OPTIONAL_ON_DEMAND.has(path));
 const EXTERNAL_SHELL = [
   'https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css',
   'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js',
@@ -87,13 +97,10 @@ const NETWORK_FIRST_HOSTS = [
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_VERSION).then(async (cache) => {
-      // Local files are required for installation. Third-party presentation
-      // assets are cached best-effort so a newly installed PWA still has its
-      // icons and charts when the next launch is offline.
-      await cache.addAll(APP_SHELL);
-      await Promise.allSettled(
-        EXTERNAL_SHELL.map((url) => cache.add(new Request(url, { mode: 'no-cors' })))
-      );
+      // Install only the immediately usable shell. Workspace layers and
+      // third-party presentation assets enter the cache on first use, keeping
+      // installation fast while preserving offline access after a visit.
+      await cache.addAll(CORE_SHELL);
     })
   );
   self.skipWaiting();

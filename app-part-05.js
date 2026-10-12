@@ -812,6 +812,10 @@ function initCashDragSort(){
 }
 
 function renderCashCharts(){
+  if(typeof Chart==='undefined'){
+    ensureChartJs().then(()=>{if(currentView==='life')renderCashCharts();}).catch(()=>{});
+    return;
+  }
   const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   const mIn=new Array(12).fill(0), mOut=new Array(12).fill(0);
   (DB.cashflow||[]).forEach(t=>{
