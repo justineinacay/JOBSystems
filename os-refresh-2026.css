@@ -191,3 +191,15 @@ body.os-refresh-active:not(.os-refresh-expanded) #view-dashboard>.vb>*:not(#osRe
 .osr-pulse-count,.osr-pulse small,.osr-jelix-body small,.osr-jelix-ask,
 .osr-finance-warning{font-size:12px!important}
 @media(max-width:768px){.osr-daily-heading p,.osr-eyebrow{font-size:12px!important}}
+
+/* The device lock appears before optional feature styles are loaded. Keep its
+   security prompt readable in both themes without depending on J.E.L.I.X. CSS. */
+#lockScreen{background:#151615!important;color:#f4f4f1!important}
+#lockScreen [style*="color:var(--text1)"]{color:#f4f4f1!important}
+#lockScreen [style*="color:var(--text3)"]{color:#b9bbb4!important}
+#lockScreen .pin-dot{border-color:#a6ff00!important}
+#lockScreen .pin-dot.filled{background:#a6ff00!important;border-color:#a6ff00!important;box-shadow:none!important}
+#lockScreen .pin-btn{background:#262725!important;border-color:#45473f!important;color:#f4f4f1!important}
+#lockScreen .pin-btn[style*="background:transparent"]{background:transparent!important;border:0!important;color:#b9bbb4!important}
+#lockScreen .pin-btn:active{background:#a6ff00!important;border-color:#a6ff00!important;color:#10130f!important}
+#lockScreen .pin-btn:focus-visible{outline:2px solid #a6ff00!important;outline-offset:3px}
