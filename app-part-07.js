@@ -690,7 +690,7 @@ function loadOS(){
   setTimeout(()=>setParticleMode('os'), 600);
   // Restore wake word UI state (mic stays closed until user re-enables)
   setTimeout(()=>{ if(typeof window._restoreWakeState==='function') window._restoreWakeState(); }, 800);
-  try{reRenderAll();}catch(e){console.warn('reRenderAll:',e);}
+  try{Store.notify(currentView);}catch(e){console.warn('initial render:',e);}
   try{
     const landingView=typeof getPref==='function'?getPref('pref-landing-view'):'dashboard';
     if(landingView&&landingView!=='dashboard')setView(landingView);
@@ -702,7 +702,7 @@ function loadOS(){
   // permission before push existed — otherwise they'd never get pushed to
   // until they happen to revisit Settings and click Enable again.
   if('Notification' in window&&Notification.permission==='granted')setTimeout(subscribeToPush,1500);
-  loadAllFromSupabase();
+  loadAllFromSupabase({progressive:true});
   // Wake word listener is OFF by default — user must enable via topbar toggle
   // Triggered only by: spacebar, voice button, or user-enabled wake word
   // Daily brief spoken summary
@@ -943,6 +943,10 @@ function quickLog(type){
 // ── Trend Chart ──
 let _healthChart=null;
 function renderHealthTrend(){
+  if(typeof Chart==='undefined'){
+    ensureChartJs().then(()=>{if(currentView==='life')renderHealthTrend();}).catch(()=>{});
+    return;
+  }
   const metric=document.getElementById('healthTrendMetric')?.value||'hr';
   const metricMap={hr:['Heart Rate','bpm'],weight:['Weight','kg'],sleep:['Sleep','hrs'],steps:['Steps','steps']};
   const [label,unit]=metricMap[metric]||['Metric',''];

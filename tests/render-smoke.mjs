@@ -63,10 +63,13 @@ try{
   const viewport=async (width,height,mobile)=>send('Emulation.setDeviceMetricsOverride',{width,height,deviceScaleFactor:1,mobile,screenWidth:width,screenHeight:height});
   const openApp=async()=>{
     await send('Page.navigate',{url:`http://127.0.0.1:${appPort}/index.html?render-smoke=1`});
-    await sleep(2600);
+    for(let attempt=0;attempt<100;attempt+=1){
+      await sleep(100);
+      if(await evaluate(`document.readyState==='complete'&&!!document.querySelector('label[for="auth-email"]')`))break;
+    }
     assert.match(await evaluate('document.title'),/^JOBSystems\b/);
     assert.equal(await evaluate("!!document.querySelector('label[for=\"auth-email\"]')&&!!document.querySelector('label[for=\"auth-password\"]')"),true,'sign-in fields need associated labels');
-    await evaluate(`(()=>{['authScreen','bootScreen','lockScreen'].forEach(id=>{const element=document.getElementById(id);if(element)element.style.display='none'});const app=document.getElementById('appRoot');if(app){app.style.display='grid';app.style.opacity='1';app.style.pointerEvents=''}document.body.classList.add('os-active');try{reRenderAll()}catch(error){}return true})()`);
+    await evaluate(`(()=>{['authScreen','bootScreen','lockScreen'].forEach(id=>{const element=document.getElementById(id);if(element)element.style.display='none'});const app=document.getElementById('appRoot');if(app){app.style.display='grid';app.style.opacity='1';app.style.pointerEvents=''}document.body.classList.add('os-active');try{Store.notify(currentView)}catch(error){}return true})()`);
   };
   const views=[
     ['tasks',"setView('tasks')"],
@@ -90,6 +93,21 @@ try{
   assert.equal(await evaluate("!!document.querySelector('.noscript-message')?.getClientRects().length"),true,'the no-JavaScript recovery message must be visible');
   await send('Emulation.setScriptExecutionDisabled',{value:false});
   await openApp();
+  assert.deepEqual(await evaluate(`(()=>({agency:[...document.scripts].some(script=>script.src.includes('agency-command-centers.js')),life:[...document.scripts].some(script=>script.src.includes('life-command-center.js')),chart:typeof Chart!=='undefined'}))()`),{agency:false,life:false,chart:false},'workspace enhancements and charts must stay out of the initial shell');
+  const lazyViews=[
+    ['venture','app-job-command-center.css'],
+    ['build','agency-command-centers.js'],
+    ['sides','agency-command-centers.js'],
+    ['faith','faith-command-center.js'],
+    ['life','life-command-center.js'],
+    ['ai','app-jelix-01.css']
+  ];
+  for(const [view,asset] of lazyViews){
+    await evaluate(`setView('${view}')`);await sleep(650);
+    const state=await evaluate(`(()=>({active:!!document.querySelector('.view.active'),loaded:[...document.scripts,...document.querySelectorAll('link[rel="stylesheet"]')].some(node=>(node.src||node.href||'').includes('${asset}'))}))()`);
+    assert.deepEqual(state,{active:true,loaded:true},`${view} must remain usable after its presentation layer loads`);
+  }
+  await evaluate(`setView('dashboard')`);
   assert.equal(await evaluate(`document.documentElement.dataset.theme`),'dark','a fresh install must open in dark mode');
   const themeSwitch=await evaluate(`toggleTheme({currentTarget:document.getElementById('navThemeToggleBtn')}).then(()=>({theme:document.documentElement.dataset.theme,icon:document.getElementById('navThemeToggleIcon').dataset.theme,label:document.getElementById('navThemeToggleBtn').getAttribute('aria-label'),userSet:localStorage.getItem('j-theme-user-set')}))`);
   assert.deepEqual(themeSwitch,{theme:'light',icon:'light',label:'Switch to dark mode',userSet:'true'},'the animated toggle must update its theme, icon, accessible label, and saved preference');
@@ -144,7 +162,7 @@ try{
     }
   }
   await viewport(390,844,true);await send('Page.reload',{ignoreCache:true});await sleep(1800);
-  await evaluate(`(()=>{['authScreen','bootScreen','lockScreen'].forEach(id=>{const element=document.getElementById(id);if(element)element.style.display='none'});const app=document.getElementById('appRoot');if(app){app.style.display='block';app.style.opacity='1';app.style.pointerEvents=''}document.body.classList.add('os-active');setView('life');lifeSetSection('health');document.documentElement.dataset.theme='light';return true})()`);
+  await evaluate(`(async()=>{['authScreen','bootScreen','lockScreen'].forEach(id=>{const element=document.getElementById(id);if(element)element.style.display='none'});const app=document.getElementById('appRoot');if(app){app.style.display='block';app.style.opacity='1';app.style.pointerEvents=''}document.body.classList.add('os-active');await ensureViewAssets('life');setView('life');lifeSetSection('health');document.documentElement.dataset.theme='light';return true})()`);
   const lightContrast=await evaluate(`(()=>{const rgb=value=>(value.match(/\\d+(?:\\.\\d+)?/g)||[]).slice(0,3).map(Number);const luminance=value=>{const channels=rgb(value).map(channel=>{channel/=255;return channel<=.04045?channel/12.92:Math.pow((channel+.055)/1.055,2.4)});return .2126*channels[0]+.7152*channels[1]+.0722*channels[2]};const ratio=(foreground,background)=>{const a=luminance(foreground),b=luminance(background);return (Math.max(a,b)+.05)/(Math.min(a,b)+.05)};const pair=(text,card)=>ratio(getComputedStyle(document.querySelector(text)).color,getComputedStyle(document.querySelector(card)).backgroundColor);return{health:pair('#cf-biomonitor .health-game-header h2','#cf-biomonitor .health-game-header'),training:pair('#view-life .fitness-title h1','#view-life .fitness-overview')}})()`);
   assert.ok(lightContrast.health>=4.5&&lightContrast.training>=4.5,`dark feature cards need readable text in light mode: ${JSON.stringify(lightContrast)}`);
   await evaluate(`document.documentElement.dataset.theme='dark';setView('tasks');document.querySelector('.task-page-add')?.focus();openModal('taskModal')`);
@@ -155,7 +173,8 @@ try{
   assert.equal(await evaluate(`!document.getElementById('taskModal').classList.contains('open')`),true,'Escape must close the active dialog');
 
   await send('Network.enable');
-  assert.equal(await evaluate(`navigator.serviceWorker.ready.then(()=>true)`),true,'the service worker must install');
+  const serviceWorkerReady=await evaluate(`Promise.race([navigator.serviceWorker.ready.then(()=>true),new Promise(resolve=>setTimeout(()=>resolve(false),10000))])`);
+  assert.equal(serviceWorkerReady,true,'the service worker must install');
   await evaluate(`new Promise(resolve=>{if(navigator.serviceWorker.controller)return resolve(true);navigator.serviceWorker.addEventListener('controllerchange',()=>resolve(true),{once:true});setTimeout(()=>resolve(false),5000)})`);
   await send('Page.navigate',{url:`http://127.0.0.1:${appPort}/index.html?render-smoke=offline-client`});await sleep(1800);
   const workerState=await evaluate(`navigator.serviceWorker.getRegistrations().then(registrations=>({controlled:!!navigator.serviceWorker.controller,href:location.href,registrations:registrations.map(registration=>({scope:registration.scope,active:registration.active?.state,waiting:registration.waiting?.state,installing:registration.installing?.state}))}))`);

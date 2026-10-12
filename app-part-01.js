@@ -5,14 +5,14 @@ const SB_KEY='sb_publishable_zmncT-P48Tu3zsq33Cd5cg_zbq69aWN';
 // the one place to track it rather than instrumenting dozens of call sites.
 // Shows an iCloud-style "Synced / Syncing… / Sync issue" badge instead of
 // sync problems only surfacing as silently-missing data days later.
-let _syncPending=0,_syncLastError=null,_syncLastOkAt=null;
+let _syncPending=0,_syncStartupDeferred=false,_syncLastError=null,_syncLastOkAt=null;
 function _syncBadgeUpdate(){
   // querySelectorAll, not getElementById — desktop and mobile each have their
   // own badge element (mobile's is icon-only, no room for the label), both
   // reflecting the same underlying state.
   const els=document.querySelectorAll('.sync-badge');if(!els.length)return;
   let cls,title,html;
-  if(_syncPending>0){
+  if(_syncPending>0||_syncStartupDeferred){
     cls='syncing';title='';html='<i class="ti ti-refresh"></i><span>Syncing…</span>';
   } else if(_syncLastError||(window.JOBSystemsSyncFailures&&window.JOBSystemsSyncFailures.length)||(window.JOBSystemsSyncWarnings&&window.JOBSystemsSyncWarnings.length)){
     cls='error';title=_syncLastError||'Some data could not be confirmed in the cloud; review sync status.';html='<i class="ti ti-alert-triangle"></i><span>Sync issue</span>';
@@ -1044,13 +1044,52 @@ function initRealtime(){
   };
 }
 
-async function loadAllFromSupabase(){
+const STARTUP_SYNC_CORE=[
+  ['tasks','tasks'],['cal_events','calEvents'],['cashflow','cashflow'],
+  ['accounts','accounts'],['clients','clients'],['projects','projects']
+];
+const STARTUP_SYNC_DEFERRED=[
+  ['venture','venture'],['faith','faith'],['journal','journal'],['notes','notes'],
+  ['memories','memories'],['sides','sides'],['history','history'],['loans','loans'],
+  ['collateral','collateral'],['social_posts','socialPosts'],
+  ['creative_projects','creativeProjects'],['pipeline','pipeline'],
+  ['campaigns','campaigns'],['influencers','influencers'],['pricing','pricing'],
+  ['credentials','credentials'],['saved_links','savedLinks'],['item_links','itemLinks']
+];
+const _loadSyncGroup=group=>Promise.all(group.map(([table,key])=>SB.load(table,key)));
+function _refreshAfterCloudSync(){
+  Store.notify(currentView);
+  if(typeof renderTagsDatalist==='function')renderTagsDatalist();
+  if(typeof updateInboxBadge==='function')updateInboxBadge();
+  _syncBadgeUpdate();
+}
+function _finishCloudSync(){
+  _syncStartupDeferred=false;
+  _refreshAfterCloudSync();
+  if(window.JOBSystemsSyncFailures.length||window.JOBSystemsSyncWarnings.length){
+    showToast('⚠ Sync needs attention: '+window.JOBSystemsSyncFailures.length+' failed and '+window.JOBSystemsSyncWarnings.length+' local/cloud conflicts. Local data was preserved.');
+  }else{
+    showToast('✓ Supabase synced');speak('All systems synced.');
+  }
+}
+async function loadAllFromSupabase(options={}){
   window.JOBSystemsSyncFailures=[];
   window.JOBSystemsSyncWarnings=[];
   showToast('↻ Syncing with Supabase...');
+  _syncStartupDeferred=!!options.progressive;
+  _syncBadgeUpdate();
   await loadCloudSyncTombstones();
-  await Promise.all([SB.load('tasks','tasks'),SB.load('clients','clients'),SB.load('venture','venture'),SB.load('faith','faith'),SB.load('cashflow','cashflow'),SB.load('cal_events','calEvents'),SB.load('journal','journal'),SB.load('notes','notes'),SB.load('memories','memories'),SB.load('sides','sides'),SB.load('history','history'),SB.load('loans','loans'),SB.load('accounts','accounts'),SB.load('collateral','collateral'),SB.load('social_posts','socialPosts'),SB.load('creative_projects','creativeProjects'),SB.load('pipeline','pipeline'),SB.load('campaigns','campaigns'),SB.load('influencers','influencers'),SB.load('pricing','pricing'),SB.load('credentials','credentials'),SB.load('saved_links','savedLinks'),SB.load('item_links','itemLinks'),SB.load('projects','projects'),_pullWorldsFromCloud()]);
-  reRenderAll();if(typeof renderTagsDatalist==='function')renderTagsDatalist();if(typeof updateInboxBadge==='function')updateInboxBadge();_syncBadgeUpdate();if(window.JOBSystemsSyncFailures.length||window.JOBSystemsSyncWarnings.length){showToast('⚠ Sync needs attention: '+window.JOBSystemsSyncFailures.length+' failed and '+window.JOBSystemsSyncWarnings.length+' local/cloud conflicts. Local data was preserved.');}else{showToast('✓ Supabase synced');speak('All systems synced.');}
+  await Promise.all([_loadSyncGroup(STARTUP_SYNC_CORE),_pullWorldsFromCloud()]);
+  _refreshAfterCloudSync();
+  if(options.progressive){
+    scheduleIdleWork(async()=>{
+      await _loadSyncGroup(STARTUP_SYNC_DEFERRED);
+      _finishCloudSync();
+    });
+    return;
+  }
+  await _loadSyncGroup(STARTUP_SYNC_DEFERRED);
+  _finishCloudSync();
 }
 // ═══════════════════════════════════════════════════════════════════════════
 // STORE — Centralized render bus

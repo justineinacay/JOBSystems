@@ -2588,7 +2588,7 @@ async function fetchWeather(){
     const mw=document.getElementById('mobileWeather');if(mw)mw.innerHTML='<i class="ti ti-cloud" style="font-size:11px"></i>-- °C';
   }
 }
-fetchWeather();setInterval(fetchWeather,600000);
+scheduleIdleWork(fetchWeather,2000);setInterval(fetchWeather,600000);
 
 function getTaskAttentionScore(task,today){
   if(!task||task.status==='Done')return -1;
@@ -2720,6 +2720,9 @@ function setView(v){
   else if(v==='biomonitor'){setView('life');setTimeout(()=>{const btns=document.querySelectorAll('.cfbt');btns.forEach(b=>{if(b.textContent.includes('Bio Monitor')){setCFTab('biomonitor',b);}});},150);}
   else if(isCustomDomain)renderDomainGenericView(v);
   else if(r[v])r[v]();
+  ensureViewAssets(v).then(()=>{
+    if(currentView===v)Store.notify(v);
+  });
   // Sync mobile bottom-nav active state
   syncMobileNavActive(v);
   // Scroll the active view to top

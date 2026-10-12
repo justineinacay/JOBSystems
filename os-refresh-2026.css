@@ -178,3 +178,16 @@ body.os-refresh-active:not(.os-refresh-expanded) #view-dashboard>.vb>*:not(#osRe
   #mobileBottomNav .os-mbn-add span{font-weight:780;color:var(--os-text)}
   .osr-pulse-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
+
+/* Readability floor for the refreshed command center. These labels carry
+   actual scheduling, finance, and workspace state, so they stay legible on
+   both phones and desktop instead of relying on 9–11px display text. */
+.osr-eyebrow,.osr-card-head .osr-text-button,.osr-priority-state,
+.osr-priority-meta,.osr-priority-foot,.osr-schedule-item time,
+.osr-event-main strong,.osr-event-main small,.osr-action-row>div>button,
+.osr-action-row small,.osr-attention-row strong,.osr-attention-row small,
+.osr-money-balance>span,.osr-money-balance>small,
+.osr-money-stats>div>span:not(.osr-money-mark),.osr-pulse-title strong,
+.osr-pulse-count,.osr-pulse small,.osr-jelix-body small,.osr-jelix-ask,
+.osr-finance-warning{font-size:12px!important}
+@media(max-width:768px){.osr-daily-heading p,.osr-eyebrow{font-size:12px!important}}
