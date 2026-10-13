@@ -1104,17 +1104,17 @@ if (window.top !== window.self) {
 <div class="app" style="opacity:0;transition:opacity .5s" id="appRoot">
   <!-- TOPBAR -->
   <header class="topbar">
-    <div style="display:flex;align-items:center;gap:8px">
+    <div class="topbar-primary" style="display:flex;align-items:center;gap:8px">
+      <a class="tb-logo" href="#" onclick="setView('dashboard');return false" aria-label="JOBSystems home">
+        <img class="tb-logo-mark" src="jobsystems-logo.png" alt="">
+        <span class="tb-logo-copy">
+          <strong>JOBSystems</strong>
+          <small>Personal Operating System</small>
+        </span>
+      </a>
       <button class="desktop-nav-toggle" id="desktopNavToggle" type="button" onclick="toggleNav()" aria-label="Expand navigation" aria-expanded="false" title="Expand navigation">
         <i class="ti ti-layout-sidebar-left-expand"></i>
       </button>
-      <div class="tb-logo" style="display:flex;align-items:center;gap:8px">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" style="flex-shrink:0">
-          <path d="M12 1.5 C12.6 7 13 10.4 14.4 11.6 C15.6 13 19 13.4 24 14 C19 14.6 15.6 15 14.4 16.4 C13 17.6 12.6 21 12 26.5 C11.4 21 11 17.6 9.6 16.4 C8.4 15 5 14.6 0 14 C5 13.4 8.4 13 9.6 11.6 C11 10.4 11.4 7 12 1.5 Z" fill="var(--teal)"/>
-          <path d="M19 2 C19.3 4 19.5 5 20 5.6 C20.6 6.1 21.6 6.3 23.6 6.6 C21.6 6.9 20.6 7.1 20 7.6 C19.5 8.1 19.3 9.2 19 11.2 C18.7 9.2 18.5 8.1 18 7.6 C17.4 7.1 16.4 6.9 14.4 6.6 C16.4 6.3 17.4 6.1 18 5.6 C18.5 5 18.7 4 19 2 Z" fill="var(--teal)" opacity=".55"/>
-        </svg>
-        <span><span style="color:var(--teal);font-weight:700">J.O.B</span><span style="color:var(--text2);font-weight:400"> Systems</span></span>
-      </div>
       <div style="height:24px;width:1px;background:var(--border2)"></div>
       <div id="desktopSearchBar" style="background:var(--navy3);border:1px solid transparent;border-radius:100px;padding:8px 16px;display:flex;align-items:center;gap:10px;cursor:pointer;width:clamp(120px,20vw,280px)" onclick="openCmd()">
         <i class="ti ti-search" style="color:var(--text3);font-size:var(--text-xs);line-height:1;display:block"></i>
@@ -1198,10 +1198,6 @@ if (window.top !== window.self) {
 
   <!-- SIDE PANEL -->
   <nav class="side-panel" id="sidePanel" aria-label="Primary navigation">
-    <div class="sidebar-brand" aria-label="JOBSystems home">
-      <img class="sidebar-brand-logo" src="jobsystems-logo.png" alt="">
-      <span class="sidebar-brand-name">J.O.B <span>Systems</span></span>
-    </div>
     <div class="side-nav">
       <div class="ngl nav-section-heading">Essentials</div>
       <div class="ni active" onclick="setView('dashboard')" data-view="dashboard"><i class="ti ti-home"></i><span class="nav-label">Today</span></div>
@@ -3538,9 +3534,9 @@ if (window.top !== window.self) {
 <script src="productivity-command-center.js?v=20260929-2"></script>
 <link rel="stylesheet" href="audit-hardening.css?v=20260905-1">
 <link rel="stylesheet" href="theme-transition.css?v=20260907-1">
-<link rel="stylesheet" href="jobsystems-os-2026.css?v=20260929-4">
+<link rel="stylesheet" href="jobsystems-os-2026.css?v=20261014-1">
 <script src="accessibility-hardening.js?v=20260905-1"></script>
-<script src="jobsystems-os-2026.js?v=20261013-1"></script>
+<script src="jobsystems-os-2026.js?v=20261014-1"></script>
 <link rel="stylesheet" href="os-refresh-2026.css?v=20261013-2">
 <script src="os-refresh-2026.js?v=20261011-1"></script>
 

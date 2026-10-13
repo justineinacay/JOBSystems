@@ -26,7 +26,14 @@ const server=createServer((request,response)=>{
 });
 await new Promise((resolve,reject)=>{server.once('error',reject);server.listen(0,'127.0.0.1',resolve);});
 const appPort=server.address().port;
-const debugPort=appPort+1;
+const debugPort=await new Promise((resolve,reject)=>{
+  const probe=createServer();
+  probe.once('error',reject);
+  probe.listen(0,'127.0.0.1',()=>{
+    const port=probe.address().port;
+    probe.close(error=>error?reject(error):resolve(port));
+  });
+});
 const profile=mkdtempSync(path.join(tmpdir(),'jobsystems-render-'));
 const chrome=spawn(chromePath,[
   `--remote-debugging-port=${debugPort}`,'--remote-allow-origins=*','--headless=new','--disable-gpu','--hide-scrollbars',

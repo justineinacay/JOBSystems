@@ -104,12 +104,8 @@
     var theme=document.querySelector('meta[name="theme-color"]');
     if(theme)theme.content=document.documentElement.dataset.theme==='light'?'#F4F6F3':'#080B0A';
 
-    var brand=document.querySelector('.sidebar-brand-name');
-    if(brand)brand.innerHTML='JOBSystems<small>Personal Operating System</small>';
-    var sideBrand=document.querySelector('.sidebar-brand');
-    if(sideBrand)sideBrand.setAttribute('aria-label','JOBSystems home');
-    var desktopBrand=document.querySelector('.tb-logo span');
-    if(desktopBrand)desktopBrand.textContent='JOBSystems';
+    var desktopBrand=document.querySelector('.tb-logo');
+    if(desktopBrand)desktopBrand.setAttribute('aria-label','JOBSystems home');
     document.querySelectorAll('#accountMenu').forEach(function(menu){
       menu.querySelectorAll('div').forEach(function(el){
         if(el.children.length===0&&el.textContent.trim()==='J.O.B Systems')el.textContent='JOBSystems';

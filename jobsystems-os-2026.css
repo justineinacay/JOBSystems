@@ -113,18 +113,25 @@ body::before,body::after{display:none!important}
 .topbar{
   min-height:var(--os-topbar-h)!important;
   height:var(--os-topbar-h)!important;
-  padding:0 24px 0 calc(var(--os-sidebar-w) + 22px)!important;
+  padding:0 24px 0 14px!important;
   gap:18px!important;
   background:var(--os-bg)!important;
   border-bottom:1px solid var(--os-border)!important;
   box-shadow:none!important;
 }
-.topbar::before{
-  width:var(--os-sidebar-w)!important;
-  background:var(--os-sidebar)!important;
-  border-right:1px solid var(--os-border)!important;
+.topbar::before{display:none!important}
+.topbar-primary{min-width:0;flex:1}
+.tb-logo{
+  width:calc(var(--os-sidebar-w) - 58px);min-width:calc(var(--os-sidebar-w) - 58px);
+  display:flex!important;align-items:center;gap:9px;color:var(--os-text);text-decoration:none;
 }
-.tb-logo{display:none!important}
+.tb-logo-mark{width:32px;height:32px;flex:0 0 auto;border-radius:9px;object-fit:contain}
+.tb-logo-copy{display:flex;min-width:0;flex-direction:column;align-items:flex-start;line-height:1}
+.tb-logo-copy strong{color:var(--os-text);font-size:14px;font-weight:780;letter-spacing:-.025em;white-space:nowrap}
+.tb-logo-copy small{
+  margin-top:5px;color:var(--os-text-3);font-size:7.5px;font-weight:750;
+  letter-spacing:.13em;text-transform:uppercase;white-space:nowrap;
+}
 .desktop-nav-toggle{
   width:38px!important;height:38px!important;min-width:38px!important;
   border-radius:10px!important;background:var(--os-surface)!important;
@@ -165,22 +172,6 @@ body::before,body::after{display:none!important}
   width:var(--os-sidebar-w)!important;min-width:var(--os-sidebar-w)!important;max-width:var(--os-sidebar-w)!important;
   padding:12px 10px!important;background:var(--os-sidebar)!important;
   border-right:1px solid var(--os-border)!important;box-shadow:none!important;
-}
-.sidebar-brand{
-  width:var(--os-sidebar-w)!important;height:var(--os-topbar-h)!important;
-  padding:0 16px!important;gap:10px!important;background:var(--os-sidebar)!important;
-  border-right:1px solid var(--os-border)!important;border-bottom:1px solid var(--os-border)!important;
-}
-.sidebar-brand-logo{width:30px!important;height:30px!important;border-radius:9px!important;filter:none!important}
-.sidebar-brand-name{
-  display:flex!important;flex-direction:column!important;align-items:flex-start!important;
-  color:var(--os-text)!important;font-size:14px!important;font-weight:750!important;letter-spacing:-.02em!important;
-  line-height:1.05!important;
-}
-.sidebar-brand-name span{color:inherit!important;font-weight:750!important}
-.sidebar-brand-name small{
-  display:block;margin-top:5px;color:var(--os-text-3);font-size:8px;font-weight:700;
-  letter-spacing:.14em;text-transform:uppercase;white-space:nowrap;
 }
 .side-nav{padding:0 2px 8px!important}
 .nav-section-heading,.ngl{
@@ -225,10 +216,7 @@ html[data-theme="light"] .side-panel .ni{color:#536057!important}
 
 .app.nav-collapsed{grid-template-columns:66px minmax(0,1fr)!important}
 .app.nav-collapsed .side-panel{width:66px!important;min-width:66px!important;max-width:66px!important}
-.app.nav-collapsed .sidebar-brand{width:66px!important;justify-content:center!important;padding:0!important}
-.app.nav-collapsed .sidebar-brand-name{display:none!important}
-.app.nav-collapsed .topbar{padding-left:76px!important}
-.app.nav-collapsed .topbar::before{width:66px!important}
+.app.nav-collapsed .topbar{padding-left:14px!important}
 
 .hc,.bd-block,.today-focus,.quiet-actions-card,.quiet-money-card,
 .task-kpi-card,.calendar-page-shell .cal-card,.review-page-shell .hc,
@@ -398,7 +386,7 @@ tr:hover td{background:rgba(255,255,255,.018)!important}
 
 @media(max-width:1199px) and (min-width:769px){
   :root{--os-sidebar-w:220px}
-  .topbar{padding-left:calc(var(--os-sidebar-w) + 18px)!important;padding-right:18px!important}
+  .topbar{padding-left:14px!important;padding-right:18px!important}
   #desktopSearchBar{width:min(280px,28vw)!important}
   .header-weather{display:none!important}
   .os-page-grid{grid-template-columns:minmax(0,1fr)!important}
@@ -411,8 +399,7 @@ tr:hover td{background:rgba(255,255,255,.018)!important}
   html,body{overscroll-behavior-y:none}
   body{overflow:hidden!important}
   .app{display:block!important;height:100dvh!important;min-height:100dvh!important}
-  .topbar,.side-panel,.sidebar-brand,
-  .app.nav-collapsed .side-panel,.app.nav-collapsed .sidebar-brand{display:none!important}
+  .topbar,.side-panel,.app.nav-collapsed .side-panel{display:none!important}
   .main{
     position:fixed!important;inset:calc(58px + env(safe-area-inset-top)) 0 calc(var(--os-mobile-nav-h) + env(safe-area-inset-bottom)) 0!important;
     width:100%!important;height:auto!important;overflow:hidden!important;background:var(--os-bg)!important;
