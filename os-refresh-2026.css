@@ -203,3 +203,21 @@ body.os-refresh-active:not(.os-refresh-expanded) #view-dashboard>.vb>*:not(#osRe
 #lockScreen .pin-btn[style*="background:transparent"]{background:transparent!important;border:0!important;color:#b9bbb4!important}
 #lockScreen .pin-btn:active{background:#a6ff00!important;border-color:#a6ff00!important;color:#10130f!important}
 #lockScreen .pin-btn:focus-visible{outline:2px solid #a6ff00!important;outline-offset:3px}
+
+/* Authentication and sidebar chrome are part of the critical shell. They
+   must not change to pale legacy surfaces while optional feature CSS waits. */
+#authScreen{background:#151615!important;color:#f4f4f1!important}
+#authScreen>div:first-child{background:#1b211d!important;border-color:#364038!important;box-shadow:none!important}
+#authScreen>div:first-child i{color:#a6ff00!important}
+#authScreen>div[style*="color:var(--text1)"]{color:#f4f4f1!important}
+#authScreen>div[style*="color:var(--text3)"],#authScreenSubtitle{color:#aeb5af!important}
+#authScreen>div:last-child{background:#111513!important;border-color:#303731!important;box-shadow:0 14px 34px rgba(0,0,0,.32)!important}
+#authScreen .fl{color:#c8cdc9!important}
+#authScreen input{background:#0b0e0d!important;border-color:#3a423b!important;color:#f4f4f1!important}
+#authScreen input::placeholder{color:#7f8881!important}
+#authScreen input:focus{border-color:#a6ff00!important;box-shadow:0 0 0 3px rgba(166,255,0,.12)!important}
+#authScreen .btn-t{background:#a6ff00!important;border-color:#a6ff00!important;color:#10130f!important;box-shadow:none!important}
+#authScreen #authToggleLink{color:#a6ff00!important}
+.side-panel .side-bottom{padding:10px 8px 12px!important;background:#0b0e0d!important;border-top:1px solid #242b26!important}
+.side-panel .vsbtn{min-height:42px!important;background:#111513!important;border:1px solid #303a32!important;color:#a6ff00!important;box-shadow:none!important}
+.side-panel .vsbtn:hover{background:#1b211d!important;border-color:#52633f!important;color:#c4ff59!important}

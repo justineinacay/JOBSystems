@@ -20,7 +20,7 @@ assert.equal(manifest.name,'JOBSystems');
 assert.equal(manifest.short_name,'JOBSystems');
 assert.equal(manifest.display,'standalone');
 assert.equal(manifest.theme_color,'#080B0A');
-assert.match(sw,/jobsystems-v54/,'service worker cache must rotate after the navigation and lock-screen release');
+assert.match(sw,/jobsystems-v55/,'service worker cache must rotate after the authentication-shell release');
 assert.match(sw,/jobsystems-os-2026\.css\?v=20260929-4/,'service worker must cache OS CSS');
 assert.match(sw,/jobsystems-os-2026\.js\?v=20261013-1/,'service worker must cache OS JS');
 assert.match(js,/view-projects/,'Projects must be a first-class global view');
