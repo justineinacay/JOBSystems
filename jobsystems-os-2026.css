@@ -140,15 +140,21 @@ body::before,body::after{display:none!important}
 }
 .desktop-nav-toggle:hover{background:var(--os-hover)!important;color:var(--os-text)!important}
 .side-panel-toggle{
-  position:absolute!important;top:12px!important;right:10px!important;z-index:2;
+  position:absolute!important;top:52px!important;right:10px!important;z-index:2;
   width:36px!important;height:36px!important;min-width:36px!important;
 }
+.side-panel-toggle:focus:not(:focus-visible){outline:none!important}
 #desktopSearchBar{
-  width:min(360px,32vw)!important;height:40px!important;
+  width:min(320px,24vw)!important;min-width:220px!important;height:40px!important;
+  flex:0 1 320px!important;overflow:hidden!important;
   padding:0 13px!important;border-radius:11px!important;
   background:var(--os-surface)!important;border:1px solid var(--os-border)!important;
   box-shadow:none!important;
 }
+#desktopSearchBar>span:first-of-type{
+  min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+#desktopSearchBar>span:last-child{flex:0 0 auto;white-space:nowrap}
 #desktopSearchBar:hover,#desktopSearchBar:focus-within{border-color:var(--os-border-strong)!important;background:var(--os-elevated)!important}
 .header-context{color:var(--os-text-2)!important}
 .header-time{color:var(--os-text)!important;font-weight:650!important}
@@ -230,7 +236,7 @@ html[data-theme="light"] .side-panel .ni{color:#536057!important}
 
 .os-ambient-field{
   position:absolute;inset:0;z-index:0;overflow:hidden;pointer-events:none;
-  opacity:.22;contain:strict;
+  opacity:.12;contain:strict;
 }
 .os-ambient-field::before{
   content:"";position:absolute;inset:-24%;
@@ -245,7 +251,7 @@ html[data-theme="light"] .side-panel .ni{color:#536057!important}
     radial-gradient(circle at 82% 72%,rgba(45,212,191,.07),transparent 34%);
   animation:os-ambient-breathe 18s cubic-bezier(.45,0,.55,1) infinite alternate;
 }
-html[data-theme="light"] .os-ambient-field{opacity:.15;filter:saturate(.8)}
+html[data-theme="light"] .os-ambient-field{opacity:.08;filter:saturate(.72)}
 html[data-theme="light"] .os-ambient-field::after{
   background:
     radial-gradient(circle at 18% 22%,rgba(92,145,0,.07),transparent 34%),
@@ -427,7 +433,7 @@ tr:hover td{background:rgba(255,255,255,.018)!important}
 @media(max-width:1199px) and (min-width:769px){
   :root{--os-sidebar-w:220px}
   .topbar{padding-left:14px!important;padding-right:18px!important}
-  #desktopSearchBar{width:min(280px,28vw)!important}
+  #desktopSearchBar{width:min(240px,24vw)!important;min-width:180px!important;flex-basis:240px!important}
   .header-weather{display:none!important}
   .os-page-grid{grid-template-columns:minmax(0,1fr)!important}
   .os-context-column{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
