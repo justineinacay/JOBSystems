@@ -111,6 +111,7 @@ body::before,body::after{display:none!important}
 .view>.vb{min-width:0!important}
 
 .topbar{
+  display:grid!important;grid-template-columns:minmax(0,1fr) max-content max-content;
   min-height:var(--os-topbar-h)!important;
   height:var(--os-topbar-h)!important;
   padding:0 24px 0 14px!important;
@@ -120,7 +121,10 @@ body::before,body::after{display:none!important}
   box-shadow:none!important;
 }
 .topbar::before{display:none!important}
-.topbar-primary{min-width:0;flex:1;padding-left:calc(var(--os-sidebar-w) - 14px)}
+.topbar-primary{
+  min-width:0;width:100%;overflow:hidden;
+  padding-left:calc(var(--os-sidebar-w) - 14px)
+}
 .topbar .tb-logo{
   position:absolute;left:14px;top:50%;transform:translateY(-50%);
   width:calc(var(--os-sidebar-w) - 58px);min-width:calc(var(--os-sidebar-w) - 58px);
@@ -139,14 +143,11 @@ body::before,body::after{display:none!important}
   border:1px solid var(--os-border)!important;color:var(--os-text-2)!important;
 }
 .desktop-nav-toggle:hover{background:var(--os-hover)!important;color:var(--os-text)!important}
-.side-panel-toggle{
-  position:absolute!important;top:52px!important;right:10px!important;z-index:2;
-  width:36px!important;height:36px!important;min-width:36px!important;
-}
-.side-panel-toggle:focus:not(:focus-visible){outline:none!important}
+.header-sidebar-toggle{flex:0 0 38px}
+.header-sidebar-toggle:focus:not(:focus-visible){outline:none!important}
 #desktopSearchBar{
-  width:min(320px,24vw)!important;min-width:220px!important;height:40px!important;
-  flex:0 1 320px!important;overflow:hidden!important;
+  width:auto!important;min-width:0!important;max-width:320px!important;height:40px!important;
+  flex:1 1 240px!important;overflow:hidden!important;
   padding:0 13px!important;border-radius:11px!important;
   background:var(--os-surface)!important;border:1px solid var(--os-border)!important;
   box-shadow:none!important;
@@ -185,7 +186,6 @@ body::before,body::after{display:none!important}
   border-right:1px solid var(--os-border)!important;box-shadow:none!important;
 }
 .side-nav{padding:0 2px 8px!important}
-.side-nav>.nav-section-heading:first-child{padding-right:44px}
 .nav-section-heading,.ngl{
   margin:18px 10px 7px!important;color:var(--os-text-3)!important;
   font-size:9px!important;font-weight:800!important;letter-spacing:.14em!important;text-transform:uppercase!important;
@@ -232,7 +232,6 @@ html[data-theme="light"] .side-panel .ni{color:#536057!important}
 .app.nav-collapsed .topbar-primary{padding-left:52px}
 .app.nav-collapsed .topbar .tb-logo{width:32px;min-width:32px}
 .app.nav-collapsed .tb-logo-copy{display:none}
-.app.nav-collapsed .side-panel-toggle{right:15px!important}
 
 .os-ambient-field{
   position:absolute;inset:0;z-index:0;overflow:hidden;pointer-events:none;
@@ -433,7 +432,7 @@ tr:hover td{background:rgba(255,255,255,.018)!important}
 @media(max-width:1199px) and (min-width:769px){
   :root{--os-sidebar-w:220px}
   .topbar{padding-left:14px!important;padding-right:18px!important}
-  #desktopSearchBar{width:min(240px,24vw)!important;min-width:180px!important;flex-basis:240px!important}
+  #desktopSearchBar{max-width:240px!important;flex-basis:180px!important}
   .header-weather{display:none!important}
   .os-page-grid{grid-template-columns:minmax(0,1fr)!important}
   .os-context-column{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}

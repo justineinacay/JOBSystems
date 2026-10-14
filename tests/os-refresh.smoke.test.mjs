@@ -17,7 +17,7 @@ test('main HTML and installable worker include command center assets',()=>{
     assert.ok(html.includes(asset),'HTML must load '+asset);
     assert.ok(worker.includes(asset),'worker must precache '+asset);
   }
-  assert.ok(worker.includes("jobsystems-v59"),'cache version should rotate for deployments');
+  assert.ok(worker.includes("jobsystems-v60"),'cache version should rotate for deployments');
 });
 
 test('Supabase API GETs always bypass cache and never substitute HTML',()=>{

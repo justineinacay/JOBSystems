@@ -1112,6 +1112,9 @@ if (window.top !== window.self) {
           <small>Personal Operating System</small>
         </span>
       </a>
+      <button class="desktop-nav-toggle header-sidebar-toggle" id="desktopNavToggle" type="button" onclick="toggleNav()" aria-label="Hide navigation" aria-expanded="true" title="Hide navigation">
+        <i class="ti ti-layout-sidebar-left-collapse"></i>
+      </button>
       <div style="height:24px;width:1px;background:var(--border2)"></div>
       <div id="desktopSearchBar" style="background:var(--navy3);border:1px solid transparent;border-radius:100px;padding:8px 16px;display:flex;align-items:center;gap:10px;cursor:pointer;width:clamp(120px,20vw,280px)" onclick="openCmd()">
         <i class="ti ti-search" style="color:var(--text3);font-size:var(--text-xs);line-height:1;display:block"></i>
@@ -1195,9 +1198,6 @@ if (window.top !== window.self) {
 
   <!-- SIDE PANEL -->
   <nav class="side-panel" id="sidePanel" aria-label="Primary navigation">
-    <button class="desktop-nav-toggle side-panel-toggle" id="desktopNavToggle" type="button" onclick="toggleNav()" aria-label="Hide navigation" aria-expanded="true" title="Hide navigation">
-      <i class="ti ti-layout-sidebar-left-collapse"></i>
-    </button>
     <div class="side-nav">
       <div class="ngl nav-section-heading">Essentials</div>
       <div class="ni active" onclick="setView('dashboard')" data-view="dashboard"><i class="ti ti-home"></i><span class="nav-label">Today</span></div>
@@ -3535,7 +3535,7 @@ if (window.top !== window.self) {
 <script src="productivity-command-center.js?v=20260929-2"></script>
 <link rel="stylesheet" href="audit-hardening.css?v=20260905-1">
 <link rel="stylesheet" href="theme-transition.css?v=20260907-1">
-<link rel="stylesheet" href="jobsystems-os-2026.css?v=20261014-4">
+<link rel="stylesheet" href="jobsystems-os-2026.css?v=20261015-1">
 <script src="accessibility-hardening.js?v=20260905-1"></script>
 <script src="jobsystems-os-2026.js?v=20261014-1"></script>
 <link rel="stylesheet" href="os-refresh-2026.css?v=20261013-2">
