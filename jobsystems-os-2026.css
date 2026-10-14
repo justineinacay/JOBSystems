@@ -106,8 +106,8 @@ html,body{background:var(--os-bg)!important}
 body{font-family:Inter,-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-serif!important}
 body::before,body::after{display:none!important}
 .app{background:var(--os-bg)!important;grid-template-rows:var(--os-topbar-h) minmax(0,1fr)!important}
-.main{background:var(--os-bg)!important;min-width:0!important}
-.view{background:var(--os-bg)!important}
+.main{background:var(--os-bg)!important;min-width:0!important;isolation:isolate}
+#appRoot .main>.view{background:transparent!important;position:relative;z-index:1}
 .view>.vb{min-width:0!important}
 
 .topbar{
@@ -120,8 +120,9 @@ body::before,body::after{display:none!important}
   box-shadow:none!important;
 }
 .topbar::before{display:none!important}
-.topbar-primary{min-width:0;flex:1}
-.tb-logo{
+.topbar-primary{min-width:0;flex:1;padding-left:calc(var(--os-sidebar-w) - 14px)}
+.topbar .tb-logo{
+  position:absolute;left:14px;top:50%;transform:translateY(-50%);
   width:calc(var(--os-sidebar-w) - 58px);min-width:calc(var(--os-sidebar-w) - 58px);
   display:flex!important;align-items:center;gap:9px;color:var(--os-text);text-decoration:none;
 }
@@ -138,6 +139,10 @@ body::before,body::after{display:none!important}
   border:1px solid var(--os-border)!important;color:var(--os-text-2)!important;
 }
 .desktop-nav-toggle:hover{background:var(--os-hover)!important;color:var(--os-text)!important}
+.side-panel-toggle{
+  position:absolute!important;top:12px!important;right:10px!important;z-index:2;
+  width:36px!important;height:36px!important;min-width:36px!important;
+}
 #desktopSearchBar{
   width:min(360px,32vw)!important;height:40px!important;
   padding:0 13px!important;border-radius:11px!important;
@@ -170,10 +175,11 @@ body::before,body::after{display:none!important}
 
 .side-panel{
   width:var(--os-sidebar-w)!important;min-width:var(--os-sidebar-w)!important;max-width:var(--os-sidebar-w)!important;
-  padding:12px 10px!important;background:var(--os-sidebar)!important;
+  position:relative;padding:12px 10px!important;background:var(--os-sidebar)!important;
   border-right:1px solid var(--os-border)!important;box-shadow:none!important;
 }
 .side-nav{padding:0 2px 8px!important}
+.side-nav>.nav-section-heading:first-child{padding-right:44px}
 .nav-section-heading,.ngl{
   margin:18px 10px 7px!important;color:var(--os-text-3)!important;
   font-size:9px!important;font-weight:800!important;letter-spacing:.14em!important;text-transform:uppercase!important;
@@ -217,6 +223,40 @@ html[data-theme="light"] .side-panel .ni{color:#536057!important}
 .app.nav-collapsed{grid-template-columns:66px minmax(0,1fr)!important}
 .app.nav-collapsed .side-panel{width:66px!important;min-width:66px!important;max-width:66px!important}
 .app.nav-collapsed .topbar{padding-left:14px!important}
+.app.nav-collapsed .topbar-primary{padding-left:52px}
+.app.nav-collapsed .topbar .tb-logo{width:32px;min-width:32px}
+.app.nav-collapsed .tb-logo-copy{display:none}
+.app.nav-collapsed .side-panel-toggle{right:15px!important}
+
+.os-ambient-field{
+  position:absolute;inset:0;z-index:0;overflow:hidden;pointer-events:none;
+  opacity:.22;contain:strict;
+}
+.os-ambient-field::before{
+  content:"";position:absolute;inset:-24%;
+  background:url("assets/os-contours.svg") center/920px 720px repeat;
+  animation:os-contour-drift 28s cubic-bezier(.45,0,.55,1) infinite alternate;
+  transform:translate3d(-2%,1%,0) scale(1.08);
+}
+.os-ambient-field::after{
+  content:"";position:absolute;inset:0;
+  background:
+    radial-gradient(circle at 18% 22%,rgba(166,255,0,.09),transparent 32%),
+    radial-gradient(circle at 82% 72%,rgba(45,212,191,.07),transparent 34%);
+  animation:os-ambient-breathe 18s cubic-bezier(.45,0,.55,1) infinite alternate;
+}
+html[data-theme="light"] .os-ambient-field{opacity:.15;filter:saturate(.8)}
+html[data-theme="light"] .os-ambient-field::after{
+  background:
+    radial-gradient(circle at 18% 22%,rgba(92,145,0,.07),transparent 34%),
+    radial-gradient(circle at 82% 72%,rgba(12,126,111,.055),transparent 36%);
+}
+@keyframes os-contour-drift{
+  to{transform:translate3d(4%,-3%,0) scale(1.14) rotate(.8deg)}
+}
+@keyframes os-ambient-breathe{
+  to{transform:translate3d(-2%,1.5%,0);opacity:.72}
+}
 
 .hc,.bd-block,.today-focus,.quiet-actions-card,.quiet-money-card,
 .task-kpi-card,.calendar-page-shell .cal-card,.review-page-shell .hc,
@@ -505,6 +545,10 @@ tr:hover td{background:rgba(255,255,255,.018)!important}
   input,select,textarea{font-size:16px!important}
   .table-scroll{overflow-x:hidden!important}
   .table-scroll table{display:none!important}
+}
+
+@media (prefers-reduced-motion:reduce),(hover:none){
+  .os-ambient-field::before,.os-ambient-field::after{animation:none!important}
 }
 
 @media(max-width:390px){
