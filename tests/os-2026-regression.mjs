@@ -14,14 +14,14 @@ const manifest=JSON.parse(read('manifest.json'));
 
 assert.doesNotThrow(()=>new Function(js),'JOBSystems OS runtime must parse as classic JavaScript');
 assert.doesNotThrow(()=>new Function(sw),'service worker must parse as classic JavaScript');
-assert.match(html,/jobsystems-os-2026\.css\?v=20261015-1/,'OS stylesheet must load after the legacy product styles');
+assert.match(html,/jobsystems-os-2026\.css\?v=20261016-1/,'OS stylesheet must load after the legacy product styles');
 assert.match(html,/jobsystems-os-2026\.js\?v=20261015-2/,'OS runtime must load after the legacy product scripts');
 assert.equal(manifest.name,'JOBSystems');
 assert.equal(manifest.short_name,'JOBSystems');
 assert.equal(manifest.display,'standalone');
 assert.equal(manifest.theme_color,'#080B0A');
-assert.match(sw,/jobsystems-v61/,'service worker cache must rotate after the ambient-shell release');
-assert.match(sw,/jobsystems-os-2026\.css\?v=20261015-1/,'service worker must cache OS CSS');
+assert.match(sw,/jobsystems-v62/,'service worker cache must rotate after the ambient-shell release');
+assert.match(sw,/jobsystems-os-2026\.css\?v=20261016-1/,'service worker must cache OS CSS');
 assert.match(sw,/jobsystems-os-2026\.js\?v=20261015-2/,'service worker must cache OS JS');
 assert.match(html,/<header class="topbar">[\s\S]*?<a class="tb-logo"[^>]*aria-label="JOBSystems home"/,'desktop branding must live in the header');
 assert.match(html,/<strong>JOBSystems<\/strong>[\s\S]*?<small>Personal Operating System<\/small>/,'header must preserve the full product identity');
@@ -35,6 +35,9 @@ assert.match(css,/\.topbar\{[^}]*grid-template-columns:minmax\(0,1fr\) max-conte
 assert.match(css,/#desktopSearchBar>span:first-of-type\{[^}]*white-space:nowrap;overflow:hidden;text-overflow:ellipsis/,'desktop search text must stay on one line');
 assert.match(html,/<div class="os-ambient-field" aria-hidden="true"><\/div>/,'the application shell must include its ambient contour layer');
 assert.match(css,/\.os-ambient-field\{[^}]*opacity:\.12/,'ambient contours must remain visually subordinate to dashboard content');
+assert.match(css,/html\[data-theme="light"\] \.side-panel\{[^}]*background:#EEF1ED!important/,'light mode must use a light sidebar surface');
+assert.match(css,/html\[data-theme="light"\] \.side-panel \.ni\.active[^}]*color:#172018!important/,'light navigation labels must retain readable contrast');
+assert.match(css,/html\[data-theme="light"\] \.osr-empty-priority button[^}]*color:#4E7900!important/,'light empty-state actions must use a readable accent');
 assert.match(css,/@media \(prefers-reduced-motion:reduce\),\(hover:none\)/,'ambient motion must stop for reduced-motion and touch users');
 assert.match(sw,/\.\/assets\/os-contours\.svg/,'service worker must cache the ambient contour asset');
 assert.match(js,/view-projects/,'Projects must be a first-class global view');

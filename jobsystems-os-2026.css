@@ -226,6 +226,50 @@ html[data-theme="light"] .side-panel .ni{color:#536057!important}
 .nav-more-chevron{margin-left:auto!important;color:var(--os-text-3)!important}
 .side-utility-area,.side-utility,.side-footer{border-color:var(--os-border)!important}
 
+/* The legacy theme intentionally kept a dark navigation rail in light mode.
+   JOBSystems now uses a complete light shell, so override that higher-
+   specificity legacy palette as one coherent navigation surface. */
+html[data-theme="light"] .side-panel{
+  background:#EEF1ED!important;border-color:rgba(20,31,24,.12)!important;
+  box-shadow:none!important;
+}
+html[data-theme="light"] .side-panel .ngl,
+html[data-theme="light"] .side-panel .nav-section-heading{color:#6C776E!important}
+html[data-theme="light"] .side-panel .ni,
+html[data-theme="light"] .side-panel .world-ni,
+html[data-theme="light"] .side-panel .world-ni.active{
+  background:transparent!important;border-color:transparent!important;
+  color:#465149!important;box-shadow:none!important;
+}
+html[data-theme="light"] .side-panel .ni:hover,
+html[data-theme="light"] .side-panel .world-ni:hover{
+  background:#E1E7DF!important;border-color:rgba(20,31,24,.10)!important;
+  color:#172018!important;box-shadow:none!important;
+}
+html[data-theme="light"] .side-panel .ni.active,
+html[data-theme="light"] .side-panel .ni.active:not(.world-ni){
+  background:rgba(86,132,0,.11)!important;border-color:rgba(86,132,0,.26)!important;
+  color:#172018!important;box-shadow:none!important;
+}
+html[data-theme="light"] .side-panel .ni.active .nav-label,
+html[data-theme="light"] .side-panel .ni.active:not(.world-ni) .nav-label{color:#172018!important}
+html[data-theme="light"] .side-panel .ni.active>i:first-child:not(.nav-more-chevron),
+html[data-theme="light"] .side-panel .ni:hover>i:first-child:not(.nav-more-chevron){
+  background:var(--os-lime)!important;color:#101608!important;
+}
+html[data-theme="light"] .side-panel .side-bottom{
+  background:#E7ECE5!important;border-color:rgba(20,31,24,.12)!important;
+}
+html[data-theme="light"] .side-panel .vsbtn,
+html[data-theme="light"] .side-panel .voice-space{
+  background:#F8FAF7!important;border-color:rgba(20,31,24,.16)!important;
+  color:#334039!important;box-shadow:none!important;
+}
+html[data-theme="light"] .side-panel .vsbtn:hover,
+html[data-theme="light"] .side-panel .voice-space:hover{
+  background:#FFFFFF!important;border-color:rgba(86,132,0,.38)!important;color:#365900!important;
+}
+
 .app.nav-collapsed{grid-template-columns:66px minmax(0,1fr)!important}
 .app.nav-collapsed .side-panel{width:66px!important;min-width:66px!important;max-width:66px!important}
 .app.nav-collapsed .topbar{padding-left:14px!important}
@@ -327,6 +371,15 @@ input::placeholder,textarea::placeholder{color:var(--os-text-3)!important}
 .today-kicker{color:var(--os-lime)!important}
 .focus-marker{border-color:rgba(166,255,0,.22)!important}
 .focus-marker strong{color:var(--os-lime)!important}
+
+html[data-theme="light"] .today-kicker,
+html[data-theme="light"] .task-page-eyebrow,
+html[data-theme="light"] .calendar-page-eyebrow,
+html[data-theme="light"] .review-page-eyebrow,
+html[data-theme="light"] .os-page-eyebrow,
+html[data-theme="light"] .focus-marker strong,
+html[data-theme="light"] .osr-empty-priority button,
+html[data-theme="light"] .osr-empty-state button{color:#4E7900!important}
 .today-lower-grid{gap:16px!important}
 .quiet-actions-card,.quiet-money-card,.today-daily-brief,.today-jelix-insight,.today-timeline-card{padding:16px!important}
 .today-jelix-insight-heading i,.today-daily-brief-heading i{color:var(--os-lime)!important}
