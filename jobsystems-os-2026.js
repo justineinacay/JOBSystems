@@ -113,6 +113,22 @@
     });
   }
 
+  function osNormalizeHeaderLayout(){
+    var primary=document.querySelector('.topbar-primary');
+    var toggle=document.getElementById('desktopNavToggle');
+    if(!primary||!toggle)return;
+
+    // Older cached shells placed this control inside #sidePanel. Move the
+    // existing node instead of cloning it so its handlers and accessibility
+    // state remain intact while mixed-version PWA caches settle.
+    if(toggle.parentElement!==primary){
+      var divider=primary.querySelector('div[style*="height:24px"]');
+      primary.insertBefore(toggle,divider||primary.querySelector('#desktopSearchBar'));
+    }
+    toggle.classList.remove('side-panel-toggle');
+    toggle.classList.add('header-sidebar-toggle');
+  }
+
   function osInstallSidebar(){
     var nav=document.querySelector('.side-nav');
     if(!nav)return;
@@ -628,6 +644,7 @@
   function osInit(){
     osMigrateWorkspacePresentation();
     osInstallBrand();
+    osNormalizeHeaderLayout();
     osEnsureViews();
     osInstallSidebar();
     osInstallTopbar();

@@ -106,11 +106,12 @@ html,body{background:var(--os-bg)!important}
 body{font-family:Inter,-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-serif!important}
 body::before,body::after{display:none!important}
 .app{background:var(--os-bg)!important;grid-template-rows:var(--os-topbar-h) minmax(0,1fr)!important}
-.main{background:var(--os-bg)!important;min-width:0!important}
-.view{background:var(--os-bg)!important}
+.main{background:var(--os-bg)!important;min-width:0!important;isolation:isolate}
+#appRoot .main>.view{background:transparent!important;position:relative;z-index:1}
 .view>.vb{min-width:0!important}
 
 .topbar{
+  display:grid!important;grid-template-columns:minmax(0,1fr) max-content max-content;
   min-height:var(--os-topbar-h)!important;
   height:var(--os-topbar-h)!important;
   padding:0 24px 0 14px!important;
@@ -120,8 +121,12 @@ body::before,body::after{display:none!important}
   box-shadow:none!important;
 }
 .topbar::before{display:none!important}
-.topbar-primary{min-width:0;flex:1}
-.tb-logo{
+.topbar-primary{
+  min-width:0;width:100%;overflow:hidden;
+  padding-left:calc(var(--os-sidebar-w) - 14px)
+}
+.topbar .tb-logo{
+  position:absolute;left:14px;top:50%;transform:translateY(-50%);
   width:calc(var(--os-sidebar-w) - 58px);min-width:calc(var(--os-sidebar-w) - 58px);
   display:flex!important;align-items:center;gap:9px;color:var(--os-text);text-decoration:none;
 }
@@ -138,12 +143,19 @@ body::before,body::after{display:none!important}
   border:1px solid var(--os-border)!important;color:var(--os-text-2)!important;
 }
 .desktop-nav-toggle:hover{background:var(--os-hover)!important;color:var(--os-text)!important}
+.header-sidebar-toggle{flex:0 0 38px}
+.header-sidebar-toggle:focus:not(:focus-visible){outline:none!important}
 #desktopSearchBar{
-  width:min(360px,32vw)!important;height:40px!important;
+  width:auto!important;min-width:0!important;max-width:320px!important;height:40px!important;
+  flex:1 1 240px!important;overflow:hidden!important;
   padding:0 13px!important;border-radius:11px!important;
   background:var(--os-surface)!important;border:1px solid var(--os-border)!important;
   box-shadow:none!important;
 }
+#desktopSearchBar>span:first-of-type{
+  min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+#desktopSearchBar>span:last-child{flex:0 0 auto;white-space:nowrap}
 #desktopSearchBar:hover,#desktopSearchBar:focus-within{border-color:var(--os-border-strong)!important;background:var(--os-elevated)!important}
 .header-context{color:var(--os-text-2)!important}
 .header-time{color:var(--os-text)!important;font-weight:650!important}
@@ -170,7 +182,7 @@ body::before,body::after{display:none!important}
 
 .side-panel{
   width:var(--os-sidebar-w)!important;min-width:var(--os-sidebar-w)!important;max-width:var(--os-sidebar-w)!important;
-  padding:12px 10px!important;background:var(--os-sidebar)!important;
+  position:relative;padding:12px 10px!important;background:var(--os-sidebar)!important;
   border-right:1px solid var(--os-border)!important;box-shadow:none!important;
 }
 .side-nav{padding:0 2px 8px!important}
@@ -214,9 +226,86 @@ html[data-theme="light"] .side-panel .ni{color:#536057!important}
 .nav-more-chevron{margin-left:auto!important;color:var(--os-text-3)!important}
 .side-utility-area,.side-utility,.side-footer{border-color:var(--os-border)!important}
 
+/* The legacy theme intentionally kept a dark navigation rail in light mode.
+   JOBSystems now uses a complete light shell, so override that higher-
+   specificity legacy palette as one coherent navigation surface. */
+html[data-theme="light"] .side-panel{
+  background:#EEF1ED!important;border-color:rgba(20,31,24,.12)!important;
+  box-shadow:none!important;
+}
+html[data-theme="light"] .side-panel .ngl,
+html[data-theme="light"] .side-panel .nav-section-heading{color:#6C776E!important}
+html[data-theme="light"] .side-panel .ni,
+html[data-theme="light"] .side-panel .world-ni,
+html[data-theme="light"] .side-panel .world-ni.active{
+  background:transparent!important;border-color:transparent!important;
+  color:#465149!important;box-shadow:none!important;
+}
+html[data-theme="light"] .side-panel .ni:hover,
+html[data-theme="light"] .side-panel .world-ni:hover{
+  background:#E1E7DF!important;border-color:rgba(20,31,24,.10)!important;
+  color:#172018!important;box-shadow:none!important;
+}
+html[data-theme="light"] .side-panel .ni.active,
+html[data-theme="light"] .side-panel .ni.active:not(.world-ni){
+  background:rgba(86,132,0,.11)!important;border-color:rgba(86,132,0,.26)!important;
+  color:#172018!important;box-shadow:none!important;
+}
+html[data-theme="light"] .side-panel .ni.active .nav-label,
+html[data-theme="light"] .side-panel .ni.active:not(.world-ni) .nav-label{color:#172018!important}
+html[data-theme="light"] .side-panel .ni.active>i:first-child:not(.nav-more-chevron),
+html[data-theme="light"] .side-panel .ni:hover>i:first-child:not(.nav-more-chevron){
+  background:var(--os-lime)!important;color:#101608!important;
+}
+html[data-theme="light"] .side-panel .side-bottom{
+  background:#E7ECE5!important;border-color:rgba(20,31,24,.12)!important;
+}
+html[data-theme="light"] .side-panel .vsbtn,
+html[data-theme="light"] .side-panel .voice-space{
+  background:#F8FAF7!important;border-color:rgba(20,31,24,.16)!important;
+  color:#334039!important;box-shadow:none!important;
+}
+html[data-theme="light"] .side-panel .vsbtn:hover,
+html[data-theme="light"] .side-panel .voice-space:hover{
+  background:#FFFFFF!important;border-color:rgba(86,132,0,.38)!important;color:#365900!important;
+}
+
 .app.nav-collapsed{grid-template-columns:66px minmax(0,1fr)!important}
 .app.nav-collapsed .side-panel{width:66px!important;min-width:66px!important;max-width:66px!important}
 .app.nav-collapsed .topbar{padding-left:14px!important}
+.app.nav-collapsed .topbar-primary{padding-left:52px}
+.app.nav-collapsed .topbar .tb-logo{width:32px;min-width:32px}
+.app.nav-collapsed .tb-logo-copy{display:none}
+
+.os-ambient-field{
+  position:absolute;inset:0;z-index:0;overflow:hidden;pointer-events:none;
+  opacity:.12;contain:strict;
+}
+.os-ambient-field::before{
+  content:"";position:absolute;inset:-24%;
+  background:url("assets/os-contours.svg") center/920px 720px repeat;
+  animation:os-contour-drift 28s cubic-bezier(.45,0,.55,1) infinite alternate;
+  transform:translate3d(-2%,1%,0) scale(1.08);
+}
+.os-ambient-field::after{
+  content:"";position:absolute;inset:0;
+  background:
+    radial-gradient(circle at 18% 22%,rgba(166,255,0,.09),transparent 32%),
+    radial-gradient(circle at 82% 72%,rgba(45,212,191,.07),transparent 34%);
+  animation:os-ambient-breathe 18s cubic-bezier(.45,0,.55,1) infinite alternate;
+}
+html[data-theme="light"] .os-ambient-field{opacity:.08;filter:saturate(.72)}
+html[data-theme="light"] .os-ambient-field::after{
+  background:
+    radial-gradient(circle at 18% 22%,rgba(92,145,0,.07),transparent 34%),
+    radial-gradient(circle at 82% 72%,rgba(12,126,111,.055),transparent 36%);
+}
+@keyframes os-contour-drift{
+  to{transform:translate3d(4%,-3%,0) scale(1.14) rotate(.8deg)}
+}
+@keyframes os-ambient-breathe{
+  to{transform:translate3d(-2%,1.5%,0);opacity:.72}
+}
 
 .hc,.bd-block,.today-focus,.quiet-actions-card,.quiet-money-card,
 .task-kpi-card,.calendar-page-shell .cal-card,.review-page-shell .hc,
@@ -282,6 +371,15 @@ input::placeholder,textarea::placeholder{color:var(--os-text-3)!important}
 .today-kicker{color:var(--os-lime)!important}
 .focus-marker{border-color:rgba(166,255,0,.22)!important}
 .focus-marker strong{color:var(--os-lime)!important}
+
+html[data-theme="light"] .today-kicker,
+html[data-theme="light"] .task-page-eyebrow,
+html[data-theme="light"] .calendar-page-eyebrow,
+html[data-theme="light"] .review-page-eyebrow,
+html[data-theme="light"] .os-page-eyebrow,
+html[data-theme="light"] .focus-marker strong,
+html[data-theme="light"] .osr-empty-priority button,
+html[data-theme="light"] .osr-empty-state button{color:#4E7900!important}
 .today-lower-grid{gap:16px!important}
 .quiet-actions-card,.quiet-money-card,.today-daily-brief,.today-jelix-insight,.today-timeline-card{padding:16px!important}
 .today-jelix-insight-heading i,.today-daily-brief-heading i{color:var(--os-lime)!important}
@@ -387,7 +485,7 @@ tr:hover td{background:rgba(255,255,255,.018)!important}
 @media(max-width:1199px) and (min-width:769px){
   :root{--os-sidebar-w:220px}
   .topbar{padding-left:14px!important;padding-right:18px!important}
-  #desktopSearchBar{width:min(280px,28vw)!important}
+  #desktopSearchBar{max-width:240px!important;flex-basis:180px!important}
   .header-weather{display:none!important}
   .os-page-grid{grid-template-columns:minmax(0,1fr)!important}
   .os-context-column{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
@@ -505,6 +603,10 @@ tr:hover td{background:rgba(255,255,255,.018)!important}
   input,select,textarea{font-size:16px!important}
   .table-scroll{overflow-x:hidden!important}
   .table-scroll table{display:none!important}
+}
+
+@media (prefers-reduced-motion:reduce),(hover:none){
+  .os-ambient-field::before,.os-ambient-field::after{animation:none!important}
 }
 
 @media(max-width:390px){
