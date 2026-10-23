@@ -546,6 +546,13 @@
         '<div class="os-mobile-brand"><img src="jobsystems-logo.png" alt=""><span class="os-mobile-page-title" id="osMobilePageTitle">Today</span></div>'+
         '<div class="os-mobile-actions">'+
           '<button class="os-mobile-icon" type="button" aria-label="Search" onclick="openMobileSearch()"><i class="ti ti-search"></i></button>'+
+          '<button class="os-mobile-icon os-mobile-theme theme-mode-toggle" type="button" onclick="toggleTheme(event)" data-theme-toggle-button aria-label="Switch theme">'+
+            '<svg class="theme-glyph" data-theme-toggle-icon data-theme="dark" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false">'+
+              '<g class="theme-glyph__rays" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">'+
+                '<line x1="12" y1="1.6" x2="12" y2="3.4"></line><line x1="12" y1="20.6" x2="12" y2="22.4"></line><line x1="1.6" y1="12" x2="3.4" y2="12"></line><line x1="20.6" y1="12" x2="22.4" y2="12"></line><line x1="4.65" y1="4.65" x2="5.9" y2="5.9"></line><line x1="18.1" y1="18.1" x2="19.35" y2="19.35"></line><line x1="4.65" y1="19.35" x2="5.9" y2="18.1"></line><line x1="18.1" y1="5.9" x2="19.35" y2="4.65"></line>'+
+              '</g><circle class="theme-glyph__disc" cx="12" cy="12" r="7" fill="currentColor"></circle><circle class="theme-glyph__cut" cx="12" cy="12" r="6.5"></circle>'+
+            '</svg>'+
+          '</button>'+
           '<button class="os-mobile-icon" type="button" aria-label="Profile" id="osMobileProfile"><i class="ti ti-user"></i></button>'+
         '</div>';
       var profile=document.getElementById('osMobileProfile');
