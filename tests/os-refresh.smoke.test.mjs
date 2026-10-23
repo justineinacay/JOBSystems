@@ -6,7 +6,7 @@ import vm from 'node:vm';
 const read = name => readFileSync(new URL('../'+name,import.meta.url),'utf8');
 
 test('all changed application scripts parse as JavaScript',()=>{
-  for(const name of ['os-refresh-2026.js','jobsystems-os-2026.js','app-part-01.js','app-part-05.js','sw.js']){
+  for(const name of ['os-refresh-2026.js','jobsystems-os-2026.js','jobsystems-contour-background.js','app-part-01.js','app-part-05.js','sw.js']){
     assert.doesNotThrow(()=>new vm.Script(read(name),{filename:name}),name);
   }
 });
@@ -17,7 +17,7 @@ test('main HTML and installable worker include command center assets',()=>{
     assert.ok(html.includes(asset),'HTML must load '+asset);
     assert.ok(worker.includes(asset),'worker must precache '+asset);
   }
-  assert.ok(worker.includes("jobsystems-v62"),'cache version should rotate for deployments');
+  assert.ok(worker.includes("jobsystems-v63"),'cache version should rotate for deployments');
 });
 
 test('Supabase API GETs always bypass cache and never substitute HTML',()=>{
