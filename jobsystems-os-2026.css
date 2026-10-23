@@ -123,7 +123,7 @@ body::before,body::after{display:none!important}
 .topbar::before{display:none!important}
 .topbar-primary{
   min-width:0;width:100%;overflow:hidden;
-  padding-left:calc(var(--os-sidebar-w) - 14px)
+  padding-left:calc(var(--os-sidebar-w) - 14px);position:static!important
 }
 .topbar .tb-logo{
   position:absolute;left:14px;top:50%;transform:translateY(-50%);
@@ -285,39 +285,37 @@ html[data-theme="light"] .side-panel .voice-space:hover{
   opacity:1;contain:strict;background:var(--os-bg);
 }
 .os-ambient-field::before{
-  content:"";position:absolute;inset:-24%;
-  background:url("assets/os-contours.svg") center/920px 720px repeat;
-  opacity:.12;
-  animation:os-contour-drift 28s cubic-bezier(.45,0,.55,1) infinite alternate;
-  transform:translate3d(-2%,1%,0) scale(1.08);
+  content:"";position:absolute;inset:-72px;
+  background-image:radial-gradient(circle,rgba(166,255,0,.16) 0 1px,transparent 1.35px);
+  background-size:34px 34px;opacity:.2;
+  -webkit-mask-image:linear-gradient(to bottom,rgba(0,0,0,.7),transparent 92%);
+  mask-image:linear-gradient(to bottom,rgba(0,0,0,.7),transparent 92%);
+  animation:os-grid-glide 34s linear infinite;
+  transform:translate3d(0,0,0);
 }
 .os-ambient-field::after{
-  content:"";position:absolute;inset:0;
+  content:"";position:absolute;inset:-14%;
   background:
-    radial-gradient(circle at 18% 22%,rgba(166,255,0,.09),transparent 32%),
-    radial-gradient(circle at 82% 72%,rgba(45,212,191,.07),transparent 34%);
-  animation:os-ambient-breathe 18s cubic-bezier(.45,0,.55,1) infinite alternate;
+    radial-gradient(ellipse 36% 30% at 18% 20%,rgba(166,255,0,.075),transparent 72%),
+    radial-gradient(ellipse 34% 28% at 82% 76%,rgba(45,212,191,.055),transparent 74%);
+  filter:blur(16px);opacity:.85;
+  animation:os-ambient-drift 26s cubic-bezier(.45,0,.55,1) infinite alternate;
 }
 html[data-theme="light"] .os-ambient-field{background:#F4F6F3}
-html[data-theme="light"] .os-ambient-field::before{opacity:.08;filter:saturate(.72)}
+html[data-theme="light"] .os-ambient-field::before{
+  background-image:radial-gradient(circle,rgba(51,95,38,.22) 0 1px,transparent 1.3px);opacity:.14
+}
 html[data-theme="light"] .os-ambient-field::after{
   background:
-    radial-gradient(circle at 18% 22%,rgba(92,145,0,.07),transparent 34%),
-    radial-gradient(circle at 82% 72%,rgba(12,126,111,.055),transparent 36%);
+    radial-gradient(ellipse 36% 30% at 18% 20%,rgba(126,178,32,.07),transparent 72%),
+    radial-gradient(ellipse 34% 28% at 82% 76%,rgba(12,126,111,.045),transparent 74%);
 }
-@keyframes os-contour-drift{
-  to{transform:translate3d(4%,-3%,0) scale(1.14) rotate(.8deg)}
+@keyframes os-grid-glide{
+  to{transform:translate3d(68px,34px,0)}
 }
-@keyframes os-ambient-breathe{
-  to{transform:translate3d(-2%,1.5%,0);opacity:.72}
+@keyframes os-ambient-drift{
+  to{transform:translate3d(-3%,2%,0) scale(1.04);opacity:.68}
 }
-.os-contour-canvas{
-  position:absolute;inset:0;width:100%;height:100%;display:block;opacity:0;
-  transition:opacity .5s ease;
-}
-html[data-os-contour-ready="true"] .os-contour-canvas{opacity:1}
-html[data-os-contour-ready="true"] .os-ambient-field::before,
-html[data-os-contour-ready="true"] .os-ambient-field::after{opacity:0;animation:none}
 
 .hc,.bd-block,.today-focus,.quiet-actions-card,.quiet-money-card,
 .task-kpi-card,.calendar-page-shell .cal-card,.review-page-shell .hc,
