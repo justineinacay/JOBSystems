@@ -37,13 +37,13 @@ const debugPort=await new Promise((resolve,reject)=>{
 const profile=mkdtempSync(path.join(tmpdir(),'jobsystems-render-'));
 const chrome=spawn(chromePath,[
   `--remote-debugging-port=${debugPort}`,'--remote-allow-origins=*','--headless=new','--disable-gpu','--hide-scrollbars',
-  '--no-first-run','--no-default-browser-check',`--user-data-dir=${profile}`,'about:blank'
+  '--disable-extensions','--no-first-run','--no-default-browser-check',`--user-data-dir=${profile}`,'about:blank'
 ],{stdio:'ignore'});
 
 let socket;
 try{
   let targets;
-  for(let attempt=0;attempt<100;attempt+=1){
+  for(let attempt=0;attempt<300;attempt+=1){
     try{targets=await (await fetch(`http://127.0.0.1:${debugPort}/json/list`)).json();if(targets.length)break;}catch{}
     await sleep(100);
   }
@@ -102,6 +102,7 @@ try{
   await openApp();
   assert.deepEqual(await evaluate(`(()=>({agency:[...document.scripts].some(script=>script.src.includes('agency-command-centers.js')),life:[...document.scripts].some(script=>script.src.includes('life-command-center.js')),chart:typeof Chart!=='undefined'}))()`),{agency:false,life:false,chart:false},'workspace enhancements and charts must stay out of the initial shell');
   const lazyViews=[
+    ['collectives','collectives-command-center.js'],
     ['venture','app-job-command-center.css'],
     ['build','agency-command-centers.js'],
     ['sides','agency-command-centers.js'],
