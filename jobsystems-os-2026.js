@@ -141,7 +141,7 @@
       '<div class="ni" onclick="setView(\'notes\')" data-view="notes"><i class="ti ti-notes"></i><span class="nav-label">Notes</span></div>'+
       '<div class="ni" onclick="setView(\'all-files\')" data-view="all-files"><i class="ti ti-files"></i><span class="nav-label">Docs</span></div>'+
       '<div class="ngl nav-section-heading nav-workspaces-heading" id="navWorldsLabel"><span>Workspaces</span><button class="nav-section-action" onclick="openWorldModal()" title="Add workspace" aria-label="Add workspace"><i class="ti ti-plus"></i></button></div>'+
-      '<div class="ni world-ni collectives-nav-entry" onclick="setView(\'collectives\')" data-view="collectives"><span class="collectives-nav-icon"><i class="ti ti-building-community"></i></span><span class="nav-label">Our Collectives</span></div>'+
+      '<div class="ni world-ni collectives-nav-entry" onclick="setView(\'collectives\')" data-view="collectives"><img class="workspace-nav-logo collectives-nav-logo" src="assets/workspace-logos/our-collectives.png" alt="" aria-hidden="true"><span class="nav-label">Our Collectives</span></div>'+
       '<div id="navWorldsList"></div>'+
       '<div class="ngl nav-section-heading">System</div>'+
       '<div class="ni nav-ai-entry" onclick="setView(\'ai\')" data-view="ai"><i class="ti ti-sparkles"></i><span class="nav-label">J.E.L.I.X.</span></div>'+

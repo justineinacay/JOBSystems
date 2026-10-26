@@ -12,6 +12,7 @@ const css=read('collectives-command-center.css');
 assert.doesNotThrow(()=>new Function(js),'Collectives command center must parse as classic JavaScript');
 assert.match(html,/id="view-collectives"/,'Our Collectives must have a first-class application view');
 assert.match(html,/<h1>Our Collectives<\/h1>/,'The executive workspace must use the approved name');
+assert.match(html,/our-collectives\.png" alt="Our Collectives logo"/,'the command-center header must use the supplied Collectives logo');
 assert.doesNotMatch(html,/data-view="portfolio"|>Portfolio<\/span>/,'Portfolio must not be introduced as an Essentials destination');
 assert.match(js,/DB\.venture/,'Job Collectives data must come from the existing store');
 assert.match(js,/DB\.buildApps/,'Code owned products must come from the existing store');
