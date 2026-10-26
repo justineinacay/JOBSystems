@@ -1098,6 +1098,7 @@ async function loadAllFromSupabase(options={}){
 const Store={
   _renderMap:{
     dashboard:()=>{try{renderBrief();}catch(e){}},
+    collectives:()=>{try{if(typeof renderCollectivesCommandCenter==='function')renderCollectivesCommandCenter();}catch(e){}},
     'work-ih':()=>{try{renderWorkIH();}catch(e){}},
     'work-cs':()=>{try{renderWorkCS();if(csActiveView==='marketing')renderMktgActive();}catch(e){}},
     venture:()=>{try{renderVenture();}catch(e){}},

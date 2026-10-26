@@ -14,15 +14,15 @@ const manifest=JSON.parse(read('manifest.json'));
 
 assert.doesNotThrow(()=>new Function(js),'JOBSystems OS runtime must parse as classic JavaScript');
 assert.doesNotThrow(()=>new Function(sw),'service worker must parse as classic JavaScript');
-assert.match(html,/jobsystems-os-2026\.css\?v=20261023-2/,'OS stylesheet must load after the legacy product styles');
-assert.match(html,/jobsystems-os-2026\.js\?v=20261023-2/,'OS runtime must load after the legacy product scripts');
+assert.match(html,/jobsystems-os-2026\.css\?v=20261025-1/,'OS stylesheet must load after the legacy product styles');
+assert.match(html,/jobsystems-os-2026\.js\?v=20261025-1/,'OS runtime must load after the legacy product scripts');
 assert.equal(manifest.name,'JOBSystems');
 assert.equal(manifest.short_name,'JOBSystems');
 assert.equal(manifest.display,'standalone');
 assert.equal(manifest.theme_color,'#080B0A');
-assert.match(sw,/jobsystems-v64/,'service worker cache must rotate after the ambient background repair');
-assert.match(sw,/jobsystems-os-2026\.css\?v=20261023-2/,'service worker must cache OS CSS');
-assert.match(sw,/jobsystems-os-2026\.js\?v=20261023-2/,'service worker must cache OS JS');
+assert.match(sw,/jobsystems-v65/,'service worker cache must rotate after the Collectives command center release');
+assert.match(sw,/jobsystems-os-2026\.css\?v=20261025-1/,'service worker must cache OS CSS');
+assert.match(sw,/jobsystems-os-2026\.js\?v=20261025-1/,'service worker must cache OS JS');
 assert.match(html,/<header class="topbar">[\s\S]*?<a class="tb-logo"[^>]*aria-label="JOBSystems home"/,'desktop branding must live in the header');
 assert.match(html,/<strong>JOBSystems<\/strong>[\s\S]*?<small>Personal Operating System<\/small>/,'header must preserve the full product identity');
 assert.doesNotMatch(html,/<nav class="side-panel"[\s\S]*?class="sidebar-brand"/,'desktop branding must not occupy sidebar space');
@@ -46,8 +46,9 @@ assert.match(sw,/\.\/assets\/os-contours\.svg/,'service worker must cache the am
 assert.match(js,/view-projects/,'Projects must be a first-class global view');
 assert.match(js,/view-knowledge/,'Knowledge must be a first-class global view');
 assert.match(js,/function osRenderFinance\(/,'Finance must render from live JOBSystems data');
-assert.doesNotMatch(js,/nav-label">(?:Finance|Knowledge|Reviews?)</,'Finance, Knowledge, and Reviews must stay out of the desktop navigation');
-assert.doesNotMatch(js,/<span>(?:Finance|Knowledge|Reviews?)<\/span><\/button>/,'Finance, Knowledge, and Reviews must stay out of the mobile workspace menu');
+assert.match(js,/data-view="finances"[\s\S]*?nav-label">Finance</,'Finance must remain directly accessible under System');
+assert.match(js,/data-view="review"[\s\S]*?nav-label">Reports</,'Reports must remain directly accessible under System');
+assert.match(js,/data-view="collectives"[\s\S]*?nav-label">Our Collectives</,'Our Collectives must be the first synthetic workspace entry');
 assert.doesNotMatch(html,/nav-label">Review</,'the legacy sidebar must not flash a Review shortcut before the OS shell loads');
 assert.match(js,/osMbnToday/);
 assert.match(js,/osMbnTasks/);
@@ -68,6 +69,7 @@ assert.match(html,/productivity-command-center\.js\?v=20260929-2/,'calendar bran
 assert.doesNotMatch(html,/<script src="https:\/\/cdn\.jsdelivr\.net\/npm\/chart\.js/,'Chart.js must not block initial startup');
 assert.doesNotMatch(html,/<script src="(?:agency|faith|life|fitness|health-game)-command-center/,'workspace enhancements must not block initial startup');
 assert.match(read('app-prelude.js'),/function ensureViewAssets\(view\)/,'workspace assets must have a shared lazy loader');
+assert.match(read('app-prelude.js'),/collectives:\{styles:\['collectives-command-center\.css\?v=20261026-1'\],scripts:\['collectives-command-center\.js\?v=20261026-1'\]\}/,'Our Collectives must lazy-load its presentation layer');
 assert.match(read('app-part-07.js'),/loadAllFromSupabase\(\{progressive:true\}\)/,'startup must use progressive cloud sync');
 assert.match(read('app-part-07.js'),/Store\.notify\(currentView\)/,'startup must render the active view instead of every view');
 

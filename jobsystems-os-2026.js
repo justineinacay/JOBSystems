@@ -6,7 +6,7 @@
     dashboard:'Today',tasks:'Tasks',calendar:'Calendar',projects:'Projects',
     finances:'Finance',knowledge:'Knowledge',review:'Reviews',ai:'J.E.L.I.X.',
     settings:'Settings','worlds-settings':'More',notes:'Knowledge',memory:'Knowledge',
-    inbox:'Inbox',links:'Knowledge','all-files':'Knowledge',venture:'Job Collectives',
+    inbox:'Inbox',links:'Knowledge','all-files':'Knowledge',collectives:'Our Collectives',venture:'Job Collectives',
     build:'Code Collectives',sides:'Creative Collectives',faith:'Faith',life:'Personal'
   };
   var OS_WORKSPACES={
@@ -138,18 +138,21 @@
       '<div class="ni" onclick="setView(\'tasks\')" data-view="tasks"><i class="ti ti-checklist"></i><span class="nav-label">Tasks</span><span class="nbadge" id="taskBadge">0</span></div>'+
       '<div class="ni" onclick="setView(\'calendar\')" data-view="calendar"><i class="ti ti-calendar"></i><span class="nav-label">Calendar</span></div>'+
       '<div class="ni" onclick="setView(\'projects\')" data-view="projects"><i class="ti ti-folders"></i><span class="nav-label">Projects</span></div>'+
+      '<div class="ni" onclick="setView(\'notes\')" data-view="notes"><i class="ti ti-notes"></i><span class="nav-label">Notes</span></div>'+
+      '<div class="ni" onclick="setView(\'all-files\')" data-view="all-files"><i class="ti ti-files"></i><span class="nav-label">Docs</span></div>'+
       '<div class="ngl nav-section-heading nav-workspaces-heading" id="navWorldsLabel"><span>Workspaces</span><button class="nav-section-action" onclick="openWorldModal()" title="Add workspace" aria-label="Add workspace"><i class="ti ti-plus"></i></button></div>'+
+      '<div class="ni world-ni collectives-nav-entry" onclick="setView(\'collectives\')" data-view="collectives"><span class="collectives-nav-icon"><i class="ti ti-building-community"></i></span><span class="nav-label">Our Collectives</span></div>'+
       '<div id="navWorldsList"></div>'+
       '<div class="ngl nav-section-heading">System</div>'+
       '<div class="ni nav-ai-entry" onclick="setView(\'ai\')" data-view="ai"><i class="ti ti-sparkles"></i><span class="nav-label">J.E.L.I.X.</span></div>'+
+      '<div class="ni" onclick="setView(\'finances\')" data-view="finances"><i class="ti ti-wallet"></i><span class="nav-label">Finance</span></div>'+
+      '<div class="ni" onclick="setView(\'review\')" data-view="review"><i class="ti ti-chart-dots-3"></i><span class="nav-label">Reports</span></div>'+
       '<div class="ni" onclick="setView(\'settings\')" data-view="settings"><i class="ti ti-settings"></i><span class="nav-label">Settings</span></div>'+
       '<div class="nav-more-group">'+
         '<div class="ni nav-more-toggle" onclick="toggleDesktopMore(this)" role="button" tabindex="0" aria-expanded="false"><i class="ti ti-dots"></i><span class="nav-label">More</span><i class="ti ti-chevron-right nav-more-chevron"></i></div>'+
         '<div class="nav-more-items" id="desktopMoreItems">'+
           '<div class="ni" onclick="setView(\'inbox\')" data-view="inbox"><i class="ti ti-inbox"></i><span class="nav-label">Inbox</span><span class="nbadge" id="inboxBadge">0</span></div>'+
-          '<div class="ni" onclick="setView(\'notes\')" data-view="notes"><i class="ti ti-notes"></i><span class="nav-label">Notes</span></div>'+
           '<div class="ni" onclick="setView(\'links\')" data-view="links"><i class="ti ti-link"></i><span class="nav-label">Saved links</span></div>'+
-          '<div class="ni" onclick="setView(\'all-files\')" data-view="all-files"><i class="ti ti-files"></i><span class="nav-label">Files</span></div>'+
           '<div class="ni" onclick="setView(\'memory\')" data-view="memory"><i class="ti ti-brain"></i><span class="nav-label">Memory</span></div>'+
           '<div class="ni" onclick="setView(\'history\')" data-view="history"><i class="ti ti-history"></i><span class="nav-label">History</span></div>'+
         '</div>'+
@@ -596,7 +599,7 @@
     var map={
       dashboard:'osMbnToday',tasks:'osMbnTasks',calendar:'osMbnCalendar',projects:'osMbnMore',
       finances:'osMbnMore',knowledge:'osMbnMore',review:'osMbnMore',ai:'osMbnMore',
-      settings:'osMbnMore','worlds-settings':'osMbnMore',venture:'osMbnMore',build:'osMbnMore',
+      settings:'osMbnMore','worlds-settings':'osMbnMore',collectives:'osMbnMore',venture:'osMbnMore',build:'osMbnMore',
       sides:'osMbnMore',faith:'osMbnMore',life:'osMbnMore',notes:'osMbnMore',memory:'osMbnMore',
       inbox:'osMbnMore',links:'osMbnMore','all-files':'osMbnMore'
     };
@@ -616,6 +619,7 @@
       if(target==='projects')osRenderProjects();
       if(target==='knowledge')osRenderKnowledge();
       if(target==='finances')osRenderFinance();
+      if(target==='collectives'&&typeof window.renderCollectivesCommandCenter==='function')window.renderCollectivesCommandCenter();
       if(target==='worlds-settings')osInstallMorePrimary();
       osUpdateMobileChrome(target);
       osNormalizeWorkspaceNav();
