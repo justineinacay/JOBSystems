@@ -6,7 +6,7 @@
     dashboard:'Today',tasks:'Tasks',calendar:'Calendar',projects:'Projects',
     finances:'Finance',knowledge:'Knowledge',review:'Reviews',ai:'J.E.L.I.X.',
     settings:'Settings','worlds-settings':'More',notes:'Knowledge',memory:'Knowledge',
-    inbox:'Inbox',links:'Knowledge','all-files':'Knowledge',collectives:'Our Collectives',venture:'Job Collectives',
+    inbox:'Inbox',links:'Knowledge',collectives:'Our Collectives',venture:'Job Collectives',
     build:'Code Collectives',sides:'Creative Collectives',faith:'Faith',life:'Personal'
   };
   var OS_WORKSPACES={
@@ -139,7 +139,6 @@
       '<div class="ni" onclick="setView(\'calendar\')" data-view="calendar"><i class="ti ti-calendar"></i><span class="nav-label">Calendar</span></div>'+
       '<div class="ni" onclick="setView(\'projects\')" data-view="projects"><i class="ti ti-folders"></i><span class="nav-label">Projects</span></div>'+
       '<div class="ni" onclick="setView(\'notes\')" data-view="notes"><i class="ti ti-notes"></i><span class="nav-label">Notes</span></div>'+
-      '<div class="ni" onclick="setView(\'all-files\')" data-view="all-files"><i class="ti ti-files"></i><span class="nav-label">Docs</span></div>'+
       '<div class="ngl nav-section-heading nav-workspaces-heading" id="navWorldsLabel"><span>Workspaces</span><button class="nav-section-action" onclick="openWorldModal()" title="Add workspace" aria-label="Add workspace"><i class="ti ti-plus"></i></button></div>'+
       '<div class="ni world-ni collectives-nav-entry" onclick="setView(\'collectives\')" data-view="collectives"><img class="workspace-nav-logo collectives-nav-logo" src="assets/workspace-logos/our-collectives.png" alt="" aria-hidden="true"><span class="nav-label">Our Collectives</span></div>'+
       '<div id="navWorldsList"></div>'+
@@ -172,7 +171,7 @@
     });
     var view=window.JOBSystemsCurrentView||(typeof currentView!=='undefined'?currentView:'dashboard');
     document.querySelectorAll('.side-panel [data-view]').forEach(function(el){el.classList.toggle('active',el.dataset.view===view);});
-    var extras=['inbox','notes','links','all-files','memory','history','jarvis-capture','jarvis-connect','jarvis-weekly','jarvis-context','jarvis-pattern','jarvis-decision','jarvis-claude'];
+    var extras=['inbox','notes','links','memory','history','jarvis-capture','jarvis-connect','jarvis-weekly','jarvis-context','jarvis-pattern','jarvis-decision','jarvis-claude'];
     var group=document.querySelector('.nav-more-group');
     if(group){
       group.classList.toggle('open',extras.indexOf(view)>-1);
@@ -601,7 +600,7 @@
       finances:'osMbnMore',knowledge:'osMbnMore',review:'osMbnMore',ai:'osMbnMore',
       settings:'osMbnMore','worlds-settings':'osMbnMore',collectives:'osMbnMore',venture:'osMbnMore',build:'osMbnMore',
       sides:'osMbnMore',faith:'osMbnMore',life:'osMbnMore',notes:'osMbnMore',memory:'osMbnMore',
-      inbox:'osMbnMore',links:'osMbnMore','all-files':'osMbnMore'
+      inbox:'osMbnMore',links:'osMbnMore'
     };
     document.querySelectorAll('.os-mbn-tab').forEach(function(tab){tab.classList.remove('active');});
     var active=document.getElementById(map[view]||'osMbnMore');

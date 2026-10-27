@@ -10,7 +10,7 @@
 // hadn't changed and CACHE_VERSION was never bumped to force a purge. That's
 // what caused an already-fixed bug (the driveLink Supabase column error) to
 // keep reappearing on-device after the source was already correct.
-const CACHE_VERSION = 'jobsystems-v66';
+const CACHE_VERSION = 'jobsystems-v67';
 const APP_SHELL = [
   './',
   './index.html',
@@ -24,11 +24,11 @@ const APP_SHELL = [
   './app-dark-theme.css?v=20260827-1',
   './app-job-command-center.css?v=20260827-1',
   './app-prelude.js?v=20261026-1',
-  './app-part-01.js?v=20261026-1',
-  './app-part-02.js?v=20261026-1',
-  './app-part-03.js?v=20260827-1',
+  './app-part-01.js?v=20261028-1',
+  './app-part-02.js?v=20261028-1',
+  './app-part-03.js?v=20261028-1',
   './app-part-04.js?v=20260905-1',
-  './app-part-05.js?v=20261012-1',
+  './app-part-05.js?v=20261028-1',
   './app-part-06.js?v=20260827-2',
   './app-part-07.js?v=20261012-1',
   './pwa-runtime.js?v=20260827-1',
@@ -53,13 +53,14 @@ const APP_SHELL = [
   './life-command-center.js?v=20260905-1',
   './fitness-command-center.js?v=20260902-1',
   './health-game-dashboard.js?v=20260905-1',
-  './mobile-command-center.js?v=20260826-3',
+  './mobile-command-center.js?v=20261028-1',
   './productivity-command-center.js?v=20260929-2',
   './audit-hardening.css?v=20260905-1',
   './theme-transition.css?v=20260907-1',
   './accessibility-hardening.js?v=20260905-1',
   './jobsystems-os-2026.css?v=20261026-2',
-  './jobsystems-os-2026.js?v=20261026-2',
+  './jobsystems-os-2026.js?v=20261028-1',
+  './mobile-ux-refinements.css?v=20261028-1',
   './collectives-command-center.css?v=20261026-1',
   './collectives-command-center.js?v=20261026-1',
   './jobsystems-logo.png',

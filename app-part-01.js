@@ -1212,7 +1212,7 @@ function renderSideNav(){
   document.querySelectorAll('[data-view]').forEach(function(el){
     el.classList.toggle('active',el.dataset.view===currentView);
   });
-  const moreViews=['tasks','inbox','notes','links','all-files','memory','history','jarvis-capture','jarvis-connect','jarvis-weekly','jarvis-context','jarvis-pattern','jarvis-decision','jarvis-claude'];
+  const moreViews=['tasks','inbox','notes','links','memory','history','jarvis-capture','jarvis-connect','jarvis-weekly','jarvis-context','jarvis-pattern','jarvis-decision','jarvis-claude'];
   const moreGroup=document.querySelector('.nav-more-group');
   const moreToggle=moreGroup?.querySelector('.nav-more-toggle');
   if(moreGroup){moreGroup.classList.toggle('open',moreViews.includes(currentView));if(moreToggle)moreToggle.setAttribute('aria-expanded',String(moreViews.includes(currentView)));}
