@@ -20,7 +20,7 @@ assert.equal(manifest.name,'JOBSystems');
 assert.equal(manifest.short_name,'JOBSystems');
 assert.equal(manifest.display,'standalone');
 assert.equal(manifest.theme_color,'#080B0A');
-assert.match(sw,/jobsystems-v67/,'service worker cache must rotate after the mobile workspace refinement release');
+assert.match(sw,/jobsystems-v68/,'service worker cache must rotate after the all-view mobile optimization release');
 assert.match(sw,/jobsystems-os-2026\.css\?v=20261026-2/,'service worker must cache OS CSS');
 assert.match(sw,/jobsystems-os-2026\.js\?v=20261028-1/,'service worker must cache OS JS');
 assert.match(html,/<header class="topbar">[\s\S]*?<a class="tb-logo"[^>]*aria-label="JOBSystems home"/,'desktop branding must live in the header');

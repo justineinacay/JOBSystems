@@ -17,7 +17,7 @@ test('main HTML and installable worker include command center assets',()=>{
     assert.ok(html.includes(asset),'HTML must load '+asset);
     assert.ok(worker.includes(asset),'worker must precache '+asset);
   }
-  assert.ok(worker.includes("jobsystems-v67"),'cache version should rotate for deployments');
+  assert.ok(worker.includes("jobsystems-v68"),'cache version should rotate for deployments');
 });
 
 test('Supabase API GETs always bypass cache and never substitute HTML',()=>{
@@ -94,4 +94,22 @@ test('mobile workspace refinements keep notes useful and remove the legacy Docs 
   assert.match(css,/#noteEditorModal \.modal\{[^}]*height:100dvh/);
   assert.match(notes,/function toggleTaskFilters/);
   assert.match(notes,/notes-empty-state/);
+});
+
+test('all application views share the final mobile layout contract',()=>{
+  const html=read('index.html');
+  const css=read('mobile-all-views.css');
+  const sw=read('sw.js');
+  assert.match(html,/mobile-all-views\.css\?v=20261028-1/);
+  assert.match(sw,/mobile-all-views\.css\?v=20261028-1/);
+  assert.match(css,/@media \(max-width:768px\)/);
+  assert.match(css,/--mobile-control-height:44px/);
+  assert.match(css,/scroll-padding-bottom:calc\(92px \+ env\(safe-area-inset-bottom\)\)/);
+  assert.match(css,/\.view table\.ht\{display:table!important/);
+  assert.match(css,/#view-ai/);
+  assert.match(css,/#view-settings/);
+  assert.match(css,/\.mov>\.modal/);
+  assert.match(css,/@media \(max-width:350px\)/);
+  assert.match(css,/orientation:landscape/);
+  assert.match(css,/prefers-reduced-motion:reduce/);
 });

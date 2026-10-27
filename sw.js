@@ -10,7 +10,7 @@
 // hadn't changed and CACHE_VERSION was never bumped to force a purge. That's
 // what caused an already-fixed bug (the driveLink Supabase column error) to
 // keep reappearing on-device after the source was already correct.
-const CACHE_VERSION = 'jobsystems-v67';
+const CACHE_VERSION = 'jobsystems-v68';
 const APP_SHELL = [
   './',
   './index.html',
@@ -61,6 +61,7 @@ const APP_SHELL = [
   './jobsystems-os-2026.css?v=20261026-2',
   './jobsystems-os-2026.js?v=20261028-1',
   './mobile-ux-refinements.css?v=20261028-1',
+  './mobile-all-views.css?v=20261028-1',
   './collectives-command-center.css?v=20261026-1',
   './collectives-command-center.js?v=20261026-1',
   './jobsystems-logo.png',
