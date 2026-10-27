@@ -44,6 +44,7 @@ function scheduleIdleWork(callback,timeout=1500){
   return setTimeout(callback,Math.min(timeout,500));
 }
 const _viewAssetGroups={
+  collectives:{styles:['collectives-command-center.css?v=20261026-1'],scripts:['collectives-command-center.js?v=20261026-1']},
   venture:{styles:['app-job-command-center.css?v=20260827-1']},
   build:{styles:['agency-command-centers.css?v=20260823-1'],scripts:['agency-command-centers.js?v=20260823-1']},
   sides:{styles:['agency-command-centers.css?v=20260823-1'],scripts:['agency-command-centers.js?v=20260823-1']},

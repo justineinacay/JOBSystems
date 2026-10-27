@@ -32,12 +32,12 @@ async function profile({name,width,height,mobile,cpuRate,latency,downloadThrough
   const profileDir=mkdtempSync(path.join(tmpdir(),`jobsystems-${name}-`));
   const chrome=spawn(chromePath,[
     `--remote-debugging-port=${debugPort}`,'--remote-allow-origins=*','--headless=new','--disable-gpu',
-    '--no-first-run','--no-default-browser-check',`--user-data-dir=${profileDir}`,'about:blank'
+    '--disable-extensions','--no-first-run','--no-default-browser-check',`--user-data-dir=${profileDir}`,'about:blank'
   ],{stdio:'ignore'});
   let socket;
   try{
     let targets;
-    for(let attempt=0;attempt<100;attempt+=1){
+    for(let attempt=0;attempt<300;attempt+=1){
       try{targets=await (await fetch(`http://127.0.0.1:${debugPort}/json/list`)).json();if(targets.length)break;}catch{}
       await sleep(100);
     }

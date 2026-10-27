@@ -10,7 +10,7 @@
 // hadn't changed and CACHE_VERSION was never bumped to force a purge. That's
 // what caused an already-fixed bug (the driveLink Supabase column error) to
 // keep reappearing on-device after the source was already correct.
-const CACHE_VERSION = 'jobsystems-v62';
+const CACHE_VERSION = 'jobsystems-v65';
 const APP_SHELL = [
   './',
   './index.html',
@@ -23,9 +23,9 @@ const APP_SHELL = [
   './app-jelix-02.css?v=20260827-1',
   './app-dark-theme.css?v=20260827-1',
   './app-job-command-center.css?v=20260827-1',
-  './app-prelude.js?v=20261012-1',
-  './app-part-01.js?v=20261012-1',
-  './app-part-02.js?v=20261012-1',
+  './app-prelude.js?v=20261026-1',
+  './app-part-01.js?v=20261026-1',
+  './app-part-02.js?v=20261026-1',
   './app-part-03.js?v=20260827-1',
   './app-part-04.js?v=20260905-1',
   './app-part-05.js?v=20261012-1',
@@ -58,14 +58,17 @@ const APP_SHELL = [
   './audit-hardening.css?v=20260905-1',
   './theme-transition.css?v=20260907-1',
   './accessibility-hardening.js?v=20260905-1',
-  './jobsystems-os-2026.css?v=20261016-1',
-  './jobsystems-os-2026.js?v=20261015-2',
+  './jobsystems-os-2026.css?v=20261026-2',
+  './jobsystems-os-2026.js?v=20261026-2',
+  './collectives-command-center.css?v=20261026-1',
+  './collectives-command-center.js?v=20261026-1',
   './jobsystems-logo.png',
   './assets/os-contours.svg',
   './icons/icon-192.png',
   './icons/icon-512.png',
   './icons/apple-touch-icon.png',
   './assets/workspace-logos/job-collectives.png',
+  './assets/workspace-logos/our-collectives.png',
   './assets/workspace-logos/code-collectives.png',
   './assets/workspace-logos/creative-collectives.png',
   './assets/workspace-logos/faith.png',
@@ -79,7 +82,8 @@ const OPTIONAL_ON_DEMAND = new Set([
   './faith-command-center.css?v=20260824-2','./faith-command-center.js?v=20260824-2',
   './life-command-center.css?v=20260903-1','./life-command-center.js?v=20260905-1',
   './fitness-command-center.css?v=20260904-2','./fitness-command-center.js?v=20260902-1',
-  './health-game-dashboard.css?v=20260904-5','./health-game-dashboard.js?v=20260905-1'
+  './health-game-dashboard.css?v=20260904-5','./health-game-dashboard.js?v=20260905-1',
+  './collectives-command-center.css?v=20261026-1','./collectives-command-center.js?v=20261026-1'
 ]);
 const CORE_SHELL = APP_SHELL.filter(path => !OPTIONAL_ON_DEMAND.has(path));
 const EXTERNAL_SHELL = [

@@ -1529,6 +1529,50 @@ if (window.top !== window.self) {
     </div>
 
     <!-- ===== JOB COLLECTIVES ===== -->
+    <div class="view" id="view-collectives">
+      <div class="collectives-shell">
+        <header class="collectives-header">
+          <div class="collectives-heading-lockup">
+            <img src="assets/workspace-logos/our-collectives.png" alt="Our Collectives logo" width="64" height="64">
+            <div>
+              <span class="collectives-eyebrow">Portfolio control center</span>
+              <h1>Our Collectives</h1>
+              <p><strong>One Ecosystem. Three Collectives.</strong> <span>People. Technology. Creativity.</span></p>
+            </div>
+          </div>
+          <div class="collectives-header-actions">
+            <button type="button" class="collectives-button secondary" onclick="setView('projects')"><i class="ti ti-route"></i> Roadmap</button>
+            <button type="button" class="collectives-button" onclick="openTaskFor('VENTURE')"><i class="ti ti-plus"></i> Add task</button>
+          </div>
+        </header>
+        <div class="collectives-scroll">
+          <section id="collectivesMetrics" class="collectives-metrics" aria-label="Our Collectives overview"></section>
+          <div class="collectives-toolbar" aria-label="Portfolio filters">
+            <div id="collectivesWorkspaceFilters" class="collectives-filter-group"></div>
+            <label class="collectives-search"><i class="ti ti-search"></i><span class="sr-only">Search ventures and projects</span><input id="collectivesSearch" type="search" placeholder="Search ventures or projects…" autocomplete="off"></label>
+          </div>
+          <div class="collectives-layout">
+            <main class="collectives-main">
+              <section class="collectives-panel collectives-portfolio-panel">
+                <div class="collectives-section-heading"><div><h2>Portfolio overview</h2><p>Live records across the three operating collectives.</p></div><span id="collectivesPortfolioCount"></span></div>
+                <div id="collectivesPortfolio" class="collectives-portfolio"></div>
+              </section>
+              <section class="collectives-lower-grid">
+                <article class="collectives-panel"><div class="collectives-section-heading"><h2>Upcoming</h2><button onclick="setView('calendar')">View calendar <i class="ti ti-arrow-up-right"></i></button></div><div id="collectivesUpcoming" class="collectives-list"></div></article>
+                <article class="collectives-panel"><div class="collectives-section-heading"><h2>Risks &amp; blockers</h2><button onclick="setView('tasks')">View tasks <i class="ti ti-arrow-up-right"></i></button></div><div id="collectivesRisks" class="collectives-list"></div></article>
+              </section>
+            </main>
+            <aside class="collectives-aside">
+              <section class="collectives-panel"><div class="collectives-section-heading"><h2>Progress by collective</h2></div><div id="collectivesProgress" class="collectives-progress"></div></section>
+              <section class="collectives-panel"><div class="collectives-section-heading"><h2>Key milestones</h2><button onclick="setView('projects')">View all <i class="ti ti-arrow-up-right"></i></button></div><div id="collectivesMilestones" class="collectives-list"></div></section>
+              <section class="collectives-panel collectives-review"><div class="collectives-section-heading"><h2>Weekly review</h2><span id="collectivesReviewPeriod"></span></div><div id="collectivesWeeklyReview"></div><button type="button" onclick="setView('review')">Open full review <i class="ti ti-arrow-right"></i></button></section>
+            </aside>
+          </div>
+        </div>
+        <div id="collectivesDetail" class="collectives-detail" hidden aria-live="polite"></div>
+      </div>
+    </div>
+
     <div class="view" id="view-venture">
       <div class="jc-shell">
         <header class="jc-header">
@@ -3292,9 +3336,9 @@ if (window.top !== window.self) {
   </main>
 </div><!-- end appRoot -->
 
-<script src="app-prelude.js?v=20261012-1"></script>
-<script src="app-part-01.js?v=20261012-1"></script>
-<script src="app-part-02.js?v=20261012-1"></script>
+<script src="app-prelude.js?v=20261026-1"></script>
+<script src="app-part-01.js?v=20261026-1"></script>
+<script src="app-part-02.js?v=20261026-1"></script>
 <script src="app-part-03.js?v=20260827-1"></script>
 <script src="app-part-04.js?v=20260905-1"></script>
 <script src="app-part-05.js?v=20261012-1"></script>
@@ -3535,9 +3579,9 @@ if (window.top !== window.self) {
 <script src="productivity-command-center.js?v=20260929-2"></script>
 <link rel="stylesheet" href="audit-hardening.css?v=20260905-1">
 <link rel="stylesheet" href="theme-transition.css?v=20260907-1">
-<link rel="stylesheet" href="jobsystems-os-2026.css?v=20261016-1">
+<link rel="stylesheet" href="jobsystems-os-2026.css?v=20261026-2">
 <script src="accessibility-hardening.js?v=20260905-1"></script>
-<script src="jobsystems-os-2026.js?v=20261015-2"></script>
+<script src="jobsystems-os-2026.js?v=20261026-2"></script>
 <link rel="stylesheet" href="os-refresh-2026.css?v=20261013-2">
 <script src="os-refresh-2026.js?v=20261011-1"></script>
 
