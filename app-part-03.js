@@ -1237,6 +1237,7 @@ function clearBoardFilters(){
     const el=document.getElementById(id);if(el)el.value='all';
   });
   const s=document.getElementById('boardSearch');if(s)s.value='';
+  if(typeof updateTaskFilterDisclosure==='function')updateTaskFilterDisclosure();
   renderTasks();
 }
 
@@ -1846,6 +1847,7 @@ function applySmartView(view){
 function renderTasks(){
   if(typeof renderUrgentPanel==='function')renderUrgentPanel();
   populateDynamicFilters();
+  if(typeof updateTaskFilterDisclosure==='function')updateTaskFilterDisclosure();
   // Keep smart-view pill highlight in sync if the deadline filter changed
   // via the dropdown directly rather than a pill click.
   const dlNow=document.getElementById('filterDeadline')?.value||'all';

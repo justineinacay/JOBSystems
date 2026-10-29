@@ -17,7 +17,7 @@ test('main HTML and installable worker include command center assets',()=>{
     assert.ok(html.includes(asset),'HTML must load '+asset);
     assert.ok(worker.includes(asset),'worker must precache '+asset);
   }
-  assert.ok(worker.includes("jobsystems-v66"),'cache version should rotate for deployments');
+  assert.ok(worker.includes("jobsystems-v68"),'cache version should rotate for deployments');
 });
 
 test('Supabase API GETs always bypass cache and never substitute HTML',()=>{
@@ -77,4 +77,39 @@ test('responsive design includes accessible dialogs and mobile safe area',()=>{
   assert.match(css,/#lockScreen\{background:#151615!important;color:#f4f4f1!important\}/,'the PIN screen must keep readable contrast before optional styles load');
   assert.match(css,/#authScreen\{background:#151615!important;color:#f4f4f1!important\}/,'the sign-in screen must keep the dark shell before optional styles load');
   assert.match(css,/\.side-panel \.side-bottom\{[^}]*background:#0b0e0d!important/,'the sidebar footer must match the dark navigation shell');
+});
+
+test('mobile workspace refinements keep notes useful and remove the legacy Docs surface',()=>{
+  const html=read('index.html');
+  const css=read('mobile-ux-refinements.css');
+  const notes=read('app-part-05.js');
+  const os=read('jobsystems-os-2026.js');
+  assert.match(html,/mobile-ux-refinements\.css\?v=20261028-1/);
+  assert.match(html,/class="notes-page-shell"/);
+  assert.match(html,/id="notesSearch"/);
+  assert.doesNotMatch(html,/data-view="all-files"/);
+  assert.doesNotMatch(os,/>Docs<|setView\(\\'all-files\\'\)/);
+  assert.match(css,/scrollbar-width:none/);
+  assert.match(css,/@media\(max-width:600px\)/);
+  assert.match(css,/#noteEditorModal \.modal\{[^}]*height:100dvh/);
+  assert.match(notes,/function toggleTaskFilters/);
+  assert.match(notes,/notes-empty-state/);
+});
+
+test('all application views share the final mobile layout contract',()=>{
+  const html=read('index.html');
+  const css=read('mobile-all-views.css');
+  const sw=read('sw.js');
+  assert.match(html,/mobile-all-views\.css\?v=20261028-1/);
+  assert.match(sw,/mobile-all-views\.css\?v=20261028-1/);
+  assert.match(css,/@media \(max-width:768px\)/);
+  assert.match(css,/--mobile-control-height:44px/);
+  assert.match(css,/scroll-padding-bottom:calc\(92px \+ env\(safe-area-inset-bottom\)\)/);
+  assert.match(css,/\.view table\.ht\{display:table!important/);
+  assert.match(css,/#view-ai/);
+  assert.match(css,/#view-settings/);
+  assert.match(css,/\.mov>\.modal/);
+  assert.match(css,/@media \(max-width:350px\)/);
+  assert.match(css,/orientation:landscape/);
+  assert.match(css,/prefers-reduced-motion:reduce/);
 });

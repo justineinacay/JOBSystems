@@ -2793,7 +2793,31 @@ function openCalEventModalOnDate(date){
 }
 // [duplicate saveCalEvent removed]
 
-// NOTES — callout grid
+function toggleTaskFilters(forceOpen){
+  const shell=document.querySelector('#view-tasks .board-toolbar');
+  const button=document.getElementById('taskFilterToggle');
+  if(!shell)return;
+  const open=typeof forceOpen==='boolean'?forceOpen:!shell.classList.contains('task-filters-expanded');
+  shell.classList.toggle('task-filters-expanded',open);
+  if(button)button.setAttribute('aria-expanded',String(open));
+}
+
+function updateTaskFilterDisclosure(){
+  const values=['taskFilter','filterPriority','taskSF','filterDeadline','filterTime','filterConn','filterPlatform'];
+  const count=values.reduce((total,id)=>{
+    const el=document.getElementById(id);
+    return total+(el&&el.value&&el.value!=='all'?1:0);
+  },0);
+  const badge=document.getElementById('taskFilterCount');
+  if(badge){badge.textContent=String(count);badge.hidden=count===0;}
+}
+document.addEventListener('change',(event)=>{
+  if(event.target&&['taskFilter','filterPriority','taskSF','filterDeadline','filterTime','filterConn','filterPlatform'].includes(event.target.id)){
+    updateTaskFilterDisclosure();
+  }
+});
+
+// NOTES — searchable, domain-aware card library
 let noteBlocks=[],currentNote=0;
 let notesActiveFolder='all';
 function renderNotesFolderRail(){
@@ -2831,8 +2855,23 @@ function setNotesFolder(id){notesActiveFolder=id;renderNotesFolderRail();renderN
 function renderNotesList(){
   const grid=document.getElementById('notesCalloutGrid');if(!grid)return;
   renderNotesFolderRail();
-  const filtered=notesActiveFolder==='all'?DB.notes:notesActiveFolder==='unfiled'?DB.notes.filter(n=>!n.worldId):DB.notes.filter(n=>n.worldId===notesActiveFolder);
-  if(!filtered.length){grid.innerHTML='<div style="font-size:var(--text-xs);color:var(--text3)">No notes here yet. Click "New Note" to start.</div>';return;}
+  const folderNotes=notesActiveFolder==='all'?DB.notes:notesActiveFolder==='unfiled'?DB.notes.filter(n=>!n.worldId):DB.notes.filter(n=>n.worldId===notesActiveFolder);
+  const query=(document.getElementById('notesSearch')?.value||'').trim().toLowerCase();
+  const filtered=query?folderNotes.filter(n=>{
+    const body=(n.blocks||[]).map(b=>b.content||'').join(' ');
+    return ((n.title||'')+' '+body).toLowerCase().includes(query);
+  }):folderNotes;
+  const resultCount=document.getElementById('notesResultCount');
+  if(resultCount)resultCount.textContent=filtered.length+' '+(filtered.length===1?'note':'notes');
+  if(!filtered.length){
+    grid.innerHTML=`<div class="notes-empty-state">
+      <span class="notes-empty-icon"><i class="ti ${query?'ti-search-off':'ti-note'}"></i></span>
+      <strong>${query?'No matching notes':'Start your knowledge library'}</strong>
+      <p>${query?'Try another title or phrase.':'Capture an idea, meeting decision, reference, or checklist and keep it connected to a workspace.'}</p>
+      ${query?'<button type="button" onclick="document.getElementById(\'notesSearch\').value=\'\';renderNotesList()">Clear search</button>':'<button type="button" onclick="newNote()"><i class="ti ti-plus"></i> Create your first note</button>'}
+    </div>`;
+    return;
+  }
   grid.innerHTML=filtered.map((n)=>{
     const i=DB.notes.findIndex(x=>x.id===n.id);
     const h1=n.blocks.find(b=>b.type==='h1');
@@ -2841,21 +2880,21 @@ function renderNotesList(){
     const todos=n.blocks.filter(b=>b.type==='todo');
     const done=todos.filter(b=>b.done).length;
     const world=(DB.worlds||[]).find(w=>w.id===n.worldId);
-    return`<div style="background:var(--navy2);border:1px solid var(--border);border-radius:12px;overflow:hidden;cursor:pointer;transition:border-color .15s" onclick="openNoteEditor(${i})" onmouseover="this.style.borderColor='var(--teal2)'" onmouseout="this.style.borderColor='var(--border)'">
-      <div style="background:linear-gradient(135deg,var(--teal3),var(--teal4));padding:12px 14px;border-bottom:1px solid var(--teal2)">
-        <div style="font-size:var(--text-sm);font-weight:700;color:var(--teal);line-height:1.3">${n.title}</div>
-        ${h1&&h1.content?`<div style="font-size:var(--text-sm);color:var(--teal2);margin-top:3px;font-weight:600">${h1.content}</div>`:''}
-        ${h2&&h2.content?`<div style="font-size:var(--text-xs);color:var(--text3);margin-top:2px">${h2.content}</div>`:''}
+    return`<article class="note-library-card" tabindex="0" role="button" onclick="openNoteEditor(${i})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openNoteEditor(${i})}">
+      <div class="note-card-header">
+        <div class="note-card-title">${n.title||'Untitled note'}</div>
+        ${h1&&h1.content?`<div class="note-card-heading">${h1.content}</div>`:''}
+        ${h2&&h2.content?`<div class="note-card-subheading">${h2.content}</div>`:''}
       </div>
-      <div style="padding:10px 14px">
-        ${preview?`<div style="font-size:var(--text-sm);color:var(--text2);line-height:1.5;margin-bottom:8px">${preview}${preview.length>=80?'…':''}</div>`:''}
-        ${todos.length?`<div style="display:flex;align-items:center;gap:6px;font-size:var(--text-xs);color:var(--text3);margin-bottom:6px"><i class="ti ti-checklist" style="font-size:var(--text-xs);line-height:1;display:block;color:var(--teal)"></i>${done}/${todos.length} tasks done</div>`:''}
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px">
-          <span style="font-size:9px;color:var(--text3);display:flex;align-items:center;gap:4px">${world?`<i class="ti ${world.icon||'ti-folder'}" style="font-size:10px;color:${(world.color&&/^#/.test(world.color))?world.color:'var(--teal)'}"></i>${world.label}`:'Unfiled'}</span>
-          <button class="btn btn-d" style="padding:2px 7px;font-size:var(--text-xs)" onclick="event.stopPropagation();deleteNote(${i})"><i class="ti ti-trash" style="font-size:var(--text-xs);line-height:1;display:block"></i></button>
+      <div class="note-card-body">
+        ${preview?`<p>${preview}${preview.length>=80?'…':''}</p>`:'<p class="note-card-placeholder">Open this note to start writing.</p>'}
+        ${todos.length?`<div class="note-card-progress"><i class="ti ti-checklist"></i>${done}/${todos.length} tasks done</div>`:''}
+        <div class="note-card-footer">
+          <span>${world?`<i class="ti ${world.icon||'ti-folder'}" style="color:${(world.color&&/^#/.test(world.color))?world.color:'var(--teal)'}"></i>${world.label}`:'<i class="ti ti-file-off"></i>Unfiled'}</span>
+          <button type="button" class="note-card-delete" aria-label="Delete ${n.title||'note'}" onclick="event.stopPropagation();deleteNote(${i})"><i class="ti ti-trash"></i></button>
         </div>
       </div>
-    </div>`;
+    </article>`;
   }).join('');
 }
 function setNoteFolder(worldId){

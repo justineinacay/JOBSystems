@@ -2715,7 +2715,7 @@ function setView(v){
   currentView=v;addHistory('navigate','Navigated to '+v,{view:v});
   LearnEngine.onNavigate(v);
   renderSideNav();
-  const r={dashboard:renderBrief,collectives:()=>{if(typeof renderCollectivesCommandCenter==='function')renderCollectivesCommandCenter();},capture:renderMobileCaptureView,review:renderReviewView,'work-ih':renderWorkIH,'work-cs':renderWorkCS,venture:renderVenture,build:renderBuild,sides:renderSides,faith:renderFaith,life:renderLife,finances:()=>{if(typeof window.renderMobileFinances==='function')window.renderMobileFinances();},calendar:renderCalendar,tasks:renderTasks,notes:renderNotesList,journal:renderJournal,memory:renderMemory,history:renderHistory,settings:renderSettingsView,'worlds-settings':renderWorldsSettings,links:renderLinksView,inbox:()=>{if(typeof renderInboxView==='function')renderInboxView();},'all-files':()=>{if(typeof renderAllFilesView==='function')renderAllFilesView();}};
+  const r={dashboard:renderBrief,collectives:()=>{if(typeof renderCollectivesCommandCenter==='function')renderCollectivesCommandCenter();},capture:renderMobileCaptureView,review:renderReviewView,'work-ih':renderWorkIH,'work-cs':renderWorkCS,venture:renderVenture,build:renderBuild,sides:renderSides,faith:renderFaith,life:renderLife,finances:()=>{if(typeof window.renderMobileFinances==='function')window.renderMobileFinances();},calendar:renderCalendar,tasks:renderTasks,notes:renderNotesList,journal:renderJournal,memory:renderMemory,history:renderHistory,settings:renderSettingsView,'worlds-settings':renderWorldsSettings,links:renderLinksView,inbox:()=>{if(typeof renderInboxView==='function')renderInboxView();}};
   if(v==='life'){renderLife();}
   else if(v==='biomonitor'){setView('life');setTimeout(()=>{const btns=document.querySelectorAll('.cfbt');btns.forEach(b=>{if(b.textContent.includes('Bio Monitor')){setCFTab('biomonitor',b);}});},150);}
   else if(isCustomDomain)renderDomainGenericView(v);
@@ -2762,7 +2762,6 @@ function syncMobileNavActive(view){
     'memory':'mbt-workspaces',
     'notes':'mbt-workspaces',
     'inbox':'mbt-workspaces',
-    'all-files':'mbt-workspaces',
     'jarvis-context':'mbt-workspaces',
     'worlds-settings':'mbt-workspaces',
   };

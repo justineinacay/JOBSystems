@@ -136,7 +136,7 @@
       item.removeAttribute('style');
       item.classList.remove('active');
     });
-    const map={dashboard:'mbt-dashboard',tasks:'mbt-tasks',calendar:'mbt-calendar',finances:'mbt-finances',settings:'mbt-workspaces',memory:'mbt-workspaces',notes:'mbt-workspaces',inbox:'mbt-workspaces','all-files':'mbt-workspaces','jarvis-context':'mbt-workspaces','worlds-settings':'mbt-workspaces'};
+    const map={dashboard:'mbt-dashboard',tasks:'mbt-tasks',calendar:'mbt-calendar',finances:'mbt-finances',settings:'mbt-workspaces',memory:'mbt-workspaces',notes:'mbt-workspaces',inbox:'mbt-workspaces','jarvis-context':'mbt-workspaces','worlds-settings':'mbt-workspaces'};
     const target=document.getElementById(map[currentView]||'mbt-workspaces');
     target?.classList.add('active');
   };
@@ -146,7 +146,7 @@
     if(window.innerWidth>768&&typeof originalSync==='function')return originalSync(view);
     const nav=document.getElementById('mobileBottomNav');
     if(!nav)return;
-    const map={dashboard:'mbt-dashboard',tasks:'mbt-tasks',calendar:'mbt-calendar',finances:'mbt-finances',settings:'mbt-workspaces',memory:'mbt-workspaces',notes:'mbt-workspaces',inbox:'mbt-workspaces','all-files':'mbt-workspaces','jarvis-context':'mbt-workspaces','worlds-settings':'mbt-workspaces'};
+    const map={dashboard:'mbt-dashboard',tasks:'mbt-tasks',calendar:'mbt-calendar',finances:'mbt-finances',settings:'mbt-workspaces',memory:'mbt-workspaces',notes:'mbt-workspaces',inbox:'mbt-workspaces','jarvis-context':'mbt-workspaces','worlds-settings':'mbt-workspaces'};
     nav.querySelectorAll('.mbn-tab,.mbn-center').forEach(item=>{
       item.removeAttribute('style');
       item.classList.remove('active');
