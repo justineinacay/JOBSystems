@@ -17,7 +17,7 @@ test('main HTML and installable worker include command center assets',()=>{
     assert.ok(html.includes(asset),'HTML must load '+asset);
     assert.ok(worker.includes(asset),'worker must precache '+asset);
   }
-  assert.ok(worker.includes("jobsystems-v68"),'cache version should rotate for deployments');
+  assert.ok(worker.includes("jobsystems-v69"),'cache version should rotate for deployments');
 });
 
 test('Supabase API GETs always bypass cache and never substitute HTML',()=>{
@@ -99,9 +99,11 @@ test('mobile workspace refinements keep notes useful and remove the legacy Docs 
 test('all application views share the final mobile layout contract',()=>{
   const html=read('index.html');
   const css=read('mobile-all-views.css');
+  const app=read('app-part-02.js');
+  const os=read('jobsystems-os-2026.js');
   const sw=read('sw.js');
-  assert.match(html,/mobile-all-views\.css\?v=20261028-1/);
-  assert.match(sw,/mobile-all-views\.css\?v=20261028-1/);
+  assert.match(html,/mobile-all-views\.css\?v=20261112-1/);
+  assert.match(sw,/mobile-all-views\.css\?v=20261112-1/);
   assert.match(css,/@media \(max-width:768px\)/);
   assert.match(css,/--mobile-control-height:44px/);
   assert.match(css,/scroll-padding-bottom:calc\(92px \+ env\(safe-area-inset-bottom\)\)/);
@@ -112,4 +114,14 @@ test('all application views share the final mobile layout contract',()=>{
   assert.match(css,/@media \(max-width:350px\)/);
   assert.match(css,/orientation:landscape/);
   assert.match(css,/prefers-reduced-motion:reduce/);
+  assert.match(css,/\.mobile-bottom-nav\{[\s\S]*?pointer-events:auto!important/);
+  assert.match(css,/\.os-mbn-tab\{[\s\S]*?pointer-events:auto!important/);
+  assert.match(css,/Mobile reliability and professional finish/);
+  assert.match(app,/el\.scrollTop=0/);
+  assert.match(app,/if\(vb\)vb\.scrollTop=0/);
+  assert.ok(
+    os.indexOf('id="osMbnQuickAdd"') < os.indexOf('id="osMbnCalendar"'),
+    'mobile Add action should sit between Tasks and Calendar'
+  );
+  assert.match(os,/setAttribute\('aria-current','page'\)/);
 });
