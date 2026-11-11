@@ -193,3 +193,130 @@
   .view,.view *{scroll-behavior:auto!important}
   button:active,.btn:active,[role="button"]:active{transform:none}
 }
+
+/* Mobile reliability and professional finish — November 2026 */
+@media (max-width:768px){
+  :root{
+    --os-mobile-top-h:62px;
+    --os-mobile-nav-h:76px;
+    --mobile-gutter:16px;
+    --mobile-card-radius:18px;
+  }
+
+  body.os-active{background:var(--os-bg)!important}
+  .main{
+    inset:calc(var(--os-mobile-top-h) + env(safe-area-inset-top)) 0 calc(var(--os-mobile-nav-h) + env(safe-area-inset-bottom)) 0!important;
+  }
+  #mobileTopBar{
+    height:calc(var(--os-mobile-top-h) + env(safe-area-inset-top))!important;
+    padding:env(safe-area-inset-top) var(--mobile-gutter) 0!important;
+    background:color-mix(in srgb,var(--os-bg) 92%,transparent)!important;
+    border-color:var(--os-border)!important;
+    box-shadow:0 1px 0 rgba(255,255,255,.02)!important;
+  }
+  html[data-theme="light"] #mobileTopBar{background:rgba(247,249,246,.94)!important}
+  .os-mobile-brand{gap:10px!important}
+  .os-mobile-brand img{width:30px!important;height:30px!important;border-radius:9px!important}
+  .os-mobile-page-title{font-size:15px!important;font-weight:760!important;letter-spacing:-.015em!important}
+  .os-mobile-actions{gap:6px!important}
+  .os-mobile-icon{
+    width:42px!important;height:42px!important;border-radius:13px!important;
+    background:var(--os-surface)!important;border-color:var(--os-border)!important;
+  }
+
+  /* The legacy nav container intentionally disabled pointer events and relied
+     on a wrapper that the OS refresh later replaced. Restore the interaction
+     contract directly on the real navigation and every tab. */
+  .mobile-bottom-nav{
+    display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;
+    pointer-events:auto!important;height:calc(var(--os-mobile-nav-h) + env(safe-area-inset-bottom))!important;
+    padding:7px max(10px,env(safe-area-inset-right)) env(safe-area-inset-bottom) max(10px,env(safe-area-inset-left))!important;
+    background:color-mix(in srgb,var(--os-bg) 95%,transparent)!important;
+    border-top:1px solid var(--os-border)!important;box-shadow:0 -10px 30px rgba(0,0,0,.12)!important;
+    backdrop-filter:blur(22px) saturate(120%)!important;-webkit-backdrop-filter:blur(22px) saturate(120%)!important;
+  }
+  html[data-theme="light"] .mobile-bottom-nav{background:rgba(247,249,246,.96)!important;box-shadow:0 -8px 24px rgba(35,48,38,.08)!important}
+  .os-mbn-tab{
+    pointer-events:auto!important;position:relative!important;display:flex!important;min-width:0!important;min-height:58px!important;
+    align-items:center!important;justify-content:center!important;flex-direction:column!important;gap:4px!important;
+    margin:0 2px!important;padding:5px 2px!important;border:0!important;border-radius:14px!important;
+    background:transparent!important;color:var(--os-text-3)!important;font-size:10px!important;font-weight:700!important;
+    transform:none!important;transition:background-color .18s ease,color .18s ease,transform .12s ease!important;
+  }
+  .os-mbn-tab i{width:25px!important;height:25px!important;display:grid!important;place-items:center!important;font-size:20px!important}
+  .os-mbn-tab span{line-height:1!important;white-space:nowrap!important}
+  .os-mbn-tab.active,.os-mbn-tab[aria-current="page"]{background:var(--os-lime-muted)!important;color:var(--os-lime)!important}
+  html[data-theme="light"] .os-mbn-tab.active,html[data-theme="light"] .os-mbn-tab[aria-current="page"]{color:#4E7900!important}
+  .os-mbn-tab:active{transform:scale(.94)!important}
+  .os-mbn-add{color:var(--os-text)!important;background:transparent!important}
+  .os-mbn-add i{
+    width:44px!important;height:44px!important;margin-top:-17px!important;border-radius:15px!important;
+    background:var(--os-lime)!important;color:#111A0A!important;font-size:24px!important;
+    border:4px solid var(--os-bg)!important;box-shadow:0 7px 18px rgba(112,171,0,.24)!important;
+  }
+  html[data-theme="light"] .os-mbn-add i{border-color:#F7F9F6!important}
+  .os-mbn-add span{margin-top:-2px!important;color:var(--os-text-2)!important}
+
+  /* Every standard screen has one reliable vertical scroll owner. */
+  .view.active:not(#view-ai){overflow-y:auto!important;overflow-x:hidden!important;overscroll-behavior-y:contain!important}
+  .view.active:not(#view-ai)>.vb{
+    flex:0 0 auto!important;height:auto!important;min-height:100%!important;overflow:visible!important;
+  }
+  .view.active:not(#view-ai)>.vb>[style*="overflow-y:auto"]{padding-bottom:0!important}
+  #view-dashboard>.vb{min-height:auto!important;padding-top:12px!important}
+  #view-tasks .task-page-shell,#view-calendar .calendar-page-shell,#view-review .review-page-shell,
+  #view-notes .notes-page-shell,#view-finances .mobile-finance-shell,#view-worlds-settings .mobile-workspaces-shell{
+    min-height:100%!important;height:auto!important;overflow:visible!important;
+  }
+
+  /* Cleaner mobile hierarchy and consistent professional surfaces. */
+  .view>.vh,.quiet-dashboard-header,.task-page-header,.calendar-page-header,.review-page-header,.os-page-header,
+  .notes-page-header,.mobile-finance-header,.mobile-workspaces-header{
+    padding:20px var(--mobile-gutter) 12px!important;background:transparent!important;
+  }
+  .view>.vh .vt,.quiet-dashboard-header .vt,.task-page-header h1,.calendar-page-header h1,.review-page-header h1,
+  .os-page-header h1,.notes-page-header h1,.mobile-finance-header h1,.mobile-workspaces-header h1{
+    font-size:clamp(24px,7vw,30px)!important;line-height:1.08!important;letter-spacing:-.04em!important;text-wrap:balance;
+  }
+  .view>.vh .vs,.quiet-dashboard-header .vs,.task-page-header p,.calendar-page-header p,.review-page-header p,
+  .os-page-header p,.notes-page-header p,.mobile-finance-header p,.mobile-workspaces-header p{
+    max-width:34rem!important;font-size:13px!important;line-height:1.5!important;color:var(--os-text-2)!important;text-wrap:pretty;
+  }
+  .view>.vb,.notes-page-shell,.task-page-shell,.calendar-page-shell,.review-page-shell,
+  .mobile-finance-shell,.mobile-workspaces-shell{padding-right:var(--mobile-gutter)!important;padding-left:var(--mobile-gutter)!important}
+  .hc,.bd-block,.os-panel,.mobile-finance-section,.notes-library,.notes-folder-rail,
+  .collectives-panel,.agency-panel{
+    border-color:var(--os-border)!important;border-radius:var(--mobile-card-radius)!important;
+    box-shadow:0 10px 28px rgba(0,0,0,.08)!important;
+  }
+  html[data-theme="light"] .hc,html[data-theme="light"] .bd-block,html[data-theme="light"] .os-panel,
+  html[data-theme="light"] .mobile-finance-section,html[data-theme="light"] .notes-library{
+    box-shadow:0 8px 24px rgba(30,44,34,.06)!important;
+  }
+  .btn,button,[role="button"]{min-height:44px}
+  input:not([type="checkbox"]):not([type="radio"]),select,textarea{font-size:16px!important;border-radius:12px!important}
+  :where(button,a,input,select,textarea,[role="button"]):focus-visible{outline:3px solid color-mix(in srgb,var(--os-lime) 48%,transparent)!important;outline-offset:2px!important}
+
+  /* Bottom sheets remain above navigation and keep their actions reachable. */
+  .mov{z-index:100000!important}
+  .mov>.modal,.mov .modal{max-height:calc(100dvh - env(safe-area-inset-top) - 12px)!important}
+  .mov .mb{min-height:0!important;overflow-y:auto!important;-webkit-overflow-scrolling:touch!important}
+  .mov .mf{position:sticky!important;bottom:0!important;background:var(--os-surface)!important;border-top:1px solid var(--os-border)!important}
+
+  #jelix-container,.jelix-fab,.floating-action,.os-mobile-jelix{bottom:calc(var(--os-mobile-nav-h) + 12px + env(safe-area-inset-bottom))!important}
+}
+
+@media (max-width:390px){
+  :root{--mobile-gutter:14px}
+  .os-mobile-page-title{max-width:118px!important}
+  .os-mobile-icon{width:40px!important;height:40px!important}
+  .os-mbn-tab{font-size:9px!important;margin:0!important}
+  .os-mbn-add i{width:42px!important;height:42px!important}
+}
+
+@media (max-width:768px) and (orientation:landscape) and (max-height:520px){
+  :root{--os-mobile-top-h:52px;--os-mobile-nav-h:62px}
+  .os-mbn-tab{min-height:48px!important}
+  .os-mbn-tab span{display:none!important}
+  .os-mbn-add i{margin-top:0!important;width:38px!important;height:38px!important}
+}

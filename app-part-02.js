@@ -2725,8 +2725,16 @@ function setView(v){
   });
   // Sync mobile bottom-nav active state
   syncMobileNavActive(v);
-  // Scroll the active view to top
-  if(el){const vb=el.querySelector('.vb');if(vb)vb.scrollTop=0;}
+  // Mobile uses the view itself as the primary scroll owner, while some
+  // desktop views still scroll an inner body. Reset both so switching tabs
+  // never lands on a clipped or apparently blank portion of the next screen.
+  if(el){
+    el.scrollTop=0;
+    const vb=el.querySelector('.vb');
+    if(vb)vb.scrollTop=0;
+    const pageScroller=el.querySelector('.notes-page-shell,.task-page-shell,.calendar-page-shell,.review-page-shell,.mobile-finance-shell,.mobile-workspaces-shell');
+    if(pageScroller)pageScroller.scrollTop=0;
+  }
 }
 
 // ═══════════════════════════════════════════════════════════════════════════

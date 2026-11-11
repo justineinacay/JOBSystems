@@ -563,11 +563,11 @@
     var nav=document.getElementById('mobileBottomNav');
     if(nav){
       nav.innerHTML=
-        '<button class="os-mbn-tab active" id="osMbnToday" type="button" onclick="setView(\'dashboard\')"><i class="ti ti-home"></i><span>Today</span></button>'+
-        '<button class="os-mbn-tab" id="osMbnTasks" type="button" onclick="setView(\'tasks\')"><i class="ti ti-checklist"></i><span>Tasks</span></button>'+
-        '<button class="os-mbn-tab" id="osMbnCalendar" type="button" onclick="setView(\'calendar\')"><i class="ti ti-calendar"></i><span>Calendar</span></button>'+
-        '<button class="os-mbn-tab" id="osMbnMore" type="button" onclick="setView(\'worlds-settings\')"><i class="ti ti-layout-grid"></i><span>Workspaces</span></button>'+
-        '<button class="os-mbn-tab os-mbn-add" id="osMbnQuickAdd" type="button" onclick="osRefreshOpenQuickAdd()"><i class="ti ti-plus"></i><span>Add</span></button>';
+        '<button class="os-mbn-tab active" id="osMbnToday" type="button" onclick="setView(\'dashboard\')" aria-label="Today"><i class="ti ti-home"></i><span>Today</span></button>'+
+        '<button class="os-mbn-tab" id="osMbnTasks" type="button" onclick="setView(\'tasks\')" aria-label="Tasks"><i class="ti ti-checklist"></i><span>Tasks</span></button>'+
+        '<button class="os-mbn-tab os-mbn-add" id="osMbnQuickAdd" type="button" onclick="osRefreshOpenQuickAdd()" aria-label="Add item"><i class="ti ti-plus"></i><span>Add</span></button>'+
+        '<button class="os-mbn-tab" id="osMbnCalendar" type="button" onclick="setView(\'calendar\')" aria-label="Calendar"><i class="ti ti-calendar"></i><span>Calendar</span></button>'+
+        '<button class="os-mbn-tab" id="osMbnMore" type="button" onclick="setView(\'worlds-settings\')" aria-label="More tools"><i class="ti ti-layout-grid"></i><span>More</span></button>';
     }
     if(!document.querySelector('.os-mobile-jelix')){
       var jelix=document.createElement('button');
@@ -602,9 +602,15 @@
       sides:'osMbnMore',faith:'osMbnMore',life:'osMbnMore',notes:'osMbnMore',memory:'osMbnMore',
       inbox:'osMbnMore',links:'osMbnMore'
     };
-    document.querySelectorAll('.os-mbn-tab').forEach(function(tab){tab.classList.remove('active');});
+    document.querySelectorAll('.os-mbn-tab').forEach(function(tab){
+      tab.classList.remove('active');
+      tab.removeAttribute('aria-current');
+    });
     var active=document.getElementById(map[view]||'osMbnMore');
-    if(active)active.classList.add('active');
+    if(active){
+      active.classList.add('active');
+      active.setAttribute('aria-current','page');
+    }
   }
 
   function osPatchSetView(){
